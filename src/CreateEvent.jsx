@@ -4,12 +4,14 @@ import API from './api';
 
 const CreateEvent = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
   const [formData, setFormData] = useState({
     title: '',
     date: '',
     location: '',
-    category: 'Public',
+    category: 'Public', // Default to your new strict tabs
     maxCapacity: '',
     eventType: 'Volunteer',
   });
@@ -20,93 +22,97 @@ const CreateEvent = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setSaving(true);
+    setError('');
+
     try {
-      // Send the POST request to your backend
+      // Send a POST request to create a new event
       await API.post('/events', {
         ...formData,
-        maxCapacity: Number(formData.maxCapacity) // Ensure this is a number for Mongoose
+        maxCapacity: Number(formData.maxCapacity)
       });
-      
-      // Redirect back to the dashboard upon success
+
+      // Redirect back to the dashboard on success
       navigate('/');
-    } catch (error) {
-      console.error('Failed to create event:', error);
-      alert(error.response?.data?.message || 'Failed to create event. Ensure you are an Organizer.');
+    } catch (err) {
+      console.error('Failed to create event:', err);
+      setError(err.response?.data?.message || 'Failed to create event. Please try again.');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
   return (
-    <div className="min-h-screen p-8 bg-gray-50">
-      <div className="max-w-2xl p-6 mx-auto bg-white border border-gray-200 rounded-lg shadow-sm">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Create New Event</h2>
-          <button 
-            onClick={() => navigate('/')}
-            className="text-gray-500 hover:text-gray-700"
-          >
+    <div className="min-h-screen p-8 bg-gray-50 font-sans">
+      <div className="max-w-2xl p-8 mx-auto bg-white border border-gray-200 rounded-xl shadow-sm">
+        <div className="flex items-center justify-between mb-8 border-b border-gray-100 pb-4">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Create New Event</h2>
+            <p className="text-gray-500 text-sm mt-1">Publish a new activity to the CrowdGrid dashboard.</p>
+          </div>
+          <button onClick={() => navigate('/')} className="text-gray-500 hover:text-gray-800 font-medium transition-colors">
             Cancel
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {error && <div className="mb-6 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-sm">{error}</div>}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">Event Title</label>
-            <input 
-              type="text" name="title" required
-              className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-              value={formData.title} onChange={handleChange} 
+            <label className="block mb-1.5 text-sm font-bold text-gray-700">Event Title</label>
+            <input
+              type="text" name="title" required placeholder="e.g., Annual Tech Conference"
+              className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+              value={formData.title} onChange={handleChange}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">Date & Time</label>
-              <input 
+              <label className="block mb-1.5 text-sm font-bold text-gray-700">Date & Time</label>
+              <input
                 type="datetime-local" name="date" required
-                className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-                value={formData.date} onChange={handleChange} 
+                className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                value={formData.date} onChange={handleChange}
               />
             </div>
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">Max Capacity</label>
-              <input 
-                type="number" name="maxCapacity" min="1" required
-                className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-                value={formData.maxCapacity} onChange={handleChange} 
+              <label className="block mb-1.5 text-sm font-bold text-gray-700">Max Capacity</label>
+              <input
+                type="number" name="maxCapacity" min="1" required placeholder="e.g., 100"
+                className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                value={formData.maxCapacity} onChange={handleChange}
               />
             </div>
           </div>
 
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700">Location</label>
-            <input 
-              type="text" name="location" required
-              className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-              value={formData.location} onChange={handleChange} 
+            <label className="block mb-1.5 text-sm font-bold text-gray-700">Location</label>
+            <input
+              type="text" name="location" required placeholder="e.g., Main Auditorium"
+              className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+              value={formData.location} onChange={handleChange}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">Category</label>
-              <select 
+              <label className="block mb-1.5 text-sm font-bold text-gray-700">Category</label>
+              <select
                 name="category"
-                className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white"
                 value={formData.category} onChange={handleChange}
               >
                 <option value="Public">Public</option>
-                <option value="Private">Private</option>
+                <option value="Pilgrim">Pilgrim</option>
                 <option value="Corporate">Corporate</option>
               </select>
             </div>
             <div>
-              <label className="block mb-1 text-sm font-medium text-gray-700">Event Type</label>
-              <select 
+              <label className="block mb-1.5 text-sm font-bold text-gray-700">Event Type</label>
+              <select
                 name="eventType"
-                className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white"
                 value={formData.eventType} onChange={handleChange}
               >
                 <option value="Volunteer">Volunteer</option>
@@ -116,13 +122,14 @@ const CreateEvent = () => {
             </div>
           </div>
 
-          <button 
-            type="submit" 
-            disabled={loading}
-            className="w-full px-4 py-2 mt-4 text-white transition bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-blue-300"
-          >
-            {loading ? 'Publishing...' : 'Publish Event'}
-          </button>
+          <div className="pt-6 mt-6 border-t border-gray-100">
+            <button
+              type="submit" disabled={saving}
+              className="w-full px-4 py-3 text-white font-bold transition bg-blue-600 rounded-lg shadow-sm hover:bg-blue-700 disabled:bg-blue-300"
+            >
+              {saving ? 'Publishing Event...' : 'Publish Event'}
+            </button>
+          </div>
         </form>
       </div>
     </div>

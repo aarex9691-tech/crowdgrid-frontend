@@ -7,34 +7,35 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
+  useEffect(() => {
     const token = localStorage.getItem('token');
+    const storedRole = localStorage.getItem('role');
+
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        
-        // Check if the token has expired
-        if (decoded.exp * 1000 < Date.now()) {
-          localStorage.removeItem('token');
-          setUser(null);
-        } else {
-          setUser(decoded);
-        }
+        // Combine decoded JWT data with the role (if it wasn't inside the JWT)
+        setUser({ ...decoded, role: decoded.role || storedRole || 'Attendee' });
       } catch (error) {
-        console.error("Invalid token format");
+        console.error("Invalid token:", error);
         localStorage.removeItem('token');
+        localStorage.removeItem('role');
       }
     }
     setLoading(false);
   }, []);
 
-  const login = (token) => {
+  const login = (token, role) => {
     localStorage.setItem('token', token);
-    setUser(jwtDecode(token));
+    if (role) localStorage.setItem('role', role);
+
+    const decoded = jwtDecode(token);
+    setUser({ ...decoded, role: decoded.role || role || 'Attendee' });
   };
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('role');
     setUser(null);
   };
 
