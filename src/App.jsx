@@ -4,13 +4,15 @@ import CreateEvent from './CreateEvent';
 import EditEvent from './EditEvent';
 import ProtectedRoute from './ProtectedRoute';
 import Login from './Login';
+import Register from './Register';
 
 function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} /> {/* <-- New Route */}
 
-      {/* Routes for EVERY logged-in user (Attendees and Organizers) */}
+      {/* Routes for EVERY logged-in user */}
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<Dashboard />} />
       </Route>

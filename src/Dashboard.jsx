@@ -38,10 +38,20 @@ const Dashboard = () => {
     navigate('/login');
   };
 
-  // Filter events strictly based on the 3 categories (No duplicates!)
+  // Filter events strictly based on the 3 categories
   const filteredEvents = events.filter(
     (event) => event.category === activeTab || event.eventType === activeTab
   );
+
+  const handleRSVP = async (eventId) => {
+    try {
+      await API.post(`/events/${eventId}/rsvp`);
+      alert('Successfully registered/RSVP\'d for this event!');
+    } catch (err) {
+      console.error('RSVP failed:', err);
+      alert(err.response?.data?.message || 'Failed to RSVP for event.');
+    }
+  };
 
   return (
     <div className="flex min-h-screen font-sans bg-gray-50">
@@ -156,6 +166,18 @@ const Dashboard = () => {
                     {new Date(event.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
+
+                {/* Attendee RSVP Action Button */}
+                {user?.role !== 'Organizer' && (
+                  <div className="p-2 border-t border-gray-100 bg-gray-50">
+                    <button
+                      onClick={() => handleRSVP(event._id)}
+                      className="flex items-center justify-center w-full gap-1 py-2.5 text-sm font-bold text-emerald-700 transition-colors bg-emerald-50 hover:bg-emerald-100 rounded-lg"
+                    >
+                      ✓ RSVP Now
+                    </button>
+                  </div>
+                )}
 
                 {/* Organizer Controls */}
                 {user?.role === 'Organizer' && (
