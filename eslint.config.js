@@ -17,5 +17,11 @@ export default defineConfig([
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
+    rules: {
+      // Screens load their data in an effect (fetch -> setState); keep this visible but non-blocking
+      'react-hooks/set-state-in-effect': 'warn',
+      // Only affects hot reload of files that also export helpers
+      'react-refresh/only-export-components': 'warn',
+    },
   },
 ])

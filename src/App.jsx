@@ -1,29 +1,51 @@
-import { Routes, Route } from 'react-router-dom';
-import Dashboard from './Dashboard';
-import CreateEvent from './CreateEvent';
-import EditEvent from './EditEvent';
-import ProtectedRoute from './ProtectedRoute';
-import Login from './Login';
-import Register from './Register';
+import { Route, Routes } from 'react-router-dom';
+import Layout from './components/Layout';
+import RequireRole from './components/RequireRole';
+import Landing from './pages/Landing';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Hub from './pages/Hub';
+import Passbook from './pages/Passbook';
+import Corporate from './pages/Corporate';
+import Scanner from './pages/Scanner';
+import Account from './pages/Account';
+import ControlRoom from './pages/staff/ControlRoom';
+import NgoPortal from './pages/staff/NgoPortal';
 
-function App() {
+export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} /> {/* <-- New Route */}
+      <Route element={<Layout />}>
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/yatra/:slug" element={<Hub />} />
+        <Route path="/corporate/:slug" element={<Corporate />} />
 
-      {/* Routes for EVERY logged-in user */}
-      <Route element={<ProtectedRoute />}>
-        <Route path="/" element={<Dashboard />} />
-      </Route>
+        <Route element={<RequireRole />}>
+          <Route path="/passbook" element={<Passbook />} />
+          <Route path="/account" element={<Account />} />
+        </Route>
+        <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'NGO_ADMIN', 'VOLUNTEER']} />}>
+          <Route path="/scan" element={<Scanner />} />
+        </Route>
+        <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY']} />}>
+          <Route path="/control" element={<ControlRoom />} />
+        </Route>
+        <Route element={<RequireRole roles={['SUPER_ADMIN', 'NGO_ADMIN']} />}>
+          <Route path="/ngo" element={<NgoPortal />} />
+        </Route>
 
-      {/* Routes STRICTLY for Organizers */}
-      <Route element={<ProtectedRoute allowedRoles={['Organizer']} />}>
-        <Route path="/create-event" element={<CreateEvent />} />
-        <Route path="/edit-event/:id" element={<EditEvent />} />
+        <Route
+          path="*"
+          element={
+            <div className="shell py-16 text-center">
+              <h1 className="text-2xl font-bold">Page not found</h1>
+              <a href="/" className="btn-primary mt-4">Go to home</a>
+            </div>
+          }
+        />
       </Route>
     </Routes>
   );
 }
-
-export default App;

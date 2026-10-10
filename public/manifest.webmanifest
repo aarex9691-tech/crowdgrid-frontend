@@ -1,0 +1,10 @@
+{
+  "name": "CrowdGrid",
+  "short_name": "CrowdGrid",
+  "description": "Verified shelter, langar, shuttles and emergency help for pilgrims.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F3F6FA",
+  "theme_color": "#1B2A4A",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
