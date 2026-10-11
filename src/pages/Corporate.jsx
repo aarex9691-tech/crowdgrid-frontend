@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../lib/auth';
 import { Coffee, Presentation } from 'lucide-react';
 import API, { errorMessage } from '../lib/api';
 import { cachePass } from '../lib/passCache';
@@ -12,6 +13,7 @@ import useLoginGate from './hub/useLoginGate';
 export default function Corporate() {
   const { slug } = useParams();
   const gate = useLoginGate();
+  const { user } = useAuth();
   const [event, setEvent] = useState(null);
   const [params] = useSearchParams();
   const invitedCode = (params.get('code') || '').replace(/\D/g, '').slice(0, 6);
@@ -26,13 +28,11 @@ export default function Corporate() {
     API.get(`/events/${slug}`).then(({ data }) => setEvent(data)).catch((e) => setError(errorMessage(e)));
   }, [slug]);
 
-  const verify = async (e) => {
-    e.preventDefault();
-    if (!gate()) return;
+  const runVerify = async (value) => {
     setBusy(true);
     setError('');
     try {
-      const { data } = await API.post(`/events/${event._id}/corporate/verify`, { code });
+      const { data } = await API.post(`/events/${event._id}/corporate/verify`, { code: value });
       setSessions(data.sessions);
       setChosen(data.sessions.map((s) => s.code));
     } catch (err) {
@@ -41,6 +41,22 @@ export default function Corporate() {
       setBusy(false);
     }
   };
+
+  const verify = (e) => {
+    e.preventDefault();
+    if (!gate()) return;
+    runVerify(code);
+  };
+
+  // Invitation links carry the code: verify it automatically once logged in
+  const [autoTried, setAutoTried] = useState(false);
+  useEffect(() => {
+    if (event && user && invitedCode.length === 6 && !autoTried) {
+      setAutoTried(true);
+      runVerify(invitedCode);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [event, user]);
 
   const claim = async () => {
     setBusy(true);

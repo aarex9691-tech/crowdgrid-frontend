@@ -124,6 +124,60 @@ function PublicEventRow({ event, onRsvp, busy }) {
   );
 }
 
+/** Invite-only corporate events are never listed; invitees enter their code here. */
+function InvitationCodeBox() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [code, setCode] = useState('');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!user) return navigate('/login', { state: { from: '/' } });
+    setBusy(true);
+    setError('');
+    try {
+      const { data } = await API.post('/events/corporate/redeem', { code });
+      navigate(`/corporate/${data.slug}?code=${code}`);
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section aria-labelledby="invite" className="panel flex flex-col gap-4 p-5 md:flex-row md:items-center">
+      <div className="flex-1">
+        <h2 id="invite" className="flex items-center gap-2 text-xl font-bold">
+          <KeyRound size={20} aria-hidden /> Have an invitation code?
+        </h2>
+        <p className="text-ink-soft">Corporate and partner events are invite-only. Enter the 6-digit code from your invitation to claim your badge.</p>
+      </div>
+      <form onSubmit={submit} className="flex flex-col gap-2 md:w-80">
+        <div className="flex gap-2">
+          <label htmlFor="invite-code" className="sr-only">Invitation code</label>
+          <input
+            id="invite-code"
+            className="field text-center text-xl tracking-[0.3em]"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            placeholder="000000"
+            maxLength={6}
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+          />
+          <button type="submit" className="btn-ink shrink-0" disabled={busy || code.length !== 6}>
+            {busy ? 'Checking…' : 'Continue'}
+          </button>
+        </div>
+        {error && <p className="text-sm font-semibold text-kumkum" role="alert">{error}</p>}
+      </form>
+    </section>
+  );
+}
+
 export default function Landing() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -146,7 +200,6 @@ export default function Landing() {
       flagship: list.find((e) => e.kind === 'YATRA' && e.isFlagship),
       yatras: list.filter((e) => e.kind === 'YATRA' && !e.isFlagship),
       publicEvents: list.filter((e) => e.kind === 'PUBLIC'),
-      corporate: list.filter((e) => e.kind === 'CORPORATE'),
     };
   }, [events]);
 
@@ -209,26 +262,7 @@ export default function Landing() {
         </section>
       )}
 
-      {groups.corporate.length > 0 && (
-        <section aria-labelledby="corporate">
-          <h2 id="corporate" className="text-2xl font-bold">Invitations</h2>
-          <p className="text-ink-soft">Corporate and partner events. You need the access code from your invitation.</p>
-          <ul className="mt-4 grid gap-4 sm:grid-cols-2">
-            {groups.corporate.map((e) => (
-              <li key={e._id} className="panel p-5">
-                <p className="text-ink-soft">{e.companyName}</p>
-                <h3 className="text-lg font-bold">{e.title}</h3>
-                <p className="text-[15px] text-ink-soft">
-                  {e.venue} · {fmtDateTime(e.startDate)}
-                </p>
-                <Link to={`/corporate/${e.slug}`} className="btn-ghost mt-4">
-                  <KeyRound size={18} aria-hidden /> Enter access code
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <InvitationCodeBox />
     </div>
   );
 }

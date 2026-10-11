@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Coffee, Copy, Mail, MessageCircle, Plus, Presentation, Printer, RefreshCw, Trash2, Users, X } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
-import { fmtDate, fmtDateTime, fmtTime, todayIST } from '../../lib/format';
+import { addDaysIST, fmtDate, fmtDateTime, fmtTime, todayIST } from '../../lib/format';
 import Notice, { Loading } from '../../components/Notice';
 import QrCode from '../../components/QrCode';
 
@@ -162,7 +162,7 @@ function AttendeeList({ event }) {
   );
 }
 
-function EventCard({ event, onChanged, highlight }) {
+function EventCard({ event, onChanged, highlight, ended }) {
   const [copied, copy] = useCopy();
   const [open, setOpen] = useState(highlight ? 'invite' : null);
   const [error, setError] = useState('');
@@ -198,8 +198,10 @@ function EventCard({ event, onChanged, highlight }) {
               <Users size={14} aria-hidden /> {event.badgesClaimed} badge{event.badgesClaimed === 1 ? '' : 's'} claimed
             </span>
             <span className={event.checkedIn ? 'pill-ok' : 'pill-quiet'}>{event.checkedIn} checked in</span>
+            {ended && <span className="pill-out">Ended</span>}
           </div>
         </div>
+        {!ended && (
         <div className="rounded-2xl bg-mist p-4 md:min-w-56">
           <p className="text-sm text-ink-soft">Access code</p>
           <p className="text-3xl font-extrabold tracking-widest tabular-nums">{spacedCode(event.accessCode)}</p>
@@ -212,12 +214,15 @@ function EventCard({ event, onChanged, highlight }) {
             </button>
           </div>
         </div>
+        )}
       </div>
       <Notice tone="error">{error}</Notice>
       <div className="flex flex-wrap gap-2">
-        <button type="button" className={open === 'invite' ? 'btn-ink' : 'btn-ghost'} aria-expanded={open === 'invite'} onClick={() => toggle('invite')}>
-          Invite attendees
-        </button>
+        {!ended && (
+          <button type="button" className={open === 'invite' ? 'btn-ink' : 'btn-ghost'} aria-expanded={open === 'invite'} onClick={() => toggle('invite')}>
+            Invite attendees
+          </button>
+        )}
         <button type="button" className={open === 'people' ? 'btn-ink' : 'btn-ghost'} aria-expanded={open === 'people'} onClick={() => toggle('people')}>
           Attendees ({event.badgesClaimed})
         </button>
@@ -236,7 +241,7 @@ function CreateEventForm({ onCreated, onCancel }) {
     companyName: '',
     venue: '',
     city: 'Nashik',
-    date: todayIST(),
+    date: addDaysIST(todayIST(), 1),
     start: '10:00',
     end: '17:00',
     description: '',
@@ -360,6 +365,8 @@ export default function CorporateAdmin() {
   const [error, setError] = useState('');
   const [creating, setCreating] = useState(false);
   const [justCreated, setJustCreated] = useState(null);
+  const [showPast, setShowPast] = useState(false);
+  const [now] = useState(() => Date.now());
 
   const load = useCallback(() => {
     API.get('/events/corporate/mine')
@@ -405,11 +412,40 @@ export default function CorporateAdmin() {
       ) : events.length === 0 ? (
         <Notice>You have no corporate events yet. Create one to get an access code.</Notice>
       ) : (
-        <ul className="space-y-4">
-          {events.map((e) => (
-            <EventCard key={e._id} event={e} onChanged={load} highlight={e._id === justCreated} />
-          ))}
-        </ul>
+        <>
+          {(() => {
+            const upcoming = events.filter((e) => new Date(e.endDate).getTime() >= now);
+            const past = events.filter((e) => new Date(e.endDate).getTime() < now).reverse();
+            return (
+              <>
+                <h2 className="text-xl font-bold">Upcoming ({upcoming.length})</h2>
+                {upcoming.length === 0 ? (
+                  <Notice>No upcoming events. Create one to get an access code.</Notice>
+                ) : (
+                  <ul className="space-y-4">
+                    {upcoming.map((e) => (
+                      <EventCard key={e._id} event={e} onChanged={load} highlight={e._id === justCreated} />
+                    ))}
+                  </ul>
+                )}
+                {past.length > 0 && (
+                  <section className="space-y-4">
+                    <button type="button" className="btn-ghost" aria-expanded={showPast} onClick={() => setShowPast(!showPast)}>
+                      {showPast ? 'Hide' : 'Show'} past events ({past.length})
+                    </button>
+                    {showPast && (
+                      <ul className="space-y-4">
+                        {past.map((e) => (
+                          <EventCard key={e._id} event={e} onChanged={load} ended />
+                        ))}
+                      </ul>
+                    )}
+                  </section>
+                )}
+              </>
+            );
+          })()}
+        </>
       )}
     </div>
   );
