@@ -19,6 +19,10 @@ export default function Register() {
       setError('Enter a valid 10-digit mobile number');
       return;
     }
+    if (form.password.length < 8 || !/[A-Za-z]/.test(form.password) || !/\d/.test(form.password)) {
+      setError('Password must be at least 8 characters and include a letter and a number');
+      return;
+    }
     setBusy(true);
     try {
       await register(form);
@@ -48,8 +52,8 @@ export default function Register() {
         </div>
         <div>
           <label htmlFor="password" className="field-label">Password</label>
-          <input id="password" type="password" className="field" autoComplete="new-password" minLength={6} value={form.password} onChange={set('password')} required />
-          <p className="mt-1 text-sm text-ink-soft">At least 6 characters.</p>
+          <input id="password" type="password" className="field" autoComplete="new-password" minLength={8} value={form.password} onChange={set('password')} required />
+          <p className="mt-1 text-sm text-ink-soft">At least 8 characters, with a letter and a number.</p>
         </div>
         <button type="submit" className="btn-primary w-full text-lg" disabled={busy}>
           {busy ? 'Creating account…' : 'Create account'}

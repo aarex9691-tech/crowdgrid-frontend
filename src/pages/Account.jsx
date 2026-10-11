@@ -112,6 +112,32 @@ function RegisterOrganisation({ onDone }) {
   );
 }
 
+function SecurityPanel() {
+  const { logout } = useAuth();
+  const [state, setState] = useState({ busy: false, error: '' });
+  const logoutAll = async () => {
+    if (!window.confirm('Log out of every device, including this one?')) return;
+    setState({ busy: true, error: '' });
+    try {
+      await API.post('/auth/logout-all');
+      logout();
+      window.location.assign('/login');
+    } catch (e) {
+      setState({ busy: false, error: errorMessage(e) });
+    }
+  };
+  return (
+    <section className="panel space-y-3 p-5">
+      <h2 className="text-2xl font-bold">Security</h2>
+      <p className="text-ink-soft">Lost your phone, or logged in on someone else's? This signs you out everywhere at once.</p>
+      <Notice tone="error">{state.error}</Notice>
+      <button type="button" className="btn-ghost" onClick={logoutAll} disabled={state.busy}>
+        {state.busy ? 'Logging out…' : 'Log out of all devices'}
+      </button>
+    </section>
+  );
+}
+
 export default function Account() {
   const { user } = useAuth();
   const [orgs, setOrgs] = useState([]);
@@ -153,6 +179,8 @@ export default function Account() {
           <button type="button" className="btn-ghost" onClick={() => setShowForm(true)}>Register an NGO or seva trust</button>
         )
       )}
+
+      <SecurityPanel />
     </div>
   );
 }

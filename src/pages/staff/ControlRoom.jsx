@@ -136,6 +136,44 @@ function ProviderQueue({ onChange }) {
   );
 }
 
+function RecentActivity() {
+  const [items, setItems] = useState([]);
+  const [error, setError] = useState('');
+  const load = useCallback(() => {
+    API.get('/admin/audit', { params: { limit: 25 } })
+      .then(({ data }) => setItems(data))
+      .catch((e) => setError(errorMessage(e)));
+  }, []);
+  useEffect(() => {
+    load();
+    const t = setInterval(load, 15000);
+    return () => clearInterval(t);
+  }, [load]);
+
+  return (
+    <section aria-labelledby="audit" className="space-y-3">
+      <h2 id="audit" className="text-2xl font-bold">Recent activity</h2>
+      <p className="text-sm text-ink-soft">Audit trail of approvals, scans and other sensitive actions. Entries can't be edited.</p>
+      <Notice tone="error">{error}</Notice>
+      {items.length === 0 ? (
+        <Notice>No activity recorded yet.</Notice>
+      ) : (
+        <ul className="divide-y divide-line rounded-2xl border border-line bg-white">
+          {items.map((a) => (
+            <li key={a._id} className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:gap-4">
+              <span className="w-36 shrink-0 text-sm text-ink-soft">{fmtDateTime(a.createdAt)}</span>
+              <span className="flex-1">{a.summary}</span>
+              <span className={a.action.includes('REJECTED') || a.action.includes('LOCKED') ? 'pill-out' : 'pill-quiet'}>
+                {a.action.toLowerCase().replace(/_/g, ' ')}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
 export default function ControlRoom() {
   const { user } = useAuth();
   const [events, setEvents] = useState([]);
@@ -225,6 +263,7 @@ export default function ControlRoom() {
       {eventId && <SosQueue eventId={eventId} />}
       <ProviderQueue onChange={load} />
       <VolunteerReview />
+      <RecentActivity />
     </div>
   );
 }
