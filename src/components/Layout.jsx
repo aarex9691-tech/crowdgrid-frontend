@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LogOut, ScanLine, ShieldCheck, Tent, Ticket, UserRound } from 'lucide-react';
+import { Briefcase, LogOut, ScanLine, ShieldCheck, Tent, Ticket, UserRound } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ROLE_LABELS, useAuth } from '../lib/auth';
 
@@ -9,7 +9,7 @@ const workspaceFor = (role) =>
     AUTHORITY: { to: '/control', label: 'Control room', icon: ShieldCheck },
     NGO_ADMIN: { to: '/ngo', label: 'My camps', icon: Tent },
     VOLUNTEER: { to: '/scan', label: 'Scanner', icon: ScanLine },
-    CORPORATE_ADMIN: { to: '/scan', label: 'Scanner', icon: ScanLine },
+    CORPORATE_ADMIN: { to: '/corporate-admin', label: 'My events', icon: Briefcase },
   })[role];
 
 function useOnline() {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { Coffee, Presentation } from 'lucide-react';
 import API, { errorMessage } from '../lib/api';
 import { cachePass } from '../lib/passCache';
@@ -13,7 +13,9 @@ export default function Corporate() {
   const { slug } = useParams();
   const gate = useLoginGate();
   const [event, setEvent] = useState(null);
-  const [code, setCode] = useState('');
+  const [params] = useSearchParams();
+  const invitedCode = (params.get('code') || '').replace(/\D/g, '').slice(0, 6);
+  const [code, setCode] = useState(invitedCode);
   const [sessions, setSessions] = useState(null);
   const [chosen, setChosen] = useState([]);
   const [badge, setBadge] = useState(null);
@@ -74,6 +76,7 @@ export default function Corporate() {
       ) : !sessions ? (
         <form onSubmit={verify} className="panel space-y-4 p-6">
           <label htmlFor="code" className="field-label">6-digit access code from your invitation</label>
+          {invitedCode && <p className="text-sm text-tulsi">Filled in from your invitation link. Tap Verify code to continue.</p>}
           <input
             id="code"
             className="field text-center text-2xl tracking-[0.4em]"

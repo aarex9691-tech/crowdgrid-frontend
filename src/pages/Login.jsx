@@ -56,7 +56,7 @@ export default function Login() {
           {busy ? 'Logging in…' : 'Log in'}
         </button>
         <p className="text-center text-ink-soft">
-          New here? <Link to="/register" className="font-semibold text-ink underline">Create an account</Link>
+          New here? <Link to="/register" state={location.state} className="font-semibold text-ink underline">Create an account</Link>
         </p>
       </form>
     </div>

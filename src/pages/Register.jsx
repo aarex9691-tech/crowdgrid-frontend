@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { errorMessage } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import Notice from '../components/Notice';
@@ -7,6 +7,7 @@ import Notice from '../components/Notice';
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [form, setForm] = useState({ name: '', phone: '', password: '' });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -26,7 +27,8 @@ export default function Register() {
     setBusy(true);
     try {
       await register(form);
-      navigate('/', { replace: true });
+      // Return to where the visitor came from (e.g. an invitation link)
+      navigate(location.state?.from || '/', { replace: true });
     } catch (err) {
       setError(errorMessage(err));
     } finally {
@@ -62,7 +64,7 @@ export default function Register() {
           Running a camp or kitchen? Create an account first, then register your organisation from your profile.
         </p>
         <p className="text-center text-ink-soft">
-          Already registered? <Link to="/login" className="font-semibold text-ink underline">Log in</Link>
+          Already registered? <Link to="/login" state={location.state} className="font-semibold text-ink underline">Log in</Link>
         </p>
       </form>
     </div>

@@ -11,6 +11,7 @@ import Scanner from './pages/Scanner';
 import Account from './pages/Account';
 import ControlRoom from './pages/staff/ControlRoom';
 import NgoPortal from './pages/staff/NgoPortal';
+import CorporateAdmin from './pages/staff/CorporateAdmin';
 
 export default function App() {
   return (
@@ -31,6 +32,9 @@ export default function App() {
         </Route>
         <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY']} />}>
           <Route path="/control" element={<ControlRoom />} />
+        </Route>
+        <Route element={<RequireRole roles={['SUPER_ADMIN', 'CORPORATE_ADMIN']} />}>
+          <Route path="/corporate-admin" element={<CorporateAdmin />} />
         </Route>
         <Route element={<RequireRole roles={['SUPER_ADMIN', 'NGO_ADMIN']} />}>
           <Route path="/ngo" element={<NgoPortal />} />

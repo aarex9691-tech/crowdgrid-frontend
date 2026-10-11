@@ -63,3 +63,10 @@
     radial-gradient(circle at 12px 0, var(--color-marigold) 10px, transparent 11px) 0 0 / 24px 16px repeat-x,
     radial-gradient(circle at 0 0, #e8590c 4px, transparent 5px) 0 0 / 24px 16px repeat-x;
 }
+
+/* Printing an invitation card: print only the card */
+@media print {
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; }
+  .print-area { position: absolute; inset: 0 auto auto 0; width: 100%; }
+}
