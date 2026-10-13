@@ -1,3 +1,4 @@
+import { formatPhone } from '../../lib/phone';
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, RefreshCw } from 'lucide-react';
@@ -61,7 +62,7 @@ function SosQueue({ eventId }) {
                 <span className="text-sm text-ink-soft">{fmtDateTime(i.updatedAt)}</span>
               </div>
               <p className="mt-1">
-                {i.userId?.name} · <a className="font-semibold underline" href={`tel:${i.userId?.phone}`}>{i.userId?.phone}</a>
+                {i.userId?.name} · <a className="font-semibold underline" href={`tel:+${i.userId?.countryCode || '91'}${i.userId?.phone}`}>{formatPhone(i.userId?.countryCode, i.userId?.phone)}</a>
               </p>
               {i.message && <p className="text-ink-soft">"{i.message}"</p>}
               {i.location?.lat ? (
@@ -121,7 +122,7 @@ function ProviderQueue({ onChange }) {
                 <p className="text-ink-soft">
                   {p.type} · Reg. no. {p.registrationNumber || 'not given'} · {p.eventId?.title}
                 </p>
-                <p className="text-[15px]">Applicant: {p.adminUserId?.name} ({p.adminUserId?.phone})</p>
+                <p className="text-[15px]">Applicant: {p.adminUserId?.name} ({formatPhone(p.adminUserId?.countryCode, p.adminUserId?.phone)})</p>
                 {p.description && <p className="text-[15px] text-ink-soft">{p.description}</p>}
               </div>
               <div className="flex gap-2">

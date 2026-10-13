@@ -3,12 +3,15 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { errorMessage } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import Notice from '../components/Notice';
+import PhoneField from '../components/PhoneField';
+import { phoneError } from '../lib/phone';
 
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [form, setForm] = useState({ name: '', phone: '', password: '' });
+  const [form, setForm] = useState({ name: '', countryCode: '91', phone: '', password: '' });
+  const [phoneTouched, setPhoneTouched] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
@@ -16,8 +19,10 @@ export default function Register() {
   const submit = async (e) => {
     e.preventDefault();
     setError('');
-    if (!/^[6-9]\d{9}$/.test(form.phone.replace(/\D/g, '').slice(-10))) {
-      setError('Enter a valid 10-digit mobile number');
+    const pErr = phoneError(form.countryCode, form.phone);
+    if (pErr) {
+      setPhoneTouched(true);
+      setError(pErr);
       return;
     }
     if (form.password.length < 8 || !/[A-Za-z]/.test(form.password) || !/\d/.test(form.password)) {
@@ -26,7 +31,7 @@ export default function Register() {
     }
     setBusy(true);
     try {
-      await register(form);
+      await register({ ...form, phone: form.phone.replace(/\D/g, '') });
       // Return to where the visitor came from (e.g. an invitation link)
       navigate(location.state?.from || '/', { replace: true });
     } catch (err) {
@@ -48,10 +53,13 @@ export default function Register() {
           <label htmlFor="name" className="field-label">Full name</label>
           <input id="name" className="field" autoComplete="name" value={form.name} onChange={set('name')} required />
         </div>
-        <div>
-          <label htmlFor="phone" className="field-label">Mobile number</label>
-          <input id="phone" className="field" inputMode="tel" autoComplete="tel" placeholder="10-digit mobile number" value={form.phone} onChange={set('phone')} required />
-        </div>
+        <PhoneField
+          countryCode={form.countryCode}
+          phone={form.phone}
+          touched={phoneTouched}
+          onBlur={() => setPhoneTouched(true)}
+          onChange={(v) => setForm({ ...form, ...v })}
+        />
         <div>
           <label htmlFor="password" className="field-label">Password</label>
           <input id="password" type="password" className="field" autoComplete="new-password" minLength={8} value={form.password} onChange={set('password')} required />

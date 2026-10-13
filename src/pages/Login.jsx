@@ -3,12 +3,14 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { errorMessage } from '../lib/api';
 import { homeFor, useAuth } from '../lib/auth';
 import Notice from '../components/Notice';
+import { COUNTRIES } from '../lib/phone';
 
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [identifier, setIdentifier] = useState('');
+  const [countryCode, setCountryCode] = useState('91');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -18,7 +20,7 @@ export default function Login() {
     setError('');
     setBusy(true);
     try {
-      const user = await login(identifier, password);
+      const user = await login(identifier, password, countryCode);
       navigate(location.state?.from || homeFor(user.role), { replace: true });
     } catch (err) {
       setError(errorMessage(err));
@@ -37,16 +39,25 @@ export default function Login() {
         <Notice tone="error">{error}</Notice>
         <div>
           <label htmlFor="identifier" className="field-label">Mobile number</label>
-          <input
-            id="identifier"
-            className="field"
-            inputMode="tel"
-            autoComplete="username"
-            placeholder="10-digit mobile number"
-            value={identifier}
-            onChange={(e) => setIdentifier(e.target.value)}
-            required
-          />
+          <div className="flex gap-2">
+            <label htmlFor="login-cc" className="sr-only">Country code</label>
+            <select id="login-cc" className="field w-36 shrink-0" value={countryCode} onChange={(e) => setCountryCode(e.target.value)}>
+              {COUNTRIES.map((c) => (
+                <option key={c.code} value={c.code}>+{c.code} {c.name}</option>
+              ))}
+            </select>
+            <input
+              id="identifier"
+              className="field"
+              inputMode="tel"
+              autoComplete="username"
+              placeholder="Mobile number"
+              maxLength={20}
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              required
+            />
+          </div>
         </div>
         <div>
           <label htmlFor="password" className="field-label">Password</label>

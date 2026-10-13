@@ -1,3 +1,4 @@
+import { formatPhone } from '../lib/phone';
 import { useEffect, useState } from 'react';
 import API, { errorMessage } from '../lib/api';
 import { ROLE_LABELS, useAuth } from '../lib/auth';
@@ -151,7 +152,7 @@ export default function Account() {
     <div className="shell max-w-3xl space-y-8 py-6">
       <div className="panel p-5">
         <h1 className="text-3xl font-bold">{user.name}</h1>
-        <p className="text-ink-soft">{user.phone}</p>
+        <p className="text-ink-soft">{formatPhone(user.countryCode, user.phone)}</p>
         <span className="pill-quiet mt-2">{ROLE_LABELS[user.role]}</span>
       </div>
 

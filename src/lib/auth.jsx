@@ -64,8 +64,8 @@ export function AuthProvider({ children }) {
   const value = useMemo(
     () => ({
       user,
-      async login(identifier, password) {
-        const { data } = await API.post('/auth/login', { identifier, password });
+      async login(identifier, password, countryCode = '91') {
+        const { data } = await API.post('/auth/login', { identifier, password, countryCode });
         save(data.token, data.user);
         return data.user;
       },
