@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Briefcase, LogOut, Menu, ScanLine, ShieldCheck, ShoppingCart, Tent, UserRound, X } from 'lucide-react';
+import { Briefcase, LogOut, Menu, MessageCircle, ScanLine, ShieldCheck, ShoppingCart, Tent, UserRound, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ROLE_LABELS, useAuth } from '../lib/auth';
 import { useCart } from '../lib/cart';
@@ -167,6 +167,17 @@ export default function Layout() {
         <Outlet />
       </main>
 
+      <a
+        href={`https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent('Hi, I need help with CrowdGrid.')}`}
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Chat with us on WhatsApp"
+        title="Chat with us on WhatsApp"
+        className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-black/20 hover:brightness-105"
+      >
+        <MessageCircle size={28} aria-hidden />
+      </a>
+
       <footer className="border-t border-line bg-white text-ink-soft">
         <div className="shell grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
@@ -191,6 +202,8 @@ export default function Layout() {
               <li><Link className="hover:text-ink" to="/about">About CrowdGrid</Link></li>
               <li><Link className="hover:text-ink" to="/about#done">What we have done</Link></li>
               <li><Link className="hover:text-ink" to="/about#contact">Contact the owner</Link></li>
+              <li><a className="hover:text-ink" href={`tel:${SITE.phone.replace(/[^\d+]/g, '')}`}>{SITE.phone}</a></li>
+              <li><a className="hover:text-ink" href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
               <li><a className="hover:text-ink" href={SITE.github[0].url} target="_blank" rel="noreferrer">Source code on GitHub</a></li>
             </ul>
           </div>

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BedDouble, BusFront, HandHeart, MapPin, Siren, UtensilsCrossed, Users } from 'lucide-react';
+import { ArrowRight, BedDouble, Briefcase, BusFront, CalendarCheck, CreditCard, HandHeart, MapPin, QrCode, ScanLine, Siren, Ticket, UtensilsCrossed, Users } from 'lucide-react';
+import { SITE } from '../lib/site';
 import API, { errorMessage } from '../lib/api';
 import { compactNumber, fmtDate } from '../lib/format';
 import Notice, { Loading } from '../components/Notice';
@@ -102,6 +103,99 @@ function Hero({ event }) {
   );
 }
 
+const STEPS = [
+  { icon: CalendarCheck, title: 'Choose', text: 'A camp, a meal, a bus or a seva slot' },
+  { icon: CreditCard, title: 'Book or pay', text: 'Free seva instantly; paid camps by UPI or card' },
+  { icon: QrCode, title: 'One QR', text: 'Every pass lives in one personal QR' },
+  { icon: ScanLine, title: 'Scan & go', text: 'Volunteers scan once at the gate' },
+];
+
+function HowItWorks() {
+  return (
+    <section aria-labelledby="how" className="panel p-6">
+      <h2 id="how" className="text-2xl font-bold">How it works</h2>
+      <ol className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {STEPS.map((s, i) => (
+          <li key={s.title} className="flex gap-3">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-marigold-wash text-ink">
+              <s.icon size={24} aria-hidden />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-ink-faint">Step {i + 1}</p>
+              <p className="text-lg font-bold">{s.title}</p>
+              <p className="text-[15px] text-ink-soft">{s.text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+const flag = `/yatra/${SITE.flagshipSlug}`;
+// Dark, tinted tiles: one per thing a visitor can plan (numbered like a menu)
+const TILES = [
+  { to: `${flag}?tab=lodging`, icon: BedDouble, title: 'Stays & Tents', text: 'Verified camps, dharamshalas and family tents with your tent and bed number.', tint: '#16234a' },
+  { to: `${flag}?tab=food`, icon: UtensilsCrossed, title: 'Annadanam', text: "Today's menu at every kitchen and one token for the whole family.", tint: '#3a1a08' },
+  { to: `${flag}?tab=transit`, icon: BusFront, title: 'Shuttles & Buses', text: 'E-rickshaws and feeder buses with stops, water points and a day pass.', tint: '#0b2e22' },
+  { to: `${flag}?tab=seva`, icon: HandHeart, title: 'Seva & Volunteering', text: 'Serve with a verified trust and get your volunteer ID badge.', tint: '#2a1238' },
+  { to: '/events?tab=public', icon: Ticket, title: 'Public Events', text: 'Ghat clean-ups, heritage walks and aartis. RSVP for a free entry pass.', tint: '#0f2b3a' },
+  { to: '/events?tab=corporate', icon: Briefcase, title: 'Corporate Events', text: 'Invite-only summits with access codes, sessions and digital badges.', tint: '#3a1410' },
+  { to: `${flag}?tab=sos`, icon: Siren, title: 'SOS & Lost and Found', text: 'One-tap emergency alert and help to find family members.', tint: '#3b0c16' },
+  { to: '/passbook', icon: QrCode, title: 'My Passbook', text: 'All your passes in one QR, even without network at the ghats.', tint: '#1f2a12' },
+];
+
+function PlanTiles() {
+  return (
+    <section aria-labelledby="plan" className="rounded-3xl bg-[#0e1426] p-4 sm:p-6">
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-2 px-2 text-white">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-widest text-marigold">Plan your yatra</p>
+          <h2 id="plan" className="text-2xl font-bold sm:text-3xl">Everything for the mela, in one place</h2>
+        </div>
+      </div>
+      <ul className="grid gap-1 sm:grid-cols-2 lg:grid-cols-4">
+        {TILES.map((t, i) => (
+          <li key={t.title}>
+            <Link
+              to={t.to}
+              className="group relative flex h-full min-h-56 flex-col justify-end overflow-hidden rounded-xl p-5 text-white outline-offset-2 transition hover:brightness-125"
+              style={{ background: `linear-gradient(180deg, ${t.tint} 0%, #0b0f1c 100%)` }}
+            >
+              <t.icon aria-hidden className="absolute right-4 top-6 h-24 w-24 text-white/10 transition group-hover:text-white/20" strokeWidth={1.2} />
+              <span className="mb-2 w-fit rounded-md bg-marigold px-2 text-xs font-bold tracking-widest text-ink">{String(i + 1).padStart(2, '0')}</span>
+              <span className="text-xl font-bold leading-tight">{t.title}</span>
+              <span className="mt-1 text-[15px] leading-snug text-[#c9d1e3]">{t.text}</span>
+              <span className="mt-3 flex items-center gap-1 text-sm font-semibold text-marigold opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
+                Open <ArrowRight size={16} aria-hidden />
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Floating "Plan your yatra" button that appears once the hero is scrolled past. */
+function FloatingCta() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > 520);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  if (!show) return null;
+  return (
+    <Link
+      to={flag}
+      className="fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full bg-gradient-to-r from-marigold to-[#ff7a1a] px-6 py-3 font-bold text-ink shadow-lg shadow-black/20 hover:brightness-105"
+    >
+      <CalendarCheck size={20} aria-hidden /> Plan your yatra
+    </Link>
+  );
+}
+
 export default function Landing() {
   const [events, setEvents] = useState(null);
   const [error, setError] = useState('');
@@ -130,6 +224,8 @@ export default function Landing() {
     <div className="shell space-y-12 py-6">
       {groups.flagship && <Hero event={groups.flagship} />}
 
+      <HowItWorks />
+
       {groups.yatras.length > 0 && (
         <section aria-labelledby="yatras">
           <div className="flex items-end justify-between gap-3">
@@ -151,6 +247,9 @@ export default function Landing() {
       )}
 
       <InvitationCodeBox from="/" />
+
+      <PlanTiles />
+      <FloatingCta />
     </div>
   );
 }
