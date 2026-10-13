@@ -8,6 +8,24 @@ import Notice from '../components/Notice';
 
 const READER_ID = 'qr-reader';
 
+// Where this scanner is standing: decides which pass a personal QR redeems
+const SERVICES = [
+  { id: 'ANY', label: 'Any' },
+  { id: 'FOOD', label: 'Food counter' },
+  { id: 'LODGING', label: 'Camp gate' },
+  { id: 'TRANSIT', label: 'Bus gate' },
+  { id: 'ENTRY', label: 'Event entry' },
+  { id: 'VOLUNTEER', label: 'Volunteer ID' },
+];
+const SERVICE_KEY = 'cg_scan_service';
+const savedService = () => {
+  try {
+    return localStorage.getItem(SERVICE_KEY) || 'ANY';
+  } catch {
+    return 'ANY';
+  }
+};
+
 /**
  * Ground volunteer scanner (screen 9 / FR-12). Uses the phone camera in the
  * browser; no app install. Every decision is made by the server, which checks
@@ -22,19 +40,31 @@ export default function Scanner() {
   const [error, setError] = useState('');
   const [manual, setManual] = useState('');
   const [log, setLog] = useState([]);
+  const [service, setService] = useState(savedService);
+  const serviceRef = useRef(service);
+  const chooseService = (id) => {
+    setService(id);
+    serviceRef.current = id;
+    try {
+      localStorage.setItem(SERVICE_KEY, id);
+    } catch {
+      /* ignore */
+    }
+  };
 
-  const check = useCallback(async (qr) => {
+  const check = useCallback(async (qr, passId) => {
     if (busyRef.current) return;
     // Ignore the same code read repeatedly while it is still in front of the camera
-    if (lastRef.current.text === qr && Date.now() - lastRef.current.at < 4000) return;
+    if (!passId && lastRef.current.text === qr && Date.now() - lastRef.current.at < 4000) return;
     lastRef.current = { text: qr, at: Date.now() };
     busyRef.current = true;
     setError('');
     const started = performance.now();
     try {
-      const { data } = await API.post('/passes/scan', { qr });
+      const { data } = await API.post('/passes/scan', { qr, service: serviceRef.current, passId });
       const ms = Math.round(performance.now() - started);
-      setResult({ ...data, ms });
+      setResult({ ...data, ms, qr });
+      if (data.result === 'CHOOSE') return;
       setLog((l) => [{ ...data, at: new Date() }, ...l].slice(0, 8));
       if (navigator.vibrate) navigator.vibrate(data.result === 'VALID' ? 80 : [60, 60, 60]);
     } catch (e) {
@@ -73,6 +103,7 @@ export default function Scanner() {
   useEffect(() => () => { stop(); }, []);
 
   const valid = result?.result === 'VALID';
+  const choosing = result?.result === 'CHOOSE';
 
   return (
     <div className="shell max-w-xl space-y-5 py-6">
@@ -81,7 +112,43 @@ export default function Scanner() {
         <p className="text-ink-soft">Point the camera at a pilgrim's QR. Green means let them in.</p>
       </div>
 
-      {result && (
+      <div className="panel p-4">
+        <p id="svc-label" className="field-label">Scanning at</p>
+        <div className="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="svc-label">
+          {SERVICES.map((x) => (
+            <button
+              key={x.id}
+              type="button"
+              role="radio"
+              aria-checked={service === x.id}
+              onClick={() => chooseService(x.id)}
+              className={service === x.id ? 'btn-ink min-h-10 px-3' : 'btn-ghost min-h-10 px-3'}
+            >
+              {x.label}
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 text-sm text-ink-soft">For a pilgrim's personal QR, this decides which pass is used.</p>
+      </div>
+
+      {choosing && (
+        <div role="status" aria-live="assertive" className="rounded-3xl bg-marigold-wash p-5">
+          <p className="text-xl font-bold">{result.message}</p>
+          {result.holder && <p>Holder: {result.holder.name} ({result.holder.phone})</p>}
+          <ul className="mt-3 space-y-2">
+            {result.options.map((o) => (
+              <li key={o._id}>
+                <button type="button" className="btn-ink w-full justify-start text-left" onClick={() => check(result.qr, o._id)}>
+                  {PASS_META[o.type]?.label}: {o.title}
+                  {o.details?.location ? ` · ${o.details.location}` : ''}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {result && !choosing && (
         <div
           role="status"
           aria-live="assertive"
@@ -94,6 +161,7 @@ export default function Scanner() {
               {!valid && <p className="text-lg font-semibold">{result.message}</p>}
             </div>
           </div>
+          {!result.pass && result.holder && <p className="mt-3">Holder: {result.holder.name} ({result.holder.phone})</p>}
           {result.pass && (
             <div className="mt-4 rounded-2xl bg-white/15 p-4">
               <p className="text-sm opacity-90">{PASS_META[result.pass.type]?.label}</p>

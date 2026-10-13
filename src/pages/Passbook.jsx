@@ -5,6 +5,8 @@ import { loadPasses, savePasses } from '../lib/passCache';
 import { fmtDateTime } from '../lib/format';
 import Notice, { Loading } from '../components/Notice';
 import PassCard, { PASS_META } from '../components/PassCard';
+import MyQrCard from '../components/MyQrCard';
+import { useAuth } from '../lib/auth';
 
 /**
  * My Yatra Passbook (FR-11). Loads passes from the API and caches them; with no
@@ -18,6 +20,8 @@ export default function Passbook() {
   const [filter, setFilter] = useState('ALL');
   const [showPast, setShowPast] = useState(false);
   const [now] = useState(() => Date.now());
+  const [showEach, setShowEach] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     API.get('/passes/mine')
@@ -53,6 +57,7 @@ export default function Passbook() {
         <h1 className="text-3xl font-bold">My Yatra Passbook</h1>
         <p className="text-ink-soft">All your passes in one place. They stay on this phone, so they open even without network.</p>
       </div>
+      {user && <MyQrCard name={user.name} activeCount={withState.filter((p) => p.state === 'ACTIVE').length} />}
       {offlineSince && <Notice>Showing passes saved on {fmtDateTime(offlineSince)}. You're offline, but these QR codes still work at the gate.</Notice>}
 
       {usable.length === 0 ? (
@@ -75,8 +80,14 @@ export default function Passbook() {
               ))}
             </div>
           )}
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-xl font-bold">Your passes</h2>
+            <button type="button" className="btn-ghost min-h-10" aria-pressed={showEach} onClick={() => setShowEach(!showEach)}>
+              {showEach ? 'Hide individual QR codes' : 'Show individual QR codes (backup)'}
+            </button>
+          </div>
           <ul className="grid gap-5 md:grid-cols-2">
-            {shown.map((p) => <li key={p._id}><PassCard pass={p} /></li>)}
+            {shown.map((p) => <li key={p._id}><PassCard pass={p} expanded={showEach} /></li>)}
           </ul>
         </>
       )}
