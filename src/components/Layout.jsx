@@ -1,8 +1,9 @@
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Briefcase, CalendarPlus, LogOut, Menu, MessageCircle, ScanLine, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ROLE_LABELS, useAuth } from '../lib/auth';
 import { useCart } from '../lib/cart';
+import { useConfirm } from '../lib/confirm';
 import { SITE } from '../lib/site';
 
 /**
@@ -38,6 +39,31 @@ const navFor = (role) => {
   }
 };
 
+const TITLES = [
+  [/^\/$/, ''], [/^\/login/, 'Log in'], [/^\/register/, 'Create account'], [/^\/events/, 'Events'], [/^\/event\//, 'Event'],
+  [/^\/about/, 'About'], [/^\/yatra\//, 'Yatra services'], [/^\/corporate\//, 'Campus & Corporate event'], [/^\/passbook/, 'My Passbook'],
+  [/^\/account/, 'My account'], [/^\/checkout/, 'Checkout'], [/^\/scan/, 'Scanner'], [/^\/control/, 'Control room'],
+  [/^\/corporate-admin/, 'Campus & Corporate events'], [/^\/camps\/.+\/map/, 'Tent map'], [/^\/host/, 'Hosted events'], [/^\/ngo/, 'My camps'],
+];
+
+/** New page: start at the top (or at the #section asked for) and name the browser tab. */
+function useRouteChange() {
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    const t = TITLES.find(([re]) => re.test(pathname));
+    document.title = t && t[1] ? `${t[1]} · CrowdGrid` : 'CrowdGrid · Pilgrimage & mass gathering platform';
+  }, [pathname]);
+  useEffect(() => {
+    if (hash) {
+      // Wait a moment for the page to render its sections
+      const id = setTimeout(() => document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+      return () => clearTimeout(id);
+    }
+    window.scrollTo(0, 0);
+    return undefined;
+  }, [pathname, hash]);
+}
+
 function useOnline() {
   const [online, setOnline] = useState(navigator.onLine);
   useEffect(() => {
@@ -58,33 +84,75 @@ export default function Layout() {
   const cart = useCart();
   const navigate = useNavigate();
   const online = useOnline();
+  useRouteChange();
   const [menuOpen, setMenuOpen] = useState(false);
+  const confirm = useConfirm();
+  const headerRef = useRef(null);
   const nav = navFor(user?.role);
   const close = () => setMenuOpen(false);
 
-  const doLogout = () => {
+  // Roles with many links switch to the full desktop bar only on wide screens,
+  // so labels never squeeze onto two lines or run into each other.
+  const wide = nav.links.reduce((n, l) => n + l.label.length, 0) > 36;
+  const desk = wide ? 'xl' : 'lg';
+  const showDesk = wide ? 'hidden xl:flex' : 'hidden lg:flex';
+  const hideDesk = wide ? 'xl:hidden' : 'lg:hidden';
+
+  // Publish the real header height so sticky bars and #anchors sit below it
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return undefined;
+    const set = () => document.documentElement.style.setProperty('--header-h', `${el.offsetHeight}px`);
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Close the mobile menu with Esc
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const onKey = (e) => e.key === 'Escape' && setMenuOpen(false);
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [menuOpen]);
+
+  const doLogout = async () => {
     close();
-    cart.clear();
-    logout();
-    navigate('/');
+    const ok = await confirm({
+      title: 'Log out?',
+      message: cart.count > 0
+        ? `You have ${cart.count} item${cart.count > 1 ? 's' : ''} in your cart. Logging out empties the cart. Your booked passes stay safe in your account.`
+        : 'You will need your phone number and password to log in again.',
+      confirmLabel: 'Log out',
+      cancelLabel: 'Stay logged in',
+      icon: 'logout',
+    });
+    if (!ok) return;
+    // Leave the private page first, so we land on Home rather than the login page
+    navigate('/', { replace: true });
+    setTimeout(() => {
+      cart.clear();
+      logout();
+    }, 0);
   };
 
   const linkCls = ({ isActive }) =>
-    `flex min-h-11 items-center gap-2 rounded-xl px-3 font-semibold ${isActive ? 'bg-mist text-ink' : 'text-ink-soft hover:text-ink'}`;
+    `flex min-h-11 items-center gap-2 whitespace-nowrap rounded-xl px-3 font-semibold ${isActive ? 'bg-mist text-ink' : 'text-ink-soft hover:text-ink'}`;
   const menuCls = ({ isActive }) =>
     `flex min-h-12 items-center gap-3 rounded-xl px-4 text-lg font-semibold ${isActive ? 'bg-mist text-ink' : 'text-ink'}`;
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur">
-        <div className="shell flex h-16 items-center gap-1">
-          <Link to="/" className="mr-auto flex items-center gap-2 lg:mr-4" aria-label="CrowdGrid home" onClick={close}>
+      <header ref={headerRef} className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur">
+        <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-1 px-4">
+          <Link to="/" className={`mr-auto flex flex-none items-center gap-2 ${desk === 'xl' ? 'xl:mr-4' : 'lg:mr-4'}`} aria-label="CrowdGrid home" onClick={close}>
             <img src="/favicon.svg" alt="" className="h-8 w-8" />
             <span className="font-display text-xl leading-none text-ink sm:text-2xl">CrowdGrid</span>
           </Link>
 
           {/* Desktop navigation */}
-          <nav aria-label="Main" className="mr-auto hidden items-center gap-0.5 lg:flex">
+          <nav aria-label="Main" className={`mr-auto min-w-0 items-center gap-0.5 ${showDesk}`}>
             {nav.links.map((l) => (
               <NavLink key={l.to} to={l.to} end={l.end} className={linkCls}>
                 {l.icon && <l.icon size={18} aria-hidden />} {l.label}
@@ -101,7 +169,7 @@ export default function Layout() {
             </NavLink>
           )}
 
-          <div className="hidden items-center gap-1 lg:flex">
+          <div className={`flex-none items-center gap-1 ${showDesk}`}>
             {user ? (
               <>
                 <NavLink to="/account" className={linkCls} title={ROLE_LABELS[user.role]}>
@@ -118,14 +186,14 @@ export default function Layout() {
           </div>
 
           {/* Call to action */}
-          <Link to={nav.cta.to} className="btn-primary ml-1 hidden min-h-10 whitespace-nowrap px-4 sm:inline-flex" onClick={close}>
+          <Link to={nav.cta.to} className="btn-primary ml-1 hidden min-h-10 flex-none whitespace-nowrap px-4 sm:inline-flex" onClick={close}>
             {nav.cta.label}
           </Link>
 
           {/* Mobile menu button */}
           <button
             type="button"
-            className="ml-1 flex min-h-11 min-w-11 items-center justify-center rounded-xl text-ink lg:hidden"
+            className={`ml-1 flex min-h-11 min-w-11 flex-none items-center justify-center rounded-xl text-ink ${hideDesk}`}
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
@@ -136,8 +204,8 @@ export default function Layout() {
         </div>
 
         {menuOpen && (
-          <nav id="mobile-menu" aria-label="Main" className="border-t border-line bg-white lg:hidden">
-            <div className="shell space-y-1 py-3">
+          <nav id="mobile-menu" aria-label="Main" className={`max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-line bg-white ${hideDesk}`}>
+            <div className="mx-auto w-full max-w-7xl space-y-1 px-4 py-3">
               {nav.links.map((l) => (
                 <NavLink key={l.to} to={l.to} end={l.end} className={menuCls} onClick={close}>
                   {l.icon && <l.icon size={20} aria-hidden />} {l.label}

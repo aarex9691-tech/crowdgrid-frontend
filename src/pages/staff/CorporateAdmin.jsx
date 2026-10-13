@@ -5,6 +5,7 @@ import API, { errorMessage } from '../../lib/api';
 import { addDaysIST, fmtDate, fmtDateTime, fmtTime, todayIST } from '../../lib/format';
 import DateTimeRange, { toIsoRange, windowError } from '../../components/DateTimeRange';
 import Notice, { Loading } from '../../components/Notice';
+import { useConfirm } from '../../lib/confirm';
 import QrCode from '../../components/QrCode';
 
 const inviteLinkFor = (event) => `${window.location.origin}/corporate/${event.slug}?code=${event.accessCode}`;
@@ -168,9 +169,11 @@ function EventCard({ event, onChanged, highlight, ended }) {
   const [open, setOpen] = useState(highlight ? 'invite' : null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const confirm = useConfirm();
 
   const regenerate = async () => {
-    if (!window.confirm('Generate a new access code? The current code stops working immediately, so anyone you already invited will need the new one.')) return;
+    const ok = await confirm({ title: 'Generate a new access code?', message: 'The current code stops working immediately, so anyone you already invited will need the new one.', confirmLabel: 'Generate new code', tone: 'danger' });
+    if (!ok) return;
     setBusy(true);
     setError('');
     try {

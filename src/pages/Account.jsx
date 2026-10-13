@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import API, { errorMessage } from '../lib/api';
 import { useAuth } from '../lib/auth';
+import { useConfirm } from '../lib/confirm';
 import { CATEGORY_LABELS } from '../lib/format';
 import Notice from '../components/Notice';
 import ProfilePanel from '../components/ProfilePanel';
@@ -10,13 +11,15 @@ const PROVIDER_STATUS = { PENDING: 'pill-low', VERIFIED: 'pill-ok', REJECTED: 'p
 function MyBookings() {
   const [bookings, setBookings] = useState([]);
   const [error, setError] = useState('');
+  const confirm = useConfirm();
   const load = () => API.get('/lodgings/bookings/mine').then(({ data }) => setBookings(data)).catch((e) => setError(errorMessage(e)));
   useEffect(() => {
     load();
   }, []);
 
   const cancel = async (id) => {
-    if (!window.confirm('Cancel this booking? The beds go back to other pilgrims.')) return;
+    const ok = await confirm({ title: 'Cancel this booking?', message: 'Your beds go back to other pilgrims and the lodging pass stops working.', confirmLabel: 'Cancel booking', cancelLabel: 'Keep booking', tone: 'danger' });
+    if (!ok) return;
     try {
       await API.post(`/lodgings/bookings/${id}/cancel`);
       load();
@@ -38,6 +41,7 @@ function MyBookings() {
               <p className="text-ink-soft">
                 {CATEGORY_LABELS[b.lodgingId?.category]} · {b.beds} bed{b.beds > 1 ? 's' : ''} · {b.checkIn} to {b.checkOut}
               </p>
+              {b.status === 'CONFIRMED' && b.bedLabel && <p className="font-semibold text-tulsi">{b.bedLabel}</p>}
             </div>
             {b.status === 'CONFIRMED' ? (
               <button type="button" className="btn-ghost" onClick={() => cancel(b._id)}>Cancel booking</button>
@@ -115,9 +119,11 @@ function RegisterOrganisation({ onDone }) {
 
 function SecurityPanel() {
   const { logout } = useAuth();
+  const confirm = useConfirm();
   const [state, setState] = useState({ busy: false, error: '' });
   const logoutAll = async () => {
-    if (!window.confirm('Log out of every device, including this one?')) return;
+    const ok = await confirm({ title: 'Log out of every device?', message: 'This signs you out on all phones and computers, including this one.', confirmLabel: 'Log out everywhere', cancelLabel: 'Cancel', icon: 'logout', tone: 'danger' });
+    if (!ok) return;
     setState({ busy: true, error: '' });
     try {
       await API.post('/auth/logout-all');

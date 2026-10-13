@@ -7,7 +7,23 @@ import Notice from './Notice';
 
 const GENDERS = { FEMALE: 'Female', MALE: 'Male', OTHER: 'Other' };
 const isoDay = (d) => (d ? new Date(d).toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' }) : '');
-const ageFrom = (d) => (d ? Math.floor((Date.now() - new Date(d).getTime()) / (365.25 * 86400000)) : null);
+const MIN_AGE = 18;
+const todayParts = () => isoDay(new Date()).split('-').map(Number);
+/** Whole years on today's date in India; null for an empty or impossible date. */
+const ageFrom = (d) => {
+  const day = d ? (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : isoDay(d)) : '';
+  if (!day) return null;
+  const [y, m, dd] = day.split('-').map(Number);
+  const [ty, tm, td] = todayParts();
+  const age = ty - y - (tm < m || (tm === m && td < dd) ? 1 : 0);
+  return age >= 0 ? age : null;
+};
+/** Latest allowed birth date: exactly MIN_AGE years ago today. */
+const latestDob = () => {
+  const [ty, tm, td] = todayParts();
+  return `${ty - MIN_AGE}-${String(tm).padStart(2, '0')}-${String(td).padStart(2, '0')}`;
+};
+const earliestDob = () => `${todayParts()[0] - 120}-01-01`;
 
 /** Profile card with an "Edit profile" form (email, date of birth, gender, city, emergency contact). */
 export default function ProfilePanel() {
@@ -34,8 +50,17 @@ export default function ProfilePanel() {
   };
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
+  const dobAge = form?.dateOfBirth ? ageFrom(form.dateOfBirth) : null;
+  const dobError = form?.dateOfBirth && (dobAge === null || dobAge < MIN_AGE)
+    ? `You must be at least ${MIN_AGE} years old. Choose a date on or before ${new Date(`${latestDob()}T00:00:00+05:30`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' })}.`
+    : '';
+
   const save = async (e) => {
     e.preventDefault();
+    if (dobError) {
+      setError(dobError);
+      return;
+    }
     setBusy(true);
     setError('');
     try {
@@ -83,8 +108,20 @@ export default function ProfilePanel() {
           </div>
           <div>
             <label className="field-label" htmlFor="p-dob">Date of birth</label>
-            <input id="p-dob" type="date" className="field" max={isoDay(new Date())} value={form.dateOfBirth} onChange={set('dateOfBirth')} />
-            {form.dateOfBirth && <p className="mt-1 text-sm text-ink-soft">Age {ageFrom(`${form.dateOfBirth}T00:00:00+05:30`)}</p>}
+            <input
+              id="p-dob"
+              type="date"
+              className={`field ${dobError ? 'border-kumkum' : ''}`}
+              min={earliestDob()}
+              max={latestDob()}
+              value={form.dateOfBirth}
+              onChange={set('dateOfBirth')}
+              aria-invalid={!!dobError}
+              aria-describedby="p-dob-help"
+            />
+            <p id="p-dob-help" className={`mt-1 text-sm ${dobError ? 'font-semibold text-kumkum' : 'text-ink-soft'}`}>
+              {dobError || (dobAge !== null ? `Age ${dobAge}` : `You must be ${MIN_AGE} or older.`)}
+            </p>
           </div>
           <div>
             <label className="field-label" htmlFor="p-gender">Gender</label>
@@ -113,7 +150,7 @@ export default function ProfilePanel() {
         </fieldset>
         <p className="text-sm text-ink-soft">Leave a field empty to remove it. Your mobile number can't be changed here.</p>
         <div className="flex flex-wrap gap-3">
-          <button type="submit" className="btn-primary" disabled={busy}>{busy ? 'Saving…' : 'Save profile'}</button>
+          <button type="submit" className="btn-primary" disabled={busy || !!dobError}>{busy ? 'Saving…' : 'Save profile'}</button>
           <button type="button" className="btn-ghost" onClick={() => setEditing(false)}>Cancel</button>
         </div>
       </form>

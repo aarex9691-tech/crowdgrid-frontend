@@ -49,7 +49,7 @@ export default function Hub() {
       </div>
 
       {/* Service ribbon: switches tabs without a page reload (FR-03) */}
-      <nav aria-label="Yatra services" className="sticky top-16 z-20 border-b border-line bg-white">
+      <nav aria-label="Yatra services" className="sticky top-[var(--header-h,4rem)] z-20 border-b border-line bg-white">
         <div className="shell flex gap-1 overflow-x-auto py-2" role="tablist">
           {TABS.map((t) => {
             const selected = t.id === active.id;

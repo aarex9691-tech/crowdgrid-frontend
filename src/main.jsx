@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
 import { AuthProvider } from './lib/auth.jsx';
 import { CartProvider } from './lib/cart.jsx';
+import { ConfirmProvider } from './lib/confirm.jsx';
 import '@fontsource/mukta/400.css';
 import '@fontsource/mukta/500.css';
 import '@fontsource/mukta/600.css';
@@ -17,7 +18,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <AuthProvider>
         <CartProvider>
-          <App />
+          <ConfirmProvider>
+            <App />
+          </ConfirmProvider>
         </CartProvider>
       </AuthProvider>
     </BrowserRouter>

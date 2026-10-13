@@ -192,7 +192,7 @@ function FloatingCta() {
   return (
     <Link
       to={flag}
-      className="fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full bg-gradient-to-r from-marigold to-[#ff7a1a] px-6 py-3 font-bold text-ink shadow-lg shadow-black/20 hover:brightness-105"
+      className="fixed bottom-5 left-4 z-40 flex items-center gap-2 rounded-full sm:bottom-6 sm:left-1/2 sm:-translate-x-1/2 bg-gradient-to-r from-marigold to-[#ff7a1a] px-6 py-3 font-bold text-ink shadow-lg shadow-black/20 hover:brightness-105"
     >
       <CalendarCheck size={20} aria-hidden /> Plan your yatra
     </Link>
