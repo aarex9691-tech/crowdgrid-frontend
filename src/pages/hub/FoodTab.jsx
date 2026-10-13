@@ -27,6 +27,8 @@ export default function FoodTab({ event }) {
   const [error, setError] = useState('');
   const [busySlot, setBusySlot] = useState(null);
   const [claimed, setClaimed] = useState(null);
+  const [people, setPeople] = useState(1);
+  const [names, setNames] = useState('');
 
   const load = useCallback(() => {
     setError('');
@@ -44,7 +46,7 @@ export default function FoodTab({ event }) {
     setBusySlot(slot._id);
     setError('');
     try {
-      const { data: res } = await API.post(`/food/slots/${slot._id}/claim`);
+      const { data: res } = await API.post(`/food/slots/${slot._id}/claim`, { people, names });
       cachePass(res.pass);
       setClaimed(res);
     } catch (e) {
@@ -106,7 +108,23 @@ export default function FoodTab({ event }) {
       </div>
 
       <Notice tone="error">{error}</Notice>
-      <p className="text-ink-soft">One token per person for each meal. Tokens can only be scanned during the meal window.</p>
+      <div className="panel flex flex-col gap-4 p-4 sm:flex-row sm:items-end">
+        <div>
+          <p id="people-label" className="field-label">Token for how many people?</p>
+          <div className="flex items-center gap-2" role="group" aria-labelledby="people-label">
+            <button type="button" className="btn-ghost h-12 w-12 px-0 text-xl" aria-label="Fewer people" disabled={people <= 1} onClick={() => setPeople((n) => n - 1)}>−</button>
+            <output className="w-10 text-center text-2xl font-bold tabular-nums" aria-live="polite">{people}</output>
+            <button type="button" className="btn-ghost h-12 w-12 px-0 text-xl" aria-label="More people" disabled={people >= 6} onClick={() => setPeople((n) => n + 1)}>+</button>
+          </div>
+        </div>
+        {people > 1 && (
+          <div className="flex-1">
+            <label htmlFor="meal-names" className="field-label">Names (optional)</label>
+            <input id="meal-names" className="field" placeholder="e.g. Ramesh, Lata, Aai, Baba" value={names} onChange={(e) => setNames(e.target.value)} maxLength={300} />
+          </div>
+        )}
+      </div>
+      <p className="text-ink-soft">One token per account for each meal, covering up to 6 family members. Show it at the counter during the meal window.</p>
 
       {!data ? (
         <Loading label="Finding community kitchens" />
@@ -119,7 +137,16 @@ export default function FoodTab({ event }) {
               <li key={c._id} className="panel flex flex-col p-5">
                 <h3 className="text-xl font-bold">{c.name}</h3>
                 <p className="text-ink-soft">{c.sector} · {c.provider?.name}</p>
-                {c.menu?.length > 0 && <p className="mt-2 text-[15px]">Menu: {c.menu.join(', ')}</p>}
+                {(slot?.menu?.length || c.menu?.length) > 0 && (
+                  <div className="mt-3 rounded-xl bg-marigold-wash p-3">
+                    <p className="text-sm font-semibold">{MEAL_LABELS[meal]} menu{c.diet ? ` · ${c.diet}` : ''}</p>
+                    <ul className="mt-1 flex flex-wrap gap-1.5">
+                      {(slot?.menu?.length ? slot.menu : c.menu).map((d) => (
+                        <li key={d} className="rounded-full bg-white px-3 py-1 text-[15px] font-medium">{d}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 {slot ? (
                   <>
                     <div className="mt-4 flex items-baseline justify-between">
@@ -131,8 +158,8 @@ export default function FoodTab({ event }) {
                     <div className="mt-1 h-2.5 overflow-hidden rounded-full bg-mist" aria-hidden>
                       <div className={`h-full rounded-full ${pct === 0 ? 'bg-kumkum' : pct < 20 ? 'bg-marigold' : 'bg-tulsi'}`} style={{ width: `${pct}%` }} />
                     </div>
-                    <button type="button" className="btn-primary mt-4" disabled={slot.remaining === 0 || busySlot === slot._id} onClick={() => claim(slot)}>
-                      {slot.remaining === 0 ? 'All tokens taken' : busySlot === slot._id ? 'Claiming…' : 'Claim meal token'}
+                    <button type="button" className="btn-primary mt-4" disabled={slot.remaining < people || busySlot === slot._id} onClick={() => claim(slot)}>
+                      {slot.remaining === 0 ? 'All tokens taken' : busySlot === slot._id ? 'Claiming…' : people > 1 ? `Claim token for ${people}` : 'Claim meal token'}
                     </button>
                   </>
                 ) : (
