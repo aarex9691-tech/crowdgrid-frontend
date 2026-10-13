@@ -1,7 +1,7 @@
 import { formatPhone } from '../../lib/phone';
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, RefreshCw } from 'lucide-react';
+import { Armchair, MapPin, RefreshCw } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { fmtDateTime, MEAL_LABELS } from '../../lib/format';
@@ -175,6 +175,42 @@ function RecentActivity() {
   );
 }
 
+/** Every verified camp in the yatra, each opening its theatre-style tent map. */
+function CampMaps({ eventId }) {
+  const [camps, setCamps] = useState(null);
+  useEffect(() => {
+    API.get('/lodgings', { params: { eventId } })
+      .then(({ data }) => setCamps(data))
+      .catch(() => setCamps([]));
+  }, [eventId]);
+  if (!camps || camps.length === 0) return null;
+  return (
+    <section aria-labelledby="maps" className="panel p-5">
+      <h2 id="maps" className="flex items-center gap-2 text-2xl font-bold"><Armchair size={22} aria-hidden /> Tent maps</h2>
+      <p className="text-ink-soft">Open a camp to see every tent and bed, like seats in a theatre.</p>
+      <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+        {camps.map((c) => {
+          const pct = c.totalBeds ? Math.round(((c.totalBeds - c.availableBeds) / c.totalBeds) * 100) : 0;
+          return (
+            <li key={c._id}>
+              <Link to={`/camps/${c._id}/map`} className="flex items-center gap-3 rounded-xl border border-line p-3 hover:border-ink-faint">
+                <div className="flex-1">
+                  <p className="font-bold">{c.name}</p>
+                  <p className="text-sm text-ink-soft">{c.sector} · {c.availableBeds} of {c.totalBeds} free</p>
+                  <div className="mt-1 h-2 overflow-hidden rounded-full bg-mist" aria-hidden>
+                    <div className={`h-full rounded-full ${pct >= 90 ? 'bg-kumkum' : pct >= 70 ? 'bg-marigold' : 'bg-tulsi'}`} style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+                <span className="text-sm font-semibold underline">Open map</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
 export default function ControlRoom() {
   const { user } = useAuth();
   const [events, setEvents] = useState([]);
@@ -262,6 +298,7 @@ export default function ControlRoom() {
         </>
       )}
 
+      {eventId && <CampMaps eventId={eventId} />}
       {eventId && <SosQueue eventId={eventId} />}
       <ProviderQueue onChange={load} />
       <VolunteerReview />

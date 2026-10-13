@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Minus, Plus } from 'lucide-react';
+import { Armchair, Minus, Plus } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
 import { CATEGORY_LABELS, MEAL_LABELS } from '../../lib/format';
 import Notice, { Loading } from '../../components/Notice';
@@ -153,6 +153,9 @@ export default function NgoPortal() {
                   <strong>{l.availableBeds}</strong> free of {l.totalBeds} beds
                 </p>
               </div>
+              <Link to={`/camps/${l._id}/map`} className="btn-ink min-h-10 whitespace-nowrap px-4">
+                <Armchair size={18} aria-hidden /> Tent map
+              </Link>
               <BedAdjuster lodging={l} onSaved={load} />
             </li>
           ))}

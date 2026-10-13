@@ -10,6 +10,7 @@ import Corporate from './pages/Corporate';
 import Scanner from './pages/Scanner';
 import Account from './pages/Account';
 import Checkout from './pages/Checkout';
+import TentMap from './pages/staff/TentMap';
 import Events from './pages/Events';
 import About from './pages/About';
 import ControlRoom from './pages/staff/ControlRoom';
@@ -41,6 +42,9 @@ export default function App() {
         </Route>
         <Route element={<RequireRole roles={['SUPER_ADMIN', 'CORPORATE_ADMIN']} />}>
           <Route path="/corporate-admin" element={<CorporateAdmin />} />
+        </Route>
+        <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY', 'NGO_ADMIN']} />}>
+          <Route path="/camps/:id/map" element={<TentMap />} />
         </Route>
         <Route element={<RequireRole roles={['SUPER_ADMIN', 'NGO_ADMIN']} />}>
           <Route path="/ngo" element={<NgoPortal />} />
