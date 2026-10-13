@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { KeyRound } from 'lucide-react';
+import { CalendarDays, KeyRound, MapPin } from 'lucide-react';
 import API, { errorMessage } from '../lib/api';
-import { useAuth } from '../lib/auth';
-import { cachePass } from '../lib/passCache';
-import { fmtDate, fmtDateTime } from '../lib/format';
+import { canBook, useAuth } from '../lib/auth';
+import { rupees, useCart } from '../lib/cart';
+import { EVENT_CATEGORIES, fmtDate, fmtDateTime, fmtTime } from '../lib/format';
 import Notice from './Notice';
 
 export function YatraCard({ event }) {
@@ -25,56 +25,76 @@ export function YatraCard({ event }) {
   );
 }
 
-function PublicEventRow({ event, onRsvp, busy }) {
-  const left = Math.max(0, (event.capacity || 0) - (event.attendeesCount || 0));
+/** Add one ticket for a paid public event to the cart. */
+export const addTicketToCart = (cart, event) =>
+  cart.add({
+    key: `EVENT:${event._id}`,
+    kind: 'EVENT',
+    refId: event._id,
+    label: event.title,
+    detail: `1 ticket · ${fmtDateTime(event.startDate)} · ${event.venue}`,
+    estimate: event.ticketPrice || 0,
+    input: {},
+  });
+
+export const placesLeft = (e) => Math.max(0, (e.capacity || 0) - (e.attendeesCount || 0));
+
+function PublicEventCard({ event, onRegister, showRegister }) {
+  const left = placesLeft(event);
   return (
-    <li className="panel flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
-      <div className="flex-1">
-        <h3 className="text-lg font-bold">{event.title}</h3>
-        <p className="text-ink-soft">
-          {event.venue}, {event.city} · {fmtDateTime(event.startDate)}
-        </p>
-        <p className="mt-1 text-[15px] text-ink-soft">{event.description}</p>
+    <li className="panel flex flex-col overflow-hidden">
+      <div className="flex items-center justify-between gap-2 bg-ink px-4 py-2 text-white">
+        <span className="text-sm font-semibold uppercase tracking-wide text-marigold">{EVENT_CATEGORIES[event.category] || 'Event'}</span>
+        <span className="text-sm">{fmtDate(event.startDate, { weekday: 'short', year: undefined })}</span>
       </div>
-      <div className="flex items-center gap-3 sm:flex-col sm:items-end">
-        <span className={left === 0 ? 'pill-out' : left <= 5 ? 'pill-low' : 'pill-ok'}>{left === 0 ? 'Full' : `${left} places left`}</span>
-        <button type="button" className="btn-ink" disabled={busy || left === 0} onClick={() => onRsvp(event)}>
-          {busy ? 'Registering…' : 'RSVP now'}
-        </button>
+      <div className="flex flex-1 flex-col gap-2 p-4">
+        <h3 className="text-lg font-bold leading-snug">{event.title}</h3>
+        <p className="flex items-start gap-1.5 text-[15px] text-ink-soft">
+          <CalendarDays size={16} className="mt-1 shrink-0" aria-hidden /> {fmtTime(event.startDate)} to {fmtTime(event.endDate)}
+        </p>
+        <p className="flex items-start gap-1.5 text-[15px] text-ink-soft">
+          <MapPin size={16} className="mt-1 shrink-0" aria-hidden /> {event.venue}, {event.city}
+        </p>
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2">
+          <span className="text-2xl font-extrabold">{rupees(event.ticketPrice)}<span className="text-sm font-normal text-ink-soft"> / person</span></span>
+          <span className={left === 0 ? 'pill-out' : left <= 5 ? 'pill-low' : 'pill-ok'}>{left === 0 ? 'Sold out' : `${left} places left`}</span>
+        </div>
+        <div className="flex gap-2">
+          <Link to={`/event/${event.slug}`} className="btn-ghost flex-1">Details</Link>
+          {showRegister && (
+            <button type="button" className="btn-primary flex-1" disabled={left === 0} onClick={() => onRegister(event)}>
+              Register
+            </button>
+          )}
+        </div>
       </div>
     </li>
   );
 }
 
-/** Public events with RSVP (entry pass). `onChange` reloads the list after an RSVP. */
-export function PublicEventList({ events, onChange, from = '/' }) {
+/** Paid public events. Register adds a ticket to the cart; payment at checkout. */
+export function PublicEventList({ events, from = '/' }) {
   const { user } = useAuth();
+  const cart = useCart();
   const navigate = useNavigate();
-  const [notice, setNotice] = useState(null);
-  const [busyId, setBusyId] = useState(null);
+  const [added, setAdded] = useState(null);
 
-  const rsvp = async (event) => {
+  const register = (event) => {
     if (!user) return navigate('/login', { state: { from } });
-    setBusyId(event._id);
-    setNotice(null);
-    try {
-      const { data } = await API.post(`/events/${event._id}/rsvp`);
-      cachePass(data.pass);
-      setNotice({ tone: 'success', text: `You're registered for ${event.title}. Your entry pass is in your passbook.` });
-      onChange?.();
-    } catch (e) {
-      setNotice({ tone: 'error', text: errorMessage(e) });
-    } finally {
-      setBusyId(null);
-    }
+    addTicketToCart(cart, event);
+    setAdded(event);
   };
 
   return (
     <>
-      {notice && <Notice tone={notice.tone} className="mt-4">{notice.text}</Notice>}
-      <ul className="mt-4 space-y-3">
+      {added && (
+        <Notice tone="success" className="mt-4">
+          Ticket for {added.title} is in your cart. <Link to="/checkout" className="font-bold underline">Go to checkout</Link> to pay and get your entry pass.
+        </Notice>
+      )}
+      <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {events.map((e) => (
-          <PublicEventRow key={e._id} event={e} onRsvp={rsvp} busy={busyId === e._id} />
+          <PublicEventCard key={e._id} event={e} onRegister={register} showRegister={canBook(user)} />
         ))}
       </ul>
     </>

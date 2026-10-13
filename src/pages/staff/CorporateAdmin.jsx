@@ -322,7 +322,8 @@ function CreateEventForm({ onCreated, onCancel }) {
       </div>
       <div>
         <label className="field-label" htmlFor="ce-desc">Short description (optional)</label>
-        <textarea id="ce-desc" rows={2} className="field py-3" value={form.description} onChange={set('description')} />
+        <textarea id="ce-desc" rows={2} maxLength={500} className="field py-3" value={form.description} onChange={set('description')} />
+        <p className="mt-1 text-right text-sm text-ink-soft">{form.description.length}/500</p>
       </div>
 
       <fieldset className="space-y-2">

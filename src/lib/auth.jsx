@@ -26,6 +26,10 @@ export const homeFor = (role) =>
 
 export const STAFF_ROLES = ['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'NGO_ADMIN', 'VOLUNTEER'];
 
+/** Only pilgrims / attendees book. Admins and hosts work from their dashboards. */
+export const canBook = (user) => !user || user.role === 'USER';
+export const HOST_ROLES = ['SUPER_ADMIN', 'AUTHORITY'];
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => (localStorage.getItem('cg_token') ? readCachedUser() : null));
 

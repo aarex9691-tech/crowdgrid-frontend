@@ -11,6 +11,8 @@ import Scanner from './pages/Scanner';
 import Account from './pages/Account';
 import Checkout from './pages/Checkout';
 import TentMap from './pages/staff/TentMap';
+import HostEvents from './pages/staff/HostEvents';
+import EventDetail from './pages/EventDetail';
 import Events from './pages/Events';
 import About from './pages/About';
 import ControlRoom from './pages/staff/ControlRoom';
@@ -25,6 +27,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/events" element={<Events />} />
+        <Route path="/event/:slug" element={<EventDetail />} />
         <Route path="/about" element={<About />} />
         <Route path="/yatra/:slug" element={<Hub />} />
         <Route path="/corporate/:slug" element={<Corporate />} />
@@ -45,6 +48,9 @@ export default function App() {
         </Route>
         <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY', 'NGO_ADMIN']} />}>
           <Route path="/camps/:id/map" element={<TentMap />} />
+        </Route>
+        <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY']} />}>
+          <Route path="/host" element={<HostEvents />} />
         </Route>
         <Route element={<RequireRole roles={['SUPER_ADMIN', 'NGO_ADMIN']} />}>
           <Route path="/ngo" element={<NgoPortal />} />

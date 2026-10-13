@@ -8,7 +8,7 @@ import { InvitationCodeBox, PublicEventList, YatraCard } from '../components/Eve
 
 const TABS = [
   { id: 'yatras', label: 'Yatras & melas', icon: Flag, blurb: 'Large pilgrimages with lodging, food, transit and seva.' },
-  { id: 'public', label: 'Public events', icon: Ticket, blurb: 'Open to everyone. RSVP to get a free entry pass.' },
+  { id: 'public', label: 'Public events', icon: Ticket, blurb: 'Open to everyone. Register, pay at checkout and get your entry pass.' },
   { id: 'corporate', label: 'Corporate & invite-only', icon: Briefcase, blurb: 'Private events. Enter the code from your invitation.' },
 ];
 

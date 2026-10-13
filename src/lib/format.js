@@ -31,3 +31,18 @@ export const DOMAIN_LABELS = {
   SENIOR_ESCORT: 'Senior citizen escort',
   FIRST_AID: 'First-aid assistance',
 };
+
+export const EVENT_CATEGORIES = {
+  SPIRITUAL: 'Spiritual',
+  CULTURAL: 'Cultural',
+  HERITAGE_WALK: 'Heritage walk',
+  SEVA: 'Seva',
+  WORKSHOP: 'Workshop',
+  OTHER: 'Other',
+};
+
+/** Google Maps link for a point (opens the app on phones). */
+export const googleMapsUrl = (loc, fallbackQuery) =>
+  loc?.lat
+    ? `https://www.google.com/maps/search/?api=1&query=${loc.lat},${loc.lng}`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fallbackQuery || '')}`;

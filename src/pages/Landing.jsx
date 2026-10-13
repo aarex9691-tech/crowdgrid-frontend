@@ -139,7 +139,7 @@ const TILES = [
   { to: `${flag}?tab=food`, icon: UtensilsCrossed, title: 'Annadanam', text: "Today's menu at every kitchen and one token for the whole family.", tint: '#3a1a08' },
   { to: `${flag}?tab=transit`, icon: BusFront, title: 'Shuttles & Buses', text: 'E-rickshaws and feeder buses with stops, water points and a day pass.', tint: '#0b2e22' },
   { to: `${flag}?tab=seva`, icon: HandHeart, title: 'Seva & Volunteering', text: 'Serve with a verified trust and get your volunteer ID badge.', tint: '#2a1238' },
-  { to: '/events?tab=public', icon: Ticket, title: 'Public Events', text: 'Ghat clean-ups, heritage walks and aartis. RSVP for a free entry pass.', tint: '#0f2b3a' },
+  { to: '/events?tab=public', icon: Ticket, title: 'Public Events', text: 'Aartis, heritage walks and bhajan evenings. Register, pay and get your entry pass.', tint: '#0f2b3a' },
   { to: '/events?tab=corporate', icon: Briefcase, title: 'Corporate Events', text: 'Invite-only summits with access codes, sessions and digital badges.', tint: '#3a1410' },
   { to: `${flag}?tab=sos`, icon: Siren, title: 'SOS & Lost and Found', text: 'One-tap emergency alert and help to find family members.', tint: '#3b0c16' },
   { to: '/passbook', icon: QrCode, title: 'My Passbook', text: 'All your passes in one QR, even without network at the ghats.', tint: '#1f2a12' },
@@ -241,7 +241,7 @@ export default function Landing() {
       {groups.publicEvents.length > 0 && (
         <section aria-labelledby="public">
           <h2 id="public" className="text-2xl font-bold">Public events near the mela</h2>
-          <p className="text-ink-soft">Open to everyone. RSVP to get an entry pass.</p>
+          <p className="text-ink-soft">Open to everyone. Register, pay at checkout and get your entry pass.</p>
           <PublicEventList events={groups.publicEvents} onChange={load} from="/" />
         </section>
       )}
