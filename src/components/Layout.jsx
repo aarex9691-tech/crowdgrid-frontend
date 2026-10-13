@@ -15,7 +15,7 @@ const navFor = (role) => {
   switch (role) {
     case 'SUPER_ADMIN':
       return {
-        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, { to: '/host', label: 'Hosted events', icon: CalendarPlus }, { to: '/corporate-admin', label: 'Corporate', icon: Briefcase }, scan],
+        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, { to: '/host', label: 'Hosted events', icon: CalendarPlus }, { to: '/corporate-admin', label: 'Campus & Corporate', icon: Briefcase }, scan],
         cta: { to: '/host', label: 'Host an event' },
       };
     case 'AUTHORITY':
@@ -199,7 +199,7 @@ export default function Layout() {
             <ul className="mt-2 space-y-1.5 text-sm">
               <li><Link className="hover:text-ink" to={`/yatra/${SITE.flagshipSlug}`}>Book lodging, food &amp; transit</Link></li>
               <li><Link className="hover:text-ink" to="/events">All events</Link></li>
-              <li><Link className="hover:text-ink" to="/events?tab=corporate">Have an invitation code?</Link></li>
+              <li><Link className="hover:text-ink" to="/events?tab=corporate">Campus &amp; corporate events</Link></li>
               <li><Link className="hover:text-ink" to="/passbook">My Passbook</Link></li>
             </ul>
           </div>

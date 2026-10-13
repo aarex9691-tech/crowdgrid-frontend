@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { CalendarDays, KeyRound, MapPin } from 'lucide-react';
 import API, { errorMessage } from '../lib/api';
 import { canBook, useAuth } from '../lib/auth';
+import { cachePass } from '../lib/passCache';
 import { rupees, useCart } from '../lib/cart';
 import { EVENT_CATEGORIES, fmtDate, fmtDateTime, fmtTime } from '../lib/format';
 import Notice from './Notice';
@@ -56,7 +57,11 @@ function PublicEventCard({ event, onRegister, showRegister }) {
           <MapPin size={16} className="mt-1 shrink-0" aria-hidden /> {event.venue}, {event.city}
         </p>
         <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2">
-          <span className="text-2xl font-extrabold">{rupees(event.ticketPrice)}<span className="text-sm font-normal text-ink-soft"> / person</span></span>
+          {event.ticketPrice > 0 ? (
+            <span className="text-2xl font-extrabold">{rupees(event.ticketPrice)}<span className="text-sm font-normal text-ink-soft"> / person</span></span>
+          ) : (
+            <span className="text-2xl font-extrabold text-tulsi">Free</span>
+          )}
           <span className={left === 0 ? 'pill-out' : left <= 5 ? 'pill-low' : 'pill-ok'}>{left === 0 ? 'Sold out' : `${left} places left`}</span>
         </div>
         <div className="flex gap-2">
@@ -78,15 +83,29 @@ export function PublicEventList({ events, from = '/' }) {
   const cart = useCart();
   const navigate = useNavigate();
   const [added, setAdded] = useState(null);
+  const [freeMsg, setFreeMsg] = useState(null);
 
-  const register = (event) => {
+  const register = async (event) => {
     if (!user) return navigate('/login', { state: { from } });
+    setFreeMsg(null);
+    if (!(event.ticketPrice > 0)) {
+      // Free entry: confirmed straight away, no cart or payment
+      try {
+        const { data } = await API.post(`/events/${event._id}/register`);
+        cachePass(data.pass);
+        setFreeMsg({ tone: 'success', text: `You're registered for ${event.title}. Your entry pass is in your passbook.` });
+      } catch (e) {
+        setFreeMsg({ tone: 'error', text: errorMessage(e) });
+      }
+      return;
+    }
     addTicketToCart(cart, event);
     setAdded(event);
   };
 
   return (
     <>
+      {freeMsg && <Notice tone={freeMsg.tone} className="mt-4">{freeMsg.text}</Notice>}
       {added && (
         <Notice tone="success" className="mt-4">
           Ticket for {added.title} is in your cart. <Link to="/checkout" className="font-bold underline">Go to checkout</Link> to pay and get your entry pass.
@@ -130,7 +149,7 @@ export function InvitationCodeBox({ from = '/' }) {
         <h2 id="invite" className="flex items-center gap-2 text-xl font-bold">
           <KeyRound size={20} aria-hidden /> Have an invitation code?
         </h2>
-        <p className="text-ink-soft">Corporate and partner events are invite-only. Enter the 6-digit code from your invitation to claim your badge.</p>
+        <p className="text-ink-soft">Campus and corporate events (college fests, seminars, company summits) are invite-only. Enter the 6-digit code from your invitation to claim your badge.</p>
       </div>
       <form onSubmit={submit} className="flex flex-col gap-2 md:w-80">
         <div className="flex gap-2">

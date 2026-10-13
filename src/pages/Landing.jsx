@@ -143,7 +143,7 @@ const TILES = [
   { to: `${flag}?tab=transit`, icon: BusFront, title: 'Shuttles & Buses', text: 'E-rickshaws and feeder buses with stops, water points and a day pass.', tint: '#0b2e22' },
   { to: `${flag}?tab=seva`, icon: HandHeart, title: 'Seva & Volunteering', text: 'Serve with a verified trust and get your volunteer ID badge.', tint: '#2a1238' },
   { to: '/events?tab=public', icon: Ticket, title: 'Public Events', text: 'Aartis, heritage walks and bhajan evenings. Register, pay and get your entry pass.', tint: '#0f2b3a' },
-  { to: '/events?tab=corporate', icon: Briefcase, title: 'Corporate Events', text: 'Invite-only summits with access codes, sessions and digital badges.', tint: '#3a1410' },
+  { to: '/events?tab=corporate', icon: Briefcase, title: 'Campus & Corporate', text: 'Invite-only seminars, college fests and company summits with access codes and digital badges.', tint: '#3a1410' },
   { to: `${flag}?tab=sos`, icon: Siren, title: 'SOS & Lost and Found', text: 'One-tap emergency alert and help to find family members.', tint: '#3b0c16' },
   { to: '/passbook', icon: QrCode, title: 'My Passbook', text: 'All your passes in one QR, even without network at the ghats.', tint: '#1f2a12' },
 ];

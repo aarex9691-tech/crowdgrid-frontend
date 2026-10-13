@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { BedDouble, Code2, Mail, MessageCircle, Phone, QrCode, Siren, UtensilsCrossed } from 'lucide-react';
+import { BedDouble, Mail, MessageCircle, Phone, QrCode, Siren, UtensilsCrossed } from 'lucide-react';
 import { SITE } from '../lib/site';
 
 const MILESTONES = [
@@ -88,13 +88,6 @@ export default function About() {
                   <Phone size={20} aria-hidden /> {SITE.phone}
                 </a>
               </li>
-              {SITE.github.map((g) => (
-                <li key={g.url}>
-                  <a className="flex items-center gap-3 font-semibold underline" href={g.url} target="_blank" rel="noreferrer">
-                    <Code2 size={20} aria-hidden /> {g.label}
-                  </a>
-                </li>
-              ))}
             </ul>
             <p className="mt-4 rounded-xl bg-kumkum-wash p-3 text-sm">
               In an emergency at the mela, call <a className="font-bold text-kumkum" href="tel:112">112</a> or medical{' '}

@@ -4,6 +4,7 @@ import { errorMessage } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import Notice from '../components/Notice';
 import PhoneField from '../components/PhoneField';
+import PasswordField from '../components/PasswordField';
 import { phoneError } from '../lib/phone';
 
 export default function Register() {
@@ -60,11 +61,14 @@ export default function Register() {
           onBlur={() => setPhoneTouched(true)}
           onChange={(v) => setForm({ ...form, ...v })}
         />
-        <div>
-          <label htmlFor="password" className="field-label">Password</label>
-          <input id="password" type="password" className="field" autoComplete="new-password" minLength={8} value={form.password} onChange={set('password')} required />
-          <p className="mt-1 text-sm text-ink-soft">At least 8 characters, with a letter and a number.</p>
-        </div>
+        <PasswordField
+          id="password"
+          autoComplete="new-password"
+          minLength={8}
+          value={form.password}
+          onChange={set('password')}
+          hint="At least 8 characters, with a letter and a number."
+        />
         <button type="submit" className="btn-primary w-full text-lg" disabled={busy}>
           {busy ? 'Creating account…' : 'Create account'}
         </button>

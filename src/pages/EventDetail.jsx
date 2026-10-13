@@ -6,6 +6,7 @@ import { canBook, useAuth } from '../lib/auth';
 import { rupees, useCart } from '../lib/cart';
 import { EVENT_CATEGORIES, fmtDate, fmtTime, googleMapsUrl } from '../lib/format';
 import Notice, { Loading } from '../components/Notice';
+import { cachePass } from '../lib/passCache';
 import { addTicketToCart, placesLeft } from '../components/EventCards';
 
 /** Everything about one paid public event, with Register (cart) and the map. */
@@ -17,6 +18,7 @@ export default function EventDetail() {
   const [event, setEvent] = useState(null);
   const [error, setError] = useState('');
   const [added, setAdded] = useState(false);
+  const [freeMsg, setFreeMsg] = useState(null);
 
   useEffect(() => {
     API.get(`/events/${slug}`)
@@ -33,8 +35,19 @@ export default function EventDetail() {
   const loc = event.location;
   const bbox = loc ? `${loc.lng - 0.006},${loc.lat - 0.004},${loc.lng + 0.006},${loc.lat + 0.004}` : null;
 
-  const register = () => {
+  const free = !(event.ticketPrice > 0);
+  const register = async () => {
     if (!user) return navigate('/login', { state: { from: `/event/${slug}` } });
+    if (free) {
+      try {
+        const { data } = await API.post(`/events/${event._id}/register`);
+        cachePass(data.pass);
+        setFreeMsg({ tone: 'success', text: "You're registered. Your entry pass is in your passbook." });
+      } catch (e) {
+        setFreeMsg({ tone: 'error', text: errorMessage(e) });
+      }
+      return;
+    }
     addTicketToCart(cart, event);
     setAdded(true);
   };
@@ -107,7 +120,12 @@ export default function EventDetail() {
 
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <div className="panel space-y-4 p-5">
-            <p className="text-3xl font-extrabold">{rupees(event.ticketPrice)}<span className="text-base font-normal text-ink-soft"> per person</span></p>
+            {free ? (
+              <p className="text-3xl font-extrabold text-tulsi">Free entry</p>
+            ) : (
+              <p className="text-3xl font-extrabold">{rupees(event.ticketPrice)}<span className="text-base font-normal text-ink-soft"> per person</span></p>
+            )}
+            {freeMsg && <Notice tone={freeMsg.tone}>{freeMsg.text}</Notice>}
             <p className="flex items-center gap-2 text-ink-soft">
               <Users size={18} aria-hidden /> {over ? 'This event is over' : left === 0 ? 'Sold out' : `${left} of ${event.capacity} places left`}
             </p>
@@ -118,12 +136,12 @@ export default function EventDetail() {
             )}
             {canBook(user) ? (
               <button type="button" className="btn-primary w-full text-lg" disabled={over || left === 0} onClick={register}>
-                <Ticket size={20} aria-hidden /> Register · {rupees(event.ticketPrice)}
+                <Ticket size={20} aria-hidden /> Register · {free ? 'Free' : rupees(event.ticketPrice)}
               </button>
             ) : (
               <p className="rounded-xl bg-mist p-3 text-sm text-ink-soft">You are signed in as staff. Registration is for pilgrims and visitors.</p>
             )}
-            <p className="text-sm text-ink-soft">Pay by UPI or card at checkout. Your entry pass QR appears in your passbook.</p>
+            <p className="text-sm text-ink-soft">{free ? 'Confirmed instantly, no payment needed.' : 'Pay by UPI or card at checkout.'} Your entry pass QR appears in your passbook.</p>
           </div>
         </aside>
       </div>

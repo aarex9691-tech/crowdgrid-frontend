@@ -158,13 +158,13 @@ function Receipt({ order }) {
     <div className="space-y-5">
       <div className="panel space-y-2 p-6">
         <p className="flex items-center gap-2 text-2xl font-bold text-tulsi">
-          <CheckCircle2 size={28} aria-hidden /> Payment successful
+          <CheckCircle2 size={28} aria-hidden /> {order.total === 0 ? 'Booking confirmed' : 'Payment successful'}
         </p>
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-[15px]">
           <dt className="text-ink-soft">Amount</dt>
           <dd className="font-semibold">{rupees(order.total)}</dd>
           <dt className="text-ink-soft">Paid with</dt>
-          <dd>{order.payment.method === 'UPI' ? 'UPI' : 'Card'} · {order.payment.account}</dd>
+          <dd>{order.payment.method === 'FREE' ? 'Free, no payment needed' : `${order.payment.method === 'UPI' ? 'UPI' : 'Card'} · ${order.payment.account}`}</dd>
           <dt className="text-ink-soft">Reference</dt>
           <dd className="font-mono">{order.payment.reference}</dd>
         </dl>
@@ -202,6 +202,12 @@ export default function Checkout() {
     try {
       const items = cart.items.map(({ kind, refId, input, label }) => ({ kind, refId, input, label }));
       const { data } = await API.post('/orders', { items });
+      if (data.total === 0) {
+        // Nothing to pay (free items only): confirm straight away, no payment step
+        const { data: done } = await API.post(`/orders/${data._id}/pay`, {});
+        onPaid(done);
+        return;
+      }
       setOrder(data);
     } catch (err) {
       setError(errorMessage(err));

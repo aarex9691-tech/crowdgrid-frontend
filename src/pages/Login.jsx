@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { errorMessage } from '../lib/api';
 import { homeFor, useAuth } from '../lib/auth';
 import Notice from '../components/Notice';
+import PasswordField from '../components/PasswordField';
 import { COUNTRIES } from '../lib/phone';
 
 export default function Login() {
@@ -59,10 +60,7 @@ export default function Login() {
             />
           </div>
         </div>
-        <div>
-          <label htmlFor="password" className="field-label">Password</label>
-          <input id="password" type="password" className="field" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        </div>
+        <PasswordField id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
         <button type="submit" className="btn-primary w-full text-lg" disabled={busy}>
           {busy ? 'Logging in…' : 'Log in'}
         </button>

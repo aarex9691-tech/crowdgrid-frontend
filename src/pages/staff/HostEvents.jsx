@@ -6,8 +6,12 @@ import { rupees } from '../../lib/cart';
 import { addDaysIST, EVENT_CATEGORIES, fmtDateTime, todayIST } from '../../lib/format';
 import Notice, { Loading } from '../../components/Notice';
 import LocationPicker from '../../components/LocationPicker';
+import DateTimeRange, { toIsoRange, windowError } from '../../components/DateTimeRange';
 
-const MAX_DESC = 500;
+// Description length is counted without spaces (same rule as the server)
+const DESC_MIN = 150;
+const DESC_MAX = 200;
+const letters = (t) => t.replace(/\s/g, '').length;
 
 function HostForm({ onCreated, onCancel }) {
   const [form, setForm] = useState({
@@ -18,14 +22,12 @@ function HostForm({ onCreated, onCancel }) {
     address: '',
     city: 'Nashik',
     pincode: '',
-    date: addDaysIST(todayIST(), 3),
-    start: '18:00',
-    end: '20:00',
     capacity: 100,
     ticketPrice: 99,
     minAge: '',
     contactPhone: '',
   });
+  const [when, setWhen] = useState({ date: addDaysIST(todayIST(), 3), start: '18:00', end: '20:00' });
   const [location, setLocation] = useState(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -39,7 +41,10 @@ function HostForm({ onCreated, onCancel }) {
   const submit = async (e) => {
     e.preventDefault();
     setError('');
-    if (form.end <= form.start) return setError('End time must be after the start time');
+    const wErr = windowError(when);
+    if (wErr) return setError(wErr);
+    const n = letters(form.description);
+    if (n < DESC_MIN || n > DESC_MAX) return setError(`Description must have ${DESC_MIN} to ${DESC_MAX} characters (spaces not counted); it has ${n}`);
     setBusy(true);
     try {
       const body = {
@@ -50,8 +55,7 @@ function HostForm({ onCreated, onCancel }) {
         venue: form.venue,
         address: form.address,
         city: form.city,
-        startDate: `${form.date}T${form.start}:00+05:30`,
-        endDate: `${form.date}T${form.end}:00+05:30`,
+        ...toIsoRange(when),
         capacity: Number(form.capacity),
         ticketPrice: Number(form.ticketPrice),
       };
@@ -91,27 +95,27 @@ function HostForm({ onCreated, onCancel }) {
         </div>
         <div className="sm:col-span-2">
           <label className="field-label" htmlFor="h-desc">Description</label>
-          <textarea id="h-desc" rows={4} maxLength={MAX_DESC} minLength={20} className="field py-3" value={form.description} onChange={set('description')} required />
-          <p className={`mt-1 text-right text-sm ${form.description.length > MAX_DESC - 30 ? 'font-semibold text-kumkum' : 'text-ink-soft'}`}>
-            {form.description.length}/{MAX_DESC} characters
+          <textarea
+            id="h-desc"
+            rows={4}
+            className="field py-3"
+            value={form.description}
+            onChange={(e) => {
+              const v = e.target.value;
+              // Stop typing once 200 letters are reached; spaces are still allowed
+              if (letters(v) <= DESC_MAX || v.length < form.description.length) setForm({ ...form, description: v });
+            }}
+            required
+          />
+          <p className={`mt-1 text-right text-sm ${letters(form.description) < DESC_MIN || letters(form.description) > DESC_MAX ? 'font-semibold text-kumkum' : 'text-tulsi'}`}>
+            {letters(form.description)}/{DESC_MAX} characters (spaces not counted, minimum {DESC_MIN})
           </p>
         </div>
       </fieldset>
 
-      <fieldset className="grid gap-3 sm:grid-cols-3">
+      <fieldset>
         <legend className="mb-2 text-lg font-bold">2. When</legend>
-        <div>
-          <label className="field-label" htmlFor="h-date">Date</label>
-          <input id="h-date" type="date" className="field" min={todayIST()} value={form.date} onChange={set('date')} required />
-        </div>
-        <div>
-          <label className="field-label" htmlFor="h-start">Starts</label>
-          <input id="h-start" type="time" className="field" value={form.start} onChange={set('start')} required />
-        </div>
-        <div>
-          <label className="field-label" htmlFor="h-end">Ends</label>
-          <input id="h-end" type="time" className="field" value={form.end} onChange={set('end')} required />
-        </div>
+        <DateTimeRange idPrefix="h" value={when} onChange={setWhen} />
       </fieldset>
 
       <fieldset className="space-y-3">
@@ -141,8 +145,8 @@ function HostForm({ onCreated, onCancel }) {
       <fieldset className="grid gap-3 sm:grid-cols-4">
         <legend className="mb-2 text-lg font-bold">4. Tickets</legend>
         <div>
-          <label className="field-label" htmlFor="h-price">Ticket price (₹)</label>
-          <input id="h-price" type="number" min={1} max={100000} className="field" value={form.ticketPrice} onChange={set('ticketPrice')} required />
+          <label className="field-label" htmlFor="h-price">Ticket price (₹, 0 = free)</label>
+          <input id="h-price" type="number" min={0} max={100000} className="field" value={form.ticketPrice} onChange={set('ticketPrice')} required />
         </div>
         <div>
           <label className="field-label" htmlFor="h-cap">Capacity</label>
@@ -188,7 +192,7 @@ export default function HostEvents() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold">Hosted events</h1>
-          <p className="text-ink-soft">Public events are paid. Pilgrims register, pay at checkout and get an entry pass.</p>
+          <p className="text-ink-soft">Pilgrims register for your events; paid tickets go through checkout, free ones are confirmed instantly.</p>
         </div>
         {!creating && (
           <button type="button" className="btn-primary" onClick={() => setCreating(true)}>

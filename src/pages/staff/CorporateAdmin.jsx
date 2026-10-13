@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Coffee, Copy, Mail, MessageCircle, Plus, Presentation, Printer, RefreshCw, Trash2, Users, X } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
 import { addDaysIST, fmtDate, fmtDateTime, fmtTime, todayIST } from '../../lib/format';
+import DateTimeRange, { toIsoRange, windowError } from '../../components/DateTimeRange';
 import Notice, { Loading } from '../../components/Notice';
 import QrCode from '../../components/QrCode';
 
@@ -241,11 +242,9 @@ function CreateEventForm({ onCreated, onCancel }) {
     companyName: '',
     venue: '',
     city: 'Nashik',
-    date: addDaysIST(todayIST(), 1),
-    start: '10:00',
-    end: '17:00',
     description: '',
   });
+  const [when, setWhen] = useState({ date: addDaysIST(todayIST(), 1), start: '10:00', end: '17:00' });
   const [sessions, setSessions] = useState([emptySession(), emptySession('MEAL')]);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -255,7 +254,8 @@ function CreateEventForm({ onCreated, onCancel }) {
   const submit = async (e) => {
     e.preventDefault();
     setError('');
-    if (form.end <= form.start) return setError('End time must be after the start time');
+    const wErr = windowError(when);
+    if (wErr) return setError(wErr);
     const filled = sessions.filter((s) => s.title.trim());
     if (!filled.length) return setError('Add at least one session or meal');
     setBusy(true);
@@ -267,8 +267,7 @@ function CreateEventForm({ onCreated, onCancel }) {
         venue: form.venue,
         city: form.city,
         description: form.description,
-        startDate: `${form.date}T${form.start}:00+05:30`,
-        endDate: `${form.date}T${form.end}:00+05:30`,
+        ...toIsoRange(when),
         sessions: filled,
       });
       onCreated(data);
@@ -282,7 +281,7 @@ function CreateEventForm({ onCreated, onCancel }) {
   return (
     <form onSubmit={submit} className="panel space-y-5 p-5">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">New corporate event</h2>
+        <h2 className="text-2xl font-bold">New campus or corporate event</h2>
         <button type="button" className="btn-ghost min-h-10 px-3" onClick={onCancel} aria-label="Close form">
           <X size={18} aria-hidden />
         </button>
@@ -306,20 +305,7 @@ function CreateEventForm({ onCreated, onCancel }) {
           <input id="ce-city" className="field" value={form.city} onChange={set('city')} required />
         </div>
       </div>
-      <div className="grid gap-3 sm:grid-cols-3">
-        <div>
-          <label className="field-label" htmlFor="ce-date">Date</label>
-          <input id="ce-date" type="date" className="field" min={todayIST()} value={form.date} onChange={set('date')} required />
-        </div>
-        <div>
-          <label className="field-label" htmlFor="ce-start">Starts</label>
-          <input id="ce-start" type="time" className="field" value={form.start} onChange={set('start')} required />
-        </div>
-        <div>
-          <label className="field-label" htmlFor="ce-end">Ends</label>
-          <input id="ce-end" type="time" className="field" value={form.end} onChange={set('end')} required />
-        </div>
-      </div>
+      <DateTimeRange idPrefix="ce" value={when} onChange={setWhen} />
       <div>
         <label className="field-label" htmlFor="ce-desc">Short description (optional)</label>
         <textarea id="ce-desc" rows={2} maxLength={500} className="field py-3" value={form.description} onChange={set('description')} />
@@ -382,7 +368,7 @@ export default function CorporateAdmin() {
     <div className="shell space-y-6 py-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold">My corporate events</h1>
+          <h1 className="text-3xl font-bold">My campus &amp; corporate events</h1>
           <p className="text-ink-soft">Create invite-only events, send invitations and see who is coming.</p>
         </div>
         <div className="flex gap-2">

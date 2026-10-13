@@ -250,7 +250,7 @@ export default function ControlRoom() {
             </select>
           </div>
           <button type="button" className="btn-ghost" onClick={load} aria-label="Refresh"><RefreshCw size={18} /></button>
-          {user.role === 'SUPER_ADMIN' && <Link to="/corporate-admin" className="btn-ghost">Corporate events</Link>}
+          {user.role === 'SUPER_ADMIN' && <Link to="/corporate-admin" className="btn-ghost">Campus & corporate events</Link>}
           <Link to="/scan" className="btn-ink">Scanner</Link>
         </div>
       </div>
