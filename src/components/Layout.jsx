@@ -1,7 +1,8 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Briefcase, LogOut, ScanLine, ShieldCheck, Tent, Ticket, UserRound } from 'lucide-react';
+import { Briefcase, LogOut, ScanLine, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ROLE_LABELS, useAuth } from '../lib/auth';
+import { useCart } from '../lib/cart';
 
 const workspaceFor = (role) =>
   ({
@@ -29,6 +30,7 @@ function useOnline() {
 
 export default function Layout() {
   const { user, logout } = useAuth();
+  const cart = useCart();
   const navigate = useNavigate();
   const online = useOnline();
   const workspace = user && workspaceFor(user.role);
@@ -56,6 +58,15 @@ export default function Layout() {
             <span className="hidden sm:inline">My Yatra Passbook</span>
           </NavLink>
 
+          {cart.count > 0 && (
+            <NavLink to="/checkout" className={navCls} aria-label={`Cart, ${cart.count} item${cart.count > 1 ? 's' : ''}`}>
+              <span className="relative">
+                <ShoppingCart size={20} aria-hidden />
+                <span className="absolute -right-2 -top-2 rounded-full bg-kumkum px-1.5 text-xs font-bold text-white">{cart.count}</span>
+              </span>
+              <span className="hidden sm:inline">Cart</span>
+            </NavLink>
+          )}
           {user ? (
             <div className="flex items-center gap-1">
               <NavLink to="/account" className={navCls} title={ROLE_LABELS[user.role]}>
@@ -66,6 +77,7 @@ export default function Layout() {
                 type="button"
                 className="flex min-h-12 min-w-12 items-center justify-center rounded-xl text-ink-soft hover:text-ink"
                 onClick={() => {
+                  cart.clear();
                   logout();
                   navigate('/');
                 }}

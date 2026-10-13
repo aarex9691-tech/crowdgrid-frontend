@@ -39,6 +39,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('cg_token');
     localStorage.removeItem('cg_user');
     localStorage.removeItem('cg_passes');
+    localStorage.removeItem('cg_cart');
     setUser(null);
   }, []);
 

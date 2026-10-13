@@ -9,6 +9,7 @@ import Passbook from './pages/Passbook';
 import Corporate from './pages/Corporate';
 import Scanner from './pages/Scanner';
 import Account from './pages/Account';
+import Checkout from './pages/Checkout';
 import ControlRoom from './pages/staff/ControlRoom';
 import NgoPortal from './pages/staff/NgoPortal';
 import CorporateAdmin from './pages/staff/CorporateAdmin';
@@ -26,6 +27,7 @@ export default function App() {
         <Route element={<RequireRole />}>
           <Route path="/passbook" element={<Passbook />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/checkout" element={<Checkout />} />
         </Route>
         <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'NGO_ADMIN', 'VOLUNTEER']} />}>
           <Route path="/scan" element={<Scanner />} />

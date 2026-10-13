@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { BadgeCheck, Minus, Plus } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
 import { cachePass } from '../../lib/passCache';
+import { rupees, useCart } from '../../lib/cart';
 import { CATEGORY_LABELS, todayIST } from '../../lib/format';
 import Notice, { Loading } from '../../components/Notice';
 import PassCard from '../../components/PassCard';
@@ -13,7 +14,10 @@ const MAX_BEDS = 4;
 const availability = (n) =>
   n === 0 ? <span className="pill-out">Sold out</span> : n <= 5 ? <span className="pill-low">Only {n} beds left</span> : <span className="pill-ok">{n} beds available</span>;
 
-function BookingForm({ lodging, event, onDone, onCancel }) {
+const nightsBetween = (a, b) => Math.max(1, Math.round((new Date(`${b}T12:00:00+05:30`) - new Date(`${a}T12:00:00+05:30`)) / 86400000));
+
+function BookingForm({ lodging, event, onDone, onCancel, onAdded }) {
+  const cart = useCart();
   const today = todayIST();
   const eventEnd = new Date(event.endDate).toISOString().slice(0, 10);
   const [beds, setBeds] = useState(1);
@@ -30,9 +34,26 @@ function BookingForm({ lodging, event, onDone, onCancel }) {
     setGuests((g) => Array.from({ length: next }, (_, i) => g[i] || ''));
   };
 
+  const price = lodging.pricePerNight || 0;
+  const nights = nightsBetween(checkIn, checkOut);
+  const estimate = price * beds * nights;
+
   const submit = async (e) => {
     e.preventDefault();
     setError('');
+    if (price > 0) {
+      cart.add({
+        key: `LODGING:${lodging._id}`,
+        kind: 'LODGING',
+        refId: lodging._id,
+        label: lodging.name,
+        detail: `${beds} bed${beds > 1 ? 's' : ''} · ${nights} night${nights > 1 ? 's' : ''} · ${checkIn === checkOut ? checkIn : `${checkIn} to ${checkOut}`}`,
+        estimate,
+        input: { beds, guestNames: guests, checkIn, checkOut },
+      });
+      onAdded(lodging);
+      return;
+    }
     setBusy(true);
     try {
       const { data } = await API.post(`/lodgings/${lodging._id}/book`, { beds, guestNames: guests, checkIn, checkOut });
@@ -87,7 +108,7 @@ function BookingForm({ lodging, event, onDone, onCancel }) {
       </div>
       <div className="flex flex-wrap gap-3">
         <button type="submit" className="btn-primary" disabled={busy}>
-          {busy ? 'Booking…' : `Book ${beds} bed${beds > 1 ? 's' : ''}`}
+          {price > 0 ? `Add to cart · ${rupees(estimate)}` : busy ? 'Booking…' : `Book ${beds} bed${beds > 1 ? 's' : ''} · Free`}
         </button>
         <button type="button" className="btn-ghost" onClick={onCancel}>Cancel</button>
       </div>
@@ -102,6 +123,7 @@ export default function LodgingTab({ event }) {
   const [error, setError] = useState('');
   const [openId, setOpenId] = useState(null);
   const [confirmed, setConfirmed] = useState(null);
+  const [added, setAdded] = useState(null);
 
   const load = useCallback(() => {
     setError('');
@@ -149,6 +171,11 @@ export default function LodgingTab({ event }) {
       </div>
 
       <Notice tone="error">{error}</Notice>
+      {added && (
+        <Notice tone="success">
+          {added.name} is in your cart. <Link to="/checkout" className="font-bold underline">Go to checkout</Link> to pay and get your QR.
+        </Notice>
+      )}
       {!lodgings ? (
         <Loading label="Finding camps" />
       ) : lodgings.length === 0 ? (
@@ -175,13 +202,19 @@ export default function LodgingTab({ event }) {
                   {availability(l.availableBeds)}
                   {openId !== l._id && (
                     <button type="button" className="btn-primary" disabled={l.availableBeds === 0} onClick={() => gate() && setOpenId(l._id)}>
-                      Book beds
+                      {l.pricePerNight ? 'Choose beds' : 'Book beds'}
                     </button>
                   )}
                 </div>
               </div>
               {openId === l._id && (
-                <BookingForm lodging={l} event={event} onCancel={() => setOpenId(null)} onDone={(data) => { setOpenId(null); setConfirmed(data); }} />
+                <BookingForm
+                  lodging={l}
+                  event={event}
+                  onCancel={() => setOpenId(null)}
+                  onDone={(data) => { setOpenId(null); setConfirmed(data); }}
+                  onAdded={(x) => { setOpenId(null); setAdded(x); }}
+                />
               )}
             </li>
           ))}

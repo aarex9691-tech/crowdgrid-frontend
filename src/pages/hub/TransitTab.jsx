@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Ambulance, Droplets, Footprints, MapPin, Toilet, Waves } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
 import { cachePass } from '../../lib/passCache';
+import { rupees, useCart } from '../../lib/cart';
 import Notice, { Loading } from '../../components/Notice';
 import PassCard from '../../components/PassCard';
 import useLoginGate from './useLoginGate';
@@ -40,6 +41,8 @@ export default function TransitTab({ event }) {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(null);
   const [issued, setIssued] = useState(null);
+  const [added, setAdded] = useState(null);
+  const cart = useCart();
 
   useEffect(() => {
     API.get('/transit', { params: { eventId: event._id } })
@@ -49,6 +52,19 @@ export default function TransitTab({ event }) {
 
   const getPass = async (route) => {
     if (!gate()) return;
+    if (route.fare > 0) {
+      cart.add({
+        key: `TRANSIT:${route._id}`,
+        kind: 'TRANSIT',
+        refId: route._id,
+        label: route.name,
+        detail: `Day pass · ${route.origin} to ${route.destination}`,
+        estimate: route.fare,
+        input: {},
+      });
+      setAdded(route);
+      return;
+    }
     setBusy(route._id);
     setError('');
     try {
@@ -82,6 +98,11 @@ export default function TransitTab({ event }) {
   return (
     <div className="space-y-8">
       <Notice tone="error">{error}</Notice>
+      {added && (
+        <Notice tone="success">
+          {added.name} day pass is in your cart. <Link to="/checkout" className="font-bold underline">Go to checkout</Link> to pay.
+        </Notice>
+      )}
       <section>
         <h2 className="text-2xl font-bold">Shuttle schedule</h2>
         <ul className="mt-4 grid gap-4 md:grid-cols-2">
@@ -100,7 +121,7 @@ export default function TransitTab({ event }) {
               <p className="text-ink-soft">Board at {r.boardingGate}</p>
               <Checkpoints points={r.checkpoints} />
               <button type="button" className="btn-primary mt-5 self-start" disabled={busy === r._id} onClick={() => getPass(r)}>
-                {busy === r._id ? 'Preparing…' : 'Get boarding pass'}
+                {busy === r._id ? 'Preparing…' : r.fare > 0 ? `Add to cart · ${rupees(r.fare)}` : 'Get boarding pass · Free'}
               </button>
             </li>
           ))}
