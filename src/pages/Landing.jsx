@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { BedDouble, BusFront, HandHeart, KeyRound, MapPin, Siren, UtensilsCrossed, Users } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { BedDouble, BusFront, HandHeart, MapPin, Siren, UtensilsCrossed, Users } from 'lucide-react';
 import API, { errorMessage } from '../lib/api';
-import { useAuth } from '../lib/auth';
-import { cachePass } from '../lib/passCache';
-import { compactNumber, fmtDate, fmtDateTime } from '../lib/format';
+import { compactNumber, fmtDate } from '../lib/format';
 import Notice, { Loading } from '../components/Notice';
+import { InvitationCodeBox, PublicEventList, YatraCard } from '../components/EventCards';
 
 function useCountdown(target) {
   const [now, setNow] = useState(() => Date.now());
@@ -103,88 +102,9 @@ function Hero({ event }) {
   );
 }
 
-function PublicEventRow({ event, onRsvp, busy }) {
-  const left = Math.max(0, (event.capacity || 0) - (event.attendeesCount || 0));
-  return (
-    <li className="panel flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
-      <div className="flex-1">
-        <h3 className="text-lg font-bold">{event.title}</h3>
-        <p className="text-ink-soft">
-          {event.venue}, {event.city} · {fmtDateTime(event.startDate)}
-        </p>
-        <p className="mt-1 text-[15px] text-ink-soft">{event.description}</p>
-      </div>
-      <div className="flex items-center gap-3 sm:flex-col sm:items-end">
-        <span className={left === 0 ? 'pill-out' : left <= 5 ? 'pill-low' : 'pill-ok'}>{left === 0 ? 'Full' : `${left} places left`}</span>
-        <button type="button" className="btn-ink" disabled={busy || left === 0} onClick={() => onRsvp(event)}>
-          {busy ? 'Registering…' : 'RSVP now'}
-        </button>
-      </div>
-    </li>
-  );
-}
-
-/** Invite-only corporate events are never listed; invitees enter their code here. */
-function InvitationCodeBox() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  const [code, setCode] = useState('');
-  const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
-
-  const submit = async (e) => {
-    e.preventDefault();
-    if (!user) return navigate('/login', { state: { from: '/' } });
-    setBusy(true);
-    setError('');
-    try {
-      const { data } = await API.post('/events/corporate/redeem', { code });
-      navigate(`/corporate/${data.slug}?code=${code}`);
-    } catch (err) {
-      setError(errorMessage(err));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return (
-    <section aria-labelledby="invite" className="panel flex flex-col gap-4 p-5 md:flex-row md:items-center">
-      <div className="flex-1">
-        <h2 id="invite" className="flex items-center gap-2 text-xl font-bold">
-          <KeyRound size={20} aria-hidden /> Have an invitation code?
-        </h2>
-        <p className="text-ink-soft">Corporate and partner events are invite-only. Enter the 6-digit code from your invitation to claim your badge.</p>
-      </div>
-      <form onSubmit={submit} className="flex flex-col gap-2 md:w-80">
-        <div className="flex gap-2">
-          <label htmlFor="invite-code" className="sr-only">Invitation code</label>
-          <input
-            id="invite-code"
-            className="field text-center text-xl tracking-[0.3em]"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            placeholder="000000"
-            maxLength={6}
-            value={code}
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-          />
-          <button type="submit" className="btn-ink shrink-0" disabled={busy || code.length !== 6}>
-            {busy ? 'Checking…' : 'Continue'}
-          </button>
-        </div>
-        {error && <p className="text-sm font-semibold text-kumkum" role="alert">{error}</p>}
-      </form>
-    </section>
-  );
-}
-
 export default function Landing() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
   const [events, setEvents] = useState(null);
   const [error, setError] = useState('');
-  const [notice, setNotice] = useState(null);
-  const [busyId, setBusyId] = useState(null);
 
   const load = () =>
     API.get('/events')
@@ -203,22 +123,6 @@ export default function Landing() {
     };
   }, [events]);
 
-  const rsvp = async (event) => {
-    if (!user) return navigate('/login', { state: { from: '/' } });
-    setBusyId(event._id);
-    setNotice(null);
-    try {
-      const { data } = await API.post(`/events/${event._id}/rsvp`);
-      cachePass(data.pass);
-      setNotice({ tone: 'success', text: `You're registered for ${event.title}. Your entry pass is in your passbook.` });
-      load();
-    } catch (e) {
-      setNotice({ tone: 'error', text: errorMessage(e) });
-    } finally {
-      setBusyId(null);
-    }
-  };
-
   if (error) return <div className="shell py-10"><Notice tone="error">{error}</Notice></div>;
   if (!events) return <Loading label="Loading yatras" />;
 
@@ -228,23 +132,12 @@ export default function Landing() {
 
       {groups.yatras.length > 0 && (
         <section aria-labelledby="yatras">
-          <h2 id="yatras" className="text-2xl font-bold">More yatras</h2>
+          <div className="flex items-end justify-between gap-3">
+            <h2 id="yatras" className="text-2xl font-bold">More yatras</h2>
+            <Link to="/events?tab=yatras" className="font-semibold underline">All events</Link>
+          </div>
           <ul className="mt-4 grid gap-4 sm:grid-cols-2">
-            {groups.yatras.map((e) => (
-              <li key={e._id} className="panel flex flex-col p-5">
-                <h3 className="text-xl font-bold">{e.title}</h3>
-                <p className="text-ink-soft">{e.tagline}</p>
-                <p className="mt-2 text-[15px]">
-                  {fmtDate(e.startDate, { year: undefined })} to {fmtDate(e.endDate)}
-                </p>
-                <p className="text-[15px] text-ink-soft">
-                  {e.stats?.verifiedProviders ? `${e.stats.verifiedProviders} verified seva camps` : 'Seva camps open closer to the date'}
-                </p>
-                <Link to={`/yatra/${e.slug}`} className="btn-ghost mt-4 self-start">
-                  Explore services
-                </Link>
-              </li>
-            ))}
+            {groups.yatras.map((e) => <YatraCard key={e._id} event={e} />)}
           </ul>
         </section>
       )}
@@ -253,16 +146,11 @@ export default function Landing() {
         <section aria-labelledby="public">
           <h2 id="public" className="text-2xl font-bold">Public events near the mela</h2>
           <p className="text-ink-soft">Open to everyone. RSVP to get an entry pass.</p>
-          {notice && <Notice tone={notice.tone} className="mt-4">{notice.text}</Notice>}
-          <ul className="mt-4 space-y-3">
-            {groups.publicEvents.map((e) => (
-              <PublicEventRow key={e._id} event={e} onRsvp={rsvp} busy={busyId === e._id} />
-            ))}
-          </ul>
+          <PublicEventList events={groups.publicEvents} onChange={load} from="/" />
         </section>
       )}
 
-      <InvitationCodeBox />
+      <InvitationCodeBox from="/" />
     </div>
   );
 }

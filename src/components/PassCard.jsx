@@ -28,6 +28,7 @@ const detailRows = (pass) => {
   if (d.location) rows.push(['Your bed', d.location]);
   if (d.beds) rows.push(['Beds', d.beds]);
   if (d.people > 1) rows.push(['People', d.people]);
+  if (d.paid) rows.push(['Paid', `₹${d.paid}`]);
   if (d.menu?.length && pass.type === 'MEAL') rows.push(['Menu', d.menu.join(', ')]);
   if (d.guests?.length) rows.push([pass.type === 'MEAL' ? 'Names' : 'Guests', d.guests.join(', ')]);
   if (d.checkIn) rows.push(['Stay', d.checkIn === d.checkOut ? day(d.checkIn) : `${day(d.checkIn)} to ${day(d.checkOut)}`]);
