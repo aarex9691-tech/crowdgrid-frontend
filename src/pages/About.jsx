@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { BedDouble, Code2, Mail, Phone, QrCode, ShieldCheck, Siren, UtensilsCrossed, Users } from 'lucide-react';
+import { BedDouble, Code2, Mail, MessageCircle, Phone, QrCode, Siren, UtensilsCrossed } from 'lucide-react';
 import { SITE } from '../lib/site';
 
 const MILESTONES = [
@@ -73,19 +73,9 @@ export default function About() {
           </ol>
         </section>
 
-        <section aria-labelledby="team" className="grid gap-6 md:grid-cols-2">
-          <div className="panel p-6">
-            <h2 id="team" className="flex items-center gap-2 text-2xl font-bold"><Users size={22} aria-hidden /> The team</h2>
-            <ul className="mt-3 space-y-1">
-              {SITE.team.map((n) => <li key={n} className="text-lg">{n}</li>)}
-            </ul>
-            <p className="mt-3 text-ink-soft">Guided by {SITE.guide}</p>
-            <p className="text-ink-soft">{SITE.institute}</p>
-            <p className="mt-3 flex items-center gap-2 text-sm text-ink-soft"><ShieldCheck size={16} aria-hidden /> Full Stack Development mini project, MERN stack</p>
-          </div>
-
+        <section aria-labelledby="contact-title" className="grid gap-6 md:grid-cols-2">
           <div id="contact" className="panel scroll-mt-24 p-6">
-            <h2 className="text-2xl font-bold">Contact the owner</h2>
+            <h2 id="contact-title" className="text-2xl font-bold">Contact the owner</h2>
             <p className="mt-1 text-ink-soft">Questions, partnerships or a camp to list? Reach {SITE.owner}.</p>
             <ul className="mt-4 space-y-3">
               <li>
@@ -110,6 +100,17 @@ export default function About() {
               In an emergency at the mela, call <a className="font-bold text-kumkum" href="tel:112">112</a> or medical{' '}
               <a className="font-bold text-kumkum" href="tel:108">108</a>, or use the <Link className="font-bold underline" to={`/yatra/${SITE.flagshipSlug}?tab=sos`}>SOS button</Link>.
             </p>
+          </div>
+
+          <div className="flex flex-col justify-between gap-4 rounded-2xl bg-ink p-6 text-white">
+            <div>
+              <p className="text-sm uppercase tracking-wide text-marigold">Quick help</p>
+              <h2 className="mt-1 text-2xl font-bold">Talk to us on WhatsApp</h2>
+              <p className="mt-2 text-[#c9d6ee]">Listing a camp or kitchen, a corporate event, or a problem with a booking? Send us a message on WhatsApp.</p>
+            </div>
+            <a className="btn-primary self-start" href={`https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent('Hi, I have a question about CrowdGrid.')}`} target="_blank" rel="noreferrer">
+              <MessageCircle size={20} aria-hidden /> Chat on WhatsApp
+            </a>
           </div>
         </section>
       </div>
