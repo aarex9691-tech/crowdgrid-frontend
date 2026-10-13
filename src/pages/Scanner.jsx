@@ -101,12 +101,7 @@ export default function Scanner() {
               {result.pass.subtitle && <p>{result.pass.subtitle}</p>}
               {result.pass.holder && <p className="mt-1">Holder: {result.pass.holder.name} ({result.pass.holder.phone})</p>}
               {result.pass.details?.people > 1 && <p className="mt-2 text-2xl font-extrabold">Serve {result.pass.details.people} plates</p>}
-              {result.pass.details?.tent && (
-                <p className="mt-2 text-2xl font-extrabold">
-                  {result.pass.details.tent}
-                  {result.pass.details.bedNumbers?.length ? ` · Bed ${result.pass.details.bedNumbers.join(', ')}` : ''}
-                </p>
-              )}
+              {result.pass.details?.location && <p className="mt-2 text-2xl font-extrabold">{result.pass.details.location}</p>}
               {result.pass.details?.guests?.length > 0 && <p>Names: {result.pass.details.guests.join(', ')}</p>}
             </div>
           )}

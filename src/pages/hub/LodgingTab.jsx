@@ -117,7 +117,9 @@ export default function LodgingTab({ event }) {
   if (confirmed) {
     return (
       <div className="mx-auto max-w-lg space-y-4">
-        <Notice tone="success">Booking confirmed. Show this QR at the camp gate when you arrive.</Notice>
+        <Notice tone="success">
+          Booking confirmed{confirmed.pass?.details?.location ? <>: <b>{confirmed.pass.details.location}</b></> : ''}. Show this QR at the camp gate when you arrive.
+        </Notice>
         <PassCard pass={confirmed.pass} />
         <div className="flex flex-wrap gap-3">
           <Link to="/passbook" className="btn-ink">Open my passbook</Link>

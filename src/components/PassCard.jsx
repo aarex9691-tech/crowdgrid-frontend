@@ -25,8 +25,8 @@ const STATE = {
 const detailRows = (pass) => {
   const d = pass.details || {};
   const rows = [];
-  if (d.tent) rows.push(['Tent', d.tent]);
-  if (d.beds) rows.push(['Beds', d.bedNumbers?.length ? `${d.beds} (bed ${d.bedNumbers.join(', ')})` : d.beds]);
+  if (d.location) rows.push(['Your bed', d.location]);
+  if (d.beds) rows.push(['Beds', d.beds]);
   if (d.people > 1) rows.push(['People', d.people]);
   if (d.menu?.length && pass.type === 'MEAL') rows.push(['Menu', d.menu.join(', ')]);
   if (d.guests?.length) rows.push([pass.type === 'MEAL' ? 'Names' : 'Guests', d.guests.join(', ')]);
