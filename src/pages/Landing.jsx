@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, BedDouble, Briefcase, BusFront, CalendarCheck, CreditCard, HandHeart, MapPin, QrCode, ScanLine, Siren, Ticket, UtensilsCrossed, Users } from 'lucide-react';
 import { SITE } from '../lib/site';
+import { canBook, homeFor, ROLE_LABELS, useAuth } from '../lib/auth';
+import HeroSearch from '../components/HeroSearch';
 import API, { errorMessage } from '../lib/api';
 import { compactNumber, fmtDate } from '../lib/format';
 import Notice, { Loading } from '../components/Notice';
@@ -31,7 +33,7 @@ const SERVICES = [
   { tab: 'sos', label: 'Emergency SOS', icon: Siren },
 ];
 
-function Hero({ event }) {
+function Hero({ event, withSearch = false }) {
   const c = useCountdown(event.startDate);
   const nextDates = (event.keyDates || []).slice(0, 3);
   return (
@@ -86,7 +88,8 @@ function Hero({ event }) {
         </div>
       </div>
 
-      <nav aria-label="Services" className="grid grid-cols-2 border-t border-white/10 sm:grid-cols-5">
+      {withSearch && <div className="h-10" aria-hidden />}
+      {!withSearch && <nav aria-label="Services" className="grid grid-cols-2 border-t border-white/10 sm:grid-cols-5">
         {SERVICES.map((s) => (
           <Link
             key={s.tab}
@@ -98,7 +101,7 @@ function Hero({ event }) {
             <s.icon size={20} aria-hidden /> {s.label}
           </Link>
         ))}
-      </nav>
+      </nav>}
     </section>
   );
 }
@@ -197,6 +200,7 @@ function FloatingCta() {
 }
 
 export default function Landing() {
+  const { user } = useAuth();
   const [events, setEvents] = useState(null);
   const [error, setError] = useState('');
 
@@ -222,7 +226,20 @@ export default function Landing() {
 
   return (
     <div className="shell space-y-12 py-6">
-      {groups.flagship && <Hero event={groups.flagship} />}
+      {!canBook(user) && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-marigold bg-marigold-wash p-4">
+          <p>
+            Signed in as <b>{ROLE_LABELS[user.role]}</b>. Staff accounts manage the mela; booking is for pilgrims.
+          </p>
+          <Link to={homeFor(user.role)} className="btn-ink min-h-10 px-4">Open my dashboard</Link>
+        </div>
+      )}
+      {groups.flagship && (
+        <div>
+          <Hero event={groups.flagship} withSearch={canBook(user)} />
+          {canBook(user) && <HeroSearch event={groups.flagship} />}
+        </div>
+      )}
 
       <HowItWorks />
 
@@ -249,7 +266,7 @@ export default function Landing() {
       <InvitationCodeBox from="/" />
 
       <PlanTiles />
-      <FloatingCta />
+      {canBook(user) && <FloatingCta />}
     </div>
   );
 }

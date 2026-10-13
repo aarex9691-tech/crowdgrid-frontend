@@ -72,7 +72,7 @@ export default function EventDetail() {
               <MapPin size={22} className="mt-0.5 shrink-0 text-kumkum" aria-hidden />
               <span>
                 <b>{event.venue}</b>
-                <span className="block text-ink-soft">{[event.address, event.city, event.pincode].filter(Boolean).join(', ')}</span>
+                <span className="block text-ink-soft">{[event.address, (event.address || '').toLowerCase().includes((event.city || '').toLowerCase()) ? null : event.city, event.pincode].filter(Boolean).join(', ')}</span>
               </span>
             </p>
             {event.minAge > 0 && (

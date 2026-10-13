@@ -1,18 +1,42 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Briefcase, LogOut, Menu, MessageCircle, ScanLine, ShieldCheck, ShoppingCart, Tent, UserRound, X } from 'lucide-react';
+import { Briefcase, CalendarPlus, LogOut, Menu, MessageCircle, ScanLine, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ROLE_LABELS, useAuth } from '../lib/auth';
 import { useCart } from '../lib/cart';
 import { SITE } from '../lib/site';
 
-const workspaceFor = (role) =>
-  ({
-    SUPER_ADMIN: { to: '/control', label: 'Control room', icon: ShieldCheck },
-    AUTHORITY: { to: '/control', label: 'Control room', icon: ShieldCheck },
-    NGO_ADMIN: { to: '/ngo', label: 'My camps', icon: Tent },
-    VOLUNTEER: { to: '/scan', label: 'Scanner', icon: ScanLine },
-    CORPORATE_ADMIN: { to: '/corporate-admin', label: 'My events', icon: Briefcase },
-  })[role];
+/**
+ * Each role gets its own navigation. Pilgrims see booking (passbook, cart,
+ * "Book now"); admins and hosts see their dashboards instead and never book.
+ */
+const navFor = (role) => {
+  const scan = { to: '/scan', label: 'Scanner', icon: ScanLine };
+  const about = { to: '/about', label: 'About' };
+  switch (role) {
+    case 'SUPER_ADMIN':
+      return {
+        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, { to: '/host', label: 'Hosted events', icon: CalendarPlus }, { to: '/corporate-admin', label: 'Corporate', icon: Briefcase }, scan],
+        cta: { to: '/host', label: 'Host an event' },
+      };
+    case 'AUTHORITY':
+      return {
+        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, { to: '/host', label: 'Hosted events', icon: CalendarPlus }, scan, about],
+        cta: { to: '/host', label: 'Host an event' },
+      };
+    case 'NGO_ADMIN':
+      return { links: [{ to: '/ngo', label: 'My camps', icon: Tent }, scan, { to: '/events', label: 'Events' }, about], cta: { to: '/scan', label: 'Open scanner' } };
+    case 'CORPORATE_ADMIN':
+      return { links: [{ to: '/corporate-admin', label: 'My events', icon: Briefcase }, scan, about], cta: { to: '/corporate-admin', label: 'New event' } };
+    case 'VOLUNTEER':
+      return { links: [scan, { to: '/passbook', label: 'My ID badge', icon: Ticket }, about], cta: { to: '/scan', label: 'Open scanner' } };
+    default:
+      return {
+        links: [{ to: '/', label: 'Home', end: true }, { to: '/events', label: 'Events' }, { to: '/passbook', label: 'My Passbook' }, about],
+        cta: { to: `/yatra/${SITE.flagshipSlug}`, label: 'Book now' },
+        shopper: true,
+      };
+  }
+};
 
 function useOnline() {
   const [online, setOnline] = useState(navigator.onLine);
@@ -29,20 +53,13 @@ function useOnline() {
   return online;
 }
 
-const MAIN_LINKS = [
-  { to: '/', label: 'Home', end: true },
-  { to: '/events', label: 'Events' },
-  { to: '/passbook', label: 'My Passbook' },
-  { to: '/about', label: 'About' },
-];
-
 export default function Layout() {
   const { user, logout } = useAuth();
   const cart = useCart();
   const navigate = useNavigate();
   const online = useOnline();
   const [menuOpen, setMenuOpen] = useState(false);
-  const workspace = user && workspaceFor(user.role);
+  const nav = navFor(user?.role);
   const close = () => setMenuOpen(false);
 
   const doLogout = () => {
@@ -68,19 +85,14 @@ export default function Layout() {
 
           {/* Desktop navigation */}
           <nav aria-label="Main" className="mr-auto hidden items-center gap-0.5 lg:flex">
-            {MAIN_LINKS.map((l) => (
+            {nav.links.map((l) => (
               <NavLink key={l.to} to={l.to} end={l.end} className={linkCls}>
-                {l.label}
+                {l.icon && <l.icon size={18} aria-hidden />} {l.label}
               </NavLink>
             ))}
-            {workspace && (
-              <NavLink to={workspace.to} className={linkCls}>
-                <workspace.icon size={18} aria-hidden /> {workspace.label}
-              </NavLink>
-            )}
           </nav>
 
-          {cart.count > 0 && (
+          {nav.shopper && cart.count > 0 && (
             <NavLink to="/checkout" className={linkCls} aria-label={`Cart, ${cart.count} item${cart.count > 1 ? 's' : ''}`} onClick={close}>
               <span className="relative">
                 <ShoppingCart size={20} aria-hidden />
@@ -106,8 +118,8 @@ export default function Layout() {
           </div>
 
           {/* Call to action */}
-          <Link to={`/yatra/${SITE.flagshipSlug}`} className="btn-primary ml-1 hidden min-h-10 whitespace-nowrap px-4 sm:inline-flex" onClick={close}>
-            Book now
+          <Link to={nav.cta.to} className="btn-primary ml-1 hidden min-h-10 whitespace-nowrap px-4 sm:inline-flex" onClick={close}>
+            {nav.cta.label}
           </Link>
 
           {/* Mobile menu button */}
@@ -126,16 +138,11 @@ export default function Layout() {
         {menuOpen && (
           <nav id="mobile-menu" aria-label="Main" className="border-t border-line bg-white lg:hidden">
             <div className="shell space-y-1 py-3">
-              {MAIN_LINKS.map((l) => (
+              {nav.links.map((l) => (
                 <NavLink key={l.to} to={l.to} end={l.end} className={menuCls} onClick={close}>
-                  {l.label}
+                  {l.icon && <l.icon size={20} aria-hidden />} {l.label}
                 </NavLink>
               ))}
-              {workspace && (
-                <NavLink to={workspace.to} className={menuCls} onClick={close}>
-                  <workspace.icon size={20} aria-hidden /> {workspace.label}
-                </NavLink>
-              )}
               <div className="my-2 border-t border-line" />
               {user ? (
                 <>
@@ -149,8 +156,8 @@ export default function Layout() {
               ) : (
                 <NavLink to="/login" className={menuCls} onClick={close}>Log in or create account</NavLink>
               )}
-              <Link to={`/yatra/${SITE.flagshipSlug}`} className="btn-primary mt-2 w-full sm:hidden" onClick={close}>
-                Book now
+              <Link to={nav.cta.to} className="btn-primary mt-2 w-full sm:hidden" onClick={close}>
+                {nav.cta.label}
               </Link>
             </div>
           </nav>

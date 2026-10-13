@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { BadgeCheck, Minus, Plus } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
 import { cachePass } from '../../lib/passCache';
@@ -8,6 +8,7 @@ import { CATEGORY_LABELS, todayIST } from '../../lib/format';
 import Notice, { Loading } from '../../components/Notice';
 import PassCard from '../../components/PassCard';
 import useLoginGate from './useLoginGate';
+import { canBook, useAuth } from '../../lib/auth';
 
 const MAX_BEDS = 4;
 
@@ -16,14 +17,15 @@ const availability = (n) =>
 
 const nightsBetween = (a, b) => Math.max(1, Math.round((new Date(`${b}T12:00:00+05:30`) - new Date(`${a}T12:00:00+05:30`)) / 86400000));
 
-function BookingForm({ lodging, event, onDone, onCancel, onAdded }) {
+function BookingForm({ lodging, event, onDone, onCancel, onAdded, prefill = {} }) {
   const cart = useCart();
   const today = todayIST();
   const eventEnd = new Date(event.endDate).toISOString().slice(0, 10);
-  const [beds, setBeds] = useState(1);
-  const [guests, setGuests] = useState(['']);
-  const [checkIn, setCheckIn] = useState(today);
-  const [checkOut, setCheckOut] = useState(today);
+  const startBeds = Math.max(1, Math.min(MAX_BEDS, lodging.availableBeds, Number(prefill.beds) || 1));
+  const [beds, setBeds] = useState(startBeds);
+  const [guests, setGuests] = useState(() => Array.from({ length: startBeds }, () => ''));
+  const [checkIn, setCheckIn] = useState(prefill.checkIn >= today ? prefill.checkIn : today);
+  const [checkOut, setCheckOut] = useState(prefill.checkIn >= today ? prefill.checkIn : today);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const maxBeds = Math.min(MAX_BEDS, lodging.availableBeds);
@@ -118,7 +120,11 @@ function BookingForm({ lodging, event, onDone, onCancel, onAdded }) {
 
 export default function LodgingTab({ event }) {
   const gate = useLoginGate();
-  const [filters, setFilters] = useState({ sector: '', category: '' });
+  const { user } = useAuth();
+  const staff = !canBook(user);
+  const [params] = useSearchParams();
+  const [filters, setFilters] = useState({ sector: params.get('sector') || '', category: '' });
+  const prefill = { checkIn: params.get('checkIn') || '', beds: params.get('beds') || '' };
   const [lodgings, setLodgings] = useState(null);
   const [error, setError] = useState('');
   const [openId, setOpenId] = useState(null);
@@ -200,7 +206,7 @@ export default function LodgingTab({ event }) {
                 </div>
                 <div className="flex items-center gap-3 sm:flex-col sm:items-end">
                   {availability(l.availableBeds)}
-                  {openId !== l._id && (
+                  {!staff && openId !== l._id && (
                     <button type="button" className="btn-primary" disabled={l.availableBeds === 0} onClick={() => gate() && setOpenId(l._id)}>
                       {l.pricePerNight ? 'Choose beds' : 'Book beds'}
                     </button>
@@ -209,6 +215,7 @@ export default function LodgingTab({ event }) {
               </div>
               {openId === l._id && (
                 <BookingForm
+                  prefill={prefill}
                   lodging={l}
                   event={event}
                   onCancel={() => setOpenId(null)}

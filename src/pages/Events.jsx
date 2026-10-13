@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Briefcase, Flag, Ticket } from 'lucide-react';
 import API, { errorMessage } from '../lib/api';
-import { fmtDate } from '../lib/format';
+import { EVENT_CATEGORIES, fmtDate } from '../lib/format';
 import Notice, { Loading } from '../components/Notice';
 import { InvitationCodeBox, PublicEventList, YatraCard } from '../components/EventCards';
 
@@ -28,7 +28,8 @@ export default function Events() {
   }, []);
 
   const yatras = useMemo(() => (events || []).filter((e) => e.kind === 'YATRA').sort((a, b) => (b.isFlagship ? 1 : 0) - (a.isFlagship ? 1 : 0)), [events]);
-  const publicEvents = useMemo(() => (events || []).filter((e) => e.kind === 'PUBLIC'), [events]);
+  const category = params.get('category') || '';
+  const publicEvents = useMemo(() => (events || []).filter((e) => e.kind === 'PUBLIC' && (!category || e.category === category)), [events, category]);
   const counts = { yatras: yatras.length, public: publicEvents.length };
 
   return (
@@ -81,7 +82,22 @@ export default function Events() {
           <Notice>No yatras are open right now.</Notice>
         )
       ) : active.id === 'public' ? (
-        publicEvents.length ? <PublicEventList events={publicEvents} onChange={load} from="/events?tab=public" /> : <Notice>No public events are open right now.</Notice>
+        <>
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Category">
+            {[['', 'All'], ...Object.entries(EVENT_CATEGORIES)].map(([k, v]) => (
+              <button
+                key={k || 'all'}
+                type="button"
+                aria-pressed={category === k}
+                onClick={() => setParams(k ? { tab: 'public', category: k } : { tab: 'public' })}
+                className={category === k ? 'btn-ink min-h-10 px-3' : 'btn-ghost min-h-10 px-3'}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+          {publicEvents.length ? <PublicEventList events={publicEvents} from="/events?tab=public" /> : <Notice>No {category ? EVENT_CATEGORIES[category].toLowerCase() + ' ' : ''}events are open right now.</Notice>}
+        </>
       ) : (
         <InvitationCodeBox from="/events?tab=corporate" />
       )}

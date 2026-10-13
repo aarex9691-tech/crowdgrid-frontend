@@ -7,6 +7,7 @@ import { rupees, useCart } from '../../lib/cart';
 import Notice, { Loading } from '../../components/Notice';
 import PassCard from '../../components/PassCard';
 import useLoginGate from './useLoginGate';
+import { canBook, useAuth } from '../../lib/auth';
 
 const CHECKPOINT_ICON = { STOP: MapPin, WATER: Droplets, TOILET: Toilet, AMBULANCE: Ambulance, GHAT: Waves };
 const CHECKPOINT_LABEL = { STOP: 'Stop', WATER: 'Drinking water', TOILET: 'Bio-toilets', AMBULANCE: 'Ambulance halt', GHAT: 'Ghat' };
@@ -37,6 +38,8 @@ function Checkpoints({ points }) {
 
 export default function TransitTab({ event }) {
   const gate = useLoginGate();
+  const { user } = useAuth();
+  const staff = !canBook(user);
   const [routes, setRoutes] = useState(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(null);
@@ -120,9 +123,9 @@ export default function TransitTab({ event }) {
               </p>
               <p className="text-ink-soft">Board at {r.boardingGate}</p>
               <Checkpoints points={r.checkpoints} />
-              <button type="button" className="btn-primary mt-5 self-start" disabled={busy === r._id} onClick={() => getPass(r)}>
+              {!staff && <button type="button" className="btn-primary mt-5 self-start" disabled={busy === r._id} onClick={() => getPass(r)}>
                 {busy === r._id ? 'Preparing…' : r.fare > 0 ? `Add to cart · ${rupees(r.fare)}` : 'Get boarding pass · Free'}
-              </button>
+              </button>}
             </li>
           ))}
         </ul>

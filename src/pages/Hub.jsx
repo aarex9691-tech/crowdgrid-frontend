@@ -4,6 +4,7 @@ import { BedDouble, BusFront, HandHeart, Siren, UtensilsCrossed } from 'lucide-r
 import API, { errorMessage } from '../lib/api';
 import { fmtDate } from '../lib/format';
 import Notice, { Loading } from '../components/Notice';
+import { canBook, homeFor, ROLE_LABELS, useAuth } from '../lib/auth';
 import LodgingTab from './hub/LodgingTab';
 import FoodTab from './hub/FoodTab';
 import TransitTab from './hub/TransitTab';
@@ -19,6 +20,7 @@ const TABS = [
 ];
 
 export default function Hub() {
+  const { user } = useAuth();
   const { slug } = useParams();
   const [params, setParams] = useSearchParams();
   const [event, setEvent] = useState(null);
@@ -70,6 +72,14 @@ export default function Hub() {
           })}
         </div>
       </nav>
+      {!canBook(user) && (
+        <div className="shell pt-4">
+          <Notice>
+            Staff view ({ROLE_LABELS[user.role]}): you can see live availability here. Booking is only for pilgrims.{' '}
+            <Link className="font-bold underline" to={homeFor(user.role)}>Go to your dashboard</Link>
+          </Notice>
+        </div>
+      )}
 
       <div className="shell py-6" role="tabpanel">
         <active.Component event={event} />

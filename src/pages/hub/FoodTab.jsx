@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import API, { errorMessage } from '../../lib/api';
 import { cachePass } from '../../lib/passCache';
 import { addDaysIST, fmtDate, MEAL_LABELS, todayIST } from '../../lib/format';
 import Notice, { Loading } from '../../components/Notice';
 import PassCard from '../../components/PassCard';
 import useLoginGate from './useLoginGate';
+import { canBook, useAuth } from '../../lib/auth';
 
 const MEAL_TIMES = { BREAKFAST: '7 – 9 am', LUNCH: '12 – 3 pm', DINNER: '7 – 10 pm' };
 
@@ -19,9 +20,12 @@ const currentMeal = () => {
 
 export default function FoodTab({ event }) {
   const gate = useLoginGate();
+  const { user } = useAuth();
+  const staff = !canBook(user);
   const today = todayIST();
-  const [date, setDate] = useState(today);
-  const [meal, setMeal] = useState(currentMeal);
+  const [params] = useSearchParams();
+  const [date, setDate] = useState(() => (params.get('date') >= today ? params.get('date') : today));
+  const [meal, setMeal] = useState(() => (['BREAKFAST', 'LUNCH', 'DINNER'].includes(params.get('meal')) ? params.get('meal') : currentMeal()));
   const [sector, setSector] = useState('');
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
@@ -108,7 +112,7 @@ export default function FoodTab({ event }) {
       </div>
 
       <Notice tone="error">{error}</Notice>
-      <div className="panel flex flex-col gap-4 p-4 sm:flex-row sm:items-end">
+      {!staff && <div className="panel flex flex-col gap-4 p-4 sm:flex-row sm:items-end">
         <div>
           <p id="people-label" className="field-label">Token for how many people?</p>
           <div className="flex items-center gap-2" role="group" aria-labelledby="people-label">
@@ -123,7 +127,7 @@ export default function FoodTab({ event }) {
             <input id="meal-names" className="field" placeholder="e.g. Ramesh, Lata, Aai, Baba" value={names} onChange={(e) => setNames(e.target.value)} maxLength={300} />
           </div>
         )}
-      </div>
+      </div>}
       <p className="text-ink-soft">One token per account for each meal, covering up to 6 family members. Show it at the counter during the meal window.</p>
 
       {!data ? (
@@ -158,9 +162,9 @@ export default function FoodTab({ event }) {
                     <div className="mt-1 h-2.5 overflow-hidden rounded-full bg-mist" aria-hidden>
                       <div className={`h-full rounded-full ${pct === 0 ? 'bg-kumkum' : pct < 20 ? 'bg-marigold' : 'bg-tulsi'}`} style={{ width: `${pct}%` }} />
                     </div>
-                    <button type="button" className="btn-primary mt-4" disabled={slot.remaining < people || busySlot === slot._id} onClick={() => claim(slot)}>
+                    {!staff && <button type="button" className="btn-primary mt-4" disabled={slot.remaining < people || busySlot === slot._id} onClick={() => claim(slot)}>
                       {slot.remaining === 0 ? 'All tokens taken' : busySlot === slot._id ? 'Claiming…' : people > 1 ? `Claim token for ${people}` : 'Claim meal token'}
-                    </button>
+                    </button>}
                   </>
                 ) : (
                   <p className="mt-4 text-ink-soft">Not serving {MEAL_LABELS[meal].toLowerCase()} on this day.</p>
