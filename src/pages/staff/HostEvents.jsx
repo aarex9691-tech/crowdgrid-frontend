@@ -7,6 +7,9 @@ import { addDaysIST, EVENT_CATEGORIES, fmtDateTime, todayIST } from '../../lib/f
 import Notice, { Loading } from '../../components/Notice';
 import LocationPicker from '../../components/LocationPicker';
 import DateTimeRange, { toIsoRange, windowError } from '../../components/DateTimeRange';
+import { NumberField, PinField, TextField } from '../../components/Fields';
+import PhoneField from '../../components/PhoneField';
+import { cleanText, firstError, intError, optionalPhoneError, pinError, textError } from '../../lib/validate';
 
 // Description length is counted without spaces (same rule as the server)
 const DESC_MIN = 150;
@@ -22,29 +25,53 @@ function HostForm({ onCreated, onCancel }) {
     address: '',
     city: 'Nashik',
     pincode: '',
-    capacity: 100,
-    ticketPrice: 99,
+    capacity: '100',
+    ticketPrice: '99',
     minAge: '',
+    contactCountryCode: '91',
     contactPhone: '',
   });
+  const [tried, setTried] = useState(false);
   const [when, setWhen] = useState({ date: addDaysIST(todayIST(), 3), start: '18:00', end: '20:00' });
   const [location, setLocation] = useState(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+  const put = (k) => (v) => setForm((f) => ({ ...f, [k]: v }));
 
   const onPick = (p) => {
     if (p.location) setLocation(p.location);
-    setForm((f) => ({ ...f, address: p.address || f.address, city: p.city || f.city, pincode: p.pincode || f.pincode }));
+    // Map results can contain characters our fields do not accept, so clean them the same way as typing
+    setForm((f) => ({
+      ...f,
+      address: p.address ? cleanText(p.address, 'address') : f.address,
+      city: p.city ? cleanText(p.city, 'city') : f.city,
+      pincode: p.pincode ? String(p.pincode).replace(/\D/g, '').slice(0, 6) : f.pincode,
+    }));
   };
 
   const submit = async (e) => {
     e.preventDefault();
     setError('');
-    const wErr = windowError(when);
-    if (wErr) return setError(wErr);
+    setTried(true);
     const n = letters(form.description);
-    if (n < DESC_MIN || n > DESC_MAX) return setError(`Description must have ${DESC_MIN} to ${DESC_MAX} characters (spaces not counted); it has ${n}`);
+    const problem = firstError(
+      textError(form.title, 'Event title', 'title', { required: true }),
+      n < DESC_MIN || n > DESC_MAX ? `Description must have ${DESC_MIN} to ${DESC_MAX} characters (spaces not counted); it has ${n}` : '',
+      windowError(when),
+      textError(form.venue, 'Venue name', 'venue', { required: true }),
+      textError(form.address, 'Street / landmark', 'address', { required: true }),
+      textError(form.city, 'City', 'city', { required: true }),
+      pinError(form.pincode),
+      intError(form.ticketPrice, 'Ticket price', { min: 0, max: 100000, required: true }),
+      intError(form.capacity, 'Capacity', { min: 1, max: 100000, required: true }),
+      intError(form.minAge, 'Minimum age', { min: 0, max: 100 }),
+      optionalPhoneError(form.contactCountryCode, form.contactPhone) && `Contact number: ${optionalPhoneError(form.contactCountryCode, form.contactPhone)}`,
+    );
+    if (problem) {
+      setError(`Please fix the highlighted fields. ${problem}`);
+      return;
+    }
     setBusy(true);
     try {
       const body = {
@@ -62,7 +89,10 @@ function HostForm({ onCreated, onCancel }) {
       // Optional fields are only sent when filled in, so nothing empty is stored
       if (form.pincode) body.pincode = form.pincode;
       if (form.minAge) body.minAge = Number(form.minAge);
-      if (form.contactPhone) body.contactPhone = form.contactPhone;
+      if (form.contactPhone) {
+        body.contactCountryCode = form.contactCountryCode;
+        body.contactPhone = form.contactPhone;
+      }
       if (location) body.location = location;
       const { data } = await API.post('/events', body);
       onCreated(data);
@@ -74,7 +104,7 @@ function HostForm({ onCreated, onCancel }) {
   };
 
   return (
-    <form onSubmit={submit} className="panel space-y-5 p-5">
+    <form onSubmit={submit} noValidate className="panel space-y-5 p-5">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Host a public event</h2>
         <button type="button" className="btn-ghost min-h-10 px-3" onClick={onCancel} aria-label="Close form"><X size={18} aria-hidden /></button>
@@ -83,10 +113,7 @@ function HostForm({ onCreated, onCancel }) {
 
       <fieldset className="grid gap-3 sm:grid-cols-[2fr_1fr]">
         <legend className="mb-2 text-lg font-bold">1. What</legend>
-        <div>
-          <label className="field-label" htmlFor="h-title">Event title</label>
-          <input id="h-title" className="field" maxLength={100} value={form.title} onChange={set('title')} required />
-        </div>
+        <TextField id="h-title" label="Event title" rule="title" required value={form.title} onChange={put('title')} showErrors={tried} placeholder="e.g. Bhajan Sandhya at Kalidas Kala Mandir" />
         <div>
           <label className="field-label" htmlFor="h-cat">Category</label>
           <select id="h-cat" className="field" value={form.category} onChange={set('category')}>
@@ -107,7 +134,7 @@ function HostForm({ onCreated, onCancel }) {
             }}
             required
           />
-          <p className={`mt-1 text-right text-sm ${letters(form.description) < DESC_MIN || letters(form.description) > DESC_MAX ? 'font-semibold text-kumkum' : 'text-tulsi'}`}>
+          <p className={`mt-1 text-right text-sm tabular-nums ${letters(form.description) < DESC_MIN || letters(form.description) > DESC_MAX ? 'font-semibold text-kumkum' : 'text-tulsi'}`}>
             {letters(form.description)}/{DESC_MAX} characters (spaces not counted, minimum {DESC_MIN})
           </p>
         </div>
@@ -123,43 +150,28 @@ function HostForm({ onCreated, onCancel }) {
         <LocationPicker value={location} onPick={onPick} />
         <p className="text-sm text-ink-soft">Or type the address yourself:</p>
         <div className="grid gap-3 sm:grid-cols-2">
-          <div>
-            <label className="field-label" htmlFor="h-venue">Venue name</label>
-            <input id="h-venue" className="field" maxLength={120} placeholder="e.g. Ramkund Ghat, Gate 2" value={form.venue} onChange={set('venue')} required />
-          </div>
-          <div>
-            <label className="field-label" htmlFor="h-address">Street / landmark</label>
-            <input id="h-address" className="field" maxLength={200} value={form.address} onChange={set('address')} required />
-          </div>
-          <div>
-            <label className="field-label" htmlFor="h-city">City</label>
-            <input id="h-city" className="field" maxLength={60} value={form.city} onChange={set('city')} required />
-          </div>
-          <div>
-            <label className="field-label" htmlFor="h-pin">PIN code (optional)</label>
-            <input id="h-pin" className="field" inputMode="numeric" maxLength={6} value={form.pincode} onChange={(e) => setForm({ ...form, pincode: e.target.value.replace(/\D/g, '') })} />
-          </div>
+          <TextField id="h-venue" label="Venue name" rule="venue" required value={form.venue} onChange={put('venue')} showErrors={tried} placeholder="e.g. Ramkund Ghat, Gate 2" />
+          <TextField id="h-address" label="Street / landmark" rule="address" required value={form.address} onChange={put('address')} showErrors={tried} placeholder="e.g. Near Kapaleshwar Mandir, Panchavati" />
+          <TextField id="h-city" label="City" rule="city" required value={form.city} onChange={put('city')} showErrors={tried} autoComplete="address-level2" />
+          <PinField id="h-pin" value={form.pincode} onChange={put('pincode')} showErrors={tried} />
         </div>
       </fieldset>
 
-      <fieldset className="grid gap-3 sm:grid-cols-4">
+      <fieldset className="grid gap-3 sm:grid-cols-3">
         <legend className="mb-2 text-lg font-bold">4. Tickets</legend>
-        <div>
-          <label className="field-label" htmlFor="h-price">Ticket price (₹, 0 = free)</label>
-          <input id="h-price" type="number" min={0} max={100000} className="field" value={form.ticketPrice} onChange={set('ticketPrice')} required />
-        </div>
-        <div>
-          <label className="field-label" htmlFor="h-cap">Capacity</label>
-          <input id="h-cap" type="number" min={1} max={100000} className="field" value={form.capacity} onChange={set('capacity')} required />
-        </div>
-        <div>
-          <label className="field-label" htmlFor="h-age">Minimum age (optional)</label>
-          <input id="h-age" type="number" min={0} max={100} className="field" value={form.minAge} onChange={set('minAge')} />
-        </div>
-        <div>
-          <label className="field-label" htmlFor="h-phone">Contact (optional)</label>
-          <input id="h-phone" className="field" inputMode="tel" maxLength={10} placeholder="10-digit mobile" value={form.contactPhone} onChange={(e) => setForm({ ...form, contactPhone: e.target.value.replace(/\D/g, '') })} />
-        </div>
+        <NumberField id="h-price" label="Ticket price" prefix="₹" min={0} max={100000} required value={form.ticketPrice} onChange={put('ticketPrice')} showErrors={tried} hint={form.ticketPrice === '0' ? 'Free entry' : '0 = free, up to ₹1,00,000'} />
+        <NumberField id="h-cap" label="Capacity (people)" min={1} max={100000} required value={form.capacity} onChange={put('capacity')} showErrors={tried} />
+        <NumberField id="h-age" label="Minimum age" min={0} max={100} value={form.minAge} onChange={put('minAge')} showErrors={tried} hint="Leave empty for all ages" />
+        <PhoneField
+          id="h-phone"
+          className="sm:col-span-3"
+          label="Contact number for attendees"
+          required={false}
+          showErrors={tried}
+          countryCode={form.contactCountryCode}
+          phone={form.contactPhone}
+          onChange={({ countryCode, phone }) => setForm((f) => ({ ...f, contactCountryCode: countryCode, contactPhone: phone }))}
+        />
       </fieldset>
 
       <div className="flex flex-wrap gap-3">

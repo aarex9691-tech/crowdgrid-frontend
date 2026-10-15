@@ -124,7 +124,8 @@ export default function FoodTab({ event }) {
         {people > 1 && (
           <div className="flex-1">
             <label htmlFor="meal-names" className="field-label">Names (optional)</label>
-            <input id="meal-names" className="field" placeholder="e.g. Ramesh, Lata, Aai, Baba" value={names} onChange={(e) => setNames(e.target.value)} maxLength={300} />
+            <input id="meal-names" className="field" placeholder="e.g. Ramesh, Lata, Aai, Baba" value={names} onChange={(e) => setNames(e.target.value.replace(/[^\p{L}\p{M} ,.'-]/gu, '').replace(/\s{2,}/g, ' ').slice(0, 300))} maxLength={300} aria-describedby="meal-names-help" />
+            <p id="meal-names-help" className="mt-1 text-sm text-ink-soft">Letters only, separated by commas</p>
           </div>
         )}
       </div>}

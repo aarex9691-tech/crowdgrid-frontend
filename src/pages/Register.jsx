@@ -6,6 +6,8 @@ import Notice from '../components/Notice';
 import PhoneField from '../components/PhoneField';
 import PasswordField from '../components/PasswordField';
 import { phoneError } from '../lib/phone';
+import { TextField } from '../components/Fields';
+import { textError } from '../lib/validate';
 
 export default function Register() {
   const { register } = useAuth();
@@ -15,11 +17,15 @@ export default function Register() {
   const [phoneTouched, setPhoneTouched] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [tried, setTried] = useState(false);
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
   const submit = async (e) => {
     e.preventDefault();
     setError('');
+    setTried(true);
+    const nErr = textError(form.name, 'Full name', 'personName', { required: true });
+    if (nErr) return setError(nErr);
     const pErr = phoneError(form.countryCode, form.phone);
     if (pErr) {
       setPhoneTouched(true);
@@ -44,16 +50,13 @@ export default function Register() {
 
   return (
     <div className="shell flex justify-center py-10">
-      <form onSubmit={submit} className="panel w-full max-w-md space-y-5 p-6 sm:p-8">
+      <form onSubmit={submit} noValidate className="panel w-full max-w-md space-y-5 p-6 sm:p-8">
         <div>
           <h1 className="text-3xl font-bold">Create your account</h1>
           <p className="text-ink-soft">Book shelter, claim langar tokens and keep every pass in one place.</p>
         </div>
         <Notice tone="error">{error}</Notice>
-        <div>
-          <label htmlFor="name" className="field-label">Full name</label>
-          <input id="name" className="field" autoComplete="name" value={form.name} onChange={set('name')} required />
-        </div>
+        <TextField id="name" label="Full name" rule="personName" required autoComplete="name" value={form.name} onChange={(v) => setForm((f) => ({ ...f, name: v }))} showErrors={tried} placeholder="As on your ID card" />
         <PhoneField
           countryCode={form.countryCode}
           phone={form.phone}

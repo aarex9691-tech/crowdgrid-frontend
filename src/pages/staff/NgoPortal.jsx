@@ -5,12 +5,19 @@ import API, { errorMessage } from '../../lib/api';
 import { CATEGORY_LABELS, MEAL_LABELS } from '../../lib/format';
 import Notice, { Loading } from '../../components/Notice';
 import VolunteerReview from './VolunteerReview';
+import { NumberField, TextField } from '../../components/Fields';
+import { firstError, intError, textError } from '../../lib/validate';
+
+// Small digits-only box for inline controls (no e, +, -, decimals)
+const digitsUpTo = (raw, max) => raw.replace(/\D/g, '').replace(/^0+(?=\d)/, '').slice(0, String(max).length);
 
 function BedAdjuster({ lodging, onSaved }) {
-  const [change, setChange] = useState(10);
+  const [change, setChange] = useState('10');
   const [error, setError] = useState('');
   const apply = async (sign) => {
     setError('');
+    const problem = intError(change, 'Beds to add or remove', { min: 1, max: 1000, required: true });
+    if (problem) return setError(problem);
     try {
       await API.patch(`/ngo/lodgings/${lodging._id}/beds`, { change: sign * Math.abs(Number(change) || 0) });
       onSaved();
@@ -21,7 +28,7 @@ function BedAdjuster({ lodging, onSaved }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <button type="button" className="btn-ghost w-12 px-0" onClick={() => apply(-1)} aria-label={`Remove beds from ${lodging.name}`}><Minus size={18} /></button>
-      <input type="number" min="1" className="field w-24 text-center" value={change} onChange={(e) => setChange(e.target.value)} aria-label="Number of beds to add or remove" />
+      <input type="text" inputMode="numeric" pattern="[0-9]*" className="field w-24 text-center tabular-nums" value={change} onChange={(e) => setChange(digitsUpTo(e.target.value, 1000))} aria-label="Number of beds to add or remove (1 to 1,000)" />
       <button type="button" className="btn-ghost w-12 px-0" onClick={() => apply(1)} aria-label={`Add beds to ${lodging.name}`}><Plus size={18} /></button>
       {error && <span className="text-sm font-semibold text-kumkum">{error}</span>}
     </div>
@@ -29,10 +36,12 @@ function BedAdjuster({ lodging, onSaved }) {
 }
 
 function SlotQuota({ center, slot, meal, date, onSaved }) {
-  const [cap, setCap] = useState(slot?.capacity ?? 0);
+  const [cap, setCap] = useState(String(slot?.capacity ?? 0));
   const [error, setError] = useState('');
   const save = async () => {
     setError('');
+    const problem = intError(cap, 'Meal tokens', { min: 0, max: 20000, required: true });
+    if (problem) return setError(problem);
     try {
       await API.put(`/ngo/food-centers/${center._id}/slots`, { date, meal, capacity: Number(cap) });
       onSaved();
@@ -45,7 +54,7 @@ function SlotQuota({ center, slot, meal, date, onSaved }) {
       <p className="font-semibold">{MEAL_LABELS[meal]}</p>
       <p className="text-sm text-ink-soft">{slot ? `${slot.capacity - slot.remaining} issued, ${slot.remaining} left` : 'Not open'}</p>
       <div className="mt-2 flex gap-2">
-        <input type="number" min="0" className="field min-h-10 w-24" value={cap} onChange={(e) => setCap(e.target.value)} aria-label={`${MEAL_LABELS[meal]} quota`} />
+        <input type="text" inputMode="numeric" pattern="[0-9]*" className="field min-h-10 w-24 tabular-nums" value={cap} onChange={(e) => setCap(digitsUpTo(e.target.value, 20000))} aria-label={`${MEAL_LABELS[meal]} tokens (0 to 20,000)`} />
         <button type="button" className="btn-ghost min-h-10 px-3" onClick={save}>Save</button>
       </div>
       {error && <p className="mt-1 text-sm font-semibold text-kumkum">{error}</p>}
@@ -54,26 +63,32 @@ function SlotQuota({ center, slot, meal, date, onSaved }) {
 }
 
 function AddCamp({ sectors, onSaved }) {
-  const [form, setForm] = useState({ name: '', sector: sectors[0] || '', category: 'FREE_CAMP', totalBeds: 50, distanceToGhatKm: 1 });
+  const [form, setForm] = useState({ name: '', sector: sectors[0] || '', category: 'FREE_CAMP', totalBeds: '50', distanceToGhatKm: 1 });
   const [error, setError] = useState('');
+  const [tried, setTried] = useState(false);
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+  const put = (k) => (v) => setForm((f) => ({ ...f, [k]: v }));
   const submit = async (e) => {
     e.preventDefault();
     setError('');
+    setTried(true);
+    const problem = firstError(
+      textError(form.name, 'Camp name', 'campName', { required: true }),
+      intError(form.totalBeds, 'Beds', { min: 1, max: 5000, required: true }),
+    );
+    if (problem) return; // the fields show their own messages
     try {
       await API.post('/ngo/lodgings', { ...form, totalBeds: Number(form.totalBeds), distanceToGhatKm: Number(form.distanceToGhatKm), amenities: ['Drinking Water'] });
       setForm({ ...form, name: '' });
+      setTried(false);
       onSaved();
     } catch (err) {
       setError(errorMessage(err));
     }
   };
   return (
-    <form onSubmit={submit} className="panel grid gap-3 p-4 md:grid-cols-[2fr_1.5fr_1.2fr_0.8fr_auto] md:items-end">
-      <div>
-        <label className="field-label" htmlFor="c-name">New camp name</label>
-        <input id="c-name" className="field" value={form.name} onChange={set('name')} required />
-      </div>
+    <form onSubmit={submit} noValidate className="panel grid gap-3 p-4 md:grid-cols-[2fr_1.5fr_1.2fr_1fr_auto] md:items-start">
+      <TextField id="c-name" label="New camp name" rule="campName" required value={form.name} onChange={put('name')} showErrors={tried} placeholder="e.g. Tapovan Seva Camp B" />
       <div>
         <label className="field-label" htmlFor="c-sector">Sector</label>
         <select id="c-sector" className="field" value={form.sector} onChange={set('sector')}>{sectors.map((s) => <option key={s}>{s}</option>)}</select>
@@ -84,11 +99,8 @@ function AddCamp({ sectors, onSaved }) {
           {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </select>
       </div>
-      <div>
-        <label className="field-label" htmlFor="c-beds">Beds</label>
-        <input id="c-beds" type="number" min="1" className="field" value={form.totalBeds} onChange={set('totalBeds')} />
-      </div>
-      <button type="submit" className="btn-primary">Add camp</button>
+      <NumberField id="c-beds" label="Beds" min={1} max={5000} required value={form.totalBeds} onChange={put('totalBeds')} showErrors={tried} />
+      <button type="submit" className="btn-primary md:mt-7">Add camp</button>
       {error && <p className="text-sm font-semibold text-kumkum md:col-span-5">{error}</p>}
     </form>
   );

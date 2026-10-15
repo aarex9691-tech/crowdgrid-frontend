@@ -6,6 +6,8 @@ import { addDaysIST, fmtDate, fmtDateTime, fmtTime, todayIST } from '../../lib/f
 import DateTimeRange, { toIsoRange, windowError } from '../../components/DateTimeRange';
 import Notice, { Loading } from '../../components/Notice';
 import { useConfirm } from '../../lib/confirm';
+import { TextField } from '../../components/Fields';
+import { cleanText, firstError, textError } from '../../lib/validate';
 import QrCode from '../../components/QrCode';
 
 const inviteLinkFor = (event) => `${window.location.origin}/corporate/${event.slug}?code=${event.accessCode}`;
@@ -251,16 +253,26 @@ function CreateEventForm({ onCreated, onCancel }) {
   const [sessions, setSessions] = useState([emptySession(), emptySession('MEAL')]);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+  const [tried, setTried] = useState(false);
+  const put = (k) => (v) => setForm((f) => ({ ...f, [k]: v }));
   const setSession = (i, k, v) => setSessions((list) => list.map((s, j) => (j === i ? { ...s, [k]: v } : s)));
 
   const submit = async (e) => {
     e.preventDefault();
     setError('');
-    const wErr = windowError(when);
-    if (wErr) return setError(wErr);
+    setTried(true);
     const filled = sessions.filter((s) => s.title.trim());
-    if (!filled.length) return setError('Add at least one session or meal');
+    const problem = firstError(
+      textError(form.title, 'Event title', 'title', { required: true }),
+      textError(form.companyName, 'Organisation name', 'orgName', { required: true }),
+      textError(form.venue, 'Venue', 'venue', { required: true }),
+      textError(form.city, 'City', 'city', { required: true }),
+      windowError(when),
+      textError(form.description, 'Description', 'longText'),
+      filled.length ? '' : 'Add at least one session or meal',
+      ...filled.map((x, i) => textError(x.title, `Session ${i + 1} title`, { min: 2, max: 120, kind: 'text' })),
+    );
+    if (problem) return setError(`Please fix the highlighted fields. ${problem}`);
     setBusy(true);
     try {
       const { data } = await API.post('/events', {
@@ -282,7 +294,7 @@ function CreateEventForm({ onCreated, onCancel }) {
   };
 
   return (
-    <form onSubmit={submit} className="panel space-y-5 p-5">
+    <form onSubmit={submit} noValidate className="panel space-y-5 p-5">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">New campus or corporate event</h2>
         <button type="button" className="btn-ghost min-h-10 px-3" onClick={onCancel} aria-label="Close form">
@@ -291,35 +303,19 @@ function CreateEventForm({ onCreated, onCancel }) {
       </div>
       <Notice tone="error">{error}</Notice>
       <div className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <label className="field-label" htmlFor="ce-title">Event title</label>
-          <input id="ce-title" className="field" value={form.title} onChange={set('title')} required />
-        </div>
-        <div>
-          <label className="field-label" htmlFor="ce-company">Company</label>
-          <input id="ce-company" className="field" value={form.companyName} onChange={set('companyName')} required />
-        </div>
-        <div>
-          <label className="field-label" htmlFor="ce-venue">Venue</label>
-          <input id="ce-venue" className="field" value={form.venue} onChange={set('venue')} required />
-        </div>
-        <div>
-          <label className="field-label" htmlFor="ce-city">City</label>
-          <input id="ce-city" className="field" value={form.city} onChange={set('city')} required />
-        </div>
+        <TextField id="ce-title" label="Event title" rule="title" required value={form.title} onChange={put('title')} showErrors={tried} placeholder="e.g. Annual Tech Fest 2026" />
+        <TextField id="ce-company" label="College or company" rule="orgName" required value={form.companyName} onChange={put('companyName')} showErrors={tried} placeholder="e.g. St. Xavier's Technical Institute" />
+        <TextField id="ce-venue" label="Venue" rule="venue" required value={form.venue} onChange={put('venue')} showErrors={tried} placeholder="e.g. Main Auditorium" />
+        <TextField id="ce-city" label="City" rule="city" required value={form.city} onChange={put('city')} showErrors={tried} />
       </div>
       <DateTimeRange idPrefix="ce" value={when} onChange={setWhen} />
-      <div>
-        <label className="field-label" htmlFor="ce-desc">Short description (optional)</label>
-        <textarea id="ce-desc" rows={2} maxLength={500} className="field py-3" value={form.description} onChange={set('description')} />
-        <p className="mt-1 text-right text-sm text-ink-soft">{form.description.length}/500</p>
-      </div>
+      <TextField id="ce-desc" label="Short description" rule="longText" multiline rows={2} value={form.description} onChange={put('description')} showErrors={tried} />
 
       <fieldset className="space-y-2">
         <legend className="field-label">Sessions and meals attendees can choose</legend>
         {sessions.map((s, i) => (
           <div key={i} className="grid grid-cols-[1fr_7rem_auto_auto] items-center gap-2">
-            <input className="field" placeholder={s.kind === 'MEAL' ? 'e.g. Networking lunch' : 'e.g. Keynote address'} aria-label={`Session ${i + 1} title`} value={s.title} onChange={(e) => setSession(i, 'title', e.target.value)} />
+            <input className="field" placeholder={s.kind === 'MEAL' ? 'e.g. Networking lunch' : 'e.g. Keynote address'} aria-label={`Session ${i + 1} title`} value={s.title} maxLength={120} onChange={(e) => setSession(i, 'title', cleanText(e.target.value, { max: 120, kind: 'text' }))} />
             <input type="time" className="field px-2" aria-label={`Session ${i + 1} time`} value={s.time} onChange={(e) => setSession(i, 'time', e.target.value)} />
             <button
               type="button"

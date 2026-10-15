@@ -5,6 +5,12 @@ import { useAuth } from '../../lib/auth';
 import { fmtDateTime } from '../../lib/format';
 import Notice from '../../components/Notice';
 import useLoginGate from './useLoginGate';
+import { NumberField, TextField } from '../../components/Fields';
+import PhoneField from '../../components/PhoneField';
+import { firstError, intError, optionalPhoneError, textError } from '../../lib/validate';
+
+const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const PHOTO_MAX_MB = 3;
 
 const HELPLINES = [
   { label: 'District disaster control', number: '1077', icon: ShieldAlert },
@@ -69,16 +75,39 @@ function SosBeacon({ event }) {
 }
 
 function ReportForm({ event, onDone }) {
-  const [form, setForm] = useState({ personName: '', age: '', gender: 'UNKNOWN', clothes: '', description: '', lastSeenAt: '', contactPhone: '' });
+  const { user } = useAuth();
+  const [form, setForm] = useState({ personName: '', age: '', gender: 'UNKNOWN', clothes: '', description: '', lastSeenAt: '', contactCountryCode: user?.countryCode || '91', contactPhone: '' });
   const [photo, setPhoto] = useState(null);
+  const [photoError, setPhotoError] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [tried, setTried] = useState(false);
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+  const put = (k) => (v) => setForm((f) => ({ ...f, [k]: v }));
+
+  const pickPhoto = (file) => {
+    setPhotoError('');
+    if (!file) return setPhoto(null);
+    if (!PHOTO_TYPES.includes(file.type)) { setPhoto(null); return setPhotoError('Choose a JPG, PNG or WebP photo'); }
+    if (file.size > PHOTO_MAX_MB * 1024 * 1024) { setPhoto(null); return setPhotoError(`Photo is too large (${(file.size / 1048576).toFixed(1)} MB). The limit is ${PHOTO_MAX_MB} MB.`); }
+    setPhoto(file);
+  };
 
   const submit = async (e) => {
     e.preventDefault();
-    setBusy(true);
     setError('');
+    setTried(true);
+    const problem = firstError(
+      textError(form.personName, "Person's name", 'personName', { required: true }),
+      intError(form.age, 'Age', { min: 0, max: 120 }),
+      textError(form.clothes, 'Clothes worn', 'shortText'),
+      textError(form.description, 'How to recognise them', 'longText'),
+      textError(form.lastSeenAt, 'Last seen at', 'venue', { required: true }),
+      optionalPhoneError(form.contactCountryCode, form.contactPhone) && `Contact number: ${optionalPhoneError(form.contactCountryCode, form.contactPhone)}`,
+      photoError,
+    );
+    if (problem) return setError(`Please fix the highlighted fields. ${problem}`);
+    setBusy(true);
     const body = new FormData();
     Object.entries({ ...form, kind: 'MISSING', eventId: event._id }).forEach(([k, v]) => v !== '' && body.append(k, v));
     if (photo) body.append('photo', photo);
@@ -93,18 +122,12 @@ function ReportForm({ event, onDone }) {
   };
 
   return (
-    <form onSubmit={submit} className="panel space-y-4 p-5">
+    <form onSubmit={submit} noValidate className="panel space-y-4 p-5">
       <h3 className="text-xl font-bold">Report a missing person</h3>
       <Notice tone="error">{error}</Notice>
       <div className="grid gap-3 sm:grid-cols-[2fr_1fr_1fr]">
-        <div>
-          <label className="field-label" htmlFor="mp-name">Name</label>
-          <input id="mp-name" className="field" value={form.personName} onChange={set('personName')} required />
-        </div>
-        <div>
-          <label className="field-label" htmlFor="mp-age">Age</label>
-          <input id="mp-age" type="number" min="0" max="120" className="field" value={form.age} onChange={set('age')} />
-        </div>
+        <TextField id="mp-name" label="Name" rule="personName" required value={form.personName} onChange={put('personName')} showErrors={tried} />
+        <NumberField id="mp-age" label="Age" min={0} max={120} value={form.age} onChange={put('age')} showErrors={tried} hint="Years" />
         <div>
           <label className="field-label" htmlFor="mp-gender">Gender</label>
           <select id="mp-gender" className="field" value={form.gender} onChange={set('gender')}>
@@ -115,27 +138,25 @@ function ReportForm({ event, onDone }) {
           </select>
         </div>
       </div>
-      <div>
-        <label className="field-label" htmlFor="mp-clothes">Clothes worn</label>
-        <input id="mp-clothes" className="field" value={form.clothes} onChange={set('clothes')} placeholder="e.g. white dhoti, orange gamcha" />
-      </div>
-      <div>
-        <label className="field-label" htmlFor="mp-desc">How to recognise them</label>
-        <textarea id="mp-desc" rows={2} className="field py-3" value={form.description} onChange={set('description')} placeholder="Height, build, language spoken, anything distinctive" />
-      </div>
+      <TextField id="mp-clothes" label="Clothes worn" rule="shortText" value={form.clothes} onChange={put('clothes')} showErrors={tried} placeholder="e.g. white dhoti, orange gamcha" />
+      <TextField id="mp-desc" label="How to recognise them" rule="longText" multiline rows={2} value={form.description} onChange={put('description')} showErrors={tried} placeholder="Height, build, language spoken, anything distinctive" />
       <div className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <label className="field-label" htmlFor="mp-last">Last seen at</label>
-          <input id="mp-last" className="field" value={form.lastSeenAt} onChange={set('lastSeenAt')} required />
-        </div>
-        <div>
-          <label className="field-label" htmlFor="mp-phone">Your contact number</label>
-          <input id="mp-phone" className="field" inputMode="tel" value={form.contactPhone} onChange={set('contactPhone')} placeholder="Defaults to your account number" />
-        </div>
+        <TextField id="mp-last" label="Last seen at" rule="venue" required value={form.lastSeenAt} onChange={put('lastSeenAt')} showErrors={tried} placeholder="e.g. Ramkund Ghat, near Gate 2" />
+        <PhoneField
+          id="mp-phone"
+          label="Your contact number"
+          required={false}
+          showErrors={tried}
+          hint="Leave empty to use your account number"
+          countryCode={form.contactCountryCode}
+          phone={form.contactPhone}
+          onChange={({ countryCode, phone }) => setForm((f) => ({ ...f, contactCountryCode: countryCode, contactPhone: phone }))}
+        />
       </div>
       <div>
-        <label className="field-label" htmlFor="mp-photo">Photo (optional, up to 3 MB)</label>
-        <input id="mp-photo" type="file" accept="image/jpeg,image/png,image/webp" className="block w-full text-ink-soft file:mr-3 file:min-h-12 file:rounded-xl file:border-0 file:bg-ink file:px-4 file:font-semibold file:text-white" onChange={(e) => setPhoto(e.target.files?.[0] || null)} />
+        <label className="field-label" htmlFor="mp-photo">Photo <span className="font-normal text-ink-soft">(optional, JPG / PNG / WebP up to {PHOTO_MAX_MB} MB)</span></label>
+        <input id="mp-photo" type="file" accept="image/jpeg,image/png,image/webp" className="block w-full text-ink-soft file:mr-3 file:min-h-12 file:rounded-xl file:border-0 file:bg-ink file:px-4 file:font-semibold file:text-white" onChange={(e) => pickPhoto(e.target.files?.[0] || null)} aria-describedby="mp-photo-help" />
+        <p id="mp-photo-help" className={`mt-1 text-sm ${photoError ? 'font-semibold text-kumkum' : 'text-ink-soft'}`} role={photoError ? 'alert' : undefined}>{photoError || (photo ? `${photo.name} (${(photo.size / 1048576).toFixed(1)} MB)` : 'A clear face photo helps volunteers most')}</p>
       </div>
       <button type="submit" className="btn-primary" disabled={busy}>
         <Upload size={18} aria-hidden /> {busy ? 'Posting…' : 'Post missing person report'}
