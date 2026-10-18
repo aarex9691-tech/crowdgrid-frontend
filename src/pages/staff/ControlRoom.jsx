@@ -1,6 +1,9 @@
 import { formatPhone } from '../../lib/phone';
-import { useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+
+// Walking-lane map loads Leaflet, so it is split into its own chunk
+const LanePanel = lazy(() => import('./LanePanel'));
 import { Armchair, BarChart3, MapPin, RefreshCw } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
@@ -310,6 +313,7 @@ export default function ControlRoom() {
       )}
 
       {eventId && <CampMaps eventId={eventId} />}
+      {eventId && <Suspense fallback={null}><LanePanel eventId={eventId} /></Suspense>}
       {eventId && <SosQueue eventId={eventId} />}
       <ProviderQueue onChange={load} />
       <VolunteerReview />
