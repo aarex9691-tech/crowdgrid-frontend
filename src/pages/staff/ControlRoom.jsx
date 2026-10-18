@@ -1,12 +1,13 @@
 import { formatPhone } from '../../lib/phone';
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Armchair, MapPin, RefreshCw } from 'lucide-react';
+import { Armchair, BarChart3, MapPin, RefreshCw } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { fmtDateTime, MEAL_LABELS } from '../../lib/format';
 import Notice, { Loading } from '../../components/Notice';
 import VolunteerReview from './VolunteerReview';
+import { LiveBadge, useLive } from '../../lib/realtime';
 
 const SOS_STATUS = { OPEN: 'pill-out', ACKNOWLEDGED: 'pill-low', RESOLVED: 'pill-quiet' };
 
@@ -31,9 +32,11 @@ function SosQueue({ eventId }) {
 
   useEffect(() => {
     load();
-    const t = setInterval(load, 10000); // live-ish refresh for the control room
+    const t = setInterval(load, 60000); // safety net if the live connection drops
     return () => clearInterval(t);
   }, [load]);
+  // New alerts and status changes arrive instantly over the live connection
+  useLive('sos', load, { wait: 250 });
 
   const setStatus = async (id, status) => {
     try {
@@ -50,7 +53,7 @@ function SosQueue({ eventId }) {
       <h2 id="sos-q" className="flex items-center gap-2 text-2xl font-bold">
         SOS alerts <span className={open.length ? 'pill-out' : 'pill-quiet'}>{open.length} active</span>
       </h2>
-      <p className="text-sm text-ink-soft">Refreshes every 10 seconds.</p>
+      <p className="flex items-center gap-2 text-sm text-ink-soft"><LiveBadge /> New alerts appear here instantly.</p>
       <Notice tone="error">{error}</Notice>
       <ul className="space-y-3">
         {items.slice(0, 15).map((i) => (
@@ -147,9 +150,10 @@ function RecentActivity() {
   }, []);
   useEffect(() => {
     load();
-    const t = setInterval(load, 15000);
+    const t = setInterval(load, 60000);
     return () => clearInterval(t);
   }, [load]);
+  useLive(['sos', 'beds', 'sales', 'tickets'], load, { wait: 1500 });
 
   return (
     <section aria-labelledby="audit" className="space-y-3">
@@ -178,11 +182,15 @@ function RecentActivity() {
 /** Every verified camp in the yatra, each opening its theatre-style tent map. */
 function CampMaps({ eventId }) {
   const [camps, setCamps] = useState(null);
-  useEffect(() => {
+  const load = useCallback(() => {
     API.get('/lodgings', { params: { eventId } })
       .then(({ data }) => setCamps(data))
       .catch(() => setCamps([]));
   }, [eventId]);
+  useEffect(() => {
+    load();
+  }, [load]);
+  useLive('beds', load);
   if (!camps || camps.length === 0) return null;
   return (
     <section aria-labelledby="maps" className="panel p-5">
@@ -234,12 +242,14 @@ export default function ControlRoom() {
   useEffect(() => {
     load();
   }, [load]);
+  // Occupancy, scans, meals and SOS counters follow what happens on the ground
+  useLive(['beds', 'meals', 'scan', 'sos', 'passes'], load);
 
   return (
     <div className="shell space-y-8 py-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold">District control room</h1>
+          <h1 className="flex flex-wrap items-center gap-3 text-3xl font-bold">District control room <LiveBadge /></h1>
           <p className="text-ink-soft">{user.name}</p>
         </div>
         <div className="flex items-end gap-2">
@@ -250,6 +260,7 @@ export default function ControlRoom() {
             </select>
           </div>
           <button type="button" className="btn-ghost" onClick={load} aria-label="Refresh"><RefreshCw size={18} /></button>
+          <Link to="/analytics" className="btn-ghost"><BarChart3 size={18} aria-hidden /> Analytics</Link>
           {user.role === 'SUPER_ADMIN' && <Link to="/corporate-admin" className="btn-ghost">Campus & corporate events</Link>}
           <Link to="/scan" className="btn-ink">Scanner</Link>
         </div>

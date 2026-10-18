@@ -5,6 +5,7 @@ import API, { errorMessage } from '../../lib/api';
 import { CATEGORY_LABELS, fmtDate } from '../../lib/format';
 import { useAuth } from '../../lib/auth';
 import Notice, { Loading } from '../../components/Notice';
+import { LiveBadge, useLive, useWatchLodging } from '../../lib/realtime';
 
 const STATUS = {
   FREE: { label: 'Free', cls: 'border-2 border-tulsi bg-white text-tulsi hover:bg-tulsi-wash' },
@@ -47,6 +48,11 @@ export default function TentMap() {
   useEffect(() => {
     load();
   }, [load]);
+  // Follow this camp: beds turn booked / free as pilgrims book, cancel or staff change the size
+  useWatchLodging(id);
+  useLive('beds', (p) => {
+    if (!p?.lodgingId || p.lodgingId === id) API.get(`/lodgings/${id}/bed-map`).then(({ data: d }) => setData(d)).catch(() => {});
+  });
 
   const units = useMemo(() => (data ? data.units.filter((u) => !onlyFree || u.free > 0) : []), [data, onlyFree]);
   const back = user?.role === 'NGO_ADMIN' ? '/ngo' : '/control';
@@ -66,7 +72,7 @@ export default function TentMap() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-ink-soft">{lodging.provider} · {CATEGORY_LABELS[lodging.category]} · {lodging.sector}</p>
-          <h1 className="text-3xl font-bold">{lodging.name}: {data.unit.label.toLowerCase()} map</h1>
+          <h1 className="flex flex-wrap items-center gap-3 text-3xl font-bold">{lodging.name}: {data.unit.label.toLowerCase()} map <LiveBadge /></h1>
         </div>
         <button type="button" className="btn-ghost min-h-10" onClick={load}>
           <RefreshCw size={16} aria-hidden /> Refresh

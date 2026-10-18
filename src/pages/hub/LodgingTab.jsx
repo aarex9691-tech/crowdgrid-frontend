@@ -9,6 +9,7 @@ import Notice, { Loading } from '../../components/Notice';
 import PassCard from '../../components/PassCard';
 import useLoginGate from './useLoginGate';
 import { canBook, useAuth } from '../../lib/auth';
+import { useLive } from '../../lib/realtime';
 
 const MAX_BEDS = 4;
 
@@ -141,6 +142,10 @@ export default function LodgingTab({ event }) {
   useEffect(() => {
     load();
   }, [load]);
+  // Bed counts change as other pilgrims book or cancel; refresh quietly
+  useLive('beds', () => {
+    API.get('/lodgings', { params: { eventId: event._id, ...filters } }).then(({ data }) => setLodgings(data)).catch(() => {});
+  });
 
   if (confirmed) {
     return (

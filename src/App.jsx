@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
 import RequireRole from './components/RequireRole';
@@ -16,6 +17,9 @@ import EventDetail from './pages/EventDetail';
 import Events from './pages/Events';
 import About from './pages/About';
 import ControlRoom from './pages/staff/ControlRoom';
+import { Loading } from './components/Notice';
+// Charts library is large, so the dashboard loads only when opened
+const Analytics = lazy(() => import('./pages/staff/Analytics'));
 import NgoPortal from './pages/staff/NgoPortal';
 import CorporateAdmin from './pages/staff/CorporateAdmin';
 
@@ -42,6 +46,7 @@ export default function App() {
         </Route>
         <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY']} />}>
           <Route path="/control" element={<ControlRoom />} />
+          <Route path="/analytics" element={<Suspense fallback={<Loading label="Loading analytics" />}><Analytics /></Suspense>} />
         </Route>
         <Route element={<RequireRole roles={['SUPER_ADMIN', 'CORPORATE_ADMIN']} />}>
           <Route path="/corporate-admin" element={<CorporateAdmin />} />

@@ -5,6 +5,7 @@ import App from './App.jsx';
 import { AuthProvider } from './lib/auth.jsx';
 import { CartProvider } from './lib/cart.jsx';
 import { ConfirmProvider } from './lib/confirm.jsx';
+import { RealtimeProvider } from './lib/realtime.jsx';
 import '@fontsource/mukta/400.css';
 import '@fontsource/mukta/500.css';
 import '@fontsource/mukta/600.css';
@@ -17,11 +18,13 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <CartProvider>
-          <ConfirmProvider>
-            <App />
-          </ConfirmProvider>
-        </CartProvider>
+        <RealtimeProvider>
+          <CartProvider>
+            <ConfirmProvider>
+              <App />
+            </ConfirmProvider>
+          </CartProvider>
+        </RealtimeProvider>
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>

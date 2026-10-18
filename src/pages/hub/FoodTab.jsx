@@ -7,6 +7,7 @@ import Notice, { Loading } from '../../components/Notice';
 import PassCard from '../../components/PassCard';
 import useLoginGate from './useLoginGate';
 import { canBook, useAuth } from '../../lib/auth';
+import { useLive } from '../../lib/realtime';
 
 const MEAL_TIMES = { BREAKFAST: '7 – 9 am', LUNCH: '12 – 3 pm', DINNER: '7 – 10 pm' };
 
@@ -44,6 +45,10 @@ export default function FoodTab({ event }) {
   useEffect(() => {
     load();
   }, [load]);
+  // Plates left update as other families claim tokens
+  useLive('meals', () => {
+    API.get('/food', { params: { eventId: event._id, date, sector: sector || undefined } }).then(({ data: d }) => setData(d)).catch(() => {});
+  });
 
   const claim = async (slot) => {
     if (!gate()) return;

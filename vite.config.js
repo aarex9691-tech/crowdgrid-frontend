@@ -15,12 +15,15 @@ export default defineConfig(({ mode }) => ({
     proxy: {
       '/api': { target: API_TARGET, changeOrigin: true },
       '/uploads': { target: API_TARGET, changeOrigin: true },
+      // Live updates (WebSocket)
+      '/socket.io': { target: API_TARGET, changeOrigin: true, ws: true },
     },
   },
   preview: {
     proxy: {
       '/api': { target: API_TARGET, changeOrigin: true },
       '/uploads': { target: API_TARGET, changeOrigin: true },
+      '/socket.io': { target: API_TARGET, changeOrigin: true, ws: true },
     },
   },
 }))

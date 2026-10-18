@@ -1,10 +1,11 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Briefcase, CalendarPlus, LogOut, Menu, MessageCircle, ScanLine, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
+import { BarChart3, Briefcase, CalendarPlus, LogOut, Menu, MessageCircle, ScanLine, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { ROLE_LABELS, useAuth } from '../lib/auth';
 import { useCart } from '../lib/cart';
 import { useConfirm } from '../lib/confirm';
 import { SITE } from '../lib/site';
+import LiveToasts from './LiveToasts';
 
 /**
  * Each role gets its own navigation. Pilgrims see booking (passbook, cart,
@@ -16,12 +17,12 @@ const navFor = (role) => {
   switch (role) {
     case 'SUPER_ADMIN':
       return {
-        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, { to: '/host', label: 'Hosted events', icon: CalendarPlus }, { to: '/corporate-admin', label: 'Campus & Corporate', icon: Briefcase }, scan],
+        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, { to: '/analytics', label: 'Analytics', icon: BarChart3 }, { to: '/host', label: 'Hosted events', icon: CalendarPlus }, { to: '/corporate-admin', label: 'Campus & Corporate', icon: Briefcase }, scan],
         cta: { to: '/host', label: 'Host an event' },
       };
     case 'AUTHORITY':
       return {
-        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, { to: '/host', label: 'Hosted events', icon: CalendarPlus }, scan, about],
+        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, { to: '/analytics', label: 'Analytics', icon: BarChart3 }, { to: '/host', label: 'Hosted events', icon: CalendarPlus }, scan],
         cta: { to: '/host', label: 'Host an event' },
       };
     case 'NGO_ADMIN':
@@ -42,7 +43,7 @@ const navFor = (role) => {
 const TITLES = [
   [/^\/$/, ''], [/^\/login/, 'Log in'], [/^\/register/, 'Create account'], [/^\/events/, 'Events'], [/^\/event\//, 'Event'],
   [/^\/about/, 'About'], [/^\/yatra\//, 'Yatra services'], [/^\/corporate\//, 'Campus & Corporate event'], [/^\/passbook/, 'My Passbook'],
-  [/^\/account/, 'My account'], [/^\/checkout/, 'Checkout'], [/^\/scan/, 'Scanner'], [/^\/control/, 'Control room'],
+  [/^\/account/, 'My account'], [/^\/checkout/, 'Checkout'], [/^\/scan/, 'Scanner'], [/^\/control/, 'Control room'], [/^\/analytics/, 'Analytics'],
   [/^\/corporate-admin/, 'Campus & Corporate events'], [/^\/camps\/.+\/map/, 'Tent map'], [/^\/host/, 'Hosted events'], [/^\/ngo/, 'My camps'],
 ];
 
@@ -237,6 +238,8 @@ export default function Layout() {
           </p>
         )}
       </header>
+
+      <LiveToasts />
 
       <main className="flex-1 pb-16">
         <Outlet />

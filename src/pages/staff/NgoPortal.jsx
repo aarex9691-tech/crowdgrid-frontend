@@ -1,12 +1,15 @@
-import { useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Armchair, Minus, Plus } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
 import { CATEGORY_LABELS, MEAL_LABELS } from '../../lib/format';
 import Notice, { Loading } from '../../components/Notice';
 import VolunteerReview from './VolunteerReview';
+
+const NgoAnalytics = lazy(() => import('./NgoAnalytics'));
 import { NumberField, TextField } from '../../components/Fields';
 import { firstError, intError, textError } from '../../lib/validate';
+import { LiveBadge, useLive } from '../../lib/realtime';
 
 // Small digits-only box for inline controls (no e, +, -, decimals)
 const digitsUpTo = (raw, max) => raw.replace(/\D/g, '').replace(/^0+(?=\d)/, '').slice(0, String(max).length);
@@ -123,6 +126,10 @@ export default function NgoPortal() {
   useEffect(() => {
     load();
   }, [load]);
+  // Bookings, meal tokens and check-ins at this NGO's camps and kitchens
+  useLive(['beds', 'meals', 'scan'], () => {
+    API.get('/ngo/dashboard').then(({ data: d }) => setData(d)).catch(() => {});
+  });
 
   if (error) return <div className="shell py-10"><Notice tone="error">{error}</Notice></div>;
   if (!data) return <Loading label="Loading your camps" />;
@@ -132,7 +139,7 @@ export default function NgoPortal() {
     <div className="shell space-y-8 py-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold">{provider.name}</h1>
+          <h1 className="flex flex-wrap items-center gap-3 text-3xl font-bold">{provider.name} <LiveBadge /></h1>
           <p className="text-ink-soft">Camp &amp; kitchen manager</p>
         </div>
         <Link to="/scan" className="btn-ink">Open scanner</Link>
@@ -191,6 +198,9 @@ export default function NgoPortal() {
         ))}
       </section>
 
+      <Suspense fallback={null}>
+        <NgoAnalytics />
+      </Suspense>
       <VolunteerReview />
     </div>
   );
