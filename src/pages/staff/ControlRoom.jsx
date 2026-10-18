@@ -36,7 +36,7 @@ function SosQueue({ eventId }) {
     return () => clearInterval(t);
   }, [load]);
   // New alerts and status changes arrive instantly over the live connection
-  useLive('sos', load, { wait: 250 });
+  useLive('sos', load, { wait: 1000 }); // urgent: kept quick
 
   const setStatus = async (id, status) => {
     try {
@@ -153,7 +153,7 @@ function RecentActivity() {
     const t = setInterval(load, 60000);
     return () => clearInterval(t);
   }, [load]);
-  useLive(['sos', 'beds', 'sales', 'tickets'], load, { wait: 1500 });
+  useLive(['sos', 'beds', 'sales', 'tickets'], load, { wait: 10000 });
 
   return (
     <section aria-labelledby="audit" className="space-y-3">

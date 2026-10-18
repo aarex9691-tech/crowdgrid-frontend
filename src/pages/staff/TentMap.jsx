@@ -50,9 +50,9 @@ export default function TentMap() {
   }, [load]);
   // Follow this camp: beds turn booked / free as pilgrims book, cancel or staff change the size
   useWatchLodging(id);
-  useLive('beds', (p) => {
-    if (!p?.lodgingId || p.lodgingId === id) API.get(`/lodgings/${id}/bed-map`).then(({ data: d }) => setData(d)).catch(() => {});
-  });
+  useLive('beds', () => {
+    API.get(`/lodgings/${id}/bed-map`).then(({ data: d }) => setData(d)).catch(() => {});
+  }, { wait: 3000 });
 
   const units = useMemo(() => (data ? data.units.filter((u) => !onlyFree || u.free > 0) : []), [data, onlyFree]);
   const back = user?.role === 'NGO_ADMIN' ? '/ngo' : '/control';

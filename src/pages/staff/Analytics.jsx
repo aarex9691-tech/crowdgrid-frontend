@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Download, Info } from 'lucide-react';
+import { Download, Info, Pause, Play, RefreshCw } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
 import { LiveBadge, useLive } from '../../lib/realtime';
 import Notice, { Loading } from '../../components/Notice';
@@ -31,6 +31,8 @@ export default function Analytics() {
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [busyCsv, setBusyCsv] = useState('');
+  const [paused, setPaused] = useState(false);
+  const [updatedAt, setUpdatedAt] = useState(null);
 
   useEffect(() => {
     API.get('/events', { params: { kind: 'YATRA' } }).then(({ data: list }) => {
@@ -44,6 +46,7 @@ export default function Analytics() {
     API.get('/analytics/overview', { params: { eventId, days } })
       .then(({ data: d }) => {
         setData(d);
+        setUpdatedAt(new Date());
         setError('');
       })
       .catch((e) => setError(errorMessage(e)));
@@ -51,8 +54,8 @@ export default function Analytics() {
   useEffect(() => {
     load();
   }, [load]);
-  // Every booking, meal, scan, payment or SOS refreshes the figures (at most every 2 s)
-  useLive(['beds', 'meals', 'scan', 'sales', 'tickets', 'passes', 'sos'], load, { wait: 2000 });
+  // Bookings, meals, scans, payments and SOS refresh the figures, at most every 30 s so the charts stay readable
+  useLive(['beds', 'meals', 'scan', 'sales', 'tickets', 'passes', 'sos'], load, { wait: 30000, enabled: !paused });
 
   const csv = async (report) => {
     setBusyCsv(report);
@@ -76,7 +79,7 @@ export default function Analytics() {
     <div className="mx-auto w-full max-w-7xl space-y-5 px-4 py-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="flex flex-wrap items-center gap-3 text-3xl font-bold">Analytics <LiveBadge /></h1>
+          <h1 className="flex flex-wrap items-center gap-3 text-3xl font-bold">Analytics {paused ? <span className="rounded-full bg-mist px-2.5 py-0.5 text-xs font-bold text-ink-soft">Paused</span> : <LiveBadge />}</h1>
           <p className="text-ink-soft">{data ? `${data.event.title} · ${shortDay(data.days[0])} to ${shortDay(data.days[data.days.length - 1])}` : 'Loading…'}</p>
         </div>
         <div className="flex flex-wrap items-end gap-2">
@@ -95,6 +98,15 @@ export default function Analytics() {
               </button>
             ))}
           </div>
+          <div className="flex items-center gap-1 rounded-xl bg-white p-1 ring-1 ring-line">
+            <span className="px-2 text-xs text-ink-soft" aria-live="polite">{updatedAt ? `Updated ${updatedAt.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}` : ''}</span>
+            <button type="button" className="flex min-h-8 items-center gap-1 rounded-lg px-2 text-sm font-bold text-ink-soft hover:bg-mist hover:text-ink" onClick={load} title="Refresh now">
+              <RefreshCw size={15} aria-hidden /> <span className="sr-only sm:not-sr-only">Refresh</span>
+            </button>
+            <button type="button" aria-pressed={paused} className="flex min-h-8 items-center gap-1 rounded-lg px-2 text-sm font-bold text-ink-soft hover:bg-mist hover:text-ink" onClick={() => { setPaused((v) => !v); if (paused) load(); }} title={paused ? 'Resume live updates' : 'Pause live updates while you read'}>
+              {paused ? <Play size={15} aria-hidden /> : <Pause size={15} aria-hidden />} <span className="sr-only sm:not-sr-only">{paused ? 'Resume' : 'Pause'}</span>
+            </button>
+          </div>
           <Link to="/control" className="btn-ghost min-h-10">Control room</Link>
         </div>
       </div>
@@ -102,7 +114,7 @@ export default function Analytics() {
       <Notice tone="error">{error}</Notice>
       <p className="flex items-start gap-2 text-sm text-ink-soft">
         <Info size={16} className="mt-0.5 flex-none" aria-hidden />
-        Figures come from bookings, meal tokens, scans, payments and SOS alerts in the system; today's numbers are so far today. Demo databases include simulated history from "Demo Pilgrim" accounts.
+        Figures come from bookings, meal tokens, scans, payments and SOS alerts in the system; today's numbers are so far today and refresh at most every 30 seconds. Demo databases include simulated history from "Demo Pilgrim" accounts.
       </p>
 
       {!data ? (

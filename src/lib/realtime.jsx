@@ -44,10 +44,10 @@ export const useRealtime = () => useContext(RealtimeContext);
 
 /**
  * Calls `handler(payload, eventName)` whenever one of `events` arrives.
- * Bursts are merged: at most one call per `wait` ms, so twenty scans in a
- * second cause one reload, not twenty.
+ * Bursts are merged: at most one call per `wait` ms (default 5 s), so twenty
+ * scans in a second cause one reload, not twenty, and screens stay calm.
  */
-export function useLive(events, handler, { wait = 600, enabled = true } = {}) {
+export function useLive(events, handler, { wait = 5000, enabled = true } = {}) {
   const { socket } = useRealtime();
   const saved = useRef(handler);
   useEffect(() => {

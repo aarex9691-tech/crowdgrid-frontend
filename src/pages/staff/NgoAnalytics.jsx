@@ -16,7 +16,7 @@ export default function NgoAnalytics() {
   useEffect(() => {
     load();
   }, [load]);
-  useLive(['beds', 'meals', 'scan'], load, { wait: 2000 });
+  useLive(['beds', 'meals', 'scan'], load, { wait: 30000 }); // charts change slowly; refresh at most every 30 s
 
   if (error) return <Notice tone="error">{error}</Notice>;
   if (!data) return null;
