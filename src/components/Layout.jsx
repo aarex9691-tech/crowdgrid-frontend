@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { BarChart3, Briefcase, CalendarPlus, LogOut, Menu, MessageCircle, ScanLine, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
+import { BarChart3, Briefcase, CalendarPlus, LogOut, MapPin, Menu, MessageCircle, ScanLine, Search, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { ROLE_LABELS, useAuth } from '../lib/auth';
 import { useCart } from '../lib/cart';
@@ -91,6 +91,16 @@ export default function Layout() {
   const headerRef = useRef(null);
   const nav = navFor(user?.role);
   const close = () => setMenuOpen(false);
+  const [navQuery, setNavQuery] = useState('');
+
+  const handleNavSearch = (e) => {
+    e.preventDefault();
+    if (navQuery.trim()) {
+      navigate(`/events?tab=public&q=${encodeURIComponent(navQuery.trim())}`);
+      setNavQuery('');
+      setMenuOpen(false);
+    }
+  };
 
   // Roles with many links switch to the full desktop bar only on wide screens,
   // so labels never squeeze onto two lines or run into each other.
@@ -144,16 +154,42 @@ export default function Layout() {
     `flex min-h-12 items-center gap-3 rounded-xl px-4 text-lg font-semibold ${isActive ? 'bg-mist text-ink' : 'text-ink'}`;
 
   return (
-    <div className="flex min-h-dvh flex-col">
-      <header ref={headerRef} className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur">
-        <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-1 px-4">
-          <Link to="/" className={`mr-auto flex flex-none items-center gap-2 ${desk === 'xl' ? 'xl:mr-4' : 'lg:mr-4'}`} aria-label="CrowdGrid home" onClick={close}>
+    <div className="flex min-h-dvh flex-col bg-mist">
+      <header ref={headerRef} className="sticky top-0 z-30 border-b border-line bg-[#fbf8f3]/95 backdrop-blur">
+        <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-2 px-4">
+          <Link to="/" className="mr-2 flex flex-none items-center gap-2" aria-label="CrowdGrid home" onClick={close}>
             <img src="/favicon.svg" alt="" className="h-8 w-8" />
             <span className="font-display text-xl leading-none text-ink sm:text-2xl">CrowdGrid</span>
           </Link>
 
+          {/* Clean Warm Search Pill */}
+          <form
+            onSubmit={handleNavSearch}
+            className="hidden md:flex flex-1 max-w-sm lg:max-w-md items-center rounded-full border border-line bg-white/85 px-3 py-1.5 text-sm hover:border-ink-faint focus-within:border-[#bd5338] focus-within:bg-white shadow-xs transition-all mx-2"
+          >
+            <Search size={16} className="text-ink-soft shrink-0" />
+            <input
+              type="text"
+              placeholder="Search events, yatras, stays..."
+              value={navQuery}
+              onChange={(e) => setNavQuery(e.target.value)}
+              className="bg-transparent px-2.5 text-ink placeholder:text-ink-faint outline-none w-full text-sm"
+            />
+            <div className="h-4 w-px bg-line mx-1 shrink-0" />
+            <span className="flex items-center gap-1 text-xs font-semibold text-ink-soft whitespace-nowrap pr-1.5 shrink-0">
+              <MapPin size={13} className="text-[#bd5338]" /> Nashik
+            </span>
+            <button
+              type="submit"
+              aria-label="Search"
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-[#bd5338] text-white hover:bg-[#a14129] shrink-0 transition"
+            >
+              <Search size={13} strokeWidth={2.5} />
+            </button>
+          </form>
+
           {/* Desktop navigation */}
-          <nav aria-label="Main" className={`mr-auto min-w-0 items-center gap-0.5 ${showDesk}`}>
+          <nav aria-label="Main" className={`ml-auto min-w-0 items-center gap-0.5 ${showDesk}`}>
             {nav.links.map((l) => (
               <NavLink key={l.to} to={l.to} end={l.end} className={linkCls}>
                 {l.icon && <l.icon size={18} aria-hidden />} {l.label}
@@ -205,8 +241,22 @@ export default function Layout() {
         </div>
 
         {menuOpen && (
-          <nav id="mobile-menu" aria-label="Main" className={`max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-line bg-white ${hideDesk}`}>
+          <nav id="mobile-menu" aria-label="Main" className={`max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-line bg-[#fbf8f3] ${hideDesk}`}>
             <div className="mx-auto w-full max-w-7xl space-y-1 px-4 py-3">
+              {/* Mobile Search Bar */}
+              <form onSubmit={handleNavSearch} className="mb-3 flex items-center rounded-xl border border-line bg-white px-3 py-2 text-sm focus-within:border-[#bd5338]">
+                <Search size={18} className="text-ink-soft mr-2 shrink-0" />
+                <input
+                  type="text"
+                  placeholder="Search events, stays, seva..."
+                  value={navQuery}
+                  onChange={(e) => setNavQuery(e.target.value)}
+                  className="bg-transparent text-ink placeholder:text-ink-faint outline-none w-full text-base"
+                />
+                <button type="submit" className="rounded-lg bg-[#bd5338] px-3.5 py-1 text-xs font-bold text-white shrink-0">
+                  Search
+                </button>
+              </form>
               {nav.links.map((l) => (
                 <NavLink key={l.to} to={l.to} end={l.end} className={menuCls} onClick={close}>
                   {l.icon && <l.icon size={20} aria-hidden />} {l.label}

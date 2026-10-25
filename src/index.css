@@ -1,22 +1,77 @@
 @import "tailwindcss";
 
 @theme {
-  --color-ink: #1b2a4a;          /* Godavari at dusk: text, hero */
-  --color-ink-soft: #4a5878;
-  --color-ink-faint: #7a869e;
-  --color-mist: #f3f6fa;         /* page background */
-  --color-line: #dce3ee;
-  --color-marigold: #f2a900;     /* primary action */
-  --color-marigold-deep: #b37d00;
-  --color-marigold-wash: #fff4d6;
-  --color-kumkum: #c8102e;       /* SOS only */
-  --color-kumkum-wash: #fde8eb;
-  --color-tulsi: #1e7f4f;        /* available / valid */
-  --color-tulsi-wash: #e3f4ea;
-  --color-dusk: #2e4a7d;
+  --color-ink: #26211e;          /* Deep temple teak / charcoal walnut */
+  --color-ink-soft: #5e534d;     /* Warm walnut midtone */
+  --color-ink-faint: #8e827a;    /* Warm sandstone mute */
+  --color-mist: #fbf8f3;         /* Sandstone linen page background */
+  --color-sand: #f4ede2;         /* Architectural Chunar sandstone */
+  --color-line: #e6ddd1;         /* Warm stone line */
+  --color-terracotta: #bd5338;   /* Baked Gerua clay / Terracotta */
+  --color-terracotta-dark: #a14129;
+  --color-terracotta-wash: #fbede8;
+  --color-marigold: #c99436;     /* Brushed temple brass / Champak gold */
+  --color-marigold-deep: #9e6f1f;
+  --color-marigold-wash: #fdf5e6;
+  --color-kumkum: #c52828;       /* Sindoor red (SOS only) */
+  --color-kumkum-wash: #fbebeb;
+  --color-tulsi: #2b724a;        /* Sacred Tulsi leaf */
+  --color-tulsi-wash: #eaf4ee;
+  --color-dusk: #3d342f;
 
-  --font-sans: "Mukta", system-ui, sans-serif;
-  --font-display: "Yatra One", "Mukta", serif;
+  --font-sans: "Plus Jakarta Sans", "Marcellus", system-ui, sans-serif;
+  --font-display: "Rozha One", "Cinzel", "Marcellus", serif;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 35s linear infinite;
+}
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Authentic Indian Bandhani tie-dye resist pattern */
+.bg-bandhani {
+  background-color: #832014;
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(255, 240, 200, 0.5) 2px, transparent 2.5px),
+    radial-gradient(circle at 50% 25%, rgba(255, 240, 200, 0.28) 1.5px, transparent 2px),
+    radial-gradient(circle at 50% 75%, rgba(255, 240, 200, 0.28) 1.5px, transparent 2px),
+    radial-gradient(circle at 25% 50%, rgba(255, 240, 200, 0.28) 1.5px, transparent 2px),
+    radial-gradient(circle at 75% 50%, rgba(255, 240, 200, 0.28) 1.5px, transparent 2px),
+    radial-gradient(circle at 0% 0%, rgba(255, 240, 200, 0.4) 2px, transparent 2.5px),
+    radial-gradient(circle at 100% 0%, rgba(255, 240, 200, 0.4) 2px, transparent 2.5px),
+    radial-gradient(circle at 0% 100%, rgba(255, 240, 200, 0.4) 2px, transparent 2.5px),
+    radial-gradient(circle at 100% 100%, rgba(255, 240, 200, 0.4) 2px, transparent 2.5px);
+  background-size: 28px 28px;
+}
+
+.bg-bandhani-sand {
+  background-color: #f7ede0;
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(189, 83, 56, 0.35) 2px, transparent 2.5px),
+    radial-gradient(circle at 50% 25%, rgba(189, 83, 56, 0.2) 1.5px, transparent 2px),
+    radial-gradient(circle at 50% 75%, rgba(189, 83, 56, 0.2) 1.5px, transparent 2px),
+    radial-gradient(circle at 25% 50%, rgba(189, 83, 56, 0.2) 1.5px, transparent 2px),
+    radial-gradient(circle at 75% 50%, rgba(189, 83, 56, 0.2) 1.5px, transparent 2px),
+    radial-gradient(circle at 0% 0%, rgba(189, 83, 56, 0.28) 2px, transparent 2.5px),
+    radial-gradient(circle at 100% 0%, rgba(189, 83, 56, 0.28) 2px, transparent 2.5px),
+    radial-gradient(circle at 0% 100%, rgba(189, 83, 56, 0.28) 2px, transparent 2.5px),
+    radial-gradient(circle at 100% 100%, rgba(189, 83, 56, 0.28) 2px, transparent 2.5px);
+  background-size: 28px 28px;
+}
+
+/* Jharokha window multi-foil cusped arch clip path */
+.jharokha-arch {
+  border-top-left-radius: 50% 30%;
+  border-top-right-radius: 50% 30%;
 }
 
 @layer base {
@@ -26,42 +81,51 @@
     font-size: 17px;
     line-height: 1.5;
   }
-  h1, h2, h3 { line-height: 1.2; }
-  :focus-visible { outline: 3px solid var(--color-marigold); outline-offset: 2px; }
+  h1, h2, h3 { line-height: 1.25; }
+  :focus-visible { outline: 3px solid var(--color-terracotta); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
 }
 
-@utility shell { @apply mx-auto w-full max-w-5xl px-4; }
+@utility shell { @apply mx-auto w-full max-w-5xl px-4 sm:px-6; }
 
 @utility btn {
-  @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-5 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-5 font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50;
 }
-@utility btn-primary { @apply btn bg-marigold text-ink hover:bg-[#ffb81a]; }
+@utility btn-primary { @apply btn bg-[#bd5338] text-white hover:bg-[#a14129] shadow-sm shadow-[#bd5338]/20; }
+@utility btn-brass { @apply btn bg-[#c99436] text-white hover:bg-[#9e6f1f] shadow-sm; }
 @utility btn-ink { @apply btn bg-ink text-white hover:bg-dusk; }
-@utility btn-ghost { @apply btn border border-line bg-white text-ink hover:border-ink-faint; }
-@utility btn-sos { @apply btn bg-kumkum text-white hover:bg-[#a50d26]; }
+@utility btn-ghost { @apply btn border border-line bg-white text-ink hover:bg-[#f5ede3] hover:border-ink-faint; }
+@utility btn-sos { @apply btn bg-kumkum text-white hover:bg-[#9e1f1f]; }
 
 @utility panel { @apply rounded-2xl border border-line bg-white; }
 
-@utility field-label { @apply mb-1 block text-[15px] font-semibold text-ink; }
+@utility field-label { @apply mb-1.5 block text-xs font-bold uppercase tracking-wider text-ink-soft; }
 @utility field {
-  @apply min-h-12 w-full rounded-xl border border-line bg-white px-4 text-ink outline-none placeholder:text-ink-faint focus:border-ink;
+  @apply min-h-12 w-full rounded-xl border border-line bg-white px-4 text-ink outline-none placeholder:text-ink-faint focus:border-[#bd5338];
 }
 
-@utility pill { @apply inline-flex items-center gap-1 rounded-full px-3 py-0.5 text-sm font-semibold; }
+@utility pill { @apply inline-flex items-center gap-1 rounded-full px-3 py-0.5 text-xs sm:text-sm font-semibold; }
 @utility pill-ok { @apply pill bg-tulsi-wash text-tulsi; }
 @utility pill-low { @apply pill bg-marigold-wash text-marigold-deep; }
 @utility pill-out { @apply pill bg-kumkum-wash text-kumkum; }
-@utility pill-quiet { @apply pill bg-mist text-ink-soft; }
+@utility pill-quiet { @apply pill bg-[#f2e9dc] text-ink-soft; }
 
-/* Marigold toran: the scalloped garland edge, used once, on the hero */
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Auspicious toran garland edge */
 @utility toran {
-  height: 16px;
+  height: 14px;
   background:
-    radial-gradient(circle at 12px 0, var(--color-marigold) 10px, transparent 11px) 0 0 / 24px 16px repeat-x,
-    radial-gradient(circle at 0 0, #e8590c 4px, transparent 5px) 0 0 / 24px 16px repeat-x;
+    radial-gradient(circle at 12px 0, #c99436 8px, transparent 9px) 0 0 / 24px 14px repeat-x,
+    radial-gradient(circle at 0 0, #bd5338 4px, transparent 5px) 0 0 / 24px 14px repeat-x;
 }
 
 /* Printing an invitation card: print only the card */

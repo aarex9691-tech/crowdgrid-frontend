@@ -13,13 +13,13 @@ const TABS = [
 /** One labelled box in the search bar, like the fields on a travel site. */
 function Field({ id, label, children }) {
   return (
-    <div className="flex min-w-0 flex-1 flex-col rounded-xl border border-line px-3 py-2 focus-within:border-ink">
-      <label htmlFor={id} className="text-xs font-semibold uppercase tracking-wide text-ink-faint">{label}</label>
+    <div className="flex min-w-0 flex-1 flex-col rounded-xl border border-line bg-white px-3.5 py-2 transition-all focus-within:border-[#bd5338] focus-within:shadow-xs hover:border-ink-faint">
+      <label htmlFor={id} className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">{label}</label>
       {children}
     </div>
   );
 }
-const inputCls = 'w-full bg-transparent py-1 text-lg font-bold text-ink outline-none';
+const inputCls = 'w-full bg-transparent py-0.5 text-base sm:text-lg font-bold text-ink outline-none';
 
 /**
  * Travel-site style search: pick a service tab, fill two or three fields and
@@ -61,8 +61,8 @@ export default function HeroSearch({ event }) {
   const days = Array.from({ length: 4 }, (_, i) => addDaysIST(today, i));
 
   return (
-    <form onSubmit={go} className="relative z-10 mx-auto -mt-10 w-[calc(100%-1.5rem)] rounded-2xl border border-line bg-white p-4 shadow-xl shadow-ink/10 sm:w-[calc(100%-3rem)]">
-      <div className="flex gap-1 overflow-x-auto pb-3" role="tablist" aria-label="What are you looking for?">
+    <form onSubmit={go} className="relative z-10 mx-auto -mt-6 sm:-mt-8 w-[calc(100%-1.5rem)] max-w-4xl rounded-2xl sm:rounded-3xl border border-[#e4d8c8] bg-[#fbf9f5] p-4 sm:p-5 shadow-sm">
+      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3" role="tablist" aria-label="What are you looking for?">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -70,14 +70,18 @@ export default function HeroSearch({ event }) {
             role="tab"
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={`flex shrink-0 flex-col items-center gap-1 rounded-xl px-4 py-2 text-sm font-semibold ${tab === t.id ? 'bg-marigold-wash text-ink' : 'text-ink-soft hover:text-ink'}`}
+            className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-all ${
+              tab === t.id
+                ? 'bg-[#bd5338] text-white shadow-xs'
+                : 'border border-line bg-white text-ink-soft hover:bg-mist hover:text-ink'
+            }`}
           >
-            <t.icon size={24} aria-hidden /> {t.label}
+            <t.icon size={17} aria-hidden /> {t.label}
           </button>
         ))}
       </div>
 
-      <div className="flex flex-col gap-2 md:flex-row md:items-stretch">
+      <div className="flex flex-col gap-2.5 md:flex-row md:items-stretch">
         {tab === 'stay' && (
           <>
             <Field id="hs-sector" label="Sector / ghat">
