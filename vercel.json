@@ -13,7 +13,7 @@
       "destination": "https://crowdgrid-backend.onrender.com/uploads/:path*"
     },
     {
-      "source": "/((?!api/|socket.io/|uploads/).*)",
+      "source": "/:path*",
       "destination": "/index.html"
     }
   ]

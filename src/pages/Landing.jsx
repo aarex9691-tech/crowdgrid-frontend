@@ -197,12 +197,12 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
           id="hero-title"
           className="font-display text-4xl sm:text-6xl md:text-7xl font-black tracking-wider text-[#fff4d6] drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)] uppercase leading-tight"
         >
-          {event.title || 'Simhastha Kumbh Mela 2027'}
+          MAHA KUMBH 2026
         </h1>
 
         {/* Subtitle Line */}
         <p className="font-display text-xl sm:text-2xl md:text-3xl font-medium tracking-wide text-amber-300 italic mt-2 drop-shadow-md">
-          {event.tagline || 'Where Millions Gather As One'}
+          Where Millions Gather As One
         </p>
 
         {/* Descriptive overview */}
@@ -213,7 +213,7 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
         {/* Auspicious Badges */}
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5 text-xs font-bold">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-3.5 py-1 text-amber-200 backdrop-blur">
-            <Users size={14} /> {compactNumber(event.expectedFootfall || 50000000)} Expected Pilgrims
+            <Users size={14} /> 1,500,000+ Expected Pilgrims
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-3.5 py-1 text-amber-200 backdrop-blur">
             <MapPin size={14} /> Godavari Ghats & Ramkund
