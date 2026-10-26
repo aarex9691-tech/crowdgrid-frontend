@@ -25,7 +25,7 @@ const inputCls = 'w-full bg-transparent py-0.5 text-base sm:text-lg font-bold te
  * Travel-site style search: pick a service tab, fill two or three fields and
  * jump straight to filtered results in the yatra portal.
  */
-export default function HeroSearch({ event }) {
+export default function HeroSearch({ event = {} }) {
   const navigate = useNavigate();
   const today = todayIST();
   const [tab, setTab] = useState('stay');
@@ -35,7 +35,7 @@ export default function HeroSearch({ event }) {
   const [date, setDate] = useState(today);
   const [meal, setMeal] = useState('LUNCH');
   const [category, setCategory] = useState('');
-  const base = `/yatra/${event.slug}`;
+  const base = event?.slug ? `/yatra/${event.slug}` : '/events';
 
   const go = (e) => {
     e.preventDefault();
@@ -50,6 +50,7 @@ export default function HeroSearch({ event }) {
       q.set('tab', 'food');
       q.set('date', date);
       q.set('meal', meal);
+      if (sector) q.set('sector', sector);
       navigate(`${base}?${q}`);
     } else if (tab === 'transit') {
       navigate(`${base}?tab=transit`);
@@ -87,7 +88,7 @@ export default function HeroSearch({ event }) {
             <Field id="hs-sector" label="Sector / ghat">
               <select id="hs-sector" className={inputCls} value={sector} onChange={(e) => setSector(e.target.value)}>
                 <option value="">Any sector</option>
-                {(event.sectors || []).map((s) => <option key={s} value={s}>{s}</option>)}
+                {(event?.sectors || []).map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
             </Field>
             <Field id="hs-in" label="Check-in">

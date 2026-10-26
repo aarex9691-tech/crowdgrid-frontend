@@ -594,6 +594,14 @@ export default function Landing() {
     const list = groups.publicEvents || [];
     if (selectedFilter === 'Free Entry') return list.filter((e) => !e.ticketPrice || e.ticketPrice === 0);
     if (selectedFilter === 'Aartis & Rituals') return list.filter((e) => e.category === 'AARTI' || e.category === 'SPIRITUAL');
+    if (selectedFilter === 'Today & Weekend') {
+      const now = new Date();
+      return list.filter((e) => {
+        const start = new Date(e.startDate);
+        const day = start.getDay();
+        return start.toDateString() === now.toDateString() || day === 0 || day === 6;
+      });
+    }
     return list;
   }, [groups.publicEvents, selectedFilter]);
 
@@ -649,7 +657,7 @@ export default function Landing() {
                 View all public events →
               </Link>
             </div>
-            <PublicEventList events={filteredPublicEvents.length > 0 ? filteredPublicEvents : groups.publicEvents} onChange={load} from="/" />
+            <PublicEventList events={selectedFilter === 'All' ? groups.publicEvents : filteredPublicEvents} emptyMessage={`No events found matching "${selectedFilter}".`} onChange={load} from="/" />
           </section>
         )}
 

@@ -1,7 +1,14 @@
 import axios from 'axios';
 
-// All requests go to /api on the same origin; Vite proxies them to Express.
-const API = axios.create({ baseURL: import.meta.env.VITE_API_URL || '/api', timeout: 15000 });
+// Ensure baseURL always ends with /api when an absolute URL is specified
+export const resolveBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (!envUrl) return '/api';
+  const clean = envUrl.trim().replace(/\/+$/, '');
+  return clean.endsWith('/api') ? clean : `${clean}/api`;
+};
+
+const API = axios.create({ baseURL: resolveBaseUrl(), timeout: 15000 });
 
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem('cg_token');

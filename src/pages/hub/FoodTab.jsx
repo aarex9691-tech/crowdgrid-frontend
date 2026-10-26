@@ -27,13 +27,18 @@ export default function FoodTab({ event }) {
   const [params] = useSearchParams();
   const [date, setDate] = useState(() => (params.get('date') >= today ? params.get('date') : today));
   const [meal, setMeal] = useState(() => (['BREAKFAST', 'LUNCH', 'DINNER'].includes(params.get('meal')) ? params.get('meal') : currentMeal()));
-  const [sector, setSector] = useState('');
+  const [sector, setSector] = useState(() => params.get('sector') || '');
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [busySlot, setBusySlot] = useState(null);
   const [claimed, setClaimed] = useState(null);
   const [people, setPeople] = useState(1);
   const [names, setNames] = useState('');
+
+  useEffect(() => {
+    const s = params.get('sector');
+    if (s !== null && s !== undefined) setSector(s);
+  }, [params]);
 
   const load = useCallback(() => {
     setError('');

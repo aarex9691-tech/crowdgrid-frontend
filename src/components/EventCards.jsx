@@ -110,7 +110,7 @@ function PublicEventCard({ event, onRegister, showRegister }) {
 }
 
 /** Paid public events. Register adds a ticket to the cart; payment at checkout. */
-export function PublicEventList({ events, from = '/' }) {
+export function PublicEventList({ events = [], from = '/', emptyMessage }) {
   const { user } = useAuth();
   const cart = useCart();
   const navigate = useNavigate();
@@ -143,11 +143,15 @@ export function PublicEventList({ events, from = '/' }) {
           Ticket for {added.title} is in your cart. <Link to="/checkout" className="font-bold underline">Go to checkout</Link> to pay and get your entry pass.
         </Notice>
       )}
-      <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {events.map((e) => (
-          <PublicEventCard key={e._id} event={e} onRegister={register} showRegister={canBook(user)} />
-        ))}
-      </ul>
+      {events.length === 0 ? (
+        <Notice className="mt-4">{emptyMessage || 'No events available right now.'}</Notice>
+      ) : (
+        <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {events.map((e) => (
+            <PublicEventCard key={e._id} event={e} onRegister={register} showRegister={canBook(user)} />
+          ))}
+        </ul>
+      )}
     </>
   );
 }
