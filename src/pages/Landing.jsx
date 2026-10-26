@@ -91,10 +91,10 @@ function FullWidthGarland() {
  */
 function FullWidthTicker() {
   const items = [
-    '🚩 ॥ महाकुंभ २०२७ ॥',
-    '✦ SIMHASTHA KUMBH MELA 2027',
+    '🚩 ॥ महाकुंभ २०२६ ॥',
+    '✦ MAHA KUMBH 2026',
     '✦ WHERE MILLIONS GATHER AS ONE',
-    '✦ 10,000,000+ REGISTERED PILGRIMS',
+    '✦ 1,500,000+ REGISTERED PILGRIMS',
     '✦ FREE SEVA & ANNADANAM TOKENS LIVE',
     '✦ REAL-TIME GPS GHAT SHUTTLES',
     '✦ OFFLINE DIGITAL PASSBOOK QR',
