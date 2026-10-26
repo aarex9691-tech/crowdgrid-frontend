@@ -681,7 +681,7 @@ export default function Landing() {
         <GrandSacredDiya />
 
         {/* Festive Corner Phataka Sparkler */}
-        <CornerPhataka position="bottom-right" />
+        <CornerPhataka position="bottom-left" />
 
         {canBook(user) && <FloatingCta />}
       </div>

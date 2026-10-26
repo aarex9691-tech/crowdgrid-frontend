@@ -16,7 +16,7 @@ export function CornerPhataka({ position = 'bottom-right' }) {
 
   const posClass =
     position === 'bottom-left'
-      ? 'bottom-6 left-6'
+      ? 'bottom-20 left-4 sm:bottom-6 sm:left-6'
       : position === 'hero-corner'
       ? 'bottom-4 right-4 sm:bottom-6 sm:right-8'
       : 'bottom-6 right-6';

@@ -7,7 +7,7 @@ import { createPortal } from 'react-dom';
  * hides navbar, ticker, and hero until dissolved).
  * Shows the user's background-removed authentic Indian Namaste artwork (Anjali Mudra
  * hands with alta, bangles, and lotus mandala) seamlessly blended with the golden wallpaper.
- * Displays peacefully for ~4.5 seconds with radiating golden aura and "॥ स्वागतम् ॥",
+ * Displays peacefully for ~4.5 seconds with radiating golden aura and "॥ सुस्वागतम् ॥",
  * then automatically dissolves into the website in a smooth gradient blur fade-out.
  * Non-clickable, no prompt text.
  */
