@@ -150,17 +150,8 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
       {/* SVG Definitions shared across Desktop & Mobile */}
       <svg className="sr-only" aria-hidden="true">
         <defs>
-          <pattern id="jharokha-bandhani-pattern" width="28" height="28" patternUnits="userSpaceOnUse">
-            <rect width="28" height="28" fill="#832014" />
-            <circle cx="14" cy="14" r="2.2" fill="#ffd27d" opacity="0.8" />
-            <circle cx="14" cy="6" r="1.3" fill="#ffd27d" opacity="0.5" />
-            <circle cx="14" cy="22" r="1.3" fill="#ffd27d" opacity="0.5" />
-            <circle cx="6" cy="14" r="1.3" fill="#ffd27d" opacity="0.5" />
-            <circle cx="22" cy="14" r="1.3" fill="#ffd27d" opacity="0.5" />
-            <circle cx="0" cy="0" r="1.8" fill="#ffd27d" opacity="0.6" />
-            <circle cx="28" cy="0" r="1.8" fill="#ffd27d" opacity="0.6" />
-            <circle cx="0" cy="28" r="1.8" fill="#ffd27d" opacity="0.6" />
-            <circle cx="28" cy="28" r="1.8" fill="#ffd27d" opacity="0.6" />
+          <pattern id="jharokha-bandhani-pattern" width="160" height="154" patternUnits="userSpaceOnUse">
+            <image href="/assets/bandhani-pattern.png" width="160" height="154" preserveAspectRatio="none" />
           </pattern>
           <linearGradient id="jharokha-gold-stroke" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#d97706" />
