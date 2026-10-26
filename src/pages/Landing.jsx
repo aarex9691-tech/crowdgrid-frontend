@@ -125,30 +125,26 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
   const c = useCountdown(event.startDate);
   const nextDates = (event.keyDates || []).slice(0, 3);
 
-  // Wide Horizontal Jharokha Cartouche Path: spacious 1200x720 frame with generous bottom safety curve
-  const pathD =
+  // Desktop Wide Horizontal Jharokha Cartouche Path (1200x720)
+  const pathDesktop =
     'M 600,15 C 680,55 770,65 870,65 C 990,65 1040,70 1105,120 C 1160,160 1145,230 1115,270 C 1140,310 1175,330 1195,350 C 1175,370 1140,390 1115,430 C 1145,470 1160,540 1105,580 C 1040,630 990,635 870,635 C 770,635 680,645 600,695 C 520,645 430,635 330,635 C 210,635 160,630 95,580 C 40,540 55,470 85,430 C 60,390 25,370 5,350 C 25,330 60,310 85,270 C 55,230 40,160 95,120 C 160,70 210,65 330,65 C 430,65 520,55 600,15 Z';
 
+  // Mobile Two-Point Arch Path (400x1000): Pointing UP at top, straight full-bleed sides, Pointing DOWN at bottom
+  const pathMobile =
+    'M 200,10 C 250,40 320,50 395,75 L 395,920 C 320,940 250,960 200,990 C 150,960 80,940 5,920 L 5,75 C 80,50 150,40 200,10 Z';
+
   return (
-    <div className="relative mx-auto w-full max-w-6xl xl:max-w-7xl pt-2 sm:pt-4">
+    <div className="relative mx-auto w-full max-w-6xl xl:max-w-7xl pt-1 sm:pt-4 -mx-1 sm:mx-auto">
+      {/* Subtle Floating Sacred Stars (✦) on Hero Corners */}
+      <div className="absolute top-6 left-8 sm:left-12 pointer-events-none animate-sacred-pulse text-amber-300/60 text-lg hidden sm:block z-20">✦</div>
+      <div className="absolute top-8 right-8 sm:right-14 pointer-events-none animate-sacred-pulse text-amber-300/60 text-base hidden sm:block z-20" style={{ animationDelay: '1.5s' }}>✦</div>
+      <div className="absolute bottom-20 left-12 sm:left-16 pointer-events-none animate-sacred-pulse text-amber-300/50 text-sm hidden md:block z-20" style={{ animationDelay: '0.8s' }}>✦</div>
+      <div className="absolute bottom-22 right-16 sm:right-20 pointer-events-none animate-sacred-pulse text-amber-300/50 text-base hidden md:block z-20" style={{ animationDelay: '2.2s' }}>✦</div>
 
-
-      {/* Subtle Floating Sacred Stars (✦) */}
-      <div className="absolute top-6 left-12 pointer-events-none animate-sacred-pulse text-amber-300/60 text-lg hidden sm:block z-20">✦</div>
-      <div className="absolute top-8 right-14 pointer-events-none animate-sacred-pulse text-amber-300/60 text-base hidden sm:block z-20" style={{ animationDelay: '1.5s' }}>✦</div>
-      <div className="absolute bottom-20 left-16 pointer-events-none animate-sacred-pulse text-amber-300/50 text-sm hidden md:block z-20" style={{ animationDelay: '0.8s' }}>✦</div>
-      <div className="absolute bottom-22 right-20 pointer-events-none animate-sacred-pulse text-amber-300/50 text-base hidden md:block z-20" style={{ animationDelay: '2.2s' }}>✦</div>
-
-      {/* SVG Jharokha Cartouche Frame Background & Borders */}
-      <svg
-        className="absolute inset-0 h-full w-full pointer-events-none drop-shadow-[0_20px_45px_rgba(131,32,20,0.45)]"
-        viewBox="0 0 1200 720"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
+      {/* SVG Definitions shared across Desktop & Mobile */}
+      <svg className="sr-only" aria-hidden="true">
         <defs>
-          {/* Authentic Bandhani Tie-Dye Pattern */}
-          <pattern id="jharokha-bandhani-wide" width="28" height="28" patternUnits="userSpaceOnUse">
+          <pattern id="jharokha-bandhani-pattern" width="28" height="28" patternUnits="userSpaceOnUse">
             <rect width="28" height="28" fill="#832014" />
             <circle cx="14" cy="14" r="2.2" fill="#ffd27d" opacity="0.8" />
             <circle cx="14" cy="6" r="1.3" fill="#ffd27d" opacity="0.5" />
@@ -160,9 +156,7 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
             <circle cx="0" cy="28" r="1.8" fill="#ffd27d" opacity="0.6" />
             <circle cx="28" cy="28" r="1.8" fill="#ffd27d" opacity="0.6" />
           </pattern>
-
-          {/* Regal Gold Stroke Gradient */}
-          <linearGradient id="jharokha-gold-stroke-wide" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id="jharokha-gold-stroke" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#d97706" />
             <stop offset="20%" stopColor="#fef08a" />
             <stop offset="50%" stopColor="#f59e0b" />
@@ -170,19 +164,24 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
             <stop offset="100%" stopColor="#b45309" />
           </linearGradient>
         </defs>
+      </svg>
 
-        {/* Outer Jharokha Shape filled with Bandhani & Golden Outline */}
+      {/* 1. Desktop Jharokha Frame: Wide Horizontal Cartouche (md: and up) */}
+      <svg
+        className="hidden md:block absolute inset-0 h-full w-full pointer-events-none drop-shadow-[0_20px_45px_rgba(131,32,20,0.45)]"
+        viewBox="0 0 1200 720"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
         <path
-          d={pathD}
-          fill="url(#jharokha-bandhani-wide)"
-          stroke="url(#jharokha-gold-stroke-wide)"
+          d={pathDesktop}
+          fill="url(#jharokha-bandhani-pattern)"
+          stroke="url(#jharokha-gold-stroke)"
           strokeWidth="9"
           strokeLinejoin="round"
         />
-
-        {/* Inner Golden Dotted Filigree Outline */}
         <path
-          d={pathD}
+          d={pathDesktop}
           fill="none"
           stroke="#fef08a"
           strokeWidth="2.5"
@@ -192,13 +191,38 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
         />
       </svg>
 
-      {/* Content Framed Safely Inside with Ample Bottom Margin (Ensures buttons never overflow) */}
+      {/* 2. Mobile Jharokha Frame: Two-Point Full-Bleed Arch (up & down peaks, sides bleed out) */}
+      <svg
+        className="block md:hidden absolute inset-0 h-full w-full pointer-events-none drop-shadow-[0_15px_30px_rgba(131,32,20,0.4)]"
+        viewBox="0 0 400 1000"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path
+          d={pathMobile}
+          fill="url(#jharokha-bandhani-pattern)"
+          stroke="url(#jharokha-gold-stroke)"
+          strokeWidth="6"
+          strokeLinejoin="round"
+        />
+        <path
+          d={pathMobile}
+          fill="none"
+          stroke="#fef08a"
+          strokeWidth="2"
+          strokeDasharray="5 3"
+          opacity="0.8"
+          transform="scale(0.975) translate(5, 12)"
+        />
+      </svg>
+
+      {/* Content Safely Framed: Generous padding guarantees all 3 buttons sit completely inside */}
       <section
-        className="relative z-10 px-4 sm:px-10 md:px-16 lg:px-24 pt-10 sm:pt-14 md:pt-18 pb-24 sm:pb-28 md:pb-36 lg:pb-40 text-white flex flex-col items-center text-center"
+        className="relative z-10 px-3 sm:px-8 md:px-16 lg:px-24 pt-8 sm:pt-12 md:pt-18 pb-20 sm:pb-24 md:pb-36 text-white flex flex-col items-center text-center"
         aria-labelledby="hero-title"
       >
         {/* Sacred Sanskrit Invocation */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-amber-300/40 bg-black/40 px-4 sm:px-5 py-1.5 text-xs sm:text-sm font-bold tracking-widest text-amber-200 backdrop-blur mb-3 shadow-md max-w-full truncate">
+        <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-amber-300/40 bg-black/40 px-3.5 sm:px-5 py-1 text-[11px] sm:text-sm font-bold tracking-widest text-amber-200 backdrop-blur mb-2.5 sm:mb-3 shadow-md max-w-[92%] truncate">
           <span>॥ ॐ नमः शिवाय · तीर्थराज सिंहस्थ महाकुंभ २०२६ ॥</span>
         </div>
 
@@ -211,36 +235,36 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
         </h1>
 
         {/* Subtitle Line */}
-        <p className="font-display text-lg sm:text-2xl md:text-3xl font-medium tracking-wide text-amber-300 italic mt-2 drop-shadow-md">
+        <p className="font-display text-base sm:text-2xl md:text-3xl font-medium tracking-wide text-amber-300 italic mt-1.5 sm:mt-2 drop-shadow-md">
           Where Millions Gather As One
         </p>
 
         {/* Descriptive overview */}
-        <p className="mt-3 max-w-2xl text-xs sm:text-sm md:text-base leading-relaxed text-[#fde8d0] font-sans px-2">
+        <p className="mt-2.5 sm:mt-3 max-w-2xl text-xs sm:text-sm md:text-base leading-relaxed text-[#fde8d0] font-sans px-2">
           {event.description || 'The Simhastha Kumbh on the banks of the Godavari at Nashik and Trimbakeshwar: Find verified shelter, langar, shuttles and help in one place.'}
         </p>
 
         {/* Auspicious Badges */}
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 text-xs font-bold px-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-3 py-1 text-amber-200 backdrop-blur text-[11px] sm:text-xs">
-            <Users size={13} /> 1,500,000+ Expected Pilgrims
+        <div className="mt-3.5 sm:mt-4 flex flex-wrap items-center justify-center gap-2 text-xs font-bold px-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-2.5 sm:px-3 py-1 text-amber-200 backdrop-blur text-[10px] sm:text-xs">
+            <Users size={12} /> 1,500,000+ Expected Pilgrims
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-3 py-1 text-amber-200 backdrop-blur text-[11px] sm:text-xs">
-            <MapPin size={13} /> Godavari Ghats & Ramkund
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-2.5 sm:px-3 py-1 text-amber-200 backdrop-blur text-[10px] sm:text-xs">
+            <MapPin size={12} /> Godavari Ghats & Ramkund
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-3 py-1 text-amber-200 backdrop-blur text-[11px] sm:text-xs">
-            <ShieldCheck size={13} /> One Verified QR Pass
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-2.5 sm:px-3 py-1 text-amber-200 backdrop-blur text-[10px] sm:text-xs">
+            <ShieldCheck size={12} /> One Verified QR Pass
           </span>
         </div>
 
         {/* Temple Bell Countdown & Snan Schedule */}
-        <div className="mt-5 sm:mt-6 w-full max-w-xl mx-auto rounded-2xl border-2 border-amber-300/40 bg-black/50 p-3.5 sm:p-5 backdrop-blur shadow-2xl">
-          <div className="flex items-center justify-between border-b border-amber-300/20 pb-2 mb-3 text-xs sm:text-sm">
+        <div className="mt-4 sm:mt-6 w-full max-w-xl mx-auto rounded-2xl border-2 border-amber-300/40 bg-black/50 p-3 sm:p-5 backdrop-blur shadow-2xl">
+          <div className="flex items-center justify-between border-b border-amber-300/20 pb-2 mb-2.5 sm:mb-3 text-xs sm:text-sm">
             <span className="font-display font-bold uppercase tracking-widest text-amber-300 flex items-center gap-1.5">
-              <Flame size={15} className="text-amber-400 animate-sacred-pulse" />
+              <Flame size={14} className="text-amber-400 animate-sacred-pulse" />
               {c.done ? 'महोत्सव प्रारंभ' : 'DHWAJAROHAN COUNTDOWN'}
             </span>
-            <span className="font-semibold text-amber-200">
+            <span className="font-semibold text-amber-200 text-xs sm:text-sm">
               {fmtDate(event.startDate, { month: 'short', day: 'numeric', year: 'numeric' })}
             </span>
           </div>
@@ -248,19 +272,19 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
           {!c.done ? (
             <div className="grid grid-cols-4 gap-1.5 sm:gap-2 text-center" aria-live="off">
               <div className="rounded-xl border border-amber-300/30 bg-amber-950/70 p-1.5 sm:p-2">
-                <span className="block font-display text-xl sm:text-3xl font-extrabold text-amber-300">{c.days}</span>
+                <span className="block font-display text-lg sm:text-3xl font-extrabold text-amber-300">{c.days}</span>
                 <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-amber-200/80">Days</span>
               </div>
               <div className="rounded-xl border border-amber-300/30 bg-amber-950/70 p-1.5 sm:p-2">
-                <span className="block font-display text-xl sm:text-3xl font-extrabold text-white">{String(c.hours).padStart(2, '0')}</span>
+                <span className="block font-display text-lg sm:text-3xl font-extrabold text-white">{String(c.hours).padStart(2, '0')}</span>
                 <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-amber-200/80">Hours</span>
               </div>
               <div className="rounded-xl border border-amber-300/30 bg-amber-950/70 p-1.5 sm:p-2">
-                <span className="block font-display text-xl sm:text-3xl font-extrabold text-white">{String(c.minutes).padStart(2, '0')}</span>
+                <span className="block font-display text-lg sm:text-3xl font-extrabold text-white">{String(c.minutes).padStart(2, '0')}</span>
                 <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-amber-200/80">Mins</span>
               </div>
               <div className="rounded-xl border border-amber-300/30 bg-amber-950/70 p-1.5 sm:p-2">
-                <span className="block font-display text-xl sm:text-3xl font-extrabold text-white">{String(c.seconds).padStart(2, '0')}</span>
+                <span className="block font-display text-lg sm:text-3xl font-extrabold text-white">{String(c.seconds).padStart(2, '0')}</span>
                 <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-amber-200/80">Secs</span>
               </div>
             </div>
@@ -269,7 +293,7 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
           )}
 
           {nextDates.length > 0 && (
-            <div className="mt-3 pt-2 border-t border-amber-300/20 flex flex-wrap items-center justify-between gap-1 text-[11px] sm:text-xs text-amber-200">
+            <div className="mt-2.5 sm:mt-3 pt-2 border-t border-amber-300/20 flex flex-wrap items-center justify-between gap-1 text-[10px] sm:text-xs text-amber-200">
               <span className="font-bold uppercase tracking-wider">UPCOMING SACRED SNAN:</span>
               <span className="font-display text-xs sm:text-sm font-bold text-amber-300">
                 {nextDates[0].label} ({fmtDate(nextDates[0].date, { month: 'short', day: 'numeric' })})
@@ -278,11 +302,11 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
           )}
         </div>
 
-        {/* Action Buttons - Fully responsive & securely placed inside the frame */}
-        <div className="mt-5 sm:mt-7 flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 w-full max-w-2xl px-2">
+        {/* Action Buttons - Fully responsive & securely placed inside the frame on all devices */}
+        <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2.5 sm:gap-3.5 w-full max-w-md sm:max-w-2xl px-2">
           <Link
             to={`/yatra/${event.slug}`}
-            className="btn-primary w-full sm:w-auto min-h-11 rounded-full bg-gradient-to-r from-amber-500 via-[#bd5338] to-[#9b2c16] px-6 py-2.5 text-sm sm:text-base font-bold text-white shadow-xl shadow-amber-950/40 hover:scale-105 border-2 border-amber-300 transition-all flex items-center justify-center gap-2"
+            className="btn-primary w-full sm:w-auto min-h-11 rounded-full bg-gradient-to-r from-amber-500 via-[#bd5338] to-[#9b2c16] px-6 py-2 text-sm sm:text-base font-bold text-white shadow-xl shadow-amber-950/40 hover:scale-105 border-2 border-amber-300 transition-all flex items-center justify-center gap-2"
           >
             Enter Pilgrim Portal <ArrowRight size={16} aria-hidden />
           </Link>
@@ -290,13 +314,13 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
             to="/events?tab=public"
             className="btn-ghost w-full sm:w-auto min-h-11 rounded-full border-2 border-amber-300/60 bg-black/50 px-5 text-xs sm:text-sm font-bold text-amber-100 backdrop-blur hover:bg-black/70 transition flex items-center justify-center gap-2"
           >
-            <Ticket size={16} className="text-amber-300" aria-hidden /> Browse Sacred Passes
+            <Ticket size={15} className="text-amber-300" aria-hidden /> Browse Sacred Passes
           </Link>
           <Link
             to="/passbook"
             className="btn-ghost w-full sm:w-auto min-h-11 rounded-full border-2 border-amber-300/60 bg-black/50 px-4 text-xs sm:text-sm font-bold text-amber-100 backdrop-blur hover:bg-black/70 transition flex items-center justify-center gap-2"
           >
-            <QrCode size={16} className="text-amber-300" aria-hidden /> My Offline QR
+            <QrCode size={15} className="text-amber-300" aria-hidden /> My Offline QR
           </Link>
         </div>
       </section>

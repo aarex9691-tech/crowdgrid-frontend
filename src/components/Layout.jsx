@@ -169,10 +169,9 @@ export default function Layout() {
             }}
           >
             <img
-              src="/favicon.svg"
+              src="/assets/crowdgrid-logo.jpg"
               alt="CrowdGrid Logo"
-              className="h-8 w-8 transition-transform group-hover:rotate-12 duration-300"
-              style={{ animation: 'none' }}
+              className="h-10 w-10 sm:h-11 sm:w-11 rounded-xl object-contain border border-amber-300/60 shadow-xs bg-[#fdfbf7]"
             />
             <span className="font-display text-xl leading-none text-ink sm:text-2xl group-hover:text-[#bd5338] transition-colors">
               CrowdGrid
@@ -332,7 +331,7 @@ export default function Layout() {
               className="group inline-flex items-center gap-2 cursor-pointer transition-transform hover:scale-105 active:scale-95"
               aria-label="CrowdGrid home"
             >
-              <img src="/favicon.svg" alt="CrowdGrid Logo" className="h-7 w-7 transition-transform group-hover:rotate-12 duration-300" />
+              <img src="/assets/crowdgrid-logo.jpg" alt="CrowdGrid Logo" className="h-8 w-8 rounded-lg object-contain border border-amber-300/60 shadow-2xs bg-[#fdfbf7]" />
               <span className="font-display text-xl text-ink group-hover:text-[#bd5338] transition-colors">CrowdGrid</span>
             </Link>
             <p className="mt-2 text-sm">{SITE.tagline}. Built for the Simhastha Kumbh Mela 2027, Nashik–Trimbakeshwar.</p>
