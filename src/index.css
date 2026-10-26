@@ -102,6 +102,47 @@ body::before {
   animation: sacredPulse 3.5s ease-in-out infinite;
 }
 
+/* Festive Phataka / Sparkler Particle Animations */
+@keyframes sparkleOne {
+  0% { transform: translate(0, 0) scale(0.6); opacity: 0; }
+  30% { opacity: 1; transform: translate(-4px, -14px) scale(1.1); }
+  100% { transform: translate(-8px, -32px) scale(0.2); opacity: 0; }
+}
+
+@keyframes sparkleTwo {
+  0% { transform: translate(0, 0) scale(0.6); opacity: 0; }
+  35% { opacity: 1; transform: translate(6px, -16px) scale(1.2); }
+  100% { transform: translate(12px, -36px) scale(0.2); opacity: 0; }
+}
+
+@keyframes sparkleThree {
+  0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
+  40% { opacity: 1; transform: translate(0, -18px) scale(1); }
+  100% { transform: translate(2px, -40px) scale(0.1); opacity: 0; }
+}
+
+@keyframes burstLeft {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(-28px, -38px) scale(0); opacity: 0; }
+}
+
+@keyframes burstRight {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(32px, -36px) scale(0); opacity: 0; }
+}
+
+@keyframes burstUp {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(2px, -50px) scale(0.2); opacity: 0; }
+}
+
+.animate-sparkle-1 { animation: sparkleOne 2s ease-out infinite; }
+.animate-sparkle-2 { animation: sparkleTwo 2.2s ease-out infinite; }
+.animate-sparkle-3 { animation: sparkleThree 1.9s ease-out infinite; }
+.animate-burst-left { animation: burstLeft 0.8s ease-out forwards; }
+.animate-burst-right { animation: burstRight 0.8s ease-out forwards; }
+.animate-burst-up { animation: burstUp 0.8s ease-out forwards; }
+
 /* Authentic Indian Bandhani tie-dye resist pattern */
 .bg-bandhani {
   background-color: #832014;

@@ -29,6 +29,8 @@ import { compactNumber, fmtDate } from '../lib/format';
 import Notice, { Loading } from '../components/Notice';
 import { InvitationCodeBox, PublicEventList, YatraCard } from '../components/EventCards';
 import { DEFAULT_EVENTS } from '../data/defaultEvents';
+import NamasteIntro from '../components/NamasteIntro';
+import { CornerPhataka, GrandSacredDiya } from '../components/FestiveDecorations';
 
 function useCountdown(target) {
   const [now, setNow] = useState(() => Date.now());
@@ -129,20 +131,7 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
 
   return (
     <div className="relative mx-auto w-full max-w-6xl xl:max-w-7xl pt-2 sm:pt-4">
-      {/* Floating Sacred Motifs on left & right sides (Visible on tablet/desktop) */}
-      <div className="hidden lg:flex absolute -left-4 top-1/2 -translate-y-1/2 pointer-events-none select-none flex-col items-center animate-float-slow opacity-90 z-20">
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-b from-amber-400/30 to-amber-900/60 border border-amber-300/60 shadow-xl shadow-amber-500/20 backdrop-blur-xs">
-          <span className="text-2xl drop-shadow-[0_0_12px_rgba(251,191,36,0.9)]">🪔</span>
-        </div>
-        <span className="mt-1.5 text-[10px] font-bold uppercase tracking-widest text-amber-200/90 drop-shadow">अखण्ड ज्योति</span>
-      </div>
 
-      <div className="hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 pointer-events-none select-none flex-col items-center animate-float-delayed opacity-90 z-20">
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-b from-amber-400/30 to-amber-900/60 border border-amber-300/60 shadow-xl shadow-amber-500/20 backdrop-blur-xs">
-          <Sparkles className="text-amber-300 drop-shadow-[0_0_12px_rgba(251,191,36,0.9)]" size={24} />
-        </div>
-        <span className="mt-1.5 text-[10px] font-bold uppercase tracking-widest text-amber-200/90 drop-shadow">पवित्र दर्शन</span>
-      </div>
 
       {/* Subtle Floating Sacred Stars (✦) */}
       <div className="absolute top-6 left-12 pointer-events-none animate-sacred-pulse text-amber-300/60 text-lg hidden sm:block z-20">✦</div>
@@ -579,6 +568,8 @@ export default function Landing() {
 
   return (
     <div className="space-y-8 sm:space-y-12 pb-16">
+      {/* Auspicious Welcome Namaste Entrance Transition */}
+      <NamasteIntro />
       {/* 1. Full-Width Edge-to-Edge Sacred Running Ticker */}
       <FullWidthTicker />
 
@@ -656,7 +647,13 @@ export default function Landing() {
         {/* How it Works Stepper */}
         <HowItWorks />
 
-                {canBook(user) && <FloatingCta />}
+        {/* Grand Eternal Sacred Flame Diya */}
+        <GrandSacredDiya />
+
+        {/* Festive Corner Phataka Sparkler */}
+        <CornerPhataka position="bottom-right" />
+
+        {canBook(user) && <FloatingCta />}
       </div>
     </div>
   );
