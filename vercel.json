@@ -1,7 +1,19 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/api/:path*",
+      "destination": "https://crowdgrid-backend.onrender.com/api/:path*"
+    },
+    {
+      "source": "/socket.io/:path*",
+      "destination": "https://crowdgrid-backend.onrender.com/socket.io/:path*"
+    },
+    {
+      "source": "/uploads/:path*",
+      "destination": "https://crowdgrid-backend.onrender.com/uploads/:path*"
+    },
+    {
+      "source": "/((?!api/|socket.io/|uploads/).*)",
       "destination": "/index.html"
     }
   ]

@@ -17,7 +17,17 @@ API.interceptors.request.use((req) => {
 });
 
 API.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    if (
+      typeof res.data === 'string' &&
+      (res.data.trim().startsWith('<!DOCTYPE') || res.data.trim().startsWith('<html'))
+    ) {
+      const err = new Error('Invalid API response format (HTML received instead of JSON)');
+      err.response = res;
+      return Promise.reject(err);
+    }
+    return res;
+  },
   (err) => {
     const url = err.config?.url || '';
     if (err.response?.status === 401 && !url.startsWith('/auth/')) {
