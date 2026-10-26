@@ -29,7 +29,19 @@ export default function Events() {
 
   const yatras = useMemo(() => (events || []).filter((e) => e.kind === 'YATRA').sort((a, b) => (b.isFlagship ? 1 : 0) - (a.isFlagship ? 1 : 0)), [events]);
   const category = params.get('category') || '';
-  const publicEvents = useMemo(() => (events || []).filter((e) => e.kind === 'PUBLIC' && (!category || e.category === category)), [events, category]);
+  const q = (params.get('q') || '').toLowerCase().trim();
+  const publicEvents = useMemo(() => (events || []).filter((e) => {
+    if (e.kind !== 'PUBLIC') return false;
+    if (category && e.category !== category) return false;
+    if (q) {
+      const matchTitle = (e.title || '').toLowerCase().includes(q);
+      const matchVenue = (e.venue || '').toLowerCase().includes(q);
+      const matchCity = (e.city || '').toLowerCase().includes(q);
+      const matchDesc = (e.description || '').toLowerCase().includes(q);
+      return matchTitle || matchVenue || matchCity || matchDesc;
+    }
+    return true;
+  }), [events, category, q]);
   const counts = { yatras: yatras.length, public: publicEvents.length };
 
   return (
@@ -96,7 +108,15 @@ export default function Events() {
               </button>
             ))}
           </div>
-          {publicEvents.length ? <PublicEventList events={publicEvents} from="/events?tab=public" /> : <Notice>No {category ? EVENT_CATEGORIES[category].toLowerCase() + ' ' : ''}events are open right now.</Notice>}
+          {publicEvents.length ? (
+            <PublicEventList events={publicEvents} from="/events?tab=public" />
+          ) : (
+            <Notice>
+              {q
+                ? `No events found matching "${q}".`
+                : `No ${category ? EVENT_CATEGORIES[category].toLowerCase() + ' ' : ''}events are open right now.`}
+            </Notice>
+          )}
         </>
       ) : (
         <InvitationCodeBox from="/events?tab=corporate" />

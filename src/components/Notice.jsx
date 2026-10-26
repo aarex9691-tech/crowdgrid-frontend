@@ -4,6 +4,7 @@ const STYLES = {
   error: { cls: 'border-kumkum/30 bg-kumkum-wash text-kumkum', icon: CircleAlert },
   success: { cls: 'border-tulsi/30 bg-tulsi-wash text-tulsi', icon: CircleCheck },
   info: { cls: 'border-line bg-white text-ink-soft', icon: Info },
+  warning: { cls: 'border-marigold/40 bg-marigold-wash text-ink', icon: CircleAlert },
 };
 
 export default function Notice({ tone = 'info', children, className = '' }) {

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { BedDouble, BusFront, HandHeart, Siren, UtensilsCrossed } from 'lucide-react';
+import { BedDouble, BusFront, Footprints, HandHeart, Siren, UtensilsCrossed } from 'lucide-react';
 import API, { errorMessage } from '../lib/api';
 import { fmtDate } from '../lib/format';
 import Notice, { Loading } from '../components/Notice';
@@ -11,11 +11,16 @@ import TransitTab from './hub/TransitTab';
 import SevaTab from './hub/SevaTab';
 import SosTab from './hub/SosTab';
 
+// The walking map (Leaflet) only loads when the tab is opened
+const RouteTab = lazy(() => import('./hub/RouteTab'));
+const ROUTE_EVENT = 'simhastha-kumbh-2027'; // walking lanes are mapped for Nashik so far
+
 const TABS = [
   { id: 'lodging', label: 'Lodging & camps', icon: BedDouble, Component: LodgingTab },
-  { id: 'food', label: 'Food & annadanam', icon: UtensilsCrossed, Component: FoodTab },
-  { id: 'transit', label: 'Transit & shuttles', icon: BusFront, Component: TransitTab },
-  { id: 'seva', label: 'Seva & volunteering', icon: HandHeart, Component: SevaTab },
+  { id: 'food', label: 'Food', icon: UtensilsCrossed, Component: FoodTab },
+  { id: 'transit', label: 'Shuttles', icon: BusFront, Component: TransitTab },
+  { id: 'route', label: 'Walk to ghat', icon: Footprints, Component: RouteTab, only: ROUTE_EVENT },
+  { id: 'seva', label: 'Seva', icon: HandHeart, Component: SevaTab },
   { id: 'sos', label: 'Emergency SOS', icon: Siren, Component: SosTab },
 ];
 
@@ -25,7 +30,6 @@ export default function Hub() {
   const [params, setParams] = useSearchParams();
   const [event, setEvent] = useState(null);
   const [error, setError] = useState('');
-  const active = TABS.find((t) => t.id === params.get('tab')) || TABS[0];
 
   useEffect(() => {
     API.get(`/events/${slug}`)
@@ -35,6 +39,8 @@ export default function Hub() {
 
   if (error) return <div className="shell py-10"><Notice tone="error">{error}</Notice></div>;
   if (!event) return <Loading label="Opening yatra portal" />;
+  const tabs = TABS.filter((t) => !t.only || t.only === event.slug);
+  const active = tabs.find((t) => t.id === params.get('tab')) || tabs[0];
 
   return (
     <div>
@@ -51,7 +57,7 @@ export default function Hub() {
       {/* Service ribbon: switches tabs without a page reload (FR-03) */}
       <nav aria-label="Yatra services" className="sticky top-[var(--header-h,4rem)] z-20 border-b border-line bg-white">
         <div className="shell flex gap-1 overflow-x-auto py-2" role="tablist">
-          {TABS.map((t) => {
+          {tabs.map((t) => {
             const selected = t.id === active.id;
             const sos = t.id === 'sos';
             return (
@@ -82,7 +88,9 @@ export default function Hub() {
       )}
 
       <div className="shell py-6" role="tabpanel">
-        <active.Component event={event} />
+        <Suspense fallback={<Loading label="Loading" />}>
+          <active.Component event={event} />
+        </Suspense>
       </div>
     </div>
   );

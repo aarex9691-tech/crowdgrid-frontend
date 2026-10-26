@@ -124,13 +124,20 @@ export default function LodgingTab({ event }) {
   const { user } = useAuth();
   const staff = !canBook(user);
   const [params] = useSearchParams();
-  const [filters, setFilters] = useState({ sector: params.get('sector') || '', category: '' });
+  const [filters, setFilters] = useState(() => ({ sector: params.get('sector') || '', category: '' }));
   const prefill = { checkIn: params.get('checkIn') || '', beds: params.get('beds') || '' };
   const [lodgings, setLodgings] = useState(null);
   const [error, setError] = useState('');
   const [openId, setOpenId] = useState(null);
   const [confirmed, setConfirmed] = useState(null);
   const [added, setAdded] = useState(null);
+
+  useEffect(() => {
+    const s = params.get('sector');
+    if (s !== null && s !== undefined) {
+      setFilters((f) => (f.sector === s ? f : { ...f, sector: s }));
+    }
+  }, [params]);
 
   const load = useCallback(() => {
     setError('');
