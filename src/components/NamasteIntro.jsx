@@ -89,7 +89,7 @@ export default function NamasteIntro({ onComplete }) {
           </div>
 
           <h2 className="font-display text-3xl sm:text-5xl font-extrabold tracking-wider text-[#832014] drop-shadow-xs">
-            ॥ स्वागतम् ॥
+            ॥ सुस्वागतम् ॥
           </h2>
 
           <p className="font-display text-sm sm:text-base font-bold uppercase tracking-widest text-[#c99436]">
