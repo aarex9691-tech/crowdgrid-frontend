@@ -154,12 +154,29 @@ export default function Layout() {
     `flex min-h-12 items-center gap-3 rounded-xl px-4 text-lg font-semibold ${isActive ? 'bg-mist text-ink' : 'text-ink'}`;
 
   return (
-    <div className="flex min-h-dvh flex-col bg-mist">
-      <header ref={headerRef} className="sticky top-0 z-30 border-b border-line bg-[#fbf8f3]/95 backdrop-blur">
+    <div className="relative z-10 flex min-h-dvh flex-col bg-transparent">
+      <header ref={headerRef} className="sticky top-0 z-30 border-b border-line bg-[#fbf8f3]/90 backdrop-blur-md">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-2 px-4">
-          <Link to="/" className="mr-2 flex flex-none items-center gap-2" aria-label="CrowdGrid home" onClick={close}>
-            <img src="/favicon.svg" alt="" className="h-8 w-8" />
-            <span className="font-display text-xl leading-none text-ink sm:text-2xl">CrowdGrid</span>
+          <Link
+            to="/"
+            className="group mr-2 flex flex-none items-center gap-2 cursor-pointer transition-transform hover:scale-105 active:scale-95"
+            aria-label="CrowdGrid home"
+            onClick={(e) => {
+              close();
+              if (window.location.pathname === '/') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
+            }}
+          >
+            <img
+              src="/favicon.svg"
+              alt="CrowdGrid Logo"
+              className="h-8 w-8 transition-transform group-hover:rotate-12 duration-300"
+              style={{ animation: 'none' }}
+            />
+            <span className="font-display text-xl leading-none text-ink sm:text-2xl group-hover:text-[#bd5338] transition-colors">
+              CrowdGrid
+            </span>
           </Link>
 
           {/* Clean Warm Search Pill */}
@@ -309,10 +326,15 @@ export default function Layout() {
       <footer className="border-t border-line bg-white text-ink-soft">
         <div className="shell grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <p className="flex items-center gap-2">
-              <img src="/favicon.svg" alt="" className="h-7 w-7" />
-              <span className="font-display text-xl text-ink">CrowdGrid</span>
-            </p>
+            <Link
+              to="/"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="group inline-flex items-center gap-2 cursor-pointer transition-transform hover:scale-105 active:scale-95"
+              aria-label="CrowdGrid home"
+            >
+              <img src="/favicon.svg" alt="CrowdGrid Logo" className="h-7 w-7 transition-transform group-hover:rotate-12 duration-300" />
+              <span className="font-display text-xl text-ink group-hover:text-[#bd5338] transition-colors">CrowdGrid</span>
+            </Link>
             <p className="mt-2 text-sm">{SITE.tagline}. Built for the Simhastha Kumbh Mela 2027, Nashik–Trimbakeshwar.</p>
           </div>
           <div>

@@ -123,16 +123,37 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
   const c = useCountdown(event.startDate);
   const nextDates = (event.keyDates || []).slice(0, 3);
 
-  // Wide Horizontal Jharokha Cartouche Path matching Image 2 geometry
+  // Wide Horizontal Jharokha Cartouche Path: spacious 1200x720 frame with generous bottom safety curve
   const pathD =
-    'M 600,15 C 680,60 760,70 860,70 C 980,70 1025,70 1095,120 C 1150,160 1135,225 1105,260 C 1130,295 1160,310 1185,325 C 1160,340 1130,355 1105,390 C 1135,425 1150,490 1095,530 C 1025,580 980,580 860,580 C 760,580 680,590 600,635 C 520,590 440,580 340,580 C 220,580 175,580 105,530 C 50,490 65,425 95,390 C 70,355 40,340 15,325 C 40,310 70,295 95,260 C 65,225 50,160 105,120 C 175,70 220,70 340,70 C 440,70 520,60 600,15 Z';
+    'M 600,15 C 680,55 770,65 870,65 C 990,65 1040,70 1105,120 C 1160,160 1145,230 1115,270 C 1140,310 1175,330 1195,350 C 1175,370 1140,390 1115,430 C 1145,470 1160,540 1105,580 C 1040,630 990,635 870,635 C 770,635 680,645 600,695 C 520,645 430,635 330,635 C 210,635 160,630 95,580 C 40,540 55,470 85,430 C 60,390 25,370 5,350 C 25,330 60,310 85,270 C 55,230 40,160 95,120 C 160,70 210,65 330,65 C 430,65 520,55 600,15 Z';
 
   return (
     <div className="relative mx-auto w-full max-w-6xl xl:max-w-7xl pt-2 sm:pt-4">
+      {/* Floating Sacred Motifs on left & right sides (Visible on tablet/desktop) */}
+      <div className="hidden lg:flex absolute -left-4 top-1/2 -translate-y-1/2 pointer-events-none select-none flex-col items-center animate-float-slow opacity-90 z-20">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-b from-amber-400/30 to-amber-900/60 border border-amber-300/60 shadow-xl shadow-amber-500/20 backdrop-blur-xs">
+          <span className="text-2xl drop-shadow-[0_0_12px_rgba(251,191,36,0.9)]">🪔</span>
+        </div>
+        <span className="mt-1.5 text-[10px] font-bold uppercase tracking-widest text-amber-200/90 drop-shadow">अखण्ड ज्योति</span>
+      </div>
+
+      <div className="hidden lg:flex absolute -right-4 top-1/2 -translate-y-1/2 pointer-events-none select-none flex-col items-center animate-float-delayed opacity-90 z-20">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-b from-amber-400/30 to-amber-900/60 border border-amber-300/60 shadow-xl shadow-amber-500/20 backdrop-blur-xs">
+          <Sparkles className="text-amber-300 drop-shadow-[0_0_12px_rgba(251,191,36,0.9)]" size={24} />
+        </div>
+        <span className="mt-1.5 text-[10px] font-bold uppercase tracking-widest text-amber-200/90 drop-shadow">पवित्र दर्शन</span>
+      </div>
+
+      {/* Subtle Floating Sacred Stars (✦) */}
+      <div className="absolute top-6 left-12 pointer-events-none animate-sacred-pulse text-amber-300/60 text-lg hidden sm:block z-20">✦</div>
+      <div className="absolute top-8 right-14 pointer-events-none animate-sacred-pulse text-amber-300/60 text-base hidden sm:block z-20" style={{ animationDelay: '1.5s' }}>✦</div>
+      <div className="absolute bottom-20 left-16 pointer-events-none animate-sacred-pulse text-amber-300/50 text-sm hidden md:block z-20" style={{ animationDelay: '0.8s' }}>✦</div>
+      <div className="absolute bottom-22 right-20 pointer-events-none animate-sacred-pulse text-amber-300/50 text-base hidden md:block z-20" style={{ animationDelay: '2.2s' }}>✦</div>
+
       {/* SVG Jharokha Cartouche Frame Background & Borders */}
       <svg
         className="absolute inset-0 h-full w-full pointer-events-none drop-shadow-[0_20px_45px_rgba(131,32,20,0.45)]"
-        viewBox="0 0 1200 650"
+        viewBox="0 0 1200 720"
         preserveAspectRatio="none"
         aria-hidden="true"
       >
@@ -178,56 +199,56 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
           strokeWidth="2.5"
           strokeDasharray="7 4"
           opacity="0.85"
-          transform="scale(0.97) translate(18, 10)"
+          transform="scale(0.97) translate(18, 11)"
         />
       </svg>
 
-      {/* Content Framed Safely Inside in Symmetrical Centered Composition */}
+      {/* Content Framed Safely Inside with Ample Bottom Margin (Ensures buttons never overflow) */}
       <section
-        className="relative z-10 px-6 sm:px-12 md:px-16 lg:px-24 py-12 sm:py-16 md:py-20 text-white flex flex-col items-center text-center"
+        className="relative z-10 px-4 sm:px-10 md:px-16 lg:px-24 pt-10 sm:pt-14 md:pt-18 pb-24 sm:pb-28 md:pb-36 lg:pb-40 text-white flex flex-col items-center text-center"
         aria-labelledby="hero-title"
       >
         {/* Sacred Sanskrit Invocation */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-amber-300/40 bg-black/40 px-5 py-1.5 text-xs sm:text-sm font-bold tracking-widest text-amber-200 backdrop-blur mb-3 shadow-md">
+        <div className="inline-flex items-center gap-2 rounded-full border border-amber-300/40 bg-black/40 px-4 sm:px-5 py-1.5 text-xs sm:text-sm font-bold tracking-widest text-amber-200 backdrop-blur mb-3 shadow-md max-w-full truncate">
           <span>॥ ॐ नमः शिवाय · तीर्थराज सिंहस्थ महाकुंभ २०२६ ॥</span>
         </div>
 
         {/* Crown Title */}
         <h1
           id="hero-title"
-          className="font-display text-4xl sm:text-6xl md:text-7xl font-black tracking-wider text-[#fff4d6] drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)] uppercase leading-tight"
+          className="font-display text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-wider text-[#fff4d6] drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)] uppercase leading-tight"
         >
           MAHA KUMBH 2026
         </h1>
 
         {/* Subtitle Line */}
-        <p className="font-display text-xl sm:text-2xl md:text-3xl font-medium tracking-wide text-amber-300 italic mt-2 drop-shadow-md">
+        <p className="font-display text-lg sm:text-2xl md:text-3xl font-medium tracking-wide text-amber-300 italic mt-2 drop-shadow-md">
           Where Millions Gather As One
         </p>
 
         {/* Descriptive overview */}
-        <p className="mt-3 max-w-2xl text-xs sm:text-sm md:text-base leading-relaxed text-[#fde8d0] font-sans">
+        <p className="mt-3 max-w-2xl text-xs sm:text-sm md:text-base leading-relaxed text-[#fde8d0] font-sans px-2">
           {event.description || 'The Simhastha Kumbh on the banks of the Godavari at Nashik and Trimbakeshwar: Find verified shelter, langar, shuttles and help in one place.'}
         </p>
 
         {/* Auspicious Badges */}
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5 text-xs font-bold">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-3.5 py-1 text-amber-200 backdrop-blur">
-            <Users size={14} /> 1,500,000+ Expected Pilgrims
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 text-xs font-bold px-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-3 py-1 text-amber-200 backdrop-blur text-[11px] sm:text-xs">
+            <Users size={13} /> 1,500,000+ Expected Pilgrims
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-3.5 py-1 text-amber-200 backdrop-blur">
-            <MapPin size={14} /> Godavari Ghats & Ramkund
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-3 py-1 text-amber-200 backdrop-blur text-[11px] sm:text-xs">
+            <MapPin size={13} /> Godavari Ghats & Ramkund
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-3.5 py-1 text-amber-200 backdrop-blur">
-            <ShieldCheck size={14} /> One Verified QR Pass
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-3 py-1 text-amber-200 backdrop-blur text-[11px] sm:text-xs">
+            <ShieldCheck size={13} /> One Verified QR Pass
           </span>
         </div>
 
         {/* Temple Bell Countdown & Snan Schedule */}
-        <div className="mt-6 w-full max-w-xl mx-auto rounded-2xl border-2 border-amber-300/40 bg-black/45 p-4 sm:p-5 backdrop-blur shadow-2xl">
+        <div className="mt-5 sm:mt-6 w-full max-w-xl mx-auto rounded-2xl border-2 border-amber-300/40 bg-black/50 p-3.5 sm:p-5 backdrop-blur shadow-2xl">
           <div className="flex items-center justify-between border-b border-amber-300/20 pb-2 mb-3 text-xs sm:text-sm">
             <span className="font-display font-bold uppercase tracking-widest text-amber-300 flex items-center gap-1.5">
-              <Flame size={15} className="text-amber-400" />
+              <Flame size={15} className="text-amber-400 animate-sacred-pulse" />
               {c.done ? 'महोत्सव प्रारंभ' : 'DHWAJAROHAN COUNTDOWN'}
             </span>
             <span className="font-semibold text-amber-200">
@@ -236,22 +257,22 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
           </div>
 
           {!c.done ? (
-            <div className="grid grid-cols-4 gap-2 text-center" aria-live="off">
-              <div className="rounded-xl border border-amber-300/30 bg-amber-950/60 p-2">
-                <span className="block font-display text-2xl sm:text-3xl font-extrabold text-amber-300">{c.days}</span>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-200/80">Days</span>
+            <div className="grid grid-cols-4 gap-1.5 sm:gap-2 text-center" aria-live="off">
+              <div className="rounded-xl border border-amber-300/30 bg-amber-950/70 p-1.5 sm:p-2">
+                <span className="block font-display text-xl sm:text-3xl font-extrabold text-amber-300">{c.days}</span>
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-amber-200/80">Days</span>
               </div>
-              <div className="rounded-xl border border-amber-300/30 bg-amber-950/60 p-2">
-                <span className="block font-display text-2xl sm:text-3xl font-extrabold text-white">{String(c.hours).padStart(2, '0')}</span>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-200/80">Hours</span>
+              <div className="rounded-xl border border-amber-300/30 bg-amber-950/70 p-1.5 sm:p-2">
+                <span className="block font-display text-xl sm:text-3xl font-extrabold text-white">{String(c.hours).padStart(2, '0')}</span>
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-amber-200/80">Hours</span>
               </div>
-              <div className="rounded-xl border border-amber-300/30 bg-amber-950/60 p-2">
-                <span className="block font-display text-2xl sm:text-3xl font-extrabold text-white">{String(c.minutes).padStart(2, '0')}</span>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-200/80">Mins</span>
+              <div className="rounded-xl border border-amber-300/30 bg-amber-950/70 p-1.5 sm:p-2">
+                <span className="block font-display text-xl sm:text-3xl font-extrabold text-white">{String(c.minutes).padStart(2, '0')}</span>
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-amber-200/80">Mins</span>
               </div>
-              <div className="rounded-xl border border-amber-300/30 bg-amber-950/60 p-2">
-                <span className="block font-display text-2xl sm:text-3xl font-extrabold text-white">{String(c.seconds).padStart(2, '0')}</span>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-200/80">Secs</span>
+              <div className="rounded-xl border border-amber-300/30 bg-amber-950/70 p-1.5 sm:p-2">
+                <span className="block font-display text-xl sm:text-3xl font-extrabold text-white">{String(c.seconds).padStart(2, '0')}</span>
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-amber-200/80">Secs</span>
               </div>
             </div>
           ) : (
@@ -259,7 +280,7 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
           )}
 
           {nextDates.length > 0 && (
-            <div className="mt-3 pt-2.5 border-t border-amber-300/20 flex flex-wrap items-center justify-between gap-2 text-xs text-amber-200">
+            <div className="mt-3 pt-2 border-t border-amber-300/20 flex flex-wrap items-center justify-between gap-1 text-[11px] sm:text-xs text-amber-200">
               <span className="font-bold uppercase tracking-wider">UPCOMING SACRED SNAN:</span>
               <span className="font-display text-xs sm:text-sm font-bold text-amber-300">
                 {nextDates[0].label} ({fmtDate(nextDates[0].date, { month: 'short', day: 'numeric' })})
@@ -268,23 +289,23 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
           )}
         </div>
 
-        {/* Action Buttons */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-3.5">
+        {/* Action Buttons - Fully responsive & securely placed inside the frame */}
+        <div className="mt-5 sm:mt-7 flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 w-full max-w-2xl px-2">
           <Link
             to={`/yatra/${event.slug}`}
-            className="btn-primary min-h-11 rounded-full bg-gradient-to-r from-amber-500 via-[#bd5338] to-[#9b2c16] px-6 py-2.5 text-sm sm:text-base font-bold text-white shadow-xl shadow-amber-950/40 hover:scale-105 border-2 border-amber-300 transition-all flex items-center gap-2"
+            className="btn-primary w-full sm:w-auto min-h-11 rounded-full bg-gradient-to-r from-amber-500 via-[#bd5338] to-[#9b2c16] px-6 py-2.5 text-sm sm:text-base font-bold text-white shadow-xl shadow-amber-950/40 hover:scale-105 border-2 border-amber-300 transition-all flex items-center justify-center gap-2"
           >
             Enter Pilgrim Portal <ArrowRight size={16} aria-hidden />
           </Link>
           <Link
             to="/events?tab=public"
-            className="btn-ghost min-h-11 rounded-full border-2 border-amber-300/60 bg-black/45 px-5 text-xs sm:text-sm font-bold text-amber-100 backdrop-blur hover:bg-black/60 transition flex items-center gap-2"
+            className="btn-ghost w-full sm:w-auto min-h-11 rounded-full border-2 border-amber-300/60 bg-black/50 px-5 text-xs sm:text-sm font-bold text-amber-100 backdrop-blur hover:bg-black/70 transition flex items-center justify-center gap-2"
           >
             <Ticket size={16} className="text-amber-300" aria-hidden /> Browse Sacred Passes
           </Link>
           <Link
             to="/passbook"
-            className="btn-ghost min-h-11 rounded-full border-2 border-amber-300/60 bg-black/45 px-4 text-xs sm:text-sm font-bold text-amber-100 backdrop-blur hover:bg-black/60 transition flex items-center gap-2"
+            className="btn-ghost w-full sm:w-auto min-h-11 rounded-full border-2 border-amber-300/60 bg-black/50 px-4 text-xs sm:text-sm font-bold text-amber-100 backdrop-blur hover:bg-black/70 transition flex items-center justify-center gap-2"
           >
             <QrCode size={16} className="text-amber-300" aria-hidden /> My Offline QR
           </Link>
@@ -500,53 +521,6 @@ function HowItWorks() {
 }
 
 const flag = `/yatra/${SITE.flagshipSlug}`;
-const TILES = [
-  { to: `${flag}?tab=lodging`, icon: BedDouble, title: 'Stays & Tents', text: 'Verified camps & tents with bed number.', tint: '#302621' },
-  { to: `${flag}?tab=food`, icon: UtensilsCrossed, title: 'Annadanam', text: "Today's kitchen menu & family token.", tint: '#42251a' },
-  { to: `${flag}?tab=transit`, icon: BusFront, title: 'Shuttles & Buses', text: 'Feeder buses with water points & day pass.', tint: '#1f3325' },
-  { to: `${flag}?tab=seva`, icon: HandHeart, title: 'Seva Volunteering', text: 'Serve with a trust and get volunteer ID.', tint: '#332338' },
-  { to: '/events?tab=public', icon: Ticket, title: 'Public Events', text: 'Aartis, heritage walks and bhajan evenings.', tint: '#202f3a' },
-  { to: '/events?tab=corporate', icon: Briefcase, title: 'Campus & Corporate', text: 'Invite-only summits with digital badges.', tint: '#3b221d' },
-  { to: `${flag}?tab=sos`, icon: Siren, title: 'SOS & Lost/Found', text: 'One-tap emergency alert & family help.', tint: '#42161b' },
-  { to: '/passbook', icon: QrCode, title: 'My Passbook', text: 'All passes in one QR, works offline.', tint: '#292e1e' },
-];
-
-function PlanTiles() {
-  return (
-    <section aria-labelledby="plan" className="rounded-3xl bg-[#26211e] p-7 sm:p-10 text-white shadow-xl border-2 border-[#c99436]">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="font-display text-xs font-bold uppercase tracking-widest text-amber-300">॥ समग्र सेवा दर्शन ॥</p>
-          <h2 id="plan" className="font-display text-2xl sm:text-4xl font-extrabold text-[#fff4d6]">
-            EXPLORE THE FULL DIRECTORY
-          </h2>
-        </div>
-        <Link to={flag} className="text-sm font-bold text-amber-300 hover:underline flex items-center gap-1.5">
-          Open Full Portal <ArrowRight size={16} aria-hidden />
-        </Link>
-      </div>
-      <ul className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
-        {TILES.map((t, i) => (
-          <li key={t.title}>
-            <Link
-              to={t.to}
-              className="group relative flex h-full min-h-52 flex-col justify-end overflow-hidden rounded-2xl p-5 text-white outline-offset-2 transition-all hover:brightness-110 hover:-translate-y-0.5 border border-amber-900/40"
-              style={{ background: `linear-gradient(180deg, ${t.tint} 0%, #1a1614 100%)` }}
-            >
-              <t.icon aria-hidden className="absolute right-3 top-4 h-20 w-20 text-white/10 transition group-hover:text-white/20" strokeWidth={1.2} />
-              <span className="mb-2 w-fit rounded-full bg-amber-400 px-2.5 py-0.5 text-xs font-black tracking-widest text-[#26211e]">{String(i + 1).padStart(2, '0')}</span>
-              <span className="font-display text-lg font-bold leading-tight">{t.title}</span>
-              <span className="mt-1 text-xs leading-snug text-[#e0d6cb]">{t.text}</span>
-              <span className="mt-3 flex items-center gap-1 text-xs font-bold text-amber-300 opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
-                Open <ArrowRight size={13} aria-hidden />
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
 
 /** Floating "Plan your yatra" button */
 function FloatingCta() {
@@ -682,10 +656,7 @@ export default function Landing() {
         {/* How it Works Stepper */}
         <HowItWorks />
 
-        {/* Plan your Yatra dark menu tiles */}
-        <PlanTiles />
-
-        {canBook(user) && <FloatingCta />}
+                {canBook(user) && <FloatingCta />}
       </div>
     </div>
   );
