@@ -2,39 +2,30 @@ import { useEffect, useState } from 'react';
 
 /**
  * Auspicious Namaste Entrance Transition:
- * Displays on arrival over the subtle cream wallpaper. Features the user's authentic
- * Indian Namaste artwork (Anjali Mudra hands with alta, bangles, and lotus mandala).
- * Radiates a sacred golden aura with "॥ स्वागतम् ॥" and dissolves smoothly into the website.
- * Ultra-fast and lightweight (0 heavy video/GIFs).
+ * Displays on arrival seamlessly blended into the cream wallpaper background.
+ * Shows the authentic Indian Namaste artwork (Anjali Mudra hands with alta, bangles, and lotus mandala)
+ * for 4 to 5 seconds with a radiating golden halo and "॥ स्वागतम् ॥", then automatically dissolves
+ * into the website in a smooth gradient fade-out without requiring any clicks.
  */
 export default function NamasteIntro({ onComplete }) {
   const [phase, setPhase] = useState('entering'); // 'entering' -> 'glowing' -> 'dissolving' -> 'done'
 
   useEffect(() => {
-    // Check if user already saw the intro in this browser session
-    const seen = sessionStorage.getItem('cg_namaste_intro_seen');
-    if (seen) {
-      setPhase('done');
-      if (onComplete) onComplete();
-      return;
-    }
-
-    // Step 1: Smooth entrance
+    // Step 1: Smooth entrance to glowing state
     const t1 = setTimeout(() => {
       setPhase('glowing');
     }, 200);
 
-    // Step 2: Dissolve in gradient fade (at 2300ms)
+    // Step 2: Show serene Namaste for ~4.5 seconds, then dissolve in gradient manner
     const t2 = setTimeout(() => {
       setPhase('dissolving');
-      sessionStorage.setItem('cg_namaste_intro_seen', 'true');
-    }, 2400);
+    }, 4500);
 
-    // Step 3: Unmount completely from DOM (at 3100ms)
+    // Step 3: Complete transition and unmount at ~5.4s
     const t3 = setTimeout(() => {
       setPhase('done');
       if (onComplete) onComplete();
-    }, 3100);
+    }, 5400);
 
     return () => {
       clearTimeout(t1);
@@ -45,23 +36,11 @@ export default function NamasteIntro({ onComplete }) {
 
   if (phase === 'done') return null;
 
-  const handleSkip = () => {
-    sessionStorage.setItem('cg_namaste_intro_seen', 'true');
-    setPhase('dissolving');
-    setTimeout(() => {
-      setPhase('done');
-      if (onComplete) onComplete();
-    }, 600);
-  };
-
   return (
     <div
-      onClick={handleSkip}
-      role="button"
-      tabIndex={0}
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center cursor-pointer transition-all duration-700 ease-out select-none ${
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center select-none pointer-events-none transition-all duration-900 ease-out ${
         phase === 'dissolving'
-          ? 'opacity-0 scale-105 pointer-events-none filter blur-sm'
+          ? 'opacity-0 scale-105 filter blur-sm'
           : 'opacity-100 scale-100'
       }`}
       style={{
@@ -70,11 +49,10 @@ export default function NamasteIntro({ onComplete }) {
         backgroundRepeat: 'repeat',
         backgroundSize: '260px auto',
       }}
-      aria-label="Welcome to CrowdGrid - Click to enter"
-      title="Click anywhere to enter"
+      aria-label="Welcome to CrowdGrid - Maha Kumbh 2026"
     >
       {/* Subtle radial golden vignette overlay */}
-      <div className="absolute inset-0 bg-radial-gradient from-transparent via-[#faf6f0]/40 to-[#faf6f0]/95 pointer-events-none" />
+      <div className="absolute inset-0 bg-radial-gradient from-transparent via-[#faf6f0]/30 to-[#faf6f0]/95 pointer-events-none" />
 
       {/* Centerpiece Namaste Artwork & Greetings */}
       <div className="relative z-10 flex flex-col items-center text-center px-4 max-w-lg">
@@ -83,15 +61,16 @@ export default function NamasteIntro({ onComplete }) {
           {/* Radiant Pulsing Golden Halo behind the Mandala */}
           <div className="absolute w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-radial-gradient from-amber-400/30 via-amber-300/10 to-transparent animate-sacred-pulse pointer-events-none" />
 
-          {/* Authentic High-Res Namaste Artwork */}
+          {/* Authentic Namaste Artwork blended seamlessly (no square box) */}
           <img
             src="/assets/namaste-hands.png"
             alt="Auspicious Namaste"
-            className={`w-64 h-64 sm:w-80 sm:h-80 object-contain drop-shadow-[0_15px_35px_rgba(217,119,6,0.35)] transition-all duration-800 ease-out transform ${
+            className={`w-64 h-64 sm:w-80 sm:h-80 object-contain drop-shadow-[0_15px_35px_rgba(217,119,6,0.3)] transition-all duration-800 ease-out transform ${
               phase === 'entering'
                 ? 'translate-y-8 scale-90 opacity-0'
                 : 'translate-y-0 scale-100 opacity-100'
             }`}
+            style={{ mixBlendMode: 'multiply' }}
           />
         </div>
 
@@ -116,11 +95,6 @@ export default function NamasteIntro({ onComplete }) {
           <p className="text-xs text-ink-soft/80 font-sans tracking-wide pt-0.5">
             CrowdGrid Sacred Pilgrimage Portal
           </p>
-        </div>
-
-        {/* Subtle Tap to Enter Prompt */}
-        <div className="mt-6 text-[11px] font-semibold uppercase tracking-widest text-ink-faint animate-pulse">
-          Tap anywhere to enter →
         </div>
       </div>
     </div>
