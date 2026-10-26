@@ -101,18 +101,24 @@ function FullWidthTicker() {
     '✦ REAL-TIME GPS GHAT SHUTTLES',
     '✦ OFFLINE DIGITAL PASSBOOK QR',
     '✦ 24/7 PILGRIM COMMAND & SOS',
+    '✦ [CLICK TO ENTER PILGRIM PORTAL →]',
   ];
 
   return (
-    <div className="w-full overflow-hidden border-y-2 border-[#c99436] bg-[#7c1d13] py-2.5 text-xs sm:text-sm font-bold uppercase tracking-widest text-[#fcedd7] shadow-sm">
-      <div className="animate-marquee flex gap-8 items-center whitespace-nowrap">
+    <Link
+      to={`/yatra/${SITE.flagshipSlug}`}
+      className="group block w-full overflow-hidden border-y-2 border-[#c99436] bg-[#7c1d13] py-2.5 text-xs sm:text-sm font-bold uppercase tracking-widest text-[#fcedd7] shadow-sm hover:bg-[#8e2217] transition-colors cursor-pointer select-none"
+      title="Click ribbon to enter Maha Kumbh 2026 Portal"
+      aria-label="Maha Kumbh 2026 Festive Ticker - Click to open portal"
+    >
+      <div className="animate-marquee flex gap-8 items-center whitespace-nowrap group-hover:scale-[1.008] transition-transform">
         {[...items, ...items, ...items, ...items].map((text, i) => (
           <span key={i} className="flex items-center gap-2">
-            <span>{text}</span>
+            <span className={text.includes('CLICK') ? 'text-amber-300 underline font-black tracking-wider' : ''}>{text}</span>
           </span>
         ))}
       </div>
-    </div>
+    </Link>
   );
 }
 
