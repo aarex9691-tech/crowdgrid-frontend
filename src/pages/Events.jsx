@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Briefcase, Flag, Ticket } from 'lucide-react';
 import API, { errorMessage } from '../lib/api';
 import { EVENT_CATEGORIES, fmtDate } from '../lib/format';
-import Notice, { Loading } from '../components/Notice';
+import Notice from '../components/Notice';
 import { InvitationCodeBox, PublicEventList, YatraCard } from '../components/EventCards';
 import { DEFAULT_EVENTS } from '../data/defaultEvents';
 
@@ -33,6 +33,12 @@ export default function Events() {
   useEffect(() => {
     load();
   }, []);
+  // The free server sleeps when idle: keep retrying until the real list arrives
+  useEffect(() => {
+    if (!error) return undefined;
+    const t = setTimeout(load, 15000);
+    return () => clearTimeout(t);
+  }, [error]);
 
   const yatras = useMemo(() => (events || []).filter((e) => e.kind === 'YATRA').sort((a, b) => (b.isFlagship ? 1 : 0) - (a.isFlagship ? 1 : 0)), [events]);
   const category = params.get('category') || '';
@@ -82,7 +88,7 @@ export default function Events() {
 
       {error && (
         <div className="rounded-xl border border-line bg-amber-50 p-3 text-xs sm:text-sm text-amber-900">
-          ℹ️ Live cloud sync connecting. Showing verified event schedules.
+          Can't reach the server right now (it may be waking up). Showing the published schedule; booking works once it connects. Retrying…
         </div>
       )}
 

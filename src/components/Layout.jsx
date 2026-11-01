@@ -107,6 +107,8 @@ export default function Layout() {
   const wide = nav.links.reduce((n, l) => n + l.label.length, 0) > 36;
   const desk = wide ? 'xl' : 'lg';
   const showDesk = wide ? 'hidden xl:flex' : 'hidden lg:flex';
+  // The event search pill is for visitors and pilgrims; staff bars have too many links to fit it
+  const showSearch = !user || user.role === 'USER';
   const hideDesk = wide ? 'xl:hidden' : 'lg:hidden';
 
   // Publish the real header height so sticky bars and #anchors sit below it
@@ -149,7 +151,7 @@ export default function Layout() {
   };
 
   const linkCls = ({ isActive }) =>
-    `flex min-h-11 items-center gap-2 whitespace-nowrap rounded-xl px-3 font-semibold ${isActive ? 'bg-mist text-ink' : 'text-ink-soft hover:text-ink'}`;
+    `flex min-h-11 items-center gap-2 whitespace-nowrap rounded-xl ${wide ? 'px-2' : 'px-3'} font-semibold ${isActive ? 'bg-mist text-ink' : 'text-ink-soft hover:text-ink'}`;
   const menuCls = ({ isActive }) =>
     `flex min-h-12 items-center gap-3 rounded-xl px-4 text-lg font-semibold ${isActive ? 'bg-mist text-ink' : 'text-ink'}`;
 
@@ -159,9 +161,9 @@ export default function Layout() {
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-2 px-4">
           <Link
             to="/"
-            className="group mr-2 flex flex-none items-center gap-2 cursor-pointer transition-transform hover:scale-105 active:scale-95"
+            className={`group mr-2 flex flex-none items-center gap-2 cursor-pointer transition-transform hover:scale-105 active:scale-95 ${showSearch ? '' : desk === 'xl' ? 'xl:mr-4' : 'lg:mr-4'}`}
             aria-label="CrowdGrid home"
-            onClick={(e) => {
+            onClick={() => {
               close();
               if (window.location.pathname === '/') {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -179,9 +181,9 @@ export default function Layout() {
           </Link>
 
           {/* Clean Warm Search Pill */}
-          <form
+          {showSearch && <form
             onSubmit={handleNavSearch}
-            className="hidden md:flex flex-1 max-w-sm lg:max-w-md items-center rounded-full border border-line bg-white/85 px-3 py-1.5 text-sm hover:border-ink-faint focus-within:border-[#bd5338] focus-within:bg-white shadow-xs transition-all mx-2"
+            className="hidden xl:flex flex-1 max-w-sm lg:max-w-md items-center rounded-full border border-line bg-white/85 px-3 py-1.5 text-sm hover:border-ink-faint focus-within:border-[#bd5338] focus-within:bg-white shadow-xs transition-all mx-2"
           >
             <Search size={16} className="text-ink-soft shrink-0" />
             <input
@@ -202,13 +204,14 @@ export default function Layout() {
             >
               <Search size={13} strokeWidth={2.5} />
             </button>
-          </form>
+          </form>}
 
           {/* Desktop navigation */}
           <nav aria-label="Main" className={`ml-auto min-w-0 items-center gap-0.5 ${showDesk}`}>
             {nav.links.map((l) => (
               <NavLink key={l.to} to={l.to} end={l.end} className={linkCls}>
-                {l.icon && <l.icon size={18} aria-hidden />} {l.label}
+                {/* Staff bars are long (the header is capped at 1280px), so they show text only */}
+                {l.icon && <l.icon size={18} aria-hidden className={wide ? 'hidden' : ''} />} {l.label}
               </NavLink>
             ))}
           </nav>
@@ -227,7 +230,7 @@ export default function Layout() {
               <>
                 <NavLink to="/account" className={linkCls} title={ROLE_LABELS[user.role]}>
                   <UserRound size={18} aria-hidden />
-                  <span className="max-w-28 truncate">{user.name.split(' ')[0]}</span>
+                  <span className={`max-w-28 truncate ${wide ? 'sr-only' : ''}`}>{user.name.split(' ')[0]}</span>
                 </NavLink>
                 <button type="button" className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-ink-soft hover:text-ink" onClick={doLogout} aria-label="Log out" title="Log out">
                   <LogOut size={20} aria-hidden />
@@ -260,7 +263,7 @@ export default function Layout() {
           <nav id="mobile-menu" aria-label="Main" className={`max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-line bg-[#fbf8f3] ${hideDesk}`}>
             <div className="mx-auto w-full max-w-7xl space-y-1 px-4 py-3">
               {/* Mobile Search Bar */}
-              <form onSubmit={handleNavSearch} className="mb-3 flex items-center rounded-xl border border-line bg-white px-3 py-2 text-sm focus-within:border-[#bd5338]">
+              {showSearch && <form onSubmit={handleNavSearch} className="mb-3 flex items-center rounded-xl border border-line bg-white px-3 py-2 text-sm focus-within:border-[#bd5338]">
                 <Search size={18} className="text-ink-soft mr-2 shrink-0" />
                 <input
                   type="text"
@@ -272,7 +275,7 @@ export default function Layout() {
                 <button type="submit" className="rounded-lg bg-[#bd5338] px-3.5 py-1 text-xs font-bold text-white shrink-0">
                   Search
                 </button>
-              </form>
+              </form>}
               {nav.links.map((l) => (
                 <NavLink key={l.to} to={l.to} end={l.end} className={menuCls} onClick={close}>
                   {l.icon && <l.icon size={20} aria-hidden />} {l.label}

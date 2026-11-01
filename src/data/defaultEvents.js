@@ -5,7 +5,7 @@ export const DEFAULT_EVENTS = [
     slug: 'simhastha-kumbh-2027',
     kind: 'YATRA',
     isFlagship: true,
-    tagline: 'Maha Kumbh · Nashik & Trimbakeshwar',
+    tagline: 'Nashik - Trimbakeshwar',
     city: 'Nashik - Trimbakeshwar',
     venue: 'Godavari Ghats & Trimbakeshwar Mandir',
     startDate: '2027-04-15T00:00:00.000Z',

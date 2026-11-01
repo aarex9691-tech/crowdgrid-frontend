@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Sparkles } from 'lucide-react';
 
 /**
@@ -28,7 +28,7 @@ export function CornerPhataka({ position = 'bottom-right' }) {
       tabIndex={0}
       aria-label="Festive Phataka - Click for celebration sparks"
       title="Click for celebratory sparks!"
-      className={`fixed ${posClass} z-30 flex flex-col items-center cursor-pointer select-none group transition-transform hover:scale-110 active:scale-95`}
+      className={`fixed ${posClass} z-30 hidden sm:flex flex-col items-center cursor-pointer select-none group transition-transform hover:scale-110 active:scale-95`}
     >
       {/* Radiating Sparkler Particles emitting upwards */}
       <div className="relative w-16 h-20 pointer-events-none">

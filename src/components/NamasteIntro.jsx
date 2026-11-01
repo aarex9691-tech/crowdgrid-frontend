@@ -15,7 +15,24 @@ export default function NamasteIntro({ onComplete }) {
   const [phase, setPhase] = useState('entering'); // 'entering' -> 'glowing' -> 'dissolving' -> 'done'
   const [mounted, setMounted] = useState(false);
 
+  // Show once per browser session, and never for people who ask for reduced motion.
+  // Read once on first render (effects run twice in development, so not in the effect).
+  const [skip] = useState(() => {
+    try {
+      if (sessionStorage.getItem('cg_intro_seen') === '1') return true;
+    } catch {
+      /* storage blocked: just show it */
+    }
+    return !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  });
+
   useEffect(() => {
+    if (skip) return undefined;
+    try {
+      sessionStorage.setItem('cg_intro_seen', '1');
+    } catch {
+      /* ignore */
+    }
     setMounted(true);
 
     // Step 1: Smooth entrance to glowing state
@@ -39,13 +56,15 @@ export default function NamasteIntro({ onComplete }) {
       clearTimeout(t2);
       clearTimeout(t3);
     };
-  }, [onComplete]);
+  }, [onComplete, skip]);
 
-  if (!mounted || phase === 'done') return null;
+  if (skip || !mounted || phase === 'done') return null;
 
   return createPortal(
     <div
-      className={`fixed top-0 left-0 w-screen h-screen min-h-dvh z-[999999] flex flex-col items-center justify-center select-none pointer-events-none transition-all duration-1000 ease-out overflow-hidden ${
+      onClick={() => setPhase('done')}
+      title="Tap to skip"
+      className={`fixed top-0 left-0 w-screen h-screen min-h-dvh z-[999999] flex flex-col items-center justify-center select-none cursor-pointer transition-all duration-1000 ease-out overflow-hidden ${
         phase === 'dissolving'
           ? 'opacity-0 scale-105 filter blur-md pointer-events-none'
           : 'opacity-100 scale-100'
@@ -56,7 +75,7 @@ export default function NamasteIntro({ onComplete }) {
         backgroundRepeat: 'repeat',
         backgroundSize: '260px auto',
       }}
-      aria-label="Welcome to CrowdGrid - Maha Kumbh 2026"
+      aria-label="Welcome to CrowdGrid - Simhastha Kumbh 2027"
     >
       {/* Centerpiece Namaste Artwork & Greetings */}
       <div className="relative z-10 flex flex-col items-center text-center px-4 max-w-lg">
@@ -93,7 +112,7 @@ export default function NamasteIntro({ onComplete }) {
           </h2>
 
           <p className="font-display text-sm sm:text-base font-bold uppercase tracking-widest text-[#c99436]">
-            SIMHASTHA MAHA KUMBH 2026
+            SIMHASTHA KUMBH 2027
           </p>
 
           <p className="text-xs text-ink-soft/80 font-sans tracking-wide pt-0.5">

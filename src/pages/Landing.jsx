@@ -3,11 +3,8 @@ import { Link } from 'react-router-dom';
 import {
   ArrowRight,
   BedDouble,
-  Briefcase,
   BusFront,
   CalendarCheck,
-  CalendarDays,
-  Clock,
   CreditCard,
   Flame,
   HandHeart,
@@ -16,7 +13,6 @@ import {
   ScanLine,
   ShieldCheck,
   Siren,
-  Sparkles,
   Ticket,
   UtensilsCrossed,
   Users,
@@ -25,8 +21,7 @@ import { SITE } from '../lib/site';
 import { canBook, homeFor, ROLE_LABELS, useAuth } from '../lib/auth';
 import HeroSearch from '../components/HeroSearch';
 import API, { errorMessage } from '../lib/api';
-import { compactNumber, fmtDate } from '../lib/format';
-import Notice, { Loading } from '../components/Notice';
+import { fmtDate } from '../lib/format';
 import { InvitationCodeBox, PublicEventList, YatraCard } from '../components/EventCards';
 import { DEFAULT_EVENTS } from '../data/defaultEvents';
 import NamasteIntro from '../components/NamasteIntro';
@@ -93,10 +88,10 @@ function FullWidthGarland() {
  */
 function FullWidthTicker() {
   const items = [
-    '🚩 ॥ महाकुंभ २०२६ ॥',
-    '✦ MAHA KUMBH 2026',
+    '🚩 ॥ सिंहस्थ कुंभ २०२७ ॥',
+    '✦ SIMHASTHA KUMBH 2027',
     '✦ WHERE MILLIONS GATHER AS ONE',
-    '✦ 1,500,000+ REGISTERED PILGRIMS',
+    '✦ 1,500,000+ EXPECTED PILGRIMS',
     '✦ FREE SEVA & ANNADANAM TOKENS LIVE',
     '✦ REAL-TIME GPS GHAT SHUTTLES',
     '✦ OFFLINE DIGITAL PASSBOOK QR',
@@ -108,8 +103,8 @@ function FullWidthTicker() {
     <Link
       to={`/yatra/${SITE.flagshipSlug}`}
       className="group block w-full overflow-hidden border-y-2 border-[#c99436] bg-[#7c1d13] py-2.5 text-xs sm:text-sm font-bold uppercase tracking-widest text-[#fcedd7] shadow-sm hover:bg-[#8e2217] transition-colors cursor-pointer select-none"
-      title="Click ribbon to enter Maha Kumbh 2026 Portal"
-      aria-label="Maha Kumbh 2026 Festive Ticker - Click to open portal"
+      title="Click ribbon to enter the Simhastha Kumbh 2027 portal"
+      aria-label="Simhastha Kumbh 2027 festive ticker - Click to open portal"
     >
       <div className="animate-marquee flex gap-8 items-center whitespace-nowrap group-hover:scale-[1.008] transition-transform">
         {[...items, ...items, ...items, ...items].map((text, i) => (
@@ -127,9 +122,11 @@ function FullWidthTicker() {
  * Symmetrical 4-point cusped ogee bracket cartouche path matching Image 2,
  * arranged in a wide horizontal orientation (desktop split: titles on left, timer on right).
  */
-function HorizontalJharokhaHero({ event, withSearch = false }) {
+function HorizontalJharokhaHero({ event }) {
   const c = useCountdown(event.startDate);
-  const nextDates = (event.keyDates || []).slice(0, 3);
+  // Only dates still ahead (the list starts with Dhwajarohan, which may already be over)
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const nextDates = (event.keyDates || []).filter((d) => String(d.date).slice(0, 10) >= todayIso).slice(0, 3);
 
   // Desktop Wide Horizontal Jharokha Cartouche Path (1200x720)
   const pathDesktop =
@@ -220,7 +217,7 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
       >
         {/* Sacred Sanskrit Invocation */}
         <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-amber-300/40 bg-black/40 px-3.5 sm:px-5 py-1 text-[11px] sm:text-sm font-bold tracking-widest text-amber-200 backdrop-blur mb-2.5 sm:mb-3 shadow-md max-w-[92%] truncate">
-          <span>॥ ॐ नमः शिवाय · तीर्थराज सिंहस्थ महाकुंभ २०२६ ॥</span>
+          <span>॥ ॐ नमः शिवाय · तीर्थराज सिंहस्थ कुंभ २०२७ ॥</span>
         </div>
 
         {/* Crown Title */}
@@ -228,7 +225,7 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
           id="hero-title"
           className="font-display text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-wider text-[#fff4d6] drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)] uppercase leading-tight"
         >
-          MAHA KUMBH 2026
+          SIMHASTHA KUMBH 2027
         </h1>
 
         {/* Subtitle Line */}
@@ -286,7 +283,7 @@ function HorizontalJharokhaHero({ event, withSearch = false }) {
               </div>
             </div>
           ) : (
-            <p className="font-display text-xl font-bold text-amber-300">Shahi Snan Days in Progress</p>
+            <p className="font-display text-xl font-bold text-amber-300">The Mela Has Begun</p>
           )}
 
           {nextDates.length > 0 && (
@@ -570,6 +567,12 @@ export default function Landing() {
   useEffect(() => {
     load();
   }, []);
+  // The free server sleeps when idle: keep retrying until the real list arrives
+  useEffect(() => {
+    if (!error) return undefined;
+    const t = setTimeout(load, 15000);
+    return () => clearTimeout(t);
+  }, [error]);
 
   const groups = useMemo(() => {
     const list = Array.isArray(events) ? events : DEFAULT_EVENTS;
@@ -611,7 +614,7 @@ export default function Landing() {
         {/* Horizontal Jharokha Hero + Floating Travel Search Bar */}
         {groups.flagship && (
           <div className="space-y-4">
-            <HorizontalJharokhaHero event={groups.flagship} withSearch={canBook(user)} />
+            <HorizontalJharokhaHero event={groups.flagship} />
             {canBook(user) && <HeroSearch event={groups.flagship} />}
           </div>
         )}
