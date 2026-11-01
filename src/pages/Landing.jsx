@@ -21,7 +21,7 @@ import { SITE } from '../lib/site';
 import { canBook, homeFor, ROLE_LABELS, useAuth } from '../lib/auth';
 import HeroSearch from '../components/HeroSearch';
 import API, { errorMessage } from '../lib/api';
-import { fmtDate } from '../lib/format';
+import { addDaysIST, fmtDate, todayIST } from '../lib/format';
 import { InvitationCodeBox, PublicEventList, YatraCard } from '../components/EventCards';
 import { DEFAULT_EVENTS } from '../data/defaultEvents';
 import NamasteIntro from '../components/NamasteIntro';
@@ -585,10 +585,23 @@ export default function Landing() {
 
   const filteredPublicEvents = useMemo(() => {
     const list = groups.publicEvents || [];
-    if (selectedFilter === 'Free Entry') return list.filter((e) => !e.ticketPrice || e.ticketPrice === 0);
-    if (selectedFilter === 'Aartis & Rituals') return list.filter((e) => e.category === 'AARTI' || e.category === 'SPIRITUAL');
+    const day = (d) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date(d));
+    if (selectedFilter === 'Free Entry') return list.filter((e) => !e.ticketPrice);
+    if (selectedFilter === 'Aartis & Rituals') return list.filter((e) => e.category === 'SPIRITUAL');
+    if (selectedFilter === 'Today & Weekend') {
+      // today up to and including the coming Sunday (India time)
+      const today = todayIST();
+      const dow = new Date(`${today}T12:00:00+05:30`).getUTCDay(); // 0 = Sunday
+      const sunday = addDaysIST(today, (7 - dow) % 7);
+      return list.filter((e) => day(e.startDate) >= today && day(e.startDate) <= sunday);
+    }
+    if (selectedFilter === 'Flagship Mela') {
+      // events in the flagship's towns (e.g. "Nashik - Trimbakeshwar")
+      const towns = String(groups.flagship?.city || '').toLowerCase().split(/[-&,]/).map((t) => t.trim()).filter(Boolean);
+      return list.filter((e) => towns.some((t) => String(e.city || '').toLowerCase().includes(t)));
+    }
     return list;
-  }, [groups.publicEvents, selectedFilter]);
+  }, [groups.publicEvents, groups.flagship, selectedFilter]);
 
   return (
     <div className="space-y-8 sm:space-y-12 pb-16">
@@ -623,7 +636,7 @@ export default function Landing() {
         <JharokhaConcourse flagshipSlug={groups.flagship?.slug} />
 
         {/* Browsing Bar & Quick Filters */}
-        <BrowsingFilterBar selectedFilter={selectedFilter} onSelectFilter={setSelectedFilter} />
+        {groups.publicEvents.length > 0 && <BrowsingFilterBar selectedFilter={selectedFilter} onSelectFilter={setSelectedFilter} />}
 
         {/* Curated Public Events Grid */}
         {groups.publicEvents.length > 0 && (
@@ -641,7 +654,7 @@ export default function Landing() {
                 View all public events →
               </Link>
             </div>
-            <PublicEventList events={filteredPublicEvents.length > 0 ? filteredPublicEvents : groups.publicEvents} onChange={load} from="/" />
+            <PublicEventList events={filteredPublicEvents} emptyMessage={`No ${selectedFilter.toLowerCase()} events right now. Try another filter.`} from="/" />
           </section>
         )}
 

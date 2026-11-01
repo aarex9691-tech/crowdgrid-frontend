@@ -96,7 +96,7 @@ export default function Layout() {
   const handleNavSearch = (e) => {
     e.preventDefault();
     if (navQuery.trim()) {
-      navigate(`/events?tab=public&q=${encodeURIComponent(navQuery.trim())}`);
+      navigate(`/events?q=${encodeURIComponent(navQuery.trim())}`);
       setNavQuery('');
       setMenuOpen(false);
     }

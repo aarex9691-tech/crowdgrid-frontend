@@ -16,7 +16,6 @@ const TABS = [
 /** All events, one tab per type (yatras, public, invite-only). */
 export default function Events() {
   const [params, setParams] = useSearchParams();
-  const active = TABS.find((t) => t.id === params.get('tab')) || TABS[0];
   const [events, setEvents] = useState(DEFAULT_EVENTS);
   const [error, setError] = useState('');
 
@@ -40,22 +39,28 @@ export default function Events() {
     return () => clearTimeout(t);
   }, [error]);
 
-  const yatras = useMemo(() => (events || []).filter((e) => e.kind === 'YATRA').sort((a, b) => (b.isFlagship ? 1 : 0) - (a.isFlagship ? 1 : 0)), [events]);
   const category = params.get('category') || '';
-  const q = (params.get('q') || '').toLowerCase().trim();
-  const publicEvents = useMemo(() => (events || []).filter((e) => {
-    if (e.kind !== 'PUBLIC') return false;
-    if (category && e.category !== category) return false;
-    if (q) {
-      const matchTitle = (e.title || '').toLowerCase().includes(q);
-      const matchVenue = (e.venue || '').toLowerCase().includes(q);
-      const matchCity = (e.city || '').toLowerCase().includes(q);
-      const matchDesc = (e.description || '').toLowerCase().includes(q);
-      return matchTitle || matchVenue || matchCity || matchDesc;
-    }
-    return true;
-  }), [events, category, q]);
+  const rawQ = (params.get('q') || '').trim();
+  const q = rawQ.toLowerCase();
+  // The header search covers yatras and public events alike
+  const matches = (e) => !q || [e.title, e.tagline, e.venue, e.city, e.description].some((f) => (f || '').toLowerCase().includes(q));
+  const yatras = useMemo(
+    () => (events || []).filter((e) => e.kind === 'YATRA' && matches(e)).sort((a, b) => (b.isFlagship ? 1 : 0) - (a.isFlagship ? 1 : 0)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [events, q]
+  );
+  const publicEvents = useMemo(
+    () => (events || []).filter((e) => e.kind === 'PUBLIC' && (!category || e.category === category) && matches(e)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [events, category, q]
+  );
   const counts = { yatras: yatras.length, public: publicEvents.length };
+  // A search without a chosen tab opens the tab that has results
+  const tabParam = params.get('tab');
+  const active =
+    TABS.find((t) => t.id === tabParam) ||
+    (q ? (publicEvents.length || !yatras.length ? TABS[1] : TABS[0]) : TABS[0]);
+  const withQ = (p) => (rawQ ? { ...p, q: rawQ } : p);
 
   return (
     <div className="shell space-y-6 py-8">
@@ -73,7 +78,7 @@ export default function Events() {
               type="button"
               role="tab"
               aria-selected={selected}
-              onClick={() => setParams({ tab: t.id })}
+              onClick={() => setParams(withQ({ tab: t.id }))}
               className={`flex min-h-12 shrink-0 items-center gap-2 rounded-xl px-4 font-semibold ${selected ? 'bg-ink text-white' : 'border border-line bg-white text-ink-soft hover:text-ink'}`}
             >
               <t.icon size={18} aria-hidden /> {t.label}
@@ -85,6 +90,12 @@ export default function Events() {
         })}
       </div>
       <p className="text-ink-soft" role="note">{active.blurb}</p>
+      {rawQ && (
+        <p className="flex flex-wrap items-center gap-2 text-ink-soft">
+          Results for <b className="text-ink">“{rawQ}”</b>
+          <button type="button" className="font-bold text-ink underline" onClick={() => setParams(tabParam ? { tab: tabParam } : {})}>Clear search</button>
+        </p>
+      )}
 
       {error && (
         <div className="rounded-xl border border-line bg-amber-50 p-3 text-xs sm:text-sm text-amber-900">
@@ -107,7 +118,7 @@ export default function Events() {
             </ul>
           </>
         ) : (
-          <Notice>No yatras are open right now.</Notice>
+          <Notice>{q ? `No yatras found matching "${rawQ}".` : 'No yatras are open right now.'}</Notice>
         )
       ) : active.id === 'public' ? (
         <>
@@ -117,7 +128,7 @@ export default function Events() {
                 key={k || 'all'}
                 type="button"
                 aria-pressed={category === k}
-                onClick={() => setParams(k ? { tab: 'public', category: k } : { tab: 'public' })}
+                onClick={() => setParams(withQ(k ? { tab: 'public', category: k } : { tab: 'public' }))}
                 className={category === k ? 'btn-ink min-h-10 px-3' : 'btn-ghost min-h-10 px-3'}
               >
                 {v}
@@ -129,7 +140,7 @@ export default function Events() {
           ) : (
             <Notice>
               {q
-                ? `No events found matching "${q}".`
+                ? `No events found matching "${rawQ}".`
                 : `No ${category ? EVENT_CATEGORIES[category].toLowerCase() + ' ' : ''}events are open right now.`}
             </Notice>
           )}

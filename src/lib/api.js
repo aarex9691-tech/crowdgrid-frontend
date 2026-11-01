@@ -39,6 +39,11 @@ API.interceptors.response.use(
 
 export const errorMessage = (err) => {
   if (err?.response?.data?.message) return err.response.data.message;
+  // Free hosting sleeps when idle: the first request can time out or hit a gateway page
+  const status = err?.response?.status;
+  if (err?.code === 'ECONNABORTED' || [502, 503, 504].includes(status) || /HTML received/.test(err?.message || '')) {
+    return 'The server is starting up (this can take up to a minute). Please try again shortly.';
+  }
   if (err?.request && !err?.response) return 'No connection. Check your internet and try again.';
   return 'Something went wrong. Please try again.';
 };

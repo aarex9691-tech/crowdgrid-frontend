@@ -19,8 +19,9 @@
   --color-tulsi-wash: #eaf4ee;
   --color-dusk: #3d342f;
 
-  --font-sans: "Plus Jakarta Sans", "Marcellus", system-ui, sans-serif;
-  --font-display: "Rozha One", "Cinzel", "Marcellus", serif;
+  /* Mukta is bundled with the app: Hindi/Marathi text and offline use still get a proper font */
+  --font-sans: "Plus Jakarta Sans", "Mukta", "Marcellus", system-ui, sans-serif;
+  --font-display: "Rozha One", "Cinzel", "Marcellus", "Mukta", serif;
 }
 
 @keyframes marquee {
