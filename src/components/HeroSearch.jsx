@@ -96,7 +96,7 @@ export default function HeroSearch({ event = {} }) {
             </Field>
             <Field id="hs-beds" label="Beds">
               <select id="hs-beds" className={inputCls} value={beds} onChange={(e) => setBeds(Number(e.target.value))}>
-                {[1, 2, 3, 4].map((n) => <option key={n} value={n}>{n} {n > 1 ? 'beds' : 'bed'}</option>)}
+                {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n} {n > 1 ? 'beds' : 'bed'}</option>)}
               </select>
             </Field>
           </>

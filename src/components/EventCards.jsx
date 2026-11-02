@@ -30,16 +30,16 @@ export function YatraCard({ event }) {
   );
 }
 
-/** Add one ticket for a paid public event to the cart. */
-export const addTicketToCart = (cart, event) =>
+/** Add tickets (1 to 5 people, one pass) for a paid public event to the cart. */
+export const addTicketToCart = (cart, event, people = 1) =>
   cart.add({
     key: `EVENT:${event._id}`,
     kind: 'EVENT',
     refId: event._id,
     label: event.title,
-    detail: `1 ticket · ${fmtDateTime(event.startDate)} · ${event.venue}`,
-    estimate: event.ticketPrice || 0,
-    input: {},
+    detail: `${people} ${people === 1 ? 'ticket' : 'tickets'} · ${fmtDateTime(event.startDate)} · ${event.venue}`,
+    estimate: (event.ticketPrice || 0) * people,
+    input: { people },
   });
 
 export const placesLeft = (e) => Math.max(0, (e.capacity || 0) - (e.attendeesCount || 0));

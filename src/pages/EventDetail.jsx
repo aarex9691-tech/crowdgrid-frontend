@@ -1,3 +1,4 @@
+import PeopleStepper from '../components/PeopleStepper';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, CalendarDays, ExternalLink, MapPin, Phone, ShieldCheck, Ticket, Users } from 'lucide-react';
@@ -19,6 +20,7 @@ export default function EventDetail() {
   const [error, setError] = useState('');
   const [added, setAdded] = useState(false);
   const [freeMsg, setFreeMsg] = useState(null);
+  const [people, setPeople] = useState(1);
 
   useEffect(() => {
     API.get(`/events/${slug}`)
@@ -40,15 +42,15 @@ export default function EventDetail() {
     if (!user) return navigate('/login', { state: { from: `/event/${slug}` } });
     if (free) {
       try {
-        const { data } = await API.post(`/events/${event._id}/register`);
+        const { data } = await API.post(`/events/${event._id}/register`, { people: Math.min(people, left) });
         cachePass(data.pass);
-        setFreeMsg({ tone: 'success', text: "You're registered. Your entry pass is in your passbook." });
+        setFreeMsg({ tone: 'success', text: `${data.message} Your entry pass is in your passbook.` });
       } catch (e) {
         setFreeMsg({ tone: 'error', text: errorMessage(e) });
       }
       return;
     }
-    addTicketToCart(cart, event);
+    addTicketToCart(cart, event, Math.min(people, left));
     setAdded(true);
   };
 
@@ -131,13 +133,18 @@ export default function EventDetail() {
             </p>
             {added && (
               <Notice tone="success">
-                Ticket added. <Link to="/checkout" className="font-bold underline">Go to checkout</Link>
+                {people > 1 ? `${people} tickets added.` : 'Ticket added.'} <Link to="/checkout" className="font-bold underline">Go to checkout</Link>
               </Notice>
             )}
             {canBook(user) ? (
-              <button type="button" className="btn-primary w-full text-lg" disabled={over || left === 0} onClick={register}>
-                <Ticket size={20} aria-hidden /> Register · {free ? 'Free' : rupees(event.ticketPrice)}
-              </button>
+              <>
+                {!over && left > 0 && (
+                  <PeopleStepper id="ev-people" label="Tickets" value={Math.min(people, left)} max={left} onChange={setPeople} hint="Up to 5 tickets per account, on one entry pass" />
+                )}
+                <button type="button" className="btn-primary w-full text-lg" disabled={over || left === 0} onClick={register}>
+                  <Ticket size={20} aria-hidden /> Register · {free ? 'Free' : rupees(event.ticketPrice * Math.min(people, Math.max(left, 1)))}
+                </button>
+              </>
             ) : (
               <p className="rounded-xl bg-mist p-3 text-sm text-ink-soft">You are signed in as staff. Registration is for pilgrims and visitors.</p>
             )}

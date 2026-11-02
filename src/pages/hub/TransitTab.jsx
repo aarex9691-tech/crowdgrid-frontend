@@ -6,6 +6,7 @@ import { cachePass } from '../../lib/passCache';
 import { rupees, useCart } from '../../lib/cart';
 import Notice, { Loading } from '../../components/Notice';
 import PassCard from '../../components/PassCard';
+import PeopleStepper from '../../components/PeopleStepper';
 import useLoginGate from './useLoginGate';
 import { canBook, useAuth } from '../../lib/auth';
 
@@ -53,17 +54,21 @@ export default function TransitTab({ event }) {
       .catch((e) => setError(errorMessage(e)));
   }, [event._id]);
 
+  const [people, setPeople] = useState({}); // route id -> how many travel on the pass
+  const peopleFor = (id) => people[id] || 1;
+
   const getPass = async (route) => {
     if (!gate()) return;
+    const n = peopleFor(route._id);
     if (route.fare > 0) {
       cart.add({
         key: `TRANSIT:${route._id}`,
         kind: 'TRANSIT',
         refId: route._id,
         label: route.name,
-        detail: `Day pass · ${route.origin} to ${route.destination}`,
-        estimate: route.fare,
-        input: {},
+        detail: `Day pass${n > 1 ? ` for ${n} people` : ''} · ${route.origin} to ${route.destination}`,
+        estimate: route.fare * n,
+        input: { people: n },
       });
       setAdded(route);
       return;
@@ -71,7 +76,7 @@ export default function TransitTab({ event }) {
     setBusy(route._id);
     setError('');
     try {
-      const { data } = await API.post(`/transit/${route._id}/pass`);
+      const { data } = await API.post(`/transit/${route._id}/pass`, { people: n });
       cachePass(data.pass);
       setIssued(data.pass);
     } catch (e) {
@@ -84,7 +89,7 @@ export default function TransitTab({ event }) {
   if (issued) {
     return (
       <div className="mx-auto max-w-lg space-y-4">
-        <Notice tone="success">Boarding pass ready for today.</Notice>
+        <Notice tone="success">Boarding pass ready for {issued.details?.date || 'today'}{issued.details?.people > 1 ? ` for ${issued.details.people} people` : ''}.</Notice>
         <PassCard pass={issued} />
         <div className="flex flex-wrap gap-3">
           <Link to="/passbook" className="btn-ink">Open my passbook</Link>
@@ -123,9 +128,14 @@ export default function TransitTab({ event }) {
               </p>
               <p className="text-ink-soft">Board at {r.boardingGate}</p>
               <Checkpoints points={r.checkpoints} />
-              {!staff && <button type="button" className="btn-primary mt-5 self-start" disabled={busy === r._id} onClick={() => getPass(r)}>
-                {busy === r._id ? 'Preparing…' : r.fare > 0 ? `Add to cart · ${rupees(r.fare)}` : 'Get boarding pass · Free'}
-              </button>}
+              {!staff && (
+                <div className="mt-5 flex flex-wrap items-end gap-4">
+                  <PeopleStepper id={`tp-${r._id}`} label="Travelling" value={peopleFor(r._id)} onChange={(v) => setPeople((p) => ({ ...p, [r._id]: v }))} hint="One pass for up to 5 people" />
+                  <button type="button" className="btn-primary" disabled={busy === r._id} onClick={() => getPass(r)}>
+                    {busy === r._id ? 'Preparing…' : r.fare > 0 ? `Add to cart · ${rupees(r.fare * peopleFor(r._id))}` : 'Get boarding pass · Free'}
+                  </button>
+                </div>
+              )}
             </li>
           ))}
         </ul>

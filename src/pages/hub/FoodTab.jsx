@@ -1,3 +1,4 @@
+import { MAX_PER_ACCOUNT } from '../../lib/limits';
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import API, { errorMessage } from '../../lib/api';
@@ -23,7 +24,9 @@ export default function FoodTab({ event }) {
   const gate = useLoginGate();
   const { user } = useAuth();
   const staff = !canBook(user);
-  const today = todayIST();
+  // Tokens open for 4 days from today, or from the first day of a yatra that has not started yet
+  const startDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date(event.startDate));
+  const today = todayIST() > startDay ? todayIST() : startDay;
   const [params] = useSearchParams();
   const [date, setDate] = useState(() => (params.get('date') >= today ? params.get('date') : today));
   const [meal, setMeal] = useState(() => (['BREAKFAST', 'LUNCH', 'DINNER'].includes(params.get('meal')) ? params.get('meal') : currentMeal()));
@@ -128,7 +131,7 @@ export default function FoodTab({ event }) {
           <div className="flex items-center gap-2" role="group" aria-labelledby="people-label">
             <button type="button" className="btn-ghost h-12 w-12 px-0 text-xl" aria-label="Fewer people" disabled={people <= 1} onClick={() => setPeople((n) => n - 1)}>−</button>
             <output className="w-10 text-center text-2xl font-bold tabular-nums" aria-live="polite">{people}</output>
-            <button type="button" className="btn-ghost h-12 w-12 px-0 text-xl" aria-label="More people" disabled={people >= 6} onClick={() => setPeople((n) => n + 1)}>+</button>
+            <button type="button" className="btn-ghost h-12 w-12 px-0 text-xl" aria-label="More people" disabled={people >= MAX_PER_ACCOUNT} onClick={() => setPeople((n) => n + 1)}>+</button>
           </div>
         </div>
         {people > 1 && (
@@ -139,7 +142,7 @@ export default function FoodTab({ event }) {
           </div>
         )}
       </div>}
-      <p className="text-ink-soft">Each account can take 1 token per meal (breakfast, lunch and dinner) each day. One token feeds up to 6 family members: show it at the kitchen counter during the meal time.</p>
+      <p className="text-ink-soft">Each account can take 1 token per meal (breakfast, lunch and dinner) each day. One token feeds up to 5 family members: show it at the kitchen counter during the meal time.</p>
 
       {!data ? (
         <Loading label="Finding community kitchens" />

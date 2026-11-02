@@ -65,7 +65,7 @@ export default function MyQrCard({ name, activeCount }) {
         </div>
         <div className="flex-1 space-y-2 text-center sm:text-left">
           <p className="flex items-center justify-center gap-2 text-sm font-semibold uppercase tracking-wide text-kumkum sm:justify-start">
-            <QrIcon size={18} aria-hidden /> One QR for everything
+            <QrIcon size={18} aria-hidden /> One QR for all your passes
           </p>
           <h2 id="myqr-title" className="text-2xl font-bold">{name}</h2>
           <p className="text-ink-soft">

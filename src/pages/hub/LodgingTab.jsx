@@ -10,8 +10,9 @@ import PassCard from '../../components/PassCard';
 import useLoginGate from './useLoginGate';
 import { canBook, useAuth } from '../../lib/auth';
 import { useLive } from '../../lib/realtime';
+import { MAX_PER_ACCOUNT } from '../../lib/limits';
 
-const MAX_BEDS = 4;
+const MAX_BEDS = MAX_PER_ACCOUNT; // 5 beds per account per yatra
 
 const availability = (n) =>
   n === 0 ? <span className="pill-out">Sold out</span> : n <= 5 ? <span className="pill-low">Only {n} beds left</span> : <span className="pill-ok">{n} beds available</span>;

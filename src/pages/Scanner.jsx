@@ -133,6 +133,7 @@ export default function Scanner() {
 
       {choosing && (
         <div role="status" aria-live="assertive" className="rounded-3xl bg-marigold-wash p-5">
+          <p className="mb-1 inline-flex rounded-full bg-ink px-3 py-0.5 text-sm font-bold text-white">Personal QR · one QR for all passes</p>
           <p className="text-xl font-bold">{result.message}</p>
           {result.holder && <p>Holder: {result.holder.name} ({result.holder.phone})</p>}
           <ul className="mt-3 space-y-2">
@@ -154,6 +155,9 @@ export default function Scanner() {
           aria-live="assertive"
           className={`rounded-3xl p-6 text-white ${valid ? 'bg-tulsi' : 'bg-kumkum'}`}
         >
+          {result.personal && (
+            <p className="mb-3 inline-flex rounded-full bg-white/20 px-3 py-0.5 text-sm font-bold">Personal QR · one QR for all passes</p>
+          )}
           <div className="flex items-center gap-3">
             {valid ? <CircleCheck size={44} aria-hidden /> : <CircleX size={44} aria-hidden />}
             <div>
@@ -168,7 +172,11 @@ export default function Scanner() {
               <p className="text-xl font-bold">{result.pass.title}</p>
               {result.pass.subtitle && <p>{result.pass.subtitle}</p>}
               {result.pass.holder && <p className="mt-1">Holder: {result.pass.holder.name} ({result.pass.holder.phone})</p>}
-              {result.pass.details?.people > 1 && <p className="mt-2 text-2xl font-extrabold">Serve {result.pass.details.people} plates</p>}
+              {result.pass.details?.people > 1 && (
+                <p className="mt-2 text-2xl font-extrabold">
+                  {result.pass.type === 'MEAL' ? `Serve ${result.pass.details.people} plates` : `Admit ${result.pass.details.people} people`}
+                </p>
+              )}
               {result.pass.details?.location && <p className="mt-2 text-2xl font-extrabold">{result.pass.details.location}</p>}
               {result.pass.details?.guests?.length > 0 && <p>Names: {result.pass.details.guests.join(', ')}</p>}
             </div>
