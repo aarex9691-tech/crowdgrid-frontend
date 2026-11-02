@@ -3,7 +3,7 @@ export const SITE = {
   name: 'CrowdGrid',
   tagline: 'The total yatra solution',
   flagshipSlug: 'simhastha-kumbh-2027',
-  email: 'aarex9691@gmail.com',
+  email: 'crowdgridevents@gmail.com', // official customer care address
   phone: '+91 98923 15795',
   whatsapp: '919892315795',
   github: [

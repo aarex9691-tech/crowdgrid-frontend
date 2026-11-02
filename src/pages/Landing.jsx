@@ -5,8 +5,10 @@ import {
   BedDouble,
   BusFront,
   CalendarCheck,
+  Compass,
   CreditCard,
   Flame,
+  LifeBuoy,
   HandHeart,
   MapPin,
   QrCode,
@@ -25,6 +27,7 @@ import { addDaysIST, fmtDate, todayIST } from '../lib/format';
 import { InvitationCodeBox, PublicEventList, YatraCard } from '../components/EventCards';
 import { DEFAULT_EVENTS } from '../data/defaultEvents';
 import NamasteIntro from '../components/NamasteIntro';
+import { openTour } from '../components/GuidedTour';
 import { CornerPhataka, GrandSacredDiya } from '../components/FestiveDecorations';
 
 function useCountdown(target) {
@@ -119,10 +122,13 @@ function FullWidthTicker() {
  * arranged in a wide horizontal orientation (desktop split: titles on left, timer on right).
  */
 function HorizontalJharokhaHero({ event }) {
-  const c = useCountdown(event.startDate);
   // Only dates still ahead (the list starts with Dhwajarohan, which may already be over)
   const todayIso = new Date().toISOString().slice(0, 10);
   const nextDates = (event.keyDates || []).filter((d) => String(d.date).slice(0, 10) >= todayIso).slice(0, 3);
+  // count down to the next key date (e.g. the 1st Amrut Snan); before the mela starts, to the start
+  const started = new Date(event.startDate) <= new Date();
+  const target = !started ? { label: 'The mela begins', date: event.startDate } : nextDates[0];
+  const c = useCountdown(target?.date || event.startDate);
 
   // Desktop Wide Horizontal Jharokha Cartouche Path (1200x720)
   const pathDesktop =
@@ -219,9 +225,9 @@ function HorizontalJharokhaHero({ event }) {
         {/* Crown Title */}
         <h1
           id="hero-title"
-          className="font-display text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-wider text-[#fff4d6] drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)] uppercase leading-tight"
+          className="font-display text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-wide text-[#fff4d6] drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)] leading-tight"
         >
-          SIMHASTHA KUMBH 2026–28
+          Simhastha Kumbh 2026–28
         </h1>
 
         {/* Subtitle Line */}
@@ -230,63 +236,63 @@ function HorizontalJharokhaHero({ event }) {
         </p>
 
         {/* Descriptive overview */}
-        <p className="mt-2.5 sm:mt-3 max-w-2xl whitespace-pre-line text-xs sm:text-sm md:text-base leading-relaxed text-[#fde8d0] font-sans px-2">
+        <p className="mt-2.5 sm:mt-3 max-w-2xl whitespace-pre-line text-sm sm:text-base md:text-lg leading-relaxed text-[#fde8d0] font-sans px-2">
           {(event.description || 'The Simhastha Kumbh on the banks of the Godavari at Nashik and Trimbakeshwar. Find verified shelter, langar, transport and help in one place.').replace(/[.:]\s+(Find )/, '.\n$1')}
         </p>
 
         {/* Auspicious Badges */}
         <div className="mt-3.5 sm:mt-4 flex flex-wrap items-center justify-center gap-2 text-xs font-bold px-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-2.5 sm:px-3 py-1 text-amber-200 backdrop-blur text-[10px] sm:text-xs">
-            <Users size={12} /> {event.expectedFootfall >= 1e7 ? `${Math.round(event.expectedFootfall / 1e7)} crore+` : '15 lakh+'} expected pilgrims
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-3 py-1 text-amber-100 backdrop-blur text-xs sm:text-sm">
+            <Users size={14} aria-hidden /> {event.expectedFootfall >= 1e7 ? `${Math.round(event.expectedFootfall / 1e7)} crore+` : '15 lakh+'} expected pilgrims
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-2.5 sm:px-3 py-1 text-amber-200 backdrop-blur text-[10px] sm:text-xs">
-            <MapPin size={12} /> Nashik & Trimbakeshwar
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-3 py-1 text-amber-100 backdrop-blur text-xs sm:text-sm">
+            <MapPin size={14} aria-hidden /> Nashik & Trimbakeshwar
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-2.5 sm:px-3 py-1 text-amber-200 backdrop-blur text-[10px] sm:text-xs">
-            <ShieldCheck size={12} /> One verified QR pass
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-3 py-1 text-amber-100 backdrop-blur text-xs sm:text-sm">
+            <ShieldCheck size={14} aria-hidden /> One verified QR pass
           </span>
         </div>
 
         {/* Temple Bell Countdown & Snan Schedule */}
         <div className="mt-4 sm:mt-6 w-full max-w-xl mx-auto rounded-2xl border-2 border-amber-300/40 bg-black/50 p-3 sm:p-5 backdrop-blur shadow-2xl">
           <div className="flex items-center justify-between border-b border-amber-300/20 pb-2 mb-2.5 sm:mb-3 text-xs sm:text-sm">
-            <span className="font-display font-bold uppercase tracking-widest text-amber-300 flex items-center gap-1.5">
+            <span className="font-bold tracking-wide text-amber-300 flex items-center gap-1.5">
               <Flame size={14} className="text-amber-400 animate-sacred-pulse" />
-              {c.done ? 'महोत्सव प्रारंभ' : 'DHWAJAROHAN COUNTDOWN'}
+              {target && !c.done ? `Countdown to ${target.label}` : 'The mela has begun'}
             </span>
             <span className="font-semibold text-amber-200 text-xs sm:text-sm">
-              {fmtDate(event.startDate, { month: 'short', day: 'numeric', year: 'numeric' })}
+              {fmtDate(target?.date || event.startDate, { month: 'short', day: 'numeric', year: 'numeric' })}
             </span>
           </div>
 
-          {!c.done ? (
+          {target && !c.done ? (
             <div className="grid grid-cols-4 gap-1.5 sm:gap-2 text-center" aria-live="off">
               <div className="rounded-xl border border-amber-300/30 bg-amber-950/70 p-1.5 sm:p-2">
                 <span className="block font-display text-lg sm:text-3xl font-extrabold text-amber-300">{c.days}</span>
-                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-amber-200/80">Days</span>
+                <span className="text-xs font-semibold text-amber-200/90">Days</span>
               </div>
               <div className="rounded-xl border border-amber-300/30 bg-amber-950/70 p-1.5 sm:p-2">
                 <span className="block font-display text-lg sm:text-3xl font-extrabold text-white">{String(c.hours).padStart(2, '0')}</span>
-                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-amber-200/80">Hours</span>
+                <span className="text-xs font-semibold text-amber-200/90">Hours</span>
               </div>
               <div className="rounded-xl border border-amber-300/30 bg-amber-950/70 p-1.5 sm:p-2">
                 <span className="block font-display text-lg sm:text-3xl font-extrabold text-white">{String(c.minutes).padStart(2, '0')}</span>
-                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-amber-200/80">Mins</span>
+                <span className="text-xs font-semibold text-amber-200/90">Mins</span>
               </div>
               <div className="rounded-xl border border-amber-300/30 bg-amber-950/70 p-1.5 sm:p-2">
                 <span className="block font-display text-lg sm:text-3xl font-extrabold text-white">{String(c.seconds).padStart(2, '0')}</span>
-                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-amber-200/80">Secs</span>
+                <span className="text-xs font-semibold text-amber-200/90">Secs</span>
               </div>
             </div>
           ) : (
-            <p className="font-display text-xl font-bold text-amber-300">The Mela Has Begun</p>
+            <p className="font-display text-xl font-bold text-amber-300">The mela has begun. Book your stay, meals and transport below.</p>
           )}
 
-          {nextDates.length > 0 && (
-            <div className="mt-2.5 sm:mt-3 pt-2 border-t border-amber-300/20 flex flex-wrap items-center justify-between gap-1 text-[10px] sm:text-xs text-amber-200">
-              <span className="font-bold uppercase tracking-wider">UPCOMING SACRED SNAN:</span>
-              <span className="font-display text-xs sm:text-sm font-bold text-amber-300">
-                {nextDates[0].label} ({fmtDate(nextDates[0].date, { month: 'short', day: 'numeric' })})
+          {nextDates.length > 1 && (
+            <div className="mt-2.5 sm:mt-3 pt-2 border-t border-amber-300/20 flex flex-wrap items-center justify-between gap-1 text-xs sm:text-sm text-amber-200">
+              <span className="font-semibold">After that:</span>
+              <span className="font-bold text-amber-300">
+                {nextDates.slice(started ? 1 : 0, started ? 3 : 2).map((d) => `${d.label} (${fmtDate(d.date, { month: 'short', day: 'numeric' })})`).join(' · ')}
               </span>
             </div>
           )}
@@ -298,19 +304,19 @@ function HorizontalJharokhaHero({ event }) {
             to={`/yatra/${event.slug}`}
             className="btn-primary w-full sm:w-auto min-h-11 rounded-full bg-gradient-to-r from-amber-500 via-[#bd5338] to-[#9b2c16] px-6 py-2 text-sm sm:text-base font-bold text-white shadow-xl shadow-amber-950/40 hover:scale-105 border-2 border-amber-300 transition-all flex items-center justify-center gap-2"
           >
-            Enter Pilgrim Portal <ArrowRight size={16} aria-hidden />
+            Book stay, food &amp; transport <ArrowRight size={16} aria-hidden />
           </Link>
           <Link
             to="/events?tab=public"
-            className="btn-ghost w-full sm:w-auto min-h-11 rounded-full border-2 border-amber-300/60 bg-black/50 px-5 text-xs sm:text-sm font-bold text-amber-100 backdrop-blur hover:bg-black/70 transition flex items-center justify-center gap-2"
+            className="btn-ghost w-full sm:w-auto min-h-11 rounded-full border-2 border-amber-300/60 bg-black/50 px-5 text-sm font-bold text-amber-100 backdrop-blur hover:bg-black/70 transition flex items-center justify-center gap-2"
           >
-            <Ticket size={15} className="text-amber-300" aria-hidden /> Browse Sacred Passes
+            <Ticket size={15} className="text-amber-300" aria-hidden /> Events &amp; aartis
           </Link>
           <Link
             to="/passbook"
-            className="btn-ghost w-full sm:w-auto min-h-11 rounded-full border-2 border-amber-300/60 bg-black/50 px-4 text-xs sm:text-sm font-bold text-amber-100 backdrop-blur hover:bg-black/70 transition flex items-center justify-center gap-2"
+            className="btn-ghost w-full sm:w-auto min-h-11 rounded-full border-2 border-amber-300/60 bg-black/50 px-5 text-sm font-bold text-amber-100 backdrop-blur hover:bg-black/70 transition flex items-center justify-center gap-2"
           >
-            <QrCode size={15} className="text-amber-300" aria-hidden /> My Offline QR
+            <QrCode size={15} className="text-amber-300" aria-hidden /> My QR pass
           </Link>
         </div>
       </section>
@@ -386,15 +392,15 @@ function JharokhaConcourse({ flagshipSlug }) {
     <section aria-labelledby="concourse-title" className="space-y-6 pt-4">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 border-b-2 border-[#c99436]/40 pb-4">
         <div>
-          <span className="font-display text-sm font-bold uppercase tracking-widest text-[#832014]">
-            ॥ तीर्थ यात्री सेवा द्वार ॥
+          <span className="font-display text-sm font-bold tracking-widest text-[#832014]">
+            ॥ तीर्थ यात्री सेवा ॥
           </span>
           <h2 id="concourse-title" className="font-display text-2xl sm:text-4xl font-extrabold text-ink">
-            PILGRIM SERVICES CONCOURSE
+            Pilgrim services
           </h2>
         </div>
-        <p className="text-sm font-medium text-ink-soft max-w-sm">
-          Select any temple window to reserve lodging, tokens, shuttles or seva slots.
+        <p className="text-base text-ink-soft max-w-sm">
+          Everything you need for the yatra. Choose a service to book or get help.
         </p>
       </div>
 
@@ -431,13 +437,13 @@ function JharokhaConcourse({ flagshipSlug }) {
               <span className="mt-1 inline-block rounded-full bg-white/80 border border-line px-3 py-0.5 text-xs font-bold text-ink-soft">
                 {s.pill}
               </span>
-              <p className="mt-2 text-xs sm:text-sm text-ink-soft leading-relaxed">
+              <p className="mt-2 text-sm sm:text-base text-ink-soft leading-relaxed">
                 {s.desc}
               </p>
             </div>
 
-            <div className="mt-6 flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#832014] group-hover:underline pt-3 border-t border-line/60">
-              <span>Open Window</span> <ArrowRight size={13} />
+            <div className="mt-6 flex items-center justify-center gap-1.5 text-sm font-bold text-[#832014] group-hover:underline pt-3 border-t border-line/60">
+              <span>{s.highlight ? 'Get help now' : `Open ${s.title.toLowerCase()}`}</span> <ArrowRight size={14} aria-hidden />
             </div>
           </Link>
         ))}
@@ -449,16 +455,16 @@ function JharokhaConcourse({ flagshipSlug }) {
 /**
  * Traditional Location Tag & Filter Chips:
  */
-function BrowsingFilterBar({ selectedFilter, onSelectFilter }) {
+function BrowsingFilterBar({ selectedFilter, onSelectFilter, place }) {
   const chips = ['All', 'Free Entry', 'Today & Weekend', 'Aartis & Rituals', 'Flagship Mela'];
 
   return (
     <div className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between border-b-2 border-[#c99436]/40 pb-5 pt-3">
       <div className="flex items-center gap-2">
-        <span className="font-display text-sm font-bold uppercase tracking-wider text-ink-faint">Viewing</span>
+        <span className="text-sm font-semibold text-ink-soft">Showing</span>
         <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-[#c99436] bg-[#fbf5ec] px-4 py-1.5 text-sm font-bold text-ink shadow-2xs">
           <MapPin size={14} className="text-[#832014] shrink-0" aria-hidden />
-          <span>Nashik & Godavari Ghats</span>
+          <span>{place}</span>
         </span>
       </div>
 
@@ -470,7 +476,8 @@ function BrowsingFilterBar({ selectedFilter, onSelectFilter }) {
               key={chip}
               type="button"
               onClick={() => onSelectFilter(chip)}
-              className={`rounded-full px-4 py-1.5 text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
+              aria-pressed={active}
+              className={`min-h-10 rounded-full px-4 py-1.5 text-sm font-bold whitespace-nowrap transition-all ${
                 active
                   ? 'bg-[#832014] text-[#fff4d6] shadow-sm border border-amber-300 scale-105'
                   : 'border border-[#d0c0ad] bg-white text-ink-soft hover:border-[#832014] hover:text-ink'
@@ -486,25 +493,33 @@ function BrowsingFilterBar({ selectedFilter, onSelectFilter }) {
 }
 
 const STEPS = [
-  { icon: CalendarCheck, title: '1. Select Service', text: 'Pick a camp shelter, free meal token, bus shuttle or seva slot.' },
-  { icon: CreditCard, title: '2. Instant Confirmation', text: 'Free seva & passes confirmed immediately; paid camps via UPI.' },
-  { icon: QrCode, title: '3. Digital QR Passbook', text: 'All booked passes stored in one QR code that works completely offline.' },
-  { icon: ScanLine, title: '4. Gate Entry Scan', text: 'Present your screen once at the ghat or camp gate for fast entry.' },
+  { icon: CalendarCheck, title: '1. Choose a service', text: 'Pick a camp, a free meal token, a bus or a seva slot. Book for up to 5 people.' },
+  { icon: CreditCard, title: '2. Get it confirmed', text: 'Free services are confirmed at once. Paid stays, buses and events are paid by UPI or card.' },
+  { icon: QrCode, title: '3. One QR in your passbook', text: 'Everything you book is saved in My Passbook, under one QR that also works offline.' },
+  { icon: ScanLine, title: '4. Show it at the counter', text: 'Show your QR at the camp gate, kitchen or bus. Staff scan it in a second.' },
 ];
 
 function HowItWorks() {
   return (
-    <section aria-labelledby="how" className="rounded-3xl border-2 border-[#c99436]/40 bg-[#fdfbf8] p-7 sm:p-10 shadow-xs">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 border-b border-line pb-4">
+    <section aria-labelledby="how" className="rounded-3xl border-2 border-[#c99436]/40 bg-[#fdfbf8] p-5 sm:p-10 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-line pb-4">
         <div>
-          <span className="font-display text-xs font-bold uppercase tracking-wider text-[#832014]">
+          <span className="font-display text-sm font-bold tracking-wider text-[#832014]">
             ॥ चार सरल चरण ॥
           </span>
           <h2 id="how" className="font-display text-2xl sm:text-3xl font-extrabold text-ink">
-            HOW CROWDGRID WORKS
+            How CrowdGrid works
           </h2>
+          <p className="mt-1 text-base text-ink-soft max-w-md">No paper slips or separate queues. Everything is on your phone.</p>
         </div>
-        <p className="text-sm text-ink-soft max-w-sm">No paper slips or separate lines. Everything syncs to your phone.</p>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" className="btn-primary min-h-11 px-4 text-sm" onClick={openTour}>
+            <Compass size={18} aria-hidden /> Take the 1-minute tour
+          </button>
+          <Link to="/help" className="btn-ghost min-h-11 px-4 text-sm">
+            <LifeBuoy size={18} aria-hidden /> Help &amp; FAQs
+          </Link>
+        </div>
       </div>
       <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {STEPS.map((s) => (
@@ -514,7 +529,7 @@ function HowItWorks() {
             </span>
             <div>
               <p className="font-display text-lg font-bold text-ink">{s.title}</p>
-              <p className="mt-1 text-xs text-ink-soft leading-relaxed">{s.text}</p>
+              <p className="mt-1 text-sm text-ink-soft leading-relaxed">{s.text}</p>
             </div>
           </li>
         ))}
@@ -524,6 +539,25 @@ function HowItWorks() {
 }
 
 const flag = `/yatra/${SITE.flagshipSlug}`;
+
+/** For first-time visitors: what the site is and where to learn it, right under the hero. */
+function NewHereStrip() {
+  return (
+    <section aria-label="New to CrowdGrid" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 shadow-xs sm:flex-row sm:items-center">
+      <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-marigold-wash text-marigold-deep">
+        <Compass size={26} aria-hidden />
+      </span>
+      <div className="flex-1">
+        <p className="text-lg font-bold">New to CrowdGrid?</p>
+        <p className="text-ink-soft">Book a verified stay, free meals and transport for your family, and keep everything under one QR. Here is how it works.</p>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <button type="button" className="btn-primary min-h-11 px-4" onClick={openTour}>Take the tour</button>
+        <Link to="/register" className="btn-ghost min-h-11 px-4">Create free account</Link>
+      </div>
+    </section>
+  );
+}
 
 /** Floating "Plan your yatra" button */
 function FloatingCta() {
@@ -628,29 +662,47 @@ export default function Landing() {
           </div>
         )}
 
+        {/* First-time visitors: a clear way to learn the site */}
+        {!user && <NewHereStrip />}
+
         {/* Jharokha Window Service Alcoves */}
         <JharokhaConcourse flagshipSlug={groups.flagship?.slug} />
 
+        {/* How it Works Stepper: right after the services, so new users see it early */}
+        <HowItWorks />
+
         {/* Browsing Bar & Quick Filters */}
-        {groups.publicEvents.length > 0 && <BrowsingFilterBar selectedFilter={selectedFilter} onSelectFilter={setSelectedFilter} />}
+        {groups.publicEvents.length > 0 && (
+          <BrowsingFilterBar
+            selectedFilter={selectedFilter}
+            onSelectFilter={setSelectedFilter}
+            place={selectedFilter === 'Flagship Mela' ? 'Nashik & Trimbakeshwar' : 'All yatras'}
+          />
+        )}
 
         {/* Curated Public Events Grid */}
         {groups.publicEvents.length > 0 && (
           <section aria-labelledby="public">
             <div className="flex items-end justify-between gap-3 mb-6">
               <div>
-                <span className="font-display text-xs font-bold uppercase tracking-wider text-[#832014]">
+                <span className="font-display text-sm font-bold tracking-wider text-[#832014]">
                   ॥ दर्शन एवं कार्यक्रम ॥
                 </span>
                 <h2 id="public" className="font-display text-2xl sm:text-4xl font-extrabold text-ink">
-                  PUBLIC EVENTS & ENTRY PASSES
+                  Events and entry passes
                 </h2>
+                <p className="mt-1 text-base text-ink-soft">Aartis, kirtans and heritage walks. Up to 5 tickets per account.</p>
               </div>
               <Link to="/events?tab=public" className="hidden sm:inline-flex text-sm font-bold text-[#832014] hover:underline">
                 View all public events →
               </Link>
             </div>
-            <PublicEventList events={filteredPublicEvents} emptyMessage={`No ${selectedFilter.toLowerCase()} events right now. Try another filter.`} from="/" />
+            <PublicEventList events={filteredPublicEvents.slice(0, 6)} emptyMessage={`No ${selectedFilter.toLowerCase()} events right now. Try another filter.`} from="/" />
+            {filteredPublicEvents.length > 6 && (
+              <div className="mt-6 text-center">
+                <Link to="/events?tab=public" className="btn-ghost">See all {filteredPublicEvents.length} events <ArrowRight size={16} aria-hidden /></Link>
+              </div>
+            )}
           </section>
         )}
 
@@ -659,12 +711,13 @@ export default function Landing() {
           <section aria-labelledby="yatras">
             <div className="flex items-end justify-between gap-3 mb-6">
               <div>
-                <span className="font-display text-xs font-bold uppercase tracking-wider text-[#832014]">
+                <span className="font-display text-sm font-bold tracking-wider text-[#832014]">
                   ॥ अन्य तीर्थ यात्राएं ॥
                 </span>
                 <h2 id="yatras" className="font-display text-2xl sm:text-4xl font-extrabold text-ink">
-                  MORE SACRED YATRAS
+                  More yatras
                 </h2>
+                <p className="mt-1 text-base text-ink-soft">Camps, meals and shuttles are open for these too.</p>
               </div>
               <Link to="/events?tab=yatras" className="font-bold text-sm text-[#832014] hover:underline">All yatras →</Link>
             </div>
@@ -677,11 +730,8 @@ export default function Landing() {
         {/* Campus & Corporate Invitation Code Box */}
         <InvitationCodeBox from="/" />
 
-        {/* How it Works Stepper */}
-        <HowItWorks />
-
-        {/* Grand Eternal Sacred Flame Diya */}
-        <GrandSacredDiya />
+        {/* Grand Eternal Sacred Flame Diya: a small closing blessing, not a full section */}
+        <GrandSacredDiya compact />
 
         {/* Festive Corner Phataka Sparkler */}
         <CornerPhataka position="bottom-left" />

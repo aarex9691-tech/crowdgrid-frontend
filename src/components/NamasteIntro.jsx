@@ -62,6 +62,7 @@ export default function NamasteIntro({ onComplete }) {
 
   return createPortal(
     <div
+      data-namaste-intro
       onClick={() => setPhase('done')}
       title="Tap to skip"
       className={`fixed top-0 left-0 w-screen h-screen min-h-dvh z-[999999] flex flex-col items-center justify-center select-none cursor-pointer transition-all duration-1000 ease-out overflow-hidden ${

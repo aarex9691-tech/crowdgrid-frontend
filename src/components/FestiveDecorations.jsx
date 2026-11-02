@@ -107,31 +107,31 @@ export function CornerPhataka({ position = 'bottom-right' }) {
  * carved filigree stand, and "॥ तमसो मा ज्योतिर्गमय ॥" blessing.
  * Placed gracefully in the bottom section before the footer.
  */
-export function GrandSacredDiya() {
+export function GrandSacredDiya({ compact = false }) {
   return (
     <section
       aria-label="Auspicious Sacred Flame"
-      className="relative my-8 sm:my-12 mx-auto w-full max-w-4xl px-4 text-center select-none"
+      className={`relative mx-auto w-full max-w-4xl px-4 text-center select-none ${compact ? 'my-2' : 'my-8 sm:my-12'}`}
     >
-      <div className="relative overflow-hidden rounded-3xl border-2 border-[#c99436]/50 bg-gradient-to-b from-[#fefbf6] via-[#faede0] to-[#f4dfca] p-6 sm:p-10 shadow-lg">
+      <div className={`relative overflow-hidden rounded-3xl ${compact ? 'p-2' : 'border-2 border-[#c99436]/50 bg-gradient-to-b from-[#fefbf6] via-[#faede0] to-[#f4dfca] p-6 sm:p-10 shadow-lg'}`}>
         {/* Subtle background golden aura */}
         <div className="absolute inset-0 bg-radial-gradient from-amber-400/15 via-transparent to-transparent pointer-events-none" />
 
         {/* Sacred Inscription */}
-        <div className="relative z-10 mb-4 inline-flex items-center gap-2 rounded-full border border-amber-600/30 bg-amber-500/10 px-4 py-1 text-xs font-bold uppercase tracking-widest text-[#832014]">
+        <div className="relative z-10 mb-4 inline-flex items-center gap-2 rounded-full border border-amber-600/30 bg-amber-500/10 px-4 py-1 text-sm font-bold tracking-widest text-[#832014]">
           <span>॥ तमसो मा ज्योतिर्गमय ॥</span>
         </div>
 
-        <h3 className="relative z-10 font-display text-xl sm:text-3xl font-extrabold text-[#832014] drop-shadow-xs">
-          THE ETERNAL FLAME OF SIMHASTHA
+        <h3 className={`relative z-10 font-display font-extrabold text-[#832014] drop-shadow-xs ${compact ? 'text-xl' : 'text-xl sm:text-3xl'}`}>
+          The eternal flame of Simhastha
         </h3>
-        <p className="relative z-10 mx-auto mt-1 max-w-lg text-xs sm:text-sm text-ink-soft">
+        <p className="relative z-10 mx-auto mt-1 max-w-lg text-sm text-ink-soft">
           May the sacred waters and holy lamps bring peace, auspiciousness, and health to every pilgrim.
         </p>
 
         {/* Majestic Ornate Brass Diya SVG */}
         <div className="relative z-10 mt-6 flex justify-center">
-          <svg className="w-48 h-44 sm:w-64 sm:h-56 drop-shadow-[0_15px_30px_rgba(180,83,9,0.35)]" viewBox="0 0 240 200" fill="none">
+          <svg className={`${compact ? 'w-28 h-24' : 'w-48 h-44 sm:w-64 sm:h-56'} drop-shadow-[0_15px_30px_rgba(180,83,9,0.35)]`} viewBox="0 0 240 200" fill="none">
             <defs>
               <linearGradient id="brassGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#fef08a" />

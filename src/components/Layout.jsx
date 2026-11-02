@@ -6,6 +6,7 @@ import { useCart } from '../lib/cart';
 import { useConfirm } from '../lib/confirm';
 import { SITE } from '../lib/site';
 import LiveToasts from './LiveToasts';
+import GuidedTour, { openTour } from './GuidedTour';
 
 /**
  * Each role gets its own navigation. Pilgrims see booking (passbook, cart,
@@ -33,7 +34,7 @@ const navFor = (role) => {
       return { links: [scan, { to: '/passbook', label: 'My ID badge', icon: Ticket }, about], cta: { to: '/scan', label: 'Open scanner' } };
     default:
       return {
-        links: [{ to: '/', label: 'Home', end: true }, { to: '/events', label: 'Events' }, { to: '/passbook', label: 'My Passbook' }, about],
+        links: [{ to: '/', label: 'Home', end: true }, { to: '/events', label: 'Events' }, { to: '/passbook', label: 'My Passbook' }, { to: '/help', label: 'Help' }, about],
         cta: { to: `/yatra/${SITE.flagshipSlug}`, label: 'Book now' },
         shopper: true,
       };
@@ -42,7 +43,7 @@ const navFor = (role) => {
 
 const TITLES = [
   [/^\/$/, ''], [/^\/login/, 'Log in'], [/^\/register/, 'Create account'], [/^\/events/, 'Events'], [/^\/event\//, 'Event'],
-  [/^\/about/, 'About us'], [/^\/yatra\//, 'Yatra services'], [/^\/corporate\//, 'Campus & Corporate event'], [/^\/passbook/, 'My Passbook'],
+  [/^\/about/, 'About us'], [/^\/help/, 'Help centre'], [/^\/yatra\//, 'Yatra services'], [/^\/corporate\//, 'Campus & Corporate event'], [/^\/passbook/, 'My Passbook'],
   [/^\/account/, 'My account'], [/^\/checkout/, 'Checkout'], [/^\/scan/, 'Scanner'], [/^\/control/, 'Control room'], [/^\/analytics/, 'Analytics'],
   [/^\/corporate-admin/, 'Campus & Corporate events'], [/^\/camps\/.+\/map/, 'Tent map'], [/^\/host/, 'Hosted events'], [/^\/ngo/, 'My camps'],
 ];
@@ -92,6 +93,7 @@ export default function Layout() {
   const nav = navFor(user?.role);
   const close = () => setMenuOpen(false);
   const [navQuery, setNavQuery] = useState('');
+  const { pathname } = useLocation();
 
   const handleNavSearch = (e) => {
     e.preventDefault();
@@ -305,6 +307,8 @@ export default function Layout() {
       </header>
 
       <LiveToasts />
+      {/* first-visit tour: home page, pilgrims and visitors only */}
+      <GuidedTour auto={pathname === '/' && (!user || user.role === 'USER')} />
 
       <main className="flex-1 pb-16">
         <Outlet />
@@ -357,6 +361,8 @@ export default function Layout() {
           <div>
             <p className="font-semibold text-ink">Help</p>
             <ul className="mt-2 space-y-1.5 text-sm">
+              <li><Link className="hover:text-ink" to="/help">Help centre &amp; FAQs</Link></li>
+              <li><button type="button" className="hover:text-ink" onClick={openTour}>Take the tour</button></li>
               <li>Emergency: <a className="font-semibold text-kumkum" href="tel:112">112</a></li>
               <li>Medical: <a className="font-semibold text-kumkum" href="tel:108">108</a></li>
               <li>Child helpline: <a className="font-semibold text-kumkum" href="tel:1098">1098</a></li>

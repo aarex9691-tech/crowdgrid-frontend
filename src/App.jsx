@@ -16,6 +16,7 @@ import HostEvents from './pages/staff/HostEvents';
 import EventDetail from './pages/EventDetail';
 import Events from './pages/Events';
 import About from './pages/About';
+import Help from './pages/Help';
 import ControlRoom from './pages/staff/ControlRoom';
 import { Loading } from './components/Notice';
 // Charts library is large, so the dashboard loads only when opened
@@ -33,6 +34,7 @@ export default function App() {
         <Route path="/events" element={<Events />} />
         <Route path="/event/:slug" element={<EventDetail />} />
         <Route path="/about" element={<About />} />
+        <Route path="/help" element={<Help />} />
         <Route path="/yatra/:slug" element={<Hub />} />
         <Route path="/corporate/:slug" element={<Corporate />} />
 

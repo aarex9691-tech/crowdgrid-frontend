@@ -9,6 +9,7 @@ import { EVENT_CATEGORIES, fmtDate, fmtTime, googleMapsUrl } from '../lib/format
 import Notice, { Loading } from '../components/Notice';
 import { cachePass } from '../lib/passCache';
 import { addTicketToCart, placesLeft } from '../components/EventCards';
+import { MAX_PER_ACCOUNT } from '../lib/limits';
 
 /** Everything about one paid public event, with Register (cart) and the map. */
 export default function EventDetail() {
@@ -21,18 +22,29 @@ export default function EventDetail() {
   const [added, setAdded] = useState(false);
   const [freeMsg, setFreeMsg] = useState(null);
   const [people, setPeople] = useState(1);
+  const [mine, setMine] = useState(null); // { held, left } tickets this account already has
+
+  const loadMine = (id) =>
+    API.get(`/events/${id}/my-tickets`).then(({ data }) => setMine(data)).catch(() => setMine(null));
 
   useEffect(() => {
     API.get(`/events/${slug}`)
-      .then(({ data }) => setEvent(data))
+      .then(({ data }) => {
+        setEvent(data);
+        if (user && data.kind === 'PUBLIC') loadMine(data._id);
+      })
       .catch((e) => setError(errorMessage(e)));
-  }, [slug]);
+  }, [slug, user]);
 
   if (error) return <div className="shell py-10"><Notice tone="error">{error}</Notice></div>;
   if (!event) return <Loading label="Loading event" />;
   if (event.kind !== 'PUBLIC') return <div className="shell py-10"><Notice>This event is not open to the public.</Notice></div>;
 
-  const left = placesLeft(event);
+  const placesOpen = placesLeft(event);
+  // the cart holds one line per event; adding again replaces it, so it does not reduce what is left
+  const inCart = (cart.items || []).find((i) => i.key === `EVENT:${event._id}`)?.input?.people || 0;
+  const accountLeft = mine ? mine.left : MAX_PER_ACCOUNT;
+  const left = Math.min(placesOpen, accountLeft);
   const over = new Date(event.endDate) < new Date();
   const loc = event.location;
   const bbox = loc ? `${loc.lng - 0.006},${loc.lat - 0.004},${loc.lng + 0.006},${loc.lat + 0.004}` : null;
@@ -45,6 +57,9 @@ export default function EventDetail() {
         const { data } = await API.post(`/events/${event._id}/register`, { people: Math.min(people, left) });
         cachePass(data.pass);
         setFreeMsg({ tone: 'success', text: `${data.message} Your entry pass is in your passbook.` });
+        setEvent((e) => ({ ...e, attendeesCount: data.attendeesCount }));
+        setPeople(1);
+        loadMine(event._id);
       } catch (e) {
         setFreeMsg({ tone: 'error', text: errorMessage(e) });
       }
@@ -129,17 +144,32 @@ export default function EventDetail() {
             )}
             {freeMsg && <Notice tone={freeMsg.tone}>{freeMsg.text}</Notice>}
             <p className="flex items-center gap-2 text-ink-soft">
-              <Users size={18} aria-hidden /> {over ? 'This event is over' : left === 0 ? 'Sold out' : `${left} of ${event.capacity} places left`}
+              <Users size={18} aria-hidden /> {over ? 'This event is over' : placesOpen === 0 ? 'Sold out' : `${placesOpen} of ${event.capacity} places left`}
             </p>
             {added && (
               <Notice tone="success">
                 {people > 1 ? `${people} tickets added.` : 'Ticket added.'} <Link to="/checkout" className="font-bold underline">Go to checkout</Link>
               </Notice>
             )}
+            {canBook(user) && (mine?.held > 0 || inCart > 0) && (
+              <p className="rounded-xl bg-tulsi-wash p-3 text-sm" data-testid="my-tickets">
+                {mine?.held > 0 ? (
+                  <>
+                    You have booked <b>{mine.held}</b> {mine.held === 1 ? 'ticket' : 'tickets'} for this event.{' '}
+                    {accountLeft > 0 ? `You can book ${accountLeft} more.` : `That is the most one account can book (${MAX_PER_ACCOUNT}).`}
+                  </>
+                ) : null}
+                {inCart > 0 && (
+                  <>
+                    {mine?.held > 0 ? ' ' : ''}<b>{inCart}</b> {inCart === 1 ? 'ticket is' : 'tickets are'} in your cart. Change the number below and add again to update it.
+                  </>
+                )}
+              </p>
+            )}
             {canBook(user) ? (
               <>
                 {!over && left > 0 && (
-                  <PeopleStepper id="ev-people" label="Tickets" value={Math.min(people, left)} max={left} onChange={setPeople} hint="Up to 5 tickets per account, on one entry pass" />
+                  <PeopleStepper id="ev-people" label="Tickets" value={Math.min(people, left)} max={left} onChange={setPeople} hint={`Up to ${MAX_PER_ACCOUNT} tickets per account. You can book them together or in more than one go.`} />
                 )}
                 <button type="button" className="btn-primary w-full text-lg" disabled={over || left === 0} onClick={register}>
                   <Ticket size={20} aria-hidden /> Register · {free ? 'Free' : rupees(event.ticketPrice * Math.min(people, Math.max(left, 1)))}
