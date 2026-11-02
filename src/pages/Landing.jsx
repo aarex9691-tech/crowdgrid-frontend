@@ -88,32 +88,28 @@ function FullWidthGarland() {
  */
 function FullWidthTicker() {
   const items = [
-    '🚩 ॥ सिंहस्थ कुंभ २०२७ ॥',
-    '✦ SIMHASTHA KUMBH 2027',
+    '🚩 ॥ सिंहस्थ कुंभ २०२६–२८ ॥',
+    '✦ SIMHASTHA KUMBH 2026–28',
     '✦ WHERE MILLIONS GATHER AS ONE',
-    '✦ 1,500,000+ EXPECTED PILGRIMS',
-    '✦ FREE SEVA & ANNADANAM TOKENS LIVE',
-    '✦ REAL-TIME GPS GHAT SHUTTLES',
+    '✦ 5 CRORE+ EXPECTED PILGRIMS',
+    '✦ FREE SEVA & ANNADANAM TOKENS',
+    '✦ SHUTTLES & TRANSPORT TO EVERY GHAT',
     '✦ OFFLINE DIGITAL PASSBOOK QR',
-    '✦ 24/7 PILGRIM COMMAND & SOS',
-    '✦ [CLICK TO ENTER PILGRIM PORTAL →]',
+    '✦ 24/7 SOS & LOST AND FOUND',
   ];
 
+  // Decorative only: not a link, slow, and paused on hover
   return (
-    <Link
-      to={`/yatra/${SITE.flagshipSlug}`}
-      className="group block w-full overflow-hidden border-y-2 border-[#c99436] bg-[#7c1d13] py-2.5 text-xs sm:text-sm font-bold uppercase tracking-widest text-[#fcedd7] shadow-sm hover:bg-[#8e2217] transition-colors cursor-pointer select-none"
-      title="Click ribbon to enter the Simhastha Kumbh 2027 portal"
-      aria-label="Simhastha Kumbh 2027 festive ticker - Click to open portal"
+    <div
+      className="block w-full overflow-hidden border-y-2 border-[#c99436] bg-[#7c1d13] py-2.5 text-xs sm:text-sm font-bold uppercase tracking-widest text-[#fcedd7] shadow-sm select-none"
+      aria-hidden="true"
     >
-      <div className="animate-marquee flex gap-8 items-center whitespace-nowrap group-hover:scale-[1.008] transition-transform">
+      <div className="animate-marquee flex gap-8 items-center whitespace-nowrap">
         {[...items, ...items, ...items, ...items].map((text, i) => (
-          <span key={i} className="flex items-center gap-2">
-            <span className={text.includes('CLICK') ? 'text-amber-300 underline font-black tracking-wider' : ''}>{text}</span>
-          </span>
+          <span key={i} className="flex items-center gap-2">{text}</span>
         ))}
       </div>
-    </Link>
+    </div>
   );
 }
 
@@ -217,7 +213,7 @@ function HorizontalJharokhaHero({ event }) {
       >
         {/* Sacred Sanskrit Invocation */}
         <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-amber-300/40 bg-black/40 px-3.5 sm:px-5 py-1 text-[11px] sm:text-sm font-bold tracking-widest text-amber-200 backdrop-blur mb-2.5 sm:mb-3 shadow-md max-w-[92%] truncate">
-          <span>॥ ॐ नमः शिवाय · तीर्थराज सिंहस्थ कुंभ २०२७ ॥</span>
+          <span>॥ ॐ नमः शिवाय · तीर्थराज सिंहस्थ कुंभ २०२६–२८ ॥</span>
         </div>
 
         {/* Crown Title */}
@@ -225,7 +221,7 @@ function HorizontalJharokhaHero({ event }) {
           id="hero-title"
           className="font-display text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-wider text-[#fff4d6] drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)] uppercase leading-tight"
         >
-          SIMHASTHA KUMBH 2027
+          SIMHASTHA KUMBH 2026–28
         </h1>
 
         {/* Subtitle Line */}
@@ -234,20 +230,20 @@ function HorizontalJharokhaHero({ event }) {
         </p>
 
         {/* Descriptive overview */}
-        <p className="mt-2.5 sm:mt-3 max-w-2xl text-xs sm:text-sm md:text-base leading-relaxed text-[#fde8d0] font-sans px-2">
-          {event.description || 'The Simhastha Kumbh on the banks of the Godavari at Nashik and Trimbakeshwar: Find verified shelter, langar, shuttles and help in one place.'}
+        <p className="mt-2.5 sm:mt-3 max-w-2xl whitespace-pre-line text-xs sm:text-sm md:text-base leading-relaxed text-[#fde8d0] font-sans px-2">
+          {(event.description || 'The Simhastha Kumbh on the banks of the Godavari at Nashik and Trimbakeshwar. Find verified shelter, langar, transport and help in one place.').replace(/[.:]\s+(Find )/, '.\n$1')}
         </p>
 
         {/* Auspicious Badges */}
         <div className="mt-3.5 sm:mt-4 flex flex-wrap items-center justify-center gap-2 text-xs font-bold px-2">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-2.5 sm:px-3 py-1 text-amber-200 backdrop-blur text-[10px] sm:text-xs">
-            <Users size={12} /> 1,500,000+ Expected Pilgrims
+            <Users size={12} /> {event.expectedFootfall >= 1e7 ? `${Math.round(event.expectedFootfall / 1e7)} crore+` : '15 lakh+'} expected pilgrims
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-2.5 sm:px-3 py-1 text-amber-200 backdrop-blur text-[10px] sm:text-xs">
-            <MapPin size={12} /> Godavari Ghats & Ramkund
+            <MapPin size={12} /> Nashik & Trimbakeshwar
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-2.5 sm:px-3 py-1 text-amber-200 backdrop-blur text-[10px] sm:text-xs">
-            <ShieldCheck size={12} /> One Verified QR Pass
+            <ShieldCheck size={12} /> One verified QR pass
           </span>
         </div>
 
@@ -334,34 +330,34 @@ function JharokhaConcourse({ flagshipSlug }) {
       to: `${base}?tab=lodging`,
       icon: BedDouble,
       hindi: 'आवास एवं तंबू',
-      title: 'Stays & Tents',
+      title: 'Stays & tents',
       desc: 'Verified dharamshalas, family tents & clean bedding with confirmed bed number.',
-      pill: 'Verified Stays',
+      pill: 'Verified stays',
       highlight: false,
     },
     {
       to: `${base}?tab=food`,
       icon: UtensilsCrossed,
       hindi: 'अन्नदानम्',
-      title: 'Annadanam & Prasad',
-      desc: 'Daily kitchen timings & family meal tokens for all registered pilgrims.',
-      pill: 'Free Prasad',
+      title: 'Annadanam & prasad',
+      desc: 'Daily kitchen timings and family meal tokens for registered pilgrims.',
+      pill: 'Free prasad',
       highlight: false,
     },
     {
       to: `${base}?tab=transit`,
       icon: BusFront,
       hindi: 'घाट शटल सेवा',
-      title: 'Ghat Shuttles',
-      desc: 'Feeder buses, e-rickshaws & live navigation to sacred bathing ghats.',
-      pill: 'Live Transit',
+      title: 'Transport to the ghats',
+      desc: 'Feeder buses and e-rickshaws to the bathing ghats, plus the safest walking route.',
+      pill: 'Transport',
       highlight: false,
     },
     {
       to: `${base}?tab=seva`,
       icon: HandHeart,
       hindi: 'सेवा एवं स्वयंसेवक',
-      title: 'Seva & Volunteering',
+      title: 'Seva & volunteering',
       desc: 'Serve with registered ashrams & trusts and receive your official volunteer pass.',
       pill: 'Volunteer ID',
       highlight: false,
@@ -370,9 +366,9 @@ function JharokhaConcourse({ flagshipSlug }) {
       to: '/events?tab=public',
       icon: Ticket,
       hindi: 'आरती एवं दर्शन',
-      title: 'Aartis & Passes',
+      title: 'Aartis & passes',
       desc: 'Maha Aartis, heritage walks, and bhajan evenings with digital entry passes.',
-      pill: 'Entry Passes',
+      pill: 'Entry passes',
       highlight: false,
     },
     {
@@ -380,8 +376,8 @@ function JharokhaConcourse({ flagshipSlug }) {
       icon: Siren,
       hindi: 'आपातकालीन सहायता',
       title: 'Emergency SOS',
-      desc: 'One-tap medical dispatch, police post navigation & lost family reunion assistance.',
-      pill: '24/7 Helpline',
+      desc: 'One-tap SOS with your location, emergency helplines, and lost and found for families.',
+      pill: '24/7 helpline',
       highlight: true,
     },
   ];

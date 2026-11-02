@@ -1,9 +1,8 @@
 // Project and contact details shown in the footer and on the About page.
 export const SITE = {
   name: 'CrowdGrid',
-  tagline: 'Pilgrimage & mass gathering operations',
+  tagline: 'The total yatra solution',
   flagshipSlug: 'simhastha-kumbh-2027',
-  owner: 'Aayush Maurya',
   email: 'aarex9691@gmail.com',
   phone: '+91 98923 15795',
   whatsapp: '919892315795',

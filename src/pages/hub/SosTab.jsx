@@ -8,6 +8,7 @@ import useLoginGate from './useLoginGate';
 import { NumberField, TextField } from '../../components/Fields';
 import PhoneField from '../../components/PhoneField';
 import { firstError, intError, optionalPhoneError, textError } from '../../lib/validate';
+import { phoneError } from '../../lib/phone';
 
 const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const PHOTO_MAX_MB = 3;
@@ -76,7 +77,7 @@ function SosBeacon({ event }) {
 
 function ReportForm({ event, onDone }) {
   const { user } = useAuth();
-  const [form, setForm] = useState({ personName: '', age: '', gender: 'UNKNOWN', clothes: '', description: '', lastSeenAt: '', contactCountryCode: user?.countryCode || '91', contactPhone: '' });
+  const [form, setForm] = useState({ personName: '', age: '', gender: '', clothes: '', description: '', lastSeenAt: '', contactCountryCode: user?.countryCode || '91', contactPhone: user?.phone || '', personCountryCode: '91', personPhone: '' });
   const [photo, setPhoto] = useState(null);
   const [photoError, setPhotoError] = useState('');
   const [error, setError] = useState('');
@@ -88,7 +89,7 @@ function ReportForm({ event, onDone }) {
   const pickPhoto = (file) => {
     setPhotoError('');
     if (!file) return setPhoto(null);
-    if (!PHOTO_TYPES.includes(file.type)) { setPhoto(null); return setPhotoError('Choose a JPG, PNG or WebP photo'); }
+    if (!PHOTO_TYPES.includes(file.type)) { setPhoto(null); return setPhotoError('Choose a photo (JPG or PNG; phone WebP photos also work)'); }
     if (file.size > PHOTO_MAX_MB * 1024 * 1024) { setPhoto(null); return setPhotoError(`Photo is too large (${(file.size / 1048576).toFixed(1)} MB). The limit is ${PHOTO_MAX_MB} MB.`); }
     setPhoto(file);
   };
@@ -99,11 +100,13 @@ function ReportForm({ event, onDone }) {
     setTried(true);
     const problem = firstError(
       textError(form.personName, "Person's name", 'personName', { required: true }),
-      intError(form.age, 'Age', { min: 0, max: 120 }),
+      intError(form.age, 'Approx. age', { min: 0, max: 120 }),
+      !form.gender && 'Choose male or female.',
       textError(form.clothes, 'Clothes worn', 'shortText'),
       textError(form.description, 'How to recognise them', 'longText'),
       textError(form.lastSeenAt, 'Last seen at', 'venue', { required: true }),
-      optionalPhoneError(form.contactCountryCode, form.contactPhone) && `Contact number: ${optionalPhoneError(form.contactCountryCode, form.contactPhone)}`,
+      phoneError(form.contactCountryCode, form.contactPhone) && `Your contact number: ${phoneError(form.contactCountryCode, form.contactPhone)}`,
+      optionalPhoneError(form.personCountryCode, form.personPhone) && `Their mobile: ${optionalPhoneError(form.personCountryCode, form.personPhone)}`,
       photoError,
     );
     if (problem) return setError(`Please fix the highlighted fields. ${problem}`);
@@ -127,14 +130,13 @@ function ReportForm({ event, onDone }) {
       <Notice tone="error">{error}</Notice>
       <div className="grid gap-3 sm:grid-cols-[2fr_1fr_1fr]">
         <TextField id="mp-name" label="Name" rule="personName" required value={form.personName} onChange={put('personName')} showErrors={tried} />
-        <NumberField id="mp-age" label="Age" min={0} max={120} value={form.age} onChange={put('age')} showErrors={tried} hint="Years" />
+        <NumberField id="mp-age" label="Approx. age" min={0} max={120} value={form.age} onChange={put('age')} showErrors={tried} hint="Years, a guess is fine" />
         <div>
-          <label className="field-label" htmlFor="mp-gender">Gender</label>
-          <select id="mp-gender" className="field" value={form.gender} onChange={set('gender')}>
-            <option value="UNKNOWN">Not sure</option>
+          <label className="field-label" htmlFor="mp-gender">Gender <span className="text-kumkum" aria-hidden>*</span></label>
+          <select id="mp-gender" className="field" required value={form.gender} onChange={set('gender')} aria-invalid={tried && !form.gender}>
+            <option value="" disabled>Choose</option>
             <option value="MALE">Male</option>
             <option value="FEMALE">Female</option>
-            <option value="OTHER">Other</option>
           </select>
         </div>
       </div>
@@ -145,16 +147,26 @@ function ReportForm({ event, onDone }) {
         <PhoneField
           id="mp-phone"
           label="Your contact number"
-          required={false}
+          required
           showErrors={tried}
-          hint="Leave empty to use your account number"
+          hint="Volunteers call this number when they find them"
           countryCode={form.contactCountryCode}
           phone={form.contactPhone}
           onChange={({ countryCode, phone }) => setForm((f) => ({ ...f, contactCountryCode: countryCode, contactPhone: phone }))}
         />
       </div>
+      <PhoneField
+        id="mp-person-phone"
+        label="Their mobile number"
+        required={false}
+        showErrors={tried}
+        hint="If they carry a phone"
+        countryCode={form.personCountryCode}
+        phone={form.personPhone}
+        onChange={({ countryCode, phone }) => setForm((f) => ({ ...f, personCountryCode: countryCode, personPhone: phone }))}
+      />
       <div>
-        <label className="field-label" htmlFor="mp-photo">Photo <span className="font-normal text-ink-soft">(optional, JPG / PNG / WebP up to {PHOTO_MAX_MB} MB)</span></label>
+        <label className="field-label" htmlFor="mp-photo">Photo <span className="font-normal text-ink-soft">(optional: a clear phone photo, up to {PHOTO_MAX_MB} MB)</span></label>
         <input id="mp-photo" type="file" accept="image/jpeg,image/png,image/webp" className="block w-full text-ink-soft file:mr-3 file:min-h-12 file:rounded-xl file:border-0 file:bg-ink file:px-4 file:font-semibold file:text-white" onChange={(e) => pickPhoto(e.target.files?.[0] || null)} aria-describedby="mp-photo-help" />
         <p id="mp-photo-help" className={`mt-1 text-sm ${photoError ? 'font-semibold text-kumkum' : 'text-ink-soft'}`} role={photoError ? 'alert' : undefined}>{photoError || (photo ? `${photo.name} (${(photo.size / 1048576).toFixed(1)} MB)` : 'A clear face photo helps volunteers most')}</p>
       </div>
@@ -228,12 +240,13 @@ function LostAndFound({ event }) {
             )}
             <div className="min-w-0">
               <h3 className="text-lg font-bold">{r.personName || 'Name unknown'}</h3>
-              <p className="text-ink-soft">{[r.age && `${r.age} yrs`, r.gender !== 'UNKNOWN' && r.gender?.toLowerCase()].filter(Boolean).join(', ')}</p>
+              <p className="text-ink-soft">{[r.age && `About ${r.age} yrs`, r.gender && r.gender !== 'UNKNOWN' && r.gender !== 'OTHER' && (r.gender === 'MALE' ? 'Male' : 'Female')].filter(Boolean).join(', ')}</p>
               {r.clothes && <p className="text-[15px]">Wearing: {r.clothes}</p>}
               {r.description && <p className="text-[15px] text-ink-soft">{r.description}</p>}
               {r.kind === 'FOUND' && r.currentlyAt && <p className="mt-1 font-semibold text-tulsi">Safe at: {r.currentlyAt}</p>}
               {r.kind === 'MISSING' && r.lastSeenAt && <p className="mt-1 font-semibold">Last seen: {r.lastSeenAt}</p>}
-              {r.contactPhone && <a href={`tel:${r.contactPhone}`} className="text-[15px] font-semibold underline">Call {r.contactPhone}</a>}
+              {r.contactPhone && <a href={`tel:${r.contactPhone}`} className="block text-[15px] font-semibold underline">Call the family: {r.contactPhone}</a>}
+              {r.personPhone && <a href={`tel:${r.personPhone}`} className="block text-[15px] font-semibold underline">Call them: {r.personPhone}</a>}
               <p className="text-sm text-ink-faint">Posted {fmtDateTime(r.createdAt)}</p>
             </div>
           </li>

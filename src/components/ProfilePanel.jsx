@@ -26,8 +26,45 @@ const latestDob = () => {
   const [ty, tm, td] = todayParts();
   return `${ty - MIN_AGE}-${String(tm).padStart(2, '0')}-${String(td).padStart(2, '0')}`;
 };
-const earliestDob = () => `${todayParts()[0] - 120}-01-01`;
-const fmtDay = (iso) => new Date(`${iso}T00:00:00+05:30`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' });
+/** yyyy-mm-dd <-> dd/mm/yyyy, so the date reads the Indian way on every laptop and phone. */
+const toDmy = (iso) => (/^\d{4}-\d{2}-\d{2}$/.test(iso || '') ? iso.split('-').reverse().join('/') : '');
+const fromDmy = (text) => {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(text);
+  if (!m) return null;
+  const iso = `${m[3]}-${m[2]}-${m[1]}`;
+  const d = new Date(`${iso}T12:00:00Z`);
+  return d.getUTCFullYear() === +m[3] && d.getUTCMonth() + 1 === +m[2] && d.getUTCDate() === +m[1] ? iso : null; // rejects 31/02/2000
+};
+
+/**
+ * Date typed as dd/mm/yyyy (the browser's own date box follows the computer's
+ * language, which showed mm/dd/yyyy on some laptops). Slashes are added while typing.
+ */
+function DobInput({ id, value, onChange, invalid, describedBy }) {
+  const [text, setText] = useState(() => toDmy(value));
+  const change = (raw) => {
+    const d = raw.replace(/\D/g, '').slice(0, 8);
+    const shown = [d.slice(0, 2), d.slice(2, 4), d.slice(4)].filter(Boolean).join('/');
+    setText(shown);
+    if (!d) return onChange('');
+    onChange(fromDmy(shown) || 'INVALID');
+  };
+  return (
+    <input
+      id={id}
+      type="text"
+      inputMode="numeric"
+      placeholder="dd/mm/yyyy"
+      maxLength={10}
+      className={`field ${invalid ? 'border-kumkum' : ''}`}
+      value={text}
+      onChange={(e) => change(e.target.value)}
+      aria-invalid={invalid}
+      aria-describedby={describedBy}
+      autoComplete="bday"
+    />
+  );
+}
 
 const initials = (name = '') => name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?';
 
@@ -90,10 +127,12 @@ export default function ProfilePanel() {
   const close = () => { setGroup(null); setError(''); };
   const put = (k) => (v) => setForm((f) => ({ ...f, [k]: v }));
 
-  const dobAge = form?.dateOfBirth ? ageFrom(form.dateOfBirth) : null;
-  const dobError = form?.dateOfBirth && (dobAge === null || dobAge < MIN_AGE)
-    ? `You must be at least ${MIN_AGE} years old. Choose a date on or before ${fmtDay(latestDob())}.`
-    : '';
+  const dobAge = form?.dateOfBirth && form.dateOfBirth !== 'INVALID' ? ageFrom(form.dateOfBirth) : null;
+  const dobError = form?.dateOfBirth === 'INVALID'
+    ? 'Enter a real date as dd/mm/yyyy, for example 15/08/2004.'
+    : form?.dateOfBirth && (dobAge === null || dobAge < MIN_AGE || dobAge > 120)
+      ? `You must be at least ${MIN_AGE} years old. Use a date on or before ${toDmy(latestDob())}.`
+      : '';
 
   /** Only the fields of the open card are checked and sent. */
   const save = async (e) => {
@@ -229,17 +268,7 @@ export default function ProfilePanel() {
               <TextField id="p-name" label="Full name" rule="personName" required value={form.name} onChange={put('name')} showErrors={tried} autoComplete="name" />
               <div>
                 <label className="field-label" htmlFor="p-dob">Date of birth <span className="font-normal text-ink-soft">(optional)</span></label>
-                <input
-                  id="p-dob"
-                  type="date"
-                  className={`field ${dobError ? 'border-kumkum' : ''}`}
-                  min={earliestDob()}
-                  max={latestDob()}
-                  value={form.dateOfBirth}
-                  onChange={(e) => put('dateOfBirth')(e.target.value)}
-                  aria-invalid={!!dobError}
-                  aria-describedby="p-dob-help"
-                />
+                <DobInput id="p-dob" value={form.dateOfBirth} onChange={put('dateOfBirth')} invalid={!!dobError} describedBy="p-dob-help" />
                 <p id="p-dob-help" className={`mt-1 text-sm ${dobError ? 'font-semibold text-kumkum' : 'text-ink-soft'}`}>
                   {dobError || (dobAge !== null ? `Age ${dobAge}` : `You must be ${MIN_AGE} or older.`)}
                 </p>

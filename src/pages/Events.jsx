@@ -6,9 +6,10 @@ import { EVENT_CATEGORIES, fmtDate } from '../lib/format';
 import Notice from '../components/Notice';
 import { InvitationCodeBox, PublicEventList, YatraCard } from '../components/EventCards';
 import { DEFAULT_EVENTS } from '../data/defaultEvents';
+import SnanDates from '../components/SnanDates';
 
 const TABS = [
-  { id: 'yatras', label: 'Yatras & melas', icon: Flag, blurb: 'Large pilgrimages with lodging, food, transit and seva.' },
+  { id: 'yatras', label: 'Yatras & melas', icon: Flag, blurb: 'Large pilgrimages with lodging, food, transport and seva.' },
   { id: 'public', label: 'Public events', icon: Ticket, blurb: 'Open to everyone. Register, pay at checkout and get your entry pass.' },
   { id: 'corporate', label: 'Campus & Corporate', icon: Briefcase, blurb: 'Invite-only events for students and professionals: college fests, seminars, workshops, conferences and company summits. Enter the code from your invitation.' },
 ];
@@ -110,7 +111,9 @@ export default function Events() {
               <Link to={`/yatra/${yatras[0].slug}`} className="block overflow-hidden rounded-2xl bg-ink p-6 text-white hover:bg-dusk">
                 <p className="text-sm uppercase tracking-wide text-marigold">Flagship</p>
                 <p className="font-display text-3xl">{yatras[0].title}</p>
-                <p className="text-[#c9d6ee]">{fmtDate(yatras[0].startDate)} to {fmtDate(yatras[0].endDate)} · Book lodging, food and transit</p>
+                <p className="text-[#c9d6ee]">{yatras[0].tagline || yatras[0].city} · {fmtDate(yatras[0].startDate)} to {fmtDate(yatras[0].endDate)}</p>
+                <SnanDates event={yatras[0]} />
+                <p className="mt-2 text-sm text-[#c9d6ee]">Book lodging, food and transport</p>
               </Link>
             )}
             <ul className="grid gap-4 sm:grid-cols-2">

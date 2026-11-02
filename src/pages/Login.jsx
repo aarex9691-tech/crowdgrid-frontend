@@ -4,7 +4,7 @@ import { errorMessage } from '../lib/api';
 import { homeFor, useAuth } from '../lib/auth';
 import Notice from '../components/Notice';
 import PasswordField from '../components/PasswordField';
-import { COUNTRIES } from '../lib/phone';
+import { COUNTRIES, countryFor, phoneError } from '../lib/phone';
 
 export default function Login() {
   const { login } = useAuth();
@@ -19,6 +19,8 @@ export default function Login() {
   const submit = async (e) => {
     e.preventDefault();
     setError('');
+    const bad = phoneError(countryCode, identifier);
+    if (bad) return setError(bad);
     setBusy(true);
     try {
       const user = await login(identifier, password, countryCode);
@@ -42,7 +44,7 @@ export default function Login() {
           <label htmlFor="identifier" className="field-label">Mobile number</label>
           <div className="flex gap-2">
             <label htmlFor="login-cc" className="sr-only">Country code</label>
-            <select id="login-cc" className="field w-36 shrink-0" value={countryCode} onChange={(e) => setCountryCode(e.target.value)}>
+            <select id="login-cc" className="field w-36 shrink-0" value={countryCode} onChange={(e) => { setCountryCode(e.target.value); setIdentifier((v) => v.slice(0, countryFor(e.target.value).max)); }}>
               {COUNTRIES.map((c) => (
                 <option key={c.code} value={c.code}>+{c.code} {c.name}</option>
               ))}
@@ -50,12 +52,17 @@ export default function Login() {
             <input
               id="identifier"
               className="field"
-              inputMode="tel"
+              inputMode="numeric"
               autoComplete="username"
-              placeholder="Mobile number"
-              maxLength={20}
+              placeholder={`${countryFor(countryCode).max}-digit mobile number`}
               value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
+              // digits only: the country code is chosen on the left (a pasted "+91 98765 43210" becomes 9876543210)
+              onChange={(e) => {
+                const max = countryFor(countryCode).max;
+                let d = e.target.value.replace(/\D/g, '');
+                if (d.length > max && d.startsWith(countryCode)) d = d.slice(countryCode.length);
+                setIdentifier(d.slice(0, max));
+              }}
               required
             />
           </div>

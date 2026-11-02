@@ -139,7 +139,7 @@ export default function FoodTab({ event }) {
           </div>
         )}
       </div>}
-      <p className="text-ink-soft">One token per account for each meal, covering up to 6 family members. Show it at the counter during the meal window.</p>
+      <p className="text-ink-soft">Each account can take 1 token per meal (breakfast, lunch and dinner) each day. One token feeds up to 6 family members: show it at the kitchen counter during the meal time.</p>
 
       {!data ? (
         <Loading label="Finding community kitchens" />

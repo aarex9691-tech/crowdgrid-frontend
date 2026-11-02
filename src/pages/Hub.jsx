@@ -10,6 +10,7 @@ import FoodTab from './hub/FoodTab';
 import TransitTab from './hub/TransitTab';
 import SevaTab from './hub/SevaTab';
 import SosTab from './hub/SosTab';
+import SnanDates from '../components/SnanDates';
 
 // The walking map (Leaflet) only loads when the tab is opened
 const RouteTab = lazy(() => import('./hub/RouteTab'));
@@ -18,7 +19,7 @@ const ROUTE_EVENT = 'simhastha-kumbh-2027'; // walking lanes are mapped for Nash
 const TABS = [
   { id: 'lodging', label: 'Lodging & camps', icon: BedDouble, Component: LodgingTab },
   { id: 'food', label: 'Food', icon: UtensilsCrossed, Component: FoodTab },
-  { id: 'transit', label: 'Shuttles', icon: BusFront, Component: TransitTab },
+  { id: 'transit', label: 'Transport', icon: BusFront, Component: TransitTab },
   { id: 'route', label: 'Walk to ghat', icon: Footprints, Component: RouteTab, only: ROUTE_EVENT },
   { id: 'seva', label: 'Seva', icon: HandHeart, Component: SevaTab },
   { id: 'sos', label: 'Emergency SOS', icon: Siren, Component: SosTab },
@@ -51,6 +52,7 @@ export default function Hub() {
           <p className="text-[#c9d6ee]">
             {event.tagline} · {fmtDate(event.startDate)} to {fmtDate(event.endDate)}
           </p>
+          <SnanDates event={event} />
         </div>
       </div>
 

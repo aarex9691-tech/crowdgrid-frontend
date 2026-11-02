@@ -161,6 +161,11 @@ export default function LodgingTab({ event }) {
           Booking confirmed{confirmed.pass?.details?.location ? <>: <b>{confirmed.pass.details.location}</b></> : ''}. Show this QR at the camp gate when you arrive.
         </Notice>
         <PassCard pass={confirmed.pass} />
+        <Notice>
+          Need food and transport during your stay? Meal tokens can be booked up to 4 days ahead (today and the next 3 days) in the{' '}
+          <Link className="font-bold underline" to={`/yatra/${event.slug}?tab=food`}>Food</Link> tab, and shuttle passes in the{' '}
+          <Link className="font-bold underline" to={`/yatra/${event.slug}?tab=transit`}>Transport</Link> tab.
+        </Notice>
         <div className="flex flex-wrap gap-3">
           <Link to="/passbook" className="btn-ink">Open my passbook</Link>
           <button type="button" className="btn-ghost" onClick={() => { setConfirmed(null); load(); }}>Back to camps</button>

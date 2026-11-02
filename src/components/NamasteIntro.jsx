@@ -75,7 +75,7 @@ export default function NamasteIntro({ onComplete }) {
         backgroundRepeat: 'repeat',
         backgroundSize: '260px auto',
       }}
-      aria-label="Welcome to CrowdGrid - Simhastha Kumbh 2027"
+      aria-label="Welcome to CrowdGrid - Simhastha Kumbh 2026–28"
     >
       {/* Centerpiece Namaste Artwork & Greetings */}
       <div className="relative z-10 flex flex-col items-center text-center px-4 max-w-lg">
@@ -112,7 +112,7 @@ export default function NamasteIntro({ onComplete }) {
           </h2>
 
           <p className="font-display text-sm sm:text-base font-bold uppercase tracking-widest text-[#c99436]">
-            SIMHASTHA KUMBH 2027
+            SIMHASTHA KUMBH 2026–28
           </p>
 
           <p className="text-xs text-ink-soft/80 font-sans tracking-wide pt-0.5">

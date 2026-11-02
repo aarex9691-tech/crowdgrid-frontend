@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { BarChart3, Briefcase, CalendarPlus, LogOut, MapPin, Menu, MessageCircle, ScanLine, Search, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
+import { BarChart3, Briefcase, CalendarPlus, LogOut, Menu, MessageCircle, ScanLine, Search, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { ROLE_LABELS, useAuth } from '../lib/auth';
 import { useCart } from '../lib/cart';
@@ -13,7 +13,7 @@ import LiveToasts from './LiveToasts';
  */
 const navFor = (role) => {
   const scan = { to: '/scan', label: 'Scanner', icon: ScanLine };
-  const about = { to: '/about', label: 'About' };
+  const about = { to: '/about', label: 'About us' };
   switch (role) {
     case 'SUPER_ADMIN':
       return {
@@ -42,7 +42,7 @@ const navFor = (role) => {
 
 const TITLES = [
   [/^\/$/, ''], [/^\/login/, 'Log in'], [/^\/register/, 'Create account'], [/^\/events/, 'Events'], [/^\/event\//, 'Event'],
-  [/^\/about/, 'About'], [/^\/yatra\//, 'Yatra services'], [/^\/corporate\//, 'Campus & Corporate event'], [/^\/passbook/, 'My Passbook'],
+  [/^\/about/, 'About us'], [/^\/yatra\//, 'Yatra services'], [/^\/corporate\//, 'Campus & Corporate event'], [/^\/passbook/, 'My Passbook'],
   [/^\/account/, 'My account'], [/^\/checkout/, 'Checkout'], [/^\/scan/, 'Scanner'], [/^\/control/, 'Control room'], [/^\/analytics/, 'Analytics'],
   [/^\/corporate-admin/, 'Campus & Corporate events'], [/^\/camps\/.+\/map/, 'Tent map'], [/^\/host/, 'Hosted events'], [/^\/ngo/, 'My camps'],
 ];
@@ -193,10 +193,6 @@ export default function Layout() {
               onChange={(e) => setNavQuery(e.target.value)}
               className="bg-transparent px-2.5 text-ink placeholder:text-ink-faint outline-none w-full text-sm"
             />
-            <div className="h-4 w-px bg-line mx-1 shrink-0" />
-            <span className="flex items-center gap-1 text-xs font-semibold text-ink-soft whitespace-nowrap pr-1.5 shrink-0">
-              <MapPin size={13} className="text-[#bd5338]" /> Nashik
-            </span>
             <button
               type="submit"
               aria-label="Search"
@@ -337,23 +333,22 @@ export default function Layout() {
               <img src="/assets/crowdgrid-logo.jpg" alt="CrowdGrid Logo" className="h-8 w-8 rounded-lg object-contain border border-amber-300/60 shadow-2xs bg-[#fdfbf7]" />
               <span className="font-display text-xl text-ink group-hover:text-[#bd5338] transition-colors">CrowdGrid</span>
             </Link>
-            <p className="mt-2 text-sm">{SITE.tagline}. Built for the Simhastha Kumbh Mela 2027, Nashik–Trimbakeshwar.</p>
+            <p className="mt-2 text-sm">{SITE.tagline}. Built for the Simhastha Kumbh Mela 2026–28, Nashik–Trimbakeshwar.</p>
           </div>
           <div>
             <p className="font-semibold text-ink">Explore</p>
             <ul className="mt-2 space-y-1.5 text-sm">
-              <li><Link className="hover:text-ink" to={`/yatra/${SITE.flagshipSlug}`}>Book lodging, food &amp; transit</Link></li>
+              <li><Link className="hover:text-ink" to={`/yatra/${SITE.flagshipSlug}`}>Book lodging, food &amp; transport</Link></li>
               <li><Link className="hover:text-ink" to="/events">All events</Link></li>
               <li><Link className="hover:text-ink" to="/events?tab=corporate">Campus &amp; corporate events</Link></li>
               <li><Link className="hover:text-ink" to="/passbook">My Passbook</Link></li>
             </ul>
           </div>
           <div>
-            <p className="font-semibold text-ink">About</p>
+            <p className="font-semibold text-ink">About us</p>
             <ul className="mt-2 space-y-1.5 text-sm">
               <li><Link className="hover:text-ink" to="/about">About CrowdGrid</Link></li>
-              <li><Link className="hover:text-ink" to="/about#done">What we have done</Link></li>
-              <li><Link className="hover:text-ink" to="/about#contact">Contact the owner</Link></li>
+              <li><Link className="hover:text-ink" to="/about#contact">Contact customer care</Link></li>
               <li><a className="hover:text-ink" href={`tel:${SITE.phone.replace(/[^\d+]/g, '')}`}>{SITE.phone}</a></li>
               <li><a className="hover:text-ink" href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
               <li><a className="hover:text-ink" href={SITE.github[0].url} target="_blank" rel="noreferrer">Source code on GitHub</a></li>
@@ -370,7 +365,7 @@ export default function Layout() {
           </div>
         </div>
         <div className="border-t border-line py-4 text-center text-sm">
-          © 2026 CrowdGrid · Full Stack Development mini project
+          © 2026 CrowdGrid · Capstone project
         </div>
       </footer>
     </div>

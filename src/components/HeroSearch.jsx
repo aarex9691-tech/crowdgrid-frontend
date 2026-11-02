@@ -6,7 +6,7 @@ import { addDaysIST, EVENT_CATEGORIES, fmtDate, todayIST } from '../lib/format';
 const TABS = [
   { id: 'stay', label: 'Stays', icon: BedDouble },
   { id: 'food', label: 'Food', icon: UtensilsCrossed },
-  { id: 'transit', label: 'Transit', icon: BusFront },
+  { id: 'transit', label: 'Transport', icon: BusFront },
   { id: 'events', label: 'Events', icon: Ticket },
 ];
 
