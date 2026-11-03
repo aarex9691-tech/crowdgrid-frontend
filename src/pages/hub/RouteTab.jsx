@@ -47,6 +47,7 @@ export default function RouteTab({ event }) {
   const [here, setHere] = useState(null); // { lat, lng } when "use my location" is on
   const [plan, setPlan] = useState(null);
   const [error, setError] = useState('');
+  const [locNote, setLocNote] = useState(''); // why "My location" could not be used
   const [locating, setLocating] = useState(false);
   const [changed, setChanged] = useState(false);
   const lastRoute = useRef('');
@@ -70,7 +71,17 @@ export default function RouteTab({ event }) {
           setPlan(data);
           setError('');
         })
-        .catch((e) => setError(errorMessage(e)));
+        .catch((e) => {
+          if (here) {
+            // "My location" failed (e.g. too far from Panchavati): go back to the chosen
+            // starting point and keep its route on screen, with a note saying why
+            setLocNote(errorMessage(e));
+            setHere(null);
+          } else {
+            setPlan(null); // never leave an old route on screen next to an error
+            setError(errorMessage(e));
+          }
+        });
     },
     [event._id, from, to, here]
   );
@@ -97,16 +108,17 @@ export default function RouteTab({ event }) {
   const ghats = net ? net.nodes.filter((n) => n.type === 'GHAT') : [];
 
   const locateMe = () => {
-    if (!navigator.geolocation) return setError('This browser cannot share your location. Choose a starting point instead.');
+    if (!navigator.geolocation) return setLocNote('This browser cannot share your location. Choose a starting point instead.');
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setLocating(false);
+        setLocNote('');
         setHere({ lat: pos.coords.latitude, lng: pos.coords.longitude });
       },
       () => {
         setLocating(false);
-        setError('Location permission was not given. Choose a starting point instead.');
+        setLocNote('Location permission was not given. Choose a starting point instead.');
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -136,6 +148,7 @@ export default function RouteTab({ event }) {
               onChange={(e) => {
                 if (e.target.value === 'here') return locateMe();
                 setHere(null);
+                setLocNote('');
                 setFrom(e.target.value);
               }}
             >
@@ -150,7 +163,14 @@ export default function RouteTab({ event }) {
               <Crosshair size={18} aria-hidden /> {locating ? 'Finding you…' : 'Use my location'}
             </button>
           </div>
-          {here && plan?.from && <p className="mt-1 text-sm text-ink-soft">Starting from the nearest point: {plan.from.name} ({plan.from.snappedM} m from you)</p>}
+          {here && plan?.from?.snappedM != null && (
+            <p className="mt-1 text-sm text-ink-soft">Starting from the nearest point: {plan.from.name} ({plan.from.snappedM} m from you)</p>
+          )}
+          {locNote && (
+            <p className="mt-2 rounded-lg bg-marigold-wash p-2 text-sm" role="status" data-testid="loc-note">
+              {locNote} Showing the route from <b>{net.nodes.find((n) => n.id === from)?.name}</b>.
+            </p>
+          )}
         </div>
         <div>
           <span className="field-label" id="rt-to">Ghat</span>
