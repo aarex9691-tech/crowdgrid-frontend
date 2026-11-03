@@ -29,6 +29,8 @@ const detailRows = (pass) => {
   if (d.beds) rows.push(['Beds', d.beds]);
   if (d.people > 1) rows.push(['People', d.people]);
   if (d.paid) rows.push(['Paid', `₹${d.paid}`]);
+  if (pass.state === 'CANCELLED' && pass.refund) rows.push(['Refund', pass.refund.amount ? `₹${pass.refund.amount} (${pass.refund.percent}%), to your original payment method` : d.paid ? 'None (cancelled within 24 hours)' : 'Free pass, nothing to refund']);
+  if (pass.cancelledAt) rows.push(['Cancelled', fmtDateTime(pass.cancelledAt)]);
   if (d.menu?.length && pass.type === 'MEAL') rows.push(['Menu', d.menu.join(', ')]);
   if (d.guests?.length) rows.push([pass.type === 'MEAL' ? 'Names' : 'Guests', d.guests.join(', ')]);
   if (d.checkIn) rows.push(['Stay', d.checkIn === d.checkOut ? day(d.checkIn) : `${day(d.checkIn)} to ${day(d.checkOut)}`]);
@@ -40,7 +42,10 @@ const detailRows = (pass) => {
   return rows;
 };
 
-export default function PassCard({ pass, expanded = true }) {
+// Passes a pilgrim can cancel from the passbook (badges and volunteer IDs are managed by the organiser)
+export const CANCELLABLE = ['LODGING', 'MEAL', 'TRANSIT', 'PUBLIC'];
+
+export default function PassCard({ pass, expanded = true, onCancel }) {
   const meta = PASS_META[pass.type] || PASS_META.PUBLIC;
   const state = STATE[pass.state] || STATE.ACTIVE;
   const showQr = expanded && pass.qr && (pass.state === 'ACTIVE' || pass.state === 'UPCOMING');
@@ -99,6 +104,13 @@ export default function PassCard({ pass, expanded = true }) {
           </>
         )}
       </dl>
+      {onCancel && CANCELLABLE.includes(pass.type) && pass.state === 'UPCOMING' && (
+        <div className="border-t border-line px-4 py-3">
+          <button type="button" className="text-sm font-semibold text-kumkum underline-offset-4 hover:underline" onClick={() => onCancel(pass)}>
+            Cancel this {pass.type === 'LODGING' ? 'stay' : pass.type === 'MEAL' ? 'meal token' : pass.type === 'TRANSIT' ? 'bus pass' : 'ticket'}
+          </button>
+        </div>
+      )}
     </article>
   );
 }

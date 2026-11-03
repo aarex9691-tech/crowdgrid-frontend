@@ -167,6 +167,26 @@ export default function Analytics() {
               <DailyBars data={data.daily} series={[{ key: 'revenue', label: 'Revenue' }]} format={inr} yWidth={64} />
             </ChartCard>
 
+            {data.cancellations && (
+              <section className="panel p-5" aria-labelledby="cancel-title" data-testid="cancellations">
+                <h2 id="cancel-title" className="text-lg font-bold">Cancellations and refunds</h2>
+                <p className="text-sm text-ink-soft">Passes cancelled from the passbook in the last {days} days. Policy: 100% back 48 h+ before, 50% 24 to 48 h, none after.</p>
+                <div className="mt-4 grid grid-cols-3 gap-3">
+                  <Kpi label="Cancelled" value={num(data.cancellations.count)} />
+                  <Kpi label="Refunded" value={inr(data.cancellations.refunded)} tone="text-tulsi" />
+                  <Kpi label="Kept as charges" value={inr(data.cancellations.kept)} />
+                </div>
+                <ul className="mt-4 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
+                  {data.cancellations.byType.map((t) => (
+                    <li key={t.type} className="flex justify-between rounded-lg bg-mist px-3 py-2">
+                      <span>{{ LODGING: 'Stays', MEAL: 'Meal tokens', TRANSIT: 'Bus passes', PUBLIC: 'Tickets' }[t.type]}</span>
+                      <b className="tabular-nums">{num(t.count)}</b>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
             <ChartCard
               title="Occupancy by sector"
               subtitle="Share of beds in use right now, fullest first"

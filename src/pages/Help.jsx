@@ -67,7 +67,7 @@ const FAQ = [
   ['What if I lose my phone?', 'Log in from any phone with your mobile number and password. All your passes are in My Passbook. Staff can also find your booking by your mobile number.'],
   ['Are the camps and kitchens safe?', 'Every camp, kitchen and seva group is verified by the authority before it appears. Unverified listings are never shown to pilgrims.'],
   ['Someone from my family is missing. What do I do?', 'Open Emergency SOS on the yatra page and choose "Report a missing person". Add a photo and what they are wearing. Volunteers and the control room see it at once. Also go to the nearest help booth.'],
-  ['Can I cancel a booking?', 'You can cancel a stay from My account, and the beds go back to other pilgrims right away. If you will not use a meal token or bus pass, simply do not scan it; it expires at the end of its time.'],
+  ['Can I cancel a booking?', 'Yes. Open My Passbook and tap "Cancel" on the stay, meal token, bus pass or ticket, any time before it starts. For paid bookings you get 100% back up to 48 hours before, 50% up to 24 hours before, and no refund after that. The pop-up shows your exact refund before you confirm.'],
 ];
 
 /** Help: a first-time guide to the site, step by step guides by role, and FAQs. */

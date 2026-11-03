@@ -6,6 +6,7 @@ import { fmtDateTime } from '../lib/format';
 import Notice, { Loading } from '../components/Notice';
 import PassCard, { PASS_META } from '../components/PassCard';
 import MyQrCard from '../components/MyQrCard';
+import CancelPassDialog from '../components/CancelPassDialog';
 import { useAuth } from '../lib/auth';
 
 /**
@@ -22,8 +23,10 @@ export default function Passbook() {
   const [now] = useState(() => Date.now());
   const [showEach, setShowEach] = useState(false);
   const { user } = useAuth();
+  const [cancelling, setCancelling] = useState(null); // pass shown in the cancel pop-up
+  const [done, setDone] = useState('');
 
-  useEffect(() => {
+  const load = () =>
     API.get('/passes/mine')
       .then(({ data }) => {
         setPasses(data);
@@ -34,7 +37,9 @@ export default function Passbook() {
         if (cached) setOfflineSince(cached.savedAt);
         else setError(errorMessage(e));
       });
-  }, [cached]);
+  useEffect(() => {
+    load();
+  }, [cached]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (error) return <div className="shell py-10"><Notice tone="error">{error}</Notice></div>;
   if (!passes) return <Loading label="Opening your passbook" />;
@@ -58,6 +63,7 @@ export default function Passbook() {
         <p className="text-ink-soft">All your passes in one place. They stay on this phone, so they open even without network.</p>
       </div>
       {user && <MyQrCard name={user.name} activeCount={withState.filter((p) => p.state === 'ACTIVE').length} />}
+      {done && <Notice tone="success">{done}</Notice>}
       {offlineSince && <Notice>Showing passes saved on {fmtDateTime(offlineSince)}. You're offline, but these QR codes still work at the gate.</Notice>}
 
       {usable.length === 0 ? (
@@ -87,7 +93,7 @@ export default function Passbook() {
             </button>
           </div>
           <ul className="grid gap-5 md:grid-cols-2">
-            {shown.map((p) => <li key={p._id}><PassCard pass={p} expanded={showEach} /></li>)}
+            {shown.map((p) => <li key={p._id}><PassCard pass={p} expanded={showEach} onCancel={offlineSince ? undefined : setCancelling} /></li>)}
           </ul>
         </>
       )}
@@ -95,7 +101,7 @@ export default function Passbook() {
       {past.length > 0 && (
         <section>
           <button type="button" className="btn-ghost" aria-expanded={showPast} onClick={() => setShowPast(!showPast)}>
-            {showPast ? 'Hide' : 'Show'} used and expired passes ({past.length})
+            {showPast ? 'Hide' : 'Show'} used, expired and cancelled passes ({past.length})
           </button>
           {showPast && (
             <ul className="mt-4 grid gap-4 md:grid-cols-2">
@@ -103,6 +109,19 @@ export default function Passbook() {
             </ul>
           )}
         </section>
+      )}
+
+      {cancelling && (
+        <CancelPassDialog
+          pass={cancelling}
+          onClose={() => setCancelling(null)}
+          onDone={(res) => {
+            setCancelling(null);
+            setDone(res.message);
+            setShowPast(true);
+            load();
+          }}
+        />
       )}
     </div>
   );

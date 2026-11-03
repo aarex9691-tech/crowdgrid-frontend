@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import API, { errorMessage } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { useConfirm } from '../lib/confirm';
@@ -13,22 +14,10 @@ const PROVIDER_STATUS = { PENDING: 'pill-low', VERIFIED: 'pill-ok', REJECTED: 'p
 function MyBookings() {
   const [bookings, setBookings] = useState([]);
   const [error, setError] = useState('');
-  const confirm = useConfirm();
   const load = () => API.get('/lodgings/bookings/mine').then(({ data }) => setBookings(data)).catch((e) => setError(errorMessage(e)));
   useEffect(() => {
     load();
   }, []);
-
-  const cancel = async (id) => {
-    const ok = await confirm({ title: 'Cancel this booking?', message: 'Your beds go back to other pilgrims and the lodging pass stops working.', confirmLabel: 'Cancel booking', cancelLabel: 'Keep booking', tone: 'danger' });
-    if (!ok) return;
-    try {
-      await API.post(`/lodgings/bookings/${id}/cancel`);
-      load();
-    } catch (e) {
-      setError(errorMessage(e));
-    }
-  };
 
   if (!bookings.length) return null;
   return (
@@ -46,7 +35,7 @@ function MyBookings() {
               {b.status === 'CONFIRMED' && b.bedLabel && <p className="font-semibold text-tulsi">{b.bedLabel}</p>}
             </div>
             {b.status === 'CONFIRMED' ? (
-              <button type="button" className="btn-ghost" onClick={() => cancel(b._id)}>Cancel booking</button>
+              <Link to="/passbook" className="btn-ghost">Cancel in My Passbook</Link>
             ) : (
               <span className="pill-quiet">Cancelled</span>
             )}
