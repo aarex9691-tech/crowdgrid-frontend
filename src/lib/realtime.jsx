@@ -19,24 +19,32 @@ export function RealtimeProvider({ children }) {
   const userKey = user ? `${user._id}:${user.role}` : 'visitor';
 
   useEffect(() => {
-    // Same origin: Vite (dev) and the production server both forward /socket.io to the API
-    const socket = io(
-      (import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '') || window.location.origin,
-      {
-        path: '/socket.io',
-        auth: (cb) => cb({ token: localStorage.getItem('cg_token') || undefined }),
-        transports: ['websocket', 'polling'],
-        reconnectionDelayMax: 10000,
-      }
-    );
-    const up = () => setState({ socket, connected: true });
-    const down = () => setState({ socket, connected: false });
-    socket.on('connect', up);
-    socket.on('disconnect', down);
-    socket.on('connect_error', down);
+    let socket = null;
+    // Connect on the next tick: in development React mounts, unmounts and mounts again,
+    // and a socket closed half-way through connecting makes the browser log an error.
+    const start = setTimeout(() => {
+      // Same origin: Vite (dev) and the production server both forward /socket.io to the API
+      socket = io(
+        (import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '') || window.location.origin,
+        {
+          path: '/socket.io',
+          auth: (cb) => cb({ token: localStorage.getItem('cg_token') || undefined }),
+          transports: ['websocket', 'polling'],
+          reconnectionDelayMax: 10000,
+        }
+      );
+      const up = () => setState({ socket, connected: true });
+      const down = () => setState({ socket, connected: false });
+      socket.on('connect', up);
+      socket.on('disconnect', down);
+      socket.on('connect_error', down);
+    }, 0);
     return () => {
-      socket.off();
-      socket.close();
+      clearTimeout(start);
+      if (socket) {
+        socket.off();
+        socket.close();
+      }
     };
   }, [userKey]); // reconnect with the new token after login / logout
 

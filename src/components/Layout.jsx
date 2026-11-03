@@ -337,7 +337,16 @@ export default function Layout() {
               <img src="/assets/crowdgrid-logo.jpg" alt="CrowdGrid Logo" className="h-8 w-8 rounded-lg object-contain border border-amber-300/60 shadow-2xs bg-[#fdfbf7]" />
               <span className="font-display text-xl text-ink group-hover:text-[#bd5338] transition-colors">CrowdGrid</span>
             </Link>
-            <p className="mt-2 text-sm">{SITE.tagline}. Built for the Simhastha Kumbh Mela 2026–28, Nashik–Trimbakeshwar.</p>
+            <p className="mt-2 text-sm">
+              {SITE.tagline}. One platform for the Simhastha Kumbh Mela at Nashik–Trimbakeshwar, the Pandharpur Ashadhi Wari and
+              the Jagannath Rath Yatra at Puri, plus aartis, kirtans, heritage walks and campus or corporate events.
+            </p>
+            <ul className="mt-3 space-y-1 text-sm">
+              <li>✓ Every camp, kitchen and seva group verified</li>
+              <li>✓ Stay, meals, shuttles and tickets under one QR</li>
+              <li>✓ Least crowded walking route to the ghat</li>
+              <li>✓ 24×7 SOS and missing-person help</li>
+            </ul>
           </div>
           <div>
             <p className="font-semibold text-ink">Explore</p>
