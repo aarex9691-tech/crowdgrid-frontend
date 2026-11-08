@@ -127,11 +127,22 @@ export default function TransitTab({ event }) {
                 {r.vehicleType} · every {r.frequencyMins} min · {r.firstDeparture} to {r.lastDeparture}
               </p>
               <p className="text-ink-soft">Board at {r.boardingGate}</p>
+              {typeof r.seatsLeft === 'number' && (
+                <p className="mt-1">
+                  {r.seatsLeft === 0 ? (
+                    <span className="pill-out">Full for {r.travelDay}</span>
+                  ) : r.seatsLeft <= 20 ? (
+                    <span className="pill-low">Only {r.seatsLeft} seats left for {r.travelDay}</span>
+                  ) : (
+                    <span className="pill-ok">{r.seatsLeft.toLocaleString('en-IN')} seats left for {r.travelDay}</span>
+                  )}
+                </p>
+              )}
               <Checkpoints points={r.checkpoints} />
               {!staff && (
                 <div className="mt-5 flex flex-wrap items-end gap-4">
                   <PeopleStepper id={`tp-${r._id}`} label="Travelling" value={peopleFor(r._id)} onChange={(v) => setPeople((p) => ({ ...p, [r._id]: v }))} hint="One pass for up to 5 people" />
-                  <button type="button" className="btn-primary" disabled={busy === r._id} onClick={() => getPass(r)}>
+                  <button type="button" className="btn-primary" disabled={busy === r._id || r.seatsLeft === 0 || (typeof r.seatsLeft === 'number' && peopleFor(r._id) > r.seatsLeft)} onClick={() => getPass(r)}>
                     {busy === r._id ? 'Preparing…' : r.fare > 0 ? `Add to cart · ${rupees(r.fare * peopleFor(r._id))}` : 'Get boarding pass · Free'}
                   </button>
                 </div>
