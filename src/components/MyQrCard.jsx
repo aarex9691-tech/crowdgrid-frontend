@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { QrCode as QrIcon, RefreshCw } from 'lucide-react';
 import API, { errorMessage } from '../lib/api';
 import QrCode from './QrCode';
+import { useT } from '../lib/i18n';
 
 const KEY = 'cg_myqr';
 const LIVE_KEY = 'cg_myqr_live';
@@ -55,6 +56,7 @@ async function liveQr(live, nowMs) {
  * within about a minute. Works offline (the key is kept on the phone).
  */
 export default function MyQrCard({ name, activeCount }) {
+  const t = useT();
   const [staticQr, setStaticQr] = useState(() => read(KEY));
   const [live, setLive] = useState(readLive);
   const [code, setCode] = useState(null);
@@ -130,23 +132,21 @@ export default function MyQrCard({ name, activeCount }) {
           </div>
           {isLive && (
             <p className="text-sm font-semibold text-tulsi" aria-live="off">
-              Live QR · changes in {secondsLeft}s
+              {t('qr.live', { n: secondsLeft })}
             </p>
           )}
         </div>
         <div className="flex-1 space-y-2 text-center sm:text-left">
           <p className="flex items-center justify-center gap-2 text-sm font-semibold uppercase tracking-wide text-kumkum sm:justify-start">
-            <QrIcon size={18} aria-hidden /> One QR for all your passes
+            <QrIcon size={18} aria-hidden /> {t('qr.oneQr')}
           </p>
           <h2 id="myqr-title" className="text-2xl font-bold">{name}</h2>
           <p className="text-ink-soft">
-            Show this single code at any camp gate, food counter or bus gate. The volunteer's scanner finds the right pass
-            {activeCount ? ` among your ${activeCount} active pass${activeCount > 1 ? 'es' : ''}` : ''} and marks it used.
+            {t('qr.show')}
+            {activeCount ? ` (${activeCount})` : ''}
           </p>
           <p className="text-sm text-ink-soft">
-            {isLive
-              ? 'It changes every 30 seconds, even without internet, so a screenshot is no use to anyone else. Show it from the app.'
-              : 'This phone shows a fixed QR. Keep it private: anyone with a copy could use your passes.'}
+            {isLive ? t('qr.liveNote') : t('qr.staticNote')}
           </p>
           {error && <p className="text-sm font-semibold text-kumkum" role="alert">{error}</p>}
           {confirmReset ? (
@@ -157,7 +157,7 @@ export default function MyQrCard({ name, activeCount }) {
             </div>
           ) : (
             <button type="button" className="inline-flex items-center gap-1 text-sm font-semibold text-ink-soft underline" onClick={() => setConfirmReset(true)}>
-              <RefreshCw size={14} aria-hidden /> Lost your phone or shared a screenshot? Reset this QR
+              <RefreshCw size={14} aria-hidden /> {t('qr.reset')}
             </button>
           )}
         </div>

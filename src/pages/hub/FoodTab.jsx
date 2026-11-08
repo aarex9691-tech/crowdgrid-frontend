@@ -1,3 +1,4 @@
+import { useT } from '../../lib/i18n';
 import { MAX_PER_ACCOUNT } from '../../lib/limits';
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -22,6 +23,7 @@ const currentMeal = () => {
 
 export default function FoodTab({ event }) {
   const gate = useLoginGate();
+  const t = useT();
   const { user } = useAuth();
   const staff = !canBook(user);
   // Tokens open for 4 days from today, or from the first day of a yatra that has not started yet
@@ -77,11 +79,11 @@ export default function FoodTab({ event }) {
   if (claimed) {
     return (
       <div className="mx-auto max-w-lg space-y-4">
-        <Notice tone="success">Meal token ready. It works only during its meal window.</Notice>
+        <Notice tone="success">{t('food.ready')}</Notice>
         <PassCard pass={claimed.pass} />
         <div className="flex flex-wrap gap-3">
-          <Link to="/passbook" className="btn-ink">Open my passbook</Link>
-          <button type="button" className="btn-ghost" onClick={() => { setClaimed(null); load(); }}>Back to kitchens</button>
+          <Link to="/passbook" className="btn-ink">{t('common.openPassbook')}</Link>
+          <button type="button" className="btn-ghost" onClick={() => { setClaimed(null); load(); }}>{t('food.back')}</button>
         </div>
       </div>
     );
@@ -94,7 +96,7 @@ export default function FoodTab({ event }) {
       <div className="flex flex-wrap gap-2" role="group" aria-label="Day">
         {days.map((d, i) => (
           <button key={d} type="button" aria-pressed={d === date} onClick={() => setDate(d)} className={d === date ? 'btn-ink' : 'btn-ghost'}>
-            {i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : fmtDate(d, { year: undefined, weekday: 'short' })}
+            {i === 0 ? t('food.today') : i === 1 ? t('food.tomorrow') : fmtDate(d, { year: undefined, weekday: 'short' })}
           </button>
         ))}
       </div>
@@ -117,9 +119,9 @@ export default function FoodTab({ event }) {
       </div>
 
       <div className="max-w-sm">
-        <label htmlFor="food-sector" className="field-label">Sector</label>
+        <label htmlFor="food-sector" className="field-label">{t('food.sector')}</label>
         <select id="food-sector" className="field" value={sector} onChange={(e) => setSector(e.target.value)}>
-          <option value="">All sectors</option>
+          <option value="">{t('lodging.allSectors')}</option>
           {(event.sectors || []).map((s) => <option key={s}>{s}</option>)}
         </select>
       </div>
@@ -127,7 +129,7 @@ export default function FoodTab({ event }) {
       <Notice tone="error">{error}</Notice>
       {!staff && <div className="panel flex flex-col gap-4 p-4 sm:flex-row sm:items-end">
         <div>
-          <p id="people-label" className="field-label">Token for how many people?</p>
+          <p id="people-label" className="field-label">{t('food.howMany')}</p>
           <div className="flex items-center gap-2" role="group" aria-labelledby="people-label">
             <button type="button" className="btn-ghost h-12 w-12 px-0 text-xl" aria-label="Fewer people" disabled={people <= 1} onClick={() => setPeople((n) => n - 1)}>−</button>
             <output className="w-10 text-center text-2xl font-bold tabular-nums" aria-live="polite">{people}</output>
@@ -142,7 +144,7 @@ export default function FoodTab({ event }) {
           </div>
         )}
       </div>}
-      <p className="text-ink-soft">Each account can take 1 token per meal (breakfast, lunch and dinner) each day. One token feeds up to 5 family members: show it at the kitchen counter during the meal time.</p>
+      <p className="text-ink-soft">{t('food.rule')}</p>
 
       {!data ? (
         <Loading label="Finding community kitchens" />
@@ -177,7 +179,7 @@ export default function FoodTab({ event }) {
                       <div className={`h-full rounded-full ${pct === 0 ? 'bg-kumkum' : pct < 20 ? 'bg-marigold' : 'bg-tulsi'}`} style={{ width: `${pct}%` }} />
                     </div>
                     {!staff && <button type="button" className="btn-primary mt-4" disabled={slot.remaining < people || busySlot === slot._id} onClick={() => claim(slot)}>
-                      {slot.remaining === 0 ? 'All tokens taken' : busySlot === slot._id ? 'Claiming…' : people > 1 ? `Claim token for ${people}` : 'Claim meal token'}
+                      {slot.remaining === 0 ? t('food.allTaken') : busySlot === slot._id ? t('food.claiming') : people > 1 ? t('food.claimFor', { n: people }) : t('food.claim')}
                     </button>}
                   </>
                 ) : (

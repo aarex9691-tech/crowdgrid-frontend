@@ -1,3 +1,4 @@
+import { useT } from '../../lib/i18n';
 import { useEffect, useState } from 'react';
 import { Baby, Phone, Search, ShieldAlert, Siren, Stethoscope, Upload } from 'lucide-react';
 import API, { assetUrl, errorMessage } from '../../lib/api';
@@ -32,6 +33,7 @@ const getPosition = () =>
 
 function SosBeacon({ event }) {
   const gate = useLoginGate();
+  const t = useT();
   const [state, setState] = useState({ phase: 'idle' });
 
   const trigger = async () => {
@@ -50,8 +52,8 @@ function SosBeacon({ event }) {
   const busy = state.phase === 'locating' || state.phase === 'sending';
   return (
     <section className="rounded-3xl border-2 border-kumkum bg-white p-6 text-center" aria-labelledby="sos-title">
-      <h2 id="sos-title" className="text-2xl font-bold text-kumkum">Need help right now?</h2>
-      <p className="mx-auto mt-1 max-w-md text-ink-soft">Press the button. We send your live location to the police and volunteer control room.</p>
+      <h2 id="sos-title" className="text-2xl font-bold text-kumkum">{t('sos.title')}</h2>
+      <p className="mx-auto mt-1 max-w-md text-ink-soft">{t('sos.lead')}</p>
       <button
         type="button"
         onClick={trigger}
