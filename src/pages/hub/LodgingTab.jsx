@@ -4,30 +4,33 @@ import { BadgeCheck, Minus, Plus } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
 import { cachePass } from '../../lib/passCache';
 import { rupees, useCart } from '../../lib/cart';
-import { CATEGORY_LABELS, todayIST } from '../../lib/format';
+import { CATEGORY_LABELS, addDaysIST, todayIST } from '../../lib/format';
 import Notice, { Loading } from '../../components/Notice';
 import PassCard from '../../components/PassCard';
 import useLoginGate from './useLoginGate';
 import { canBook, useAuth } from '../../lib/auth';
 import { useLive } from '../../lib/realtime';
 import { MAX_PER_ACCOUNT } from '../../lib/limits';
+import { useT } from '../../lib/i18n';
 
-const MAX_BEDS = MAX_PER_ACCOUNT; // 5 beds per account per yatra
+const MAX_BEDS = MAX_PER_ACCOUNT; // 5 beds per account on any one night
+const MAX_NIGHTS = 7; // same limit as the server
 
-const availability = (n) =>
-  n === 0 ? <span className="pill-out">Sold out</span> : n <= 5 ? <span className="pill-low">Only {n} beds left</span> : <span className="pill-ok">{n} beds available</span>;
+// Bed counts are per night: the number shown is free on EVERY night of the chosen stay
+const availability = (n, t) =>
+  n === 0 ? <span className="pill-out">{t('lodging.soldOut')}</span> : n <= 5 ? <span className="pill-low">{t('lodging.onlyLeft', { n })}</span> : <span className="pill-ok">{t('lodging.bedsFree', { n })}</span>;
 
 const nightsBetween = (a, b) => Math.max(1, Math.round((new Date(`${b}T12:00:00+05:30`) - new Date(`${a}T12:00:00+05:30`)) / 86400000));
+const istDay = (d) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date(d));
+const showDate = (s) => new Date(`${s}T12:00:00+05:30`).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', weekday: 'short', day: 'numeric', month: 'short' });
 
-function BookingForm({ lodging, event, onDone, onCancel, onAdded, prefill = {} }) {
+function BookingForm({ lodging, onDone, onCancel, onAdded, stay, prefill = {} }) {
   const cart = useCart();
-  const today = todayIST();
-  const eventEnd = new Date(event.endDate).toISOString().slice(0, 10);
+  const t = useT();
+  const { checkIn, checkOut } = stay; // chosen once at the top of the tab
   const startBeds = Math.max(1, Math.min(MAX_BEDS, lodging.availableBeds, Number(prefill.beds) || 1));
   const [beds, setBeds] = useState(startBeds);
   const [guests, setGuests] = useState(() => Array.from({ length: startBeds }, () => ''));
-  const [checkIn, setCheckIn] = useState(prefill.checkIn >= today ? prefill.checkIn : today);
-  const [checkOut, setCheckOut] = useState(prefill.checkIn >= today ? prefill.checkIn : today);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const maxBeds = Math.min(MAX_BEDS, lodging.availableBeds);
@@ -74,7 +77,7 @@ function BookingForm({ lodging, event, onDone, onCancel, onAdded, prefill = {} }
     <form onSubmit={submit} className="mt-4 space-y-4 border-t border-line pt-4">
       <Notice tone="error">{error}</Notice>
       <div>
-        <span className="field-label" id={`beds-${lodging._id}`}>Number of beds</span>
+        <span className="field-label" id={`beds-${lodging._id}`}>{t('lodging.numberOfBeds')}</span>
         <div className="flex items-center gap-3" role="group" aria-labelledby={`beds-${lodging._id}`}>
           <button type="button" className="btn-ghost w-12 px-0" onClick={() => changeBeds(beds - 1)} aria-label="One bed fewer" disabled={beds <= 1}>
             <Minus size={20} />
@@ -83,38 +86,31 @@ function BookingForm({ lodging, event, onDone, onCancel, onAdded, prefill = {} }
           <button type="button" className="btn-ghost w-12 px-0" onClick={() => changeBeds(beds + 1)} aria-label="One bed more" disabled={beds >= maxBeds}>
             <Plus size={20} />
           </button>
-          <span className="text-sm text-ink-soft">Maximum {MAX_BEDS} per person</span>
+          <span className="text-sm text-ink-soft">{t('lodging.maxPerPerson', { n: MAX_BEDS })}</span>
         </div>
       </div>
       <fieldset className="space-y-2">
-        <legend className="field-label">Guest names</legend>
+        <legend className="field-label">{t('lodging.guestNames')}</legend>
         {guests.map((g, i) => (
           <input
             key={i}
             className="field"
-            placeholder={`Guest ${i + 1} full name`}
-            aria-label={`Guest ${i + 1} full name`}
+            placeholder={t('lodging.guestN', { n: i + 1 })}
+            aria-label={t('lodging.guestN', { n: i + 1 })}
             value={g}
             onChange={(e) => setGuests(guests.map((x, j) => (j === i ? e.target.value : x)))}
             required
           />
         ))}
       </fieldset>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <label className="field-label" htmlFor={`in-${lodging._id}`}>Check-in</label>
-          <input id={`in-${lodging._id}`} type="date" className="field" min={today} max={eventEnd} value={checkIn} onChange={(e) => { setCheckIn(e.target.value); if (checkOut < e.target.value) setCheckOut(e.target.value); }} required />
-        </div>
-        <div>
-          <label className="field-label" htmlFor={`out-${lodging._id}`}>Check-out</label>
-          <input id={`out-${lodging._id}`} type="date" className="field" min={checkIn} max={eventEnd} value={checkOut} onChange={(e) => setCheckOut(e.target.value)} required />
-        </div>
-      </div>
+      <p className="text-ink-soft">
+        {t('lodging.stay')}: <b>{showDate(checkIn)}</b>{checkOut !== checkIn && <> – <b>{showDate(checkOut)}</b></>} · {t('lodging.nights', { n: nights })}. {t('lodging.changeDates')}
+      </p>
       <div className="flex flex-wrap gap-3">
         <button type="submit" className="btn-primary" disabled={busy}>
-          {price > 0 ? `Add to cart · ${rupees(estimate)}` : busy ? 'Booking…' : `Book ${beds} bed${beds > 1 ? 's' : ''} · Free`}
+          {price > 0 ? t('lodging.addToCart', { amount: rupees(estimate) }) : busy ? t('lodging.booking') : t('lodging.bookFree', { n: beds })}
         </button>
-        <button type="button" className="btn-ghost" onClick={onCancel}>Cancel</button>
+        <button type="button" className="btn-ghost" onClick={onCancel}>{t('common.cancel')}</button>
       </div>
     </form>
   );
@@ -122,11 +118,19 @@ function BookingForm({ lodging, event, onDone, onCancel, onAdded, prefill = {} }
 
 export default function LodgingTab({ event }) {
   const gate = useLoginGate();
+  const t = useT();
   const { user } = useAuth();
   const staff = !canBook(user);
   const [params] = useSearchParams();
-  const [filters, setFilters] = useState(() => ({ sector: params.get('sector') || '', category: '' }));
-  const prefill = { checkIn: params.get('checkIn') || '', beds: params.get('beds') || '' };
+  const today = todayIST();
+  const firstDay = (() => { const s = istDay(event.startDate); return s > today ? s : today; })();
+  const eventEnd = istDay(event.endDate);
+  const prefillIn = params.get('checkIn');
+  const startIn = prefillIn && prefillIn >= firstDay && prefillIn <= eventEnd ? prefillIn : firstDay;
+  const [filters, setFilters] = useState(() => ({ sector: params.get('sector') || '', category: '', checkIn: startIn, checkOut: startIn }));
+  const prefill = { beds: params.get('beds') || '' };
+  const lastOut = (() => { const cap = addDaysIST(filters.checkIn, MAX_NIGHTS); return cap < eventEnd ? cap : eventEnd; })();
+  const setCheckIn = (v) => setFilters((f) => ({ ...f, checkIn: v, checkOut: f.checkOut < v || f.checkOut > addDaysIST(v, MAX_NIGHTS) ? v : f.checkOut }));
   const [lodgings, setLodgings] = useState(null);
   const [error, setError] = useState('');
   const [openId, setOpenId] = useState(null);
@@ -177,18 +181,29 @@ export default function LodgingTab({ event }) {
 
   return (
     <div className="space-y-5">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <label className="field-label" htmlFor="stay-in">{t('lodging.checkIn')}</label>
+          <input id="stay-in" type="date" className="field" min={firstDay} max={eventEnd} value={filters.checkIn} onChange={(e) => e.target.value && setCheckIn(e.target.value)} required />
+        </div>
+        <div>
+          <label className="field-label" htmlFor="stay-out">{t('lodging.checkOut')} <span className="font-normal text-ink-soft">{t('lodging.upToNights', { n: MAX_NIGHTS })}</span></label>
+          <input id="stay-out" type="date" className="field" min={filters.checkIn} max={lastOut} value={filters.checkOut} onChange={(e) => e.target.value && setFilters({ ...filters, checkOut: e.target.value })} required />
+        </div>
+      </div>
+      <p className="text-sm text-ink-soft">{t('lodging.perNightNote')}</p>
       <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
         <div>
-          <label htmlFor="sector" className="field-label">Sector / zone</label>
+          <label htmlFor="sector" className="field-label">{t('lodging.sector')}</label>
           <select id="sector" className="field" value={filters.sector} onChange={(e) => setFilters({ ...filters, sector: e.target.value })}>
-            <option value="">All sectors</option>
+            <option value="">{t('lodging.allSectors')}</option>
             {(event.sectors || []).map((s) => <option key={s}>{s}</option>)}
           </select>
         </div>
         <div>
-          <label htmlFor="category" className="field-label">Type of stay</label>
+          <label htmlFor="category" className="field-label">{t('lodging.type')}</label>
           <select id="category" className="field" value={filters.category} onChange={(e) => setFilters({ ...filters, category: e.target.value })}>
-            <option value="">All types</option>
+            <option value="">{t('lodging.allTypes')}</option>
             {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select>
         </div>
@@ -201,9 +216,9 @@ export default function LodgingTab({ event }) {
         </Notice>
       )}
       {!lodgings ? (
-        <Loading label="Finding camps" />
+        <Loading label={t('lodging.finding')} />
       ) : lodgings.length === 0 ? (
-        <Notice>No camps match these filters. Try another sector or type.</Notice>
+        <Notice>{t('lodging.none')}</Notice>
       ) : (
         <ul className="space-y-4">
           {lodgings.map((l) => (
@@ -212,21 +227,21 @@ export default function LodgingTab({ event }) {
                 <div className="flex-1">
                   <h3 className="text-xl font-bold">{l.name}</h3>
                   <p className="flex items-center gap-1 text-[15px] text-tulsi">
-                    <BadgeCheck size={18} aria-hidden /> Verified · {l.provider?.name}
+                    <BadgeCheck size={18} aria-hidden /> {t('lodging.verified')} · {l.provider?.name}
                   </p>
                   <p className="mt-1 text-ink-soft">
-                    {CATEGORY_LABELS[l.category]} · {l.sector} · {l.distanceToGhatKm} km to ghat ·{' '}
-                    {l.pricePerNight ? `₹${l.pricePerNight} per night` : 'Free'}
+                    {CATEGORY_LABELS[l.category]} · {l.sector} · {t('lodging.kmToGhat', { n: l.distanceToGhatKm })} ·{' '}
+                    {l.pricePerNight ? t('lodging.perNight', { n: l.pricePerNight }) : t('lodging.free')}
                   </p>
                   <ul className="mt-2 flex flex-wrap gap-2">
                     {l.amenities.map((a) => <li key={a} className="pill-quiet">{a}</li>)}
                   </ul>
                 </div>
                 <div className="flex items-center gap-3 sm:flex-col sm:items-end">
-                  {availability(l.availableBeds)}
+                  {availability(l.availableBeds, t)}
                   {!staff && openId !== l._id && (
                     <button type="button" className="btn-primary" disabled={l.availableBeds === 0} onClick={() => gate() && setOpenId(l._id)}>
-                      {l.pricePerNight ? 'Choose beds' : 'Book beds'}
+                      {l.pricePerNight ? t('lodging.chooseBeds') : t('lodging.bookBeds')}
                     </button>
                   )}
                 </div>
@@ -235,7 +250,7 @@ export default function LodgingTab({ event }) {
                 <BookingForm
                   prefill={prefill}
                   lodging={l}
-                  event={event}
+                  stay={{ checkIn: filters.checkIn, checkOut: filters.checkOut }}
                   onCancel={() => setOpenId(null)}
                   onDone={(data) => { setOpenId(null); setConfirmed(data); }}
                   onAdded={(x) => { setOpenId(null); setAdded(x); }}

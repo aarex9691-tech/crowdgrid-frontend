@@ -78,6 +78,11 @@ function PayStep({ order, onPaid, onBack }) {
     <form onSubmit={pay} className="space-y-5">
       <div className="panel p-5">
         <h2 className="text-lg font-bold">Order summary</h2>
+        {order.expiresAt && (
+          <p className="text-sm text-ink-soft">
+            Please pay by {new Date(order.expiresAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit' })}. After 15 minutes the order lapses and places are rechecked.
+          </p>
+        )}
         <ul className="mt-2 divide-y divide-line">
           {order.items.map((i) => (
             <li key={i._id} className="flex justify-between gap-3 py-2">

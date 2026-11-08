@@ -1,6 +1,7 @@
+import { useT } from '../../lib/i18n';
 import { useEffect, useState } from 'react';
 import { Baby, Phone, Search, ShieldAlert, Siren, Stethoscope, Upload } from 'lucide-react';
-import API, { errorMessage } from '../../lib/api';
+import API, { assetUrl, errorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { fmtDateTime } from '../../lib/format';
 import Notice from '../../components/Notice';
@@ -32,6 +33,7 @@ const getPosition = () =>
 
 function SosBeacon({ event }) {
   const gate = useLoginGate();
+  const t = useT();
   const [state, setState] = useState({ phase: 'idle' });
 
   const trigger = async () => {
@@ -50,8 +52,8 @@ function SosBeacon({ event }) {
   const busy = state.phase === 'locating' || state.phase === 'sending';
   return (
     <section className="rounded-3xl border-2 border-kumkum bg-white p-6 text-center" aria-labelledby="sos-title">
-      <h2 id="sos-title" className="text-2xl font-bold text-kumkum">Need help right now?</h2>
-      <p className="mx-auto mt-1 max-w-md text-ink-soft">Press the button. We send your live location to the police and volunteer control room.</p>
+      <h2 id="sos-title" className="text-2xl font-bold text-kumkum">{t('sos.title')}</h2>
+      <p className="mx-auto mt-1 max-w-md text-ink-soft">{t('sos.lead')}</p>
       <button
         type="button"
         onClick={trigger}
@@ -232,7 +234,7 @@ function LostAndFound({ event }) {
         {reports.map((r) => (
           <li key={r._id} className="panel flex gap-4 p-4">
             {r.photoUrl ? (
-              <img src={r.photoUrl} alt={`Photo of ${r.personName || 'person'}`} className="h-24 w-24 shrink-0 rounded-xl object-cover" />
+              <img src={assetUrl(r.photoUrl)} alt={`Photo of ${r.personName || 'person'}`} className="h-24 w-24 shrink-0 rounded-xl object-cover" />
             ) : (
               <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-xl bg-mist text-3xl font-bold text-ink-faint" aria-hidden>
                 {(r.personName || '?').charAt(0)}

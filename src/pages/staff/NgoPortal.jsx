@@ -169,7 +169,7 @@ export default function NgoPortal() {
                 <p className="text-lg font-bold">{l.name}</p>
                 <p className="text-ink-soft">{CATEGORY_LABELS[l.category]} · {l.sector}</p>
                 <p className="tabular-nums">
-                  <strong>{l.availableBeds}</strong> free of {l.totalBeds} beds
+                  <strong>{l.availableBeds}</strong> free tonight of {l.totalBeds} beds
                 </p>
               </div>
               <Link to={`/camps/${l._id}/map`} className="btn-ink min-h-10 whitespace-nowrap px-4">

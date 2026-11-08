@@ -8,6 +8,17 @@ export const resolveBaseUrl = () => {
   return clean.endsWith('/api') ? clean : `${clean}/api`;
 };
 
+/**
+ * Full address of a file served by the API server, e.g. a missing-person photo
+ * ("/api/lost-found/photos/<id>"). In production the API lives on another host
+ * (Render) than the website (Vercel), so a bare "/api/..." path would point at Vercel.
+ */
+export const assetUrl = (path) => {
+  if (!path || /^https?:\/\//i.test(path)) return path;
+  const origin = resolveBaseUrl().replace(/\/api$/, '');
+  return `${origin}${path.startsWith('/') ? path : `/${path}`}`;
+};
+
 const API = axios.create({ baseURL: resolveBaseUrl(), timeout: 15000 });
 
 API.interceptors.request.use((req) => {

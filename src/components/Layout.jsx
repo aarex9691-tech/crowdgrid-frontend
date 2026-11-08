@@ -7,14 +7,15 @@ import { useConfirm } from '../lib/confirm';
 import { SITE } from '../lib/site';
 import LiveToasts from './LiveToasts';
 import GuidedTour, { openTour } from './GuidedTour';
+import { LanguageSwitch, useT } from '../lib/i18n';
 
 /**
  * Each role gets its own navigation. Pilgrims see booking (passbook, cart,
  * "Book now"); admins and hosts see their dashboards instead and never book.
  */
-const navFor = (role) => {
+const navFor = (role, t = (k) => k) => {
   const scan = { to: '/scan', label: 'Scanner', icon: ScanLine };
-  const about = { to: '/about', label: 'About us' };
+  const about = { to: '/about', label: t('nav.about') };
   switch (role) {
     case 'SUPER_ADMIN':
       return {
@@ -34,8 +35,9 @@ const navFor = (role) => {
       return { links: [scan, { to: '/passbook', label: 'My ID badge', icon: Ticket }, about], cta: { to: '/scan', label: 'Open scanner' } };
     default:
       return {
-        links: [{ to: '/', label: 'Home', end: true }, { to: '/events', label: 'Events' }, { to: '/passbook', label: 'My Passbook' }, { to: '/help', label: 'Help' }, about],
-        cta: { to: `/yatra/${SITE.flagshipSlug}`, label: 'Book now' },
+        // pilgrim navigation follows the chosen language (Hindi / Marathi / English)
+        links: [{ to: '/', label: t('nav.home'), end: true }, { to: '/events', label: t('nav.events') }, { to: '/passbook', label: t('nav.passbook') }, { to: '/help', label: t('nav.help') }, about],
+        cta: { to: `/yatra/${SITE.flagshipSlug}`, label: t('nav.bookNow') },
         shopper: true,
       };
   }
@@ -90,7 +92,8 @@ export default function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const confirm = useConfirm();
   const headerRef = useRef(null);
-  const nav = navFor(user?.role);
+  const t = useT();
+  const nav = navFor(user?.role, t);
   const close = () => setMenuOpen(false);
   const [navQuery, setNavQuery] = useState('');
   const { pathname } = useLocation();
@@ -235,8 +238,9 @@ export default function Layout() {
                 </button>
               </>
             ) : (
-              <Link to="/login" className="btn-ghost min-h-10 px-4">Log in</Link>
+              <Link to="/login" className="btn-ghost min-h-10 px-4">{t('nav.login')}</Link>
             )}
+            {(!user || user.role === 'USER') && <LanguageSwitch className="ml-1" />}
           </div>
 
           {/* Call to action */}
@@ -292,6 +296,7 @@ export default function Layout() {
               ) : (
                 <NavLink to="/login" className={menuCls} onClick={close}>Log in or create account</NavLink>
               )}
+              {(!user || user.role === 'USER') && <LanguageSwitch className="mt-2" />}
               <Link to={nav.cta.to} className="btn-primary mt-2 w-full sm:hidden" onClick={close}>
                 {nav.cta.label}
               </Link>

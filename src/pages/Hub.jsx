@@ -12,23 +12,25 @@ import SevaTab from './hub/SevaTab';
 import SosTab from './hub/SosTab';
 import SnanDates from '../components/SnanDates';
 import YatraGuide from '../components/YatraGuide';
+import { useT } from '../lib/i18n';
 
 // The walking map (Leaflet) only loads when the tab is opened
 const RouteTab = lazy(() => import('./hub/RouteTab'));
 const ROUTE_EVENT = 'simhastha-kumbh-2027'; // walking lanes are mapped for Nashik so far
 
-// `hint` is one line telling a first-time visitor what the tab is for
+// Label and one-line hint for each tab come from the language file (lib/i18n.jsx): tab.<id>, hint.<id>
 const TABS = [
-  { id: 'lodging', label: 'Lodging & camps', icon: BedDouble, Component: LodgingTab, hint: 'Book a bed in a verified dharamshala or tent camp. Free camps are marked, and your stay QR is ready right away.' },
-  { id: 'food', label: 'Food', icon: UtensilsCrossed, Component: FoodTab, hint: 'Get a free meal token for you and up to 4 family members. Show the QR at the kitchen counter.' },
-  { id: 'transit', label: 'Transport', icon: BusFront, Component: TransitTab, hint: 'Shuttles and buses between parking, stations and the ghats. One bus pass can cover up to 5 people.' },
-  { id: 'route', label: 'Walk to ghat', icon: Footprints, Component: RouteTab, only: ROUTE_EVENT, hint: 'Pick where you are and a ghat. We show the least crowded walking route, updated live by the control room.' },
-  { id: 'seva', label: 'Seva', icon: HandHeart, Component: SevaTab, hint: 'Volunteer for crowd guidance, first aid or annadanam. Approved volunteers get a volunteer ID QR.' },
-  { id: 'sos', label: 'Emergency SOS', icon: Siren, Component: SosTab, hint: 'Ask for help in one tap, or report a missing or found person. In danger, call 112 first.' },
+  { id: 'lodging', icon: BedDouble, Component: LodgingTab },
+  { id: 'food', icon: UtensilsCrossed, Component: FoodTab },
+  { id: 'transit', icon: BusFront, Component: TransitTab },
+  { id: 'route', icon: Footprints, Component: RouteTab, only: ROUTE_EVENT },
+  { id: 'seva', icon: HandHeart, Component: SevaTab },
+  { id: 'sos', icon: Siren, Component: SosTab },
 ];
 
 export default function Hub() {
   const { user } = useAuth();
+  const t = useT();
   const { slug } = useParams();
   const [params, setParams] = useSearchParams();
   const [event, setEvent] = useState(null);
@@ -42,14 +44,14 @@ export default function Hub() {
 
   if (error) return <div className="shell py-10"><Notice tone="error">{error}</Notice></div>;
   if (!event) return <Loading label="Opening yatra portal" />;
-  const tabs = TABS.filter((t) => !t.only || t.only === event.slug);
-  const active = tabs.find((t) => t.id === params.get('tab')) || tabs[0];
+  const tabs = TABS.filter((x) => !x.only || x.only === event.slug);
+  const active = tabs.find((x) => x.id === params.get('tab')) || tabs[0];
 
   return (
     <div>
       <div className="bg-ink text-white">
         <div className="shell py-5">
-          <Link to="/" className="text-sm text-[#c9d6ee] hover:text-white">All yatras</Link>
+          <Link to="/" className="text-sm text-[#c9d6ee] hover:text-white">{t('hub.allYatras')}</Link>
           <h1 className="font-display text-3xl">{event.title}</h1>
           <p className="text-[#c9d6ee]">
             {event.tagline} · {fmtDate(event.startDate)} to {fmtDate(event.endDate)}
@@ -59,24 +61,24 @@ export default function Hub() {
       </div>
 
       {/* Service ribbon: switches tabs without a page reload (FR-03) */}
-      <nav aria-label="Yatra services" className="sticky top-[var(--header-h,4rem)] z-20 border-b border-line bg-white">
+      <nav aria-label={t('hub.services')} className="sticky top-[var(--header-h,4rem)] z-20 border-b border-line bg-white">
         <div className="shell flex gap-1 overflow-x-auto py-2" role="tablist">
-          {tabs.map((t) => {
-            const selected = t.id === active.id;
-            const sos = t.id === 'sos';
+          {tabs.map((tab) => {
+            const selected = tab.id === active.id;
+            const sos = tab.id === 'sos';
             return (
               <button
-                key={t.id}
+                key={tab.id}
                 type="button"
                 role="tab"
                 aria-selected={selected}
-                onClick={() => setParams({ tab: t.id }, { replace: true })}
+                onClick={() => setParams({ tab: tab.id }, { replace: true })}
                 className={`flex min-h-12 shrink-0 items-center gap-2 rounded-xl px-4 font-semibold transition-colors ${
                   selected ? (sos ? 'bg-kumkum text-white' : 'bg-ink text-white') : sos ? 'text-kumkum hover:bg-kumkum-wash' : 'text-ink-soft hover:bg-mist hover:text-ink'
                 }`}
               >
-                <t.icon size={20} aria-hidden />
-                {t.label}
+                <tab.icon size={20} aria-hidden />
+                {t(`tab.${tab.id}`)}
               </button>
             );
           })}
@@ -93,12 +95,10 @@ export default function Hub() {
 
       <div className="shell space-y-4 py-6" role="tabpanel">
         <YatraGuide event={event} />
-        {active.hint && (
-          <p className="flex items-start gap-2 text-ink-soft" data-testid="tab-hint">
-            <Info size={18} className="mt-1 shrink-0 text-ink-faint" aria-hidden />
-            {active.hint}
-          </p>
-        )}
+        <p className="flex items-start gap-2 text-ink-soft" data-testid="tab-hint">
+          <Info size={18} className="mt-1 shrink-0 text-ink-faint" aria-hidden />
+          {t(`hint.${active.id}`)}
+        </p>
         <Suspense fallback={<Loading label="Loading" />}>
           <active.Component event={event} />
         </Suspense>

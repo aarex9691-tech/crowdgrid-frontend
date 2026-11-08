@@ -86,7 +86,10 @@ export default function LanePanel({ eventId }) {
           {lane ? (
             <form onSubmit={save} className="space-y-3 rounded-xl bg-mist p-3">
               <p className="font-bold">{lane.name}</p>
-              <p className="text-sm text-ink-soft">{lane.lengthM} m · now <b>{LANE_STYLE[lane.status].label.toLowerCase()}</b></p>
+              <p className="text-sm text-ink-soft">
+                {lane.lengthM} m · now <b>{LANE_STYLE[lane.status].label.toLowerCase()}</b>
+                {lane.recentPlans > 0 && <> · {lane.recentPlans} pilgrim{lane.recentPlans > 1 ? 's' : ''} sent this way in the last {net.loadWindowMin || 15} min</>}
+              </p>
               {lane.reasons?.length > 0 && <ul className="list-disc pl-5 text-sm text-ink-soft">{lane.reasons.map((r) => <li key={r}>{r}</li>)}</ul>}
               <fieldset>
                 <legend className="field-label">Set by the control room</legend>
@@ -121,6 +124,7 @@ export default function LanePanel({ eventId }) {
                   <span className="min-w-0">
                     <span className="block truncate font-semibold">{l.name}</span>
                     {l.reasons?.[0] && <span className="block truncate text-xs text-ink-soft">{l.reasons[0]}</span>}
+                    {l.recentPlans > 0 && <span className="block text-xs text-ink-soft">{l.recentPlans} routed here recently</span>}
                   </span>
                   <span className="flex flex-none items-center gap-1.5 text-xs font-bold text-ink-soft">
                     <span className="h-0 w-4" style={{ borderTop: `4px ${LANE_STYLE[l.status].dashArray ? 'dotted' : 'solid'} ${LANE_STYLE[l.status].color}` }} aria-hidden />

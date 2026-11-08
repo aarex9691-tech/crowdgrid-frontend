@@ -1,3 +1,4 @@
+import { useT } from '../../lib/i18n';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Ambulance, Droplets, Footprints, MapPin, Toilet, Waves } from 'lucide-react';
@@ -39,6 +40,7 @@ function Checkpoints({ points }) {
 
 export default function TransitTab({ event }) {
   const gate = useLoginGate();
+  const t = useT();
   const { user } = useAuth();
   const staff = !canBook(user);
   const [routes, setRoutes] = useState(null);
@@ -112,13 +114,13 @@ export default function TransitTab({ event }) {
         </Notice>
       )}
       <section>
-        <h2 className="text-2xl font-bold">Shuttle schedule</h2>
+        <h2 className="text-2xl font-bold">{t('transit.schedule')}</h2>
         <ul className="mt-4 grid gap-4 md:grid-cols-2">
           {shuttles.map((r) => (
             <li key={r._id} className="panel flex flex-col p-5">
               <div className="flex items-start justify-between gap-2">
                 <h3 className="text-xl font-bold">{r.name}</h3>
-                <span className={r.fare ? 'pill-quiet' : 'pill-ok'}>{r.fare ? `₹${r.fare}` : 'Free seva'}</span>
+                <span className={r.fare ? 'pill-quiet' : 'pill-ok'}>{r.fare ? `₹${r.fare}` : t('transit.freeSeva')}</span>
               </div>
               <p className="text-lg">
                 {r.origin} to <strong>{r.destination}</strong>
@@ -126,13 +128,24 @@ export default function TransitTab({ event }) {
               <p className="text-ink-soft">
                 {r.vehicleType} · every {r.frequencyMins} min · {r.firstDeparture} to {r.lastDeparture}
               </p>
-              <p className="text-ink-soft">Board at {r.boardingGate}</p>
+              <p className="text-ink-soft">{t('transit.boardAt', { gate: r.boardingGate })}</p>
+              {typeof r.seatsLeft === 'number' && (
+                <p className="mt-1">
+                  {r.seatsLeft === 0 ? (
+                    <span className="pill-out">{t('transit.full', { day: r.travelDay })}</span>
+                  ) : r.seatsLeft <= 20 ? (
+                    <span className="pill-low">{t('transit.onlySeats', { n: r.seatsLeft, day: r.travelDay })}</span>
+                  ) : (
+                    <span className="pill-ok">{t('transit.seatsLeft', { n: r.seatsLeft.toLocaleString('en-IN'), day: r.travelDay })}</span>
+                  )}
+                </p>
+              )}
               <Checkpoints points={r.checkpoints} />
               {!staff && (
                 <div className="mt-5 flex flex-wrap items-end gap-4">
-                  <PeopleStepper id={`tp-${r._id}`} label="Travelling" value={peopleFor(r._id)} onChange={(v) => setPeople((p) => ({ ...p, [r._id]: v }))} hint="One pass for up to 5 people" />
-                  <button type="button" className="btn-primary" disabled={busy === r._id} onClick={() => getPass(r)}>
-                    {busy === r._id ? 'Preparing…' : r.fare > 0 ? `Add to cart · ${rupees(r.fare * peopleFor(r._id))}` : 'Get boarding pass · Free'}
+                  <PeopleStepper id={`tp-${r._id}`} label={t('transit.travelling')} value={peopleFor(r._id)} onChange={(v) => setPeople((p) => ({ ...p, [r._id]: v }))} hint="One pass for up to 5 people" />
+                  <button type="button" className="btn-primary" disabled={busy === r._id || r.seatsLeft === 0 || (typeof r.seatsLeft === 'number' && peopleFor(r._id) > r.seatsLeft)} onClick={() => getPass(r)}>
+                    {busy === r._id ? t('transit.preparing') : r.fare > 0 ? t('lodging.addToCart', { amount: rupees(r.fare * peopleFor(r._id)) }) : t('transit.getPass')}
                   </button>
                 </div>
               )}

@@ -6,6 +6,7 @@ import { AuthProvider } from './lib/auth.jsx';
 import { CartProvider } from './lib/cart.jsx';
 import { ConfirmProvider } from './lib/confirm.jsx';
 import { RealtimeProvider } from './lib/realtime.jsx';
+import { LanguageProvider } from './lib/i18n.jsx';
 import '@fontsource/mukta/400.css';
 import '@fontsource/mukta/500.css';
 import '@fontsource/mukta/600.css';
@@ -17,6 +18,7 @@ import './index.css';
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
+      <LanguageProvider>
       <AuthProvider>
         <RealtimeProvider>
           <CartProvider>
@@ -26,6 +28,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           </CartProvider>
         </RealtimeProvider>
       </AuthProvider>
+      </LanguageProvider>
     </BrowserRouter>
   </React.StrictMode>
 );
