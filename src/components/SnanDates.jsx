@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { CalendarDays } from 'lucide-react';
 import { fmtDate } from '../lib/format';
 
@@ -7,10 +8,12 @@ import { fmtDate } from '../lib/format';
  * they are all past, so the header is never empty).
  */
 export default function SnanDates({ event, all = false }) {
+  // "now" is read once when the header mounts (reading the clock during every render is impure)
+  const [since] = useState(() => Date.now() - 864e5);
   const list = event?.keyDates || [];
   let dates;
   if (all) {
-    const upcoming = list.filter((d) => new Date(d.date) >= new Date(Date.now() - 864e5));
+    const upcoming = list.filter((d) => new Date(d.date) >= new Date(since));
     dates = upcoming.length ? upcoming : list;
   } else {
     dates = list.filter((d) => /snan/i.test(d.label));
