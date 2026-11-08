@@ -1,0 +1,21 @@
+name: Frontend build
+
+on:
+  push:
+    branches: [main, notes-round2]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Lint (warnings allowed, errors fail)
+        run: npm run lint
+      - name: Production build
+        run: npm run build
