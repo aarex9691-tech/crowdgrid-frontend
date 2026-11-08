@@ -38,20 +38,22 @@ export default function TentMap() {
   const [error, setError] = useState('');
   const [selected, setSelected] = useState(null);
   const [onlyFree, setOnlyFree] = useState(false);
+  // Beds are booked night by night: the map shows one night (empty = today / the yatra's first night)
+  const [night, setNight] = useState('');
 
   const load = useCallback(() => {
     setError('');
-    API.get(`/lodgings/${id}/bed-map`)
+    API.get(`/lodgings/${id}/bed-map`, { params: night ? { date: night } : {} })
       .then(({ data: d }) => setData(d))
       .catch((e) => setError(errorMessage(e)));
-  }, [id]);
+  }, [id, night]);
   useEffect(() => {
     load();
   }, [load]);
   // Follow this camp: beds turn booked / free as pilgrims book, cancel or staff change the size
   useWatchLodging(id);
   useLive('beds', () => {
-    API.get(`/lodgings/${id}/bed-map`).then(({ data: d }) => setData(d)).catch(() => {});
+    API.get(`/lodgings/${id}/bed-map`, { params: night ? { date: night } : {} }).then(({ data: d }) => setData(d)).catch(() => {});
   }, { wait: 3000 });
 
   const units = useMemo(() => (data ? data.units.filter((u) => !onlyFree || u.free > 0) : []), [data, onlyFree]);
@@ -74,9 +76,15 @@ export default function TentMap() {
           <p className="text-ink-soft">{lodging.provider} · {CATEGORY_LABELS[lodging.category]} · {lodging.sector}</p>
           <h1 className="flex flex-wrap items-center gap-3 text-3xl font-bold">{lodging.name}: {data.unit.label.toLowerCase()} map <LiveBadge /></h1>
         </div>
-        <button type="button" className="btn-ghost min-h-10" onClick={load}>
-          <RefreshCw size={16} aria-hidden /> Refresh
-        </button>
+        <div className="flex flex-wrap items-end gap-3">
+          <div>
+            <label className="field-label" htmlFor="map-night">Night of</label>
+            <input id="map-night" type="date" className="field min-h-10" value={night || data.date || ''} onChange={(e) => setNight(e.target.value)} />
+          </div>
+          <button type="button" className="btn-ghost min-h-10" onClick={load}>
+            <RefreshCw size={16} aria-hidden /> Refresh
+          </button>
+        </div>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-4">
