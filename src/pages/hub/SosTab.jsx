@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Baby, Phone, Search, ShieldAlert, Siren, Stethoscope, Upload } from 'lucide-react';
-import API, { errorMessage } from '../../lib/api';
+import API, { assetUrl, errorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { fmtDateTime } from '../../lib/format';
 import Notice from '../../components/Notice';
@@ -232,7 +232,7 @@ function LostAndFound({ event }) {
         {reports.map((r) => (
           <li key={r._id} className="panel flex gap-4 p-4">
             {r.photoUrl ? (
-              <img src={r.photoUrl} alt={`Photo of ${r.personName || 'person'}`} className="h-24 w-24 shrink-0 rounded-xl object-cover" />
+              <img src={assetUrl(r.photoUrl)} alt={`Photo of ${r.personName || 'person'}`} className="h-24 w-24 shrink-0 rounded-xl object-cover" />
             ) : (
               <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-xl bg-mist text-3xl font-bold text-ink-faint" aria-hidden>
                 {(r.personName || '?').charAt(0)}
