@@ -21,7 +21,7 @@ Phone browsers only allow the camera on HTTPS pages. With the phone on the same 
 npm run dev:phone
 ```
 
-Open the `https://<laptop-ip>:5173` address that Vite prints, accept the self-signed certificate warning, and log in as the volunteer (`9000000005` / `Crowd@123`). On the laptop itself, `http://localhost:5173` can use the webcam directly.
+Open the `https://<laptop-ip>:5173` address that Vite prints, accept the self-signed certificate warning, and log in with the volunteer demo account (details in the team's private notes). On the laptop itself, `http://localhost:5173` can use the webcam directly.
 
 No camera? Every pass has a "Copy pass code" link. Paste the code into the scanner's text box.
 
