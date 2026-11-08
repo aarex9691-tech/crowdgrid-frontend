@@ -218,6 +218,9 @@ export default function RouteTab({ event }) {
                 <p className="mt-2 text-ink-soft">
                   The walking map has {plan.algorithms.graph.junctions} junctions and {plan.algorithms.graph.lanes} lanes. Each lane costs its length,
                   multiplied by 1.6 when busy and 4 when crowded; closed lanes are left out. Walking speed drops on busy and crowded lanes.
+                  {plan.algorithms.loadAware && (
+                    <> Lanes that many pilgrims were just sent down cost more for the next {plan.algorithms.loadAware.windowMin} minutes, so people are spread over several routes instead of all taking the same one.</>
+                  )}
                 </p>
                 <ul className="mt-2 space-y-1">
                   <li>Dijkstra's algorithm checked <b>{plan.algorithms.dijkstra.visited}</b> junctions.</li>
