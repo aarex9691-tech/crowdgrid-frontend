@@ -5,7 +5,8 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  // e2e/ is a separate Node package (Playwright tests) with its own settings
+  globalIgnores(['dist', 'e2e']),
   // Build tool config runs in Node, not the browser
   {
     files: ['vite.config.js', 'postcss.config.js', 'tailwind.config.js'],
