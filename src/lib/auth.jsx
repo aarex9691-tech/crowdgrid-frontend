@@ -24,6 +24,22 @@ export const ROLE_LABELS = {
 export const homeFor = (role) =>
   ({ SUPER_ADMIN: '/control', AUTHORITY: '/control', NGO_ADMIN: '/ngo', VOLUNTEER: '/scan', CORPORATE_ADMIN: '/corporate-admin' })[role] || '/';
 
+// Which roles may open each restricted page (same lists as the <RequireRole> routes in App.jsx)
+const PAGE_ROLES = [
+  [/^\/scan/, ['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'NGO_ADMIN', 'VOLUNTEER']],
+  [/^\/(control|analytics|host)/, ['SUPER_ADMIN', 'AUTHORITY']],
+  [/^\/corporate-admin/, ['SUPER_ADMIN', 'CORPORATE_ADMIN']],
+  [/^\/camps\/.+\/map/, ['SUPER_ADMIN', 'AUTHORITY', 'NGO_ADMIN']],
+  [/^\/ngo/, ['SUPER_ADMIN', 'NGO_ADMIN']],
+];
+/** Can this role open the page at `path`? Pages not listed are open to everyone signed in. */
+export const canOpen = (role, path = '') => {
+  const rule = PAGE_ROLES.find(([re]) => re.test(path));
+  return !rule || rule[1].includes(role);
+};
+/** Where to go after logging in: back to the page they came from only if their role may open it. */
+export const afterLogin = (role, from) => (from && from !== '/login' && canOpen(role, from) ? from : homeFor(role));
+
 export const STAFF_ROLES = ['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'NGO_ADMIN', 'VOLUNTEER'];
 
 /** Only pilgrims / attendees book. Admins and hosts work from their dashboards. */

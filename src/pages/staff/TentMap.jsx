@@ -79,7 +79,7 @@ export default function TentMap() {
         <div className="flex flex-wrap items-end gap-3">
           <div>
             <label className="field-label" htmlFor="map-night">Night of</label>
-            <input id="map-night" type="date" className="field min-h-10" value={night || data.date || ''} onChange={(e) => setNight(e.target.value)} />
+            <input id="map-night" type="date" className="field min-h-10" value={night || data.date || ''} onChange={(e) => { setSelected(null); setNight(e.target.value); }} />
           </div>
           <button type="button" className="btn-ghost min-h-10" onClick={load}>
             <RefreshCw size={16} aria-hidden /> Refresh
@@ -90,8 +90,8 @@ export default function TentMap() {
       <div className="grid gap-3 sm:grid-cols-4">
         {[
           [`${data.unit.label}s`, summary.units],
-          ['Free beds', summary.free, 'text-tulsi'],
-          ['Booked online', summary.booked],
+          [`Free on ${day(data.date)}`, summary.free, 'text-tulsi'],
+          [`Booked online for ${day(data.date)}`, summary.booked],
           ['Occupied', `${pct}%`, pct >= 90 ? 'text-kumkum' : ''],
         ].map(([label, value, tone]) => (
           <div key={label} className="panel p-4">

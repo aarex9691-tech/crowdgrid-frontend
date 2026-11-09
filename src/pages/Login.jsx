@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { errorMessage } from '../lib/api';
-import { homeFor, useAuth } from '../lib/auth';
+import { afterLogin, useAuth } from '../lib/auth';
 import Notice from '../components/Notice';
 import PasswordField from '../components/PasswordField';
 import { COUNTRIES, countryFor, phoneError } from '../lib/phone';
@@ -24,7 +24,8 @@ export default function Login() {
     setBusy(true);
     try {
       const user = await login(identifier, password, countryCode);
-      navigate(location.state?.from || homeFor(user.role), { replace: true });
+      // a page left over from someone else's session (e.g. /control) must not trap this role
+      navigate(afterLogin(user.role, location.state?.from), { replace: true });
     } catch (err) {
       setError(errorMessage(err));
     } finally {

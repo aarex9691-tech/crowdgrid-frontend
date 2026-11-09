@@ -369,7 +369,6 @@ export default function Layout() {
               <li><Link className="hover:text-ink" to="/about#contact">Contact customer care</Link></li>
               <li><a className="hover:text-ink" href={`tel:${SITE.phone.replace(/[^\d+]/g, '')}`}>{SITE.phone}</a></li>
               <li><a className="hover:text-ink" href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
-              <li><a className="hover:text-ink" href={SITE.github[0].url} target="_blank" rel="noreferrer">Source code on GitHub</a></li>
             </ul>
           </div>
           <div>

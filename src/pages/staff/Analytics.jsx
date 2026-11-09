@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Download, Info, Pause, Play, RefreshCw } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
@@ -41,15 +41,21 @@ export default function Analytics() {
     });
   }, []);
 
+  // Only one request at a time: repeated Refresh clicks or live updates no longer pile up heavy queries
+  const loading = useRef(false);
   const load = useCallback(() => {
-    if (!eventId) return;
+    if (!eventId || loading.current) return;
+    loading.current = true;
     API.get('/analytics/overview', { params: { eventId, days } })
       .then(({ data: d }) => {
         setData(d);
         setUpdatedAt(new Date());
         setError('');
       })
-      .catch((e) => setError(errorMessage(e)));
+      .catch((e) => setError(errorMessage(e))) // the last figures stay on screen
+      .finally(() => {
+        loading.current = false;
+      });
   }, [eventId, days]);
   useEffect(() => {
     load();
