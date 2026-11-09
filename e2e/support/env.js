@@ -44,6 +44,9 @@ const API_ORIGIN = process.env.E2E_API_ORIGIN || `http://localhost:${API_PORT}`;
 const API = `${API_ORIGIN}/api`;
 const WEB = process.env.E2E_BASE_URL || `http://localhost:${WEB_PORT}`;
 const EXTERNAL_BACKEND = process.env.E2E_EXTERNAL_BACKEND === '1';
+// Small helper server inside the main test runner: restarts the backend for case 28.
+// (A backend started from a test worker dies with that worker on Windows.)
+const CONTROL_PORT = Number(process.env.E2E_CONTROL_PORT || 5056);
 
 /** Checks the settings before anything starts; returns a list of problems (empty when fine). */
 const problems = () => {
@@ -95,6 +98,7 @@ module.exports = {
     WEB,
     WEB_PORT,
     EXTERNAL_BACKEND,
+    CONTROL_PORT,
     SEED_PASSWORD: ENV.SEED_PASSWORD,
     DEMO,
     EVENT_SLUG: 'simhastha-kumbh-2027',

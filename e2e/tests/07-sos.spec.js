@@ -41,11 +41,11 @@ test.describe('SOS', () => {
 
     test('#32 SOS · Authority acknowledges, then resolves', async () => {
         await alertRow().getByRole('button', { name: 'Acknowledge' }).click();
-        await expect(phone.getByText('Help is on the way')).toBeVisible({ timeout: 10_000 });
+        await expect(phone.getByText('Help is on the way', { exact: true })).toBeVisible({ timeout: 10_000 });
         await expect(alertRow()).toContainText('acknowledged');
 
         await alertRow().getByRole('button', { name: 'Mark resolved' }).click();
-        await expect(phone.getByText('SOS resolved')).toBeVisible({ timeout: 10_000 });
+        await expect(phone.getByText('SOS resolved', { exact: true })).toBeVisible({ timeout: 10_000 });
         await expect(alertRow()).toContainText('resolved');
     });
 });

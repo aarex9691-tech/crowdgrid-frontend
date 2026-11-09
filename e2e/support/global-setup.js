@@ -5,6 +5,7 @@
  *   3. start the backend on the test database (unless E2E_EXTERNAL_BACKEND=1)
  * The website itself (Vite) is started by Playwright's webServer setting.
  */
+const http = require('http');
 const { spawnSync } = require('child_process');
 const env = require('./env');
 const backend = require('./backend');
@@ -37,7 +38,33 @@ module.exports = async () => {
         console.log('[e2e] Backend is up.');
     }
     await checkBackendVersion();
+    const control = await startControlServer();
+    // Playwright runs this when the run ends
+    return async () => {
+        control.close();
+        await backend.stop();
+    };
 };
+
+/** POST /restart stops and starts the backend from this (long-lived) process. */
+function startControlServer() {
+    const server = http.createServer(async (req, res) => {
+        if (req.method !== 'POST' || req.url !== '/restart' || env.EXTERNAL_BACKEND) {
+            res.writeHead(404).end();
+            return;
+        }
+        try {
+            await backend.restart();
+            res.writeHead(200).end('restarted');
+        } catch (e) {
+            res.writeHead(500).end(String(e.message || e));
+        }
+    });
+    return new Promise((resolve, reject) => {
+        server.once('error', reject);
+        server.listen(env.CONTROL_PORT, '127.0.0.1', () => resolve(server));
+    });
+}
 
 /**
  * Stops early, with a plain message, when crowdgrid-backend is older than the

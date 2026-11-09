@@ -7,14 +7,19 @@ const { API, SEED_PASSWORD, EVENT_SLUG } = require('./env');
 const PASSWORD = 'E2eTest123'; // 8+ characters, a letter and a number
 
 const call = async (method, path, { token, body } = {}) => {
-    const res = await fetch(`${API}${path}`, {
+    let res;
+    try {
+        res = await fetch(`${API}${path}`, {
         method,
         headers: {
             ...(body ? { 'Content-Type': 'application/json' } : {}),
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: body ? JSON.stringify(body) : undefined,
-    });
+        });
+    } catch (e) {
+        throw new Error(`Cannot reach the test backend at ${API} (${e.cause?.code || e.message}). It may have stopped: see e2e/.state/backend.log`);
+    }
     const text = await res.text();
     let data;
     try {

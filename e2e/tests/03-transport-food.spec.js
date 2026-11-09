@@ -61,7 +61,12 @@ test.describe('Transport and food', () => {
 
     test('#17 Food · Claim the same meal again', async () => {
         const card = page.locator('li.panel').filter({ has: page.getByRole('heading', { name: kitchen, exact: true }) });
+        const answer = page.waitForResponse((r) => /\/food\/slots\/[^/]+\/claim/.test(r.url()));
         await card.getByRole('button', { name: 'Claim token for 4' }).click();
+        const res = await answer;
+        const body = await res.text();
+        expect(res.status(), `server answer to a second claim: ${body}`).toBe(409);
+        expect(body).toMatch(/limit 1 per meal/i);
         await expect(page.getByText(/limit 1 per meal/i)).toBeVisible();
     });
 });

@@ -2,8 +2,7 @@
 const { test, expect } = require('@playwright/test');
 const api = require('../support/api');
 const ui = require('../support/ui');
-const backend = require('../support/backend');
-const { EXTERNAL_BACKEND } = require('../support/env');
+const { EXTERNAL_BACKEND, CONTROL_PORT } = require('../support/env');
 
 test.describe('Missing person', () => {
     test.describe.configure({ mode: 'serial' });
@@ -40,7 +39,9 @@ test.describe('Missing person', () => {
 
     test('#28 Missing · Restart the backend, reload', async () => {
         test.skip(EXTERNAL_BACKEND, 'E2E_EXTERNAL_BACKEND=1: the tests did not start the backend, so they cannot restart it');
-        await backend.restart();
+        // Ctrl+C and npm run dev again, done by the main test runner
+        const res = await fetch(`http://127.0.0.1:${CONTROL_PORT}/restart`, { method: 'POST', signal: AbortSignal.timeout(110_000) });
+        expect(res.status, await res.text()).toBe(200);
         await page.goto(ui.yatra('sos'));
         await page.getByRole('button', { name: 'Missing reports' }).click();
         await expect(reportCard(person)).toBeVisible();
