@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { BadgeCheck, Minus, Plus } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
@@ -24,50 +24,155 @@ const nightsBetween = (a, b) => Math.max(1, Math.round((new Date(`${b}T12:00:00+
 const istDay = (d) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date(d));
 const showDate = (s) => new Date(`${s}T12:00:00+05:30`).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', weekday: 'short', day: 'numeric', month: 'short' });
 
+/**
+ * Tent and bed picker: the pilgrim taps free beds (like cinema seats). A bed is free only if it
+ * is free on every night of the chosen stay. The server checks again when booking.
+ */
+function BedPicker({ lodging, stay, selected, onChange, max }) {
+  const t = useT();
+  const [map, setMap] = useState(null);
+  const [error, setError] = useState('');
+  const [shown, setShown] = useState(24);
+
+  const load = useCallback(() => {
+    setError('');
+    API.get(`/lodgings/${lodging._id}/stay-map`, { params: stay })
+      .then(({ data }) => setMap(data))
+      .catch((e) => setError(errorMessage(e)));
+  }, [lodging._id, stay]);
+  useEffect(() => {
+    load();
+  }, [load]);
+  useLive('beds', load, { wait: 3000 }); // beds others just booked turn grey
+
+  // a bed someone else took meanwhile leaves the selection
+  useEffect(() => {
+    if (!map) return;
+    const free = new Set(map.units.flatMap((u) => u.beds.filter((b) => b.free).map((b) => b.bedNo)));
+    if (selected.some((s) => !free.has(s.bedNo))) onChange(selected.filter((s) => free.has(s.bedNo)));
+  }, [map]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (error) return <Notice tone="error">{error}</Notice>;
+  if (!map) return <Loading label={t('lodging.loadingMap')} />;
+
+  const isOn = (n) => selected.some((s) => s.bedNo === n);
+  const toggle = (unit, bed) => {
+    if (isOn(bed.bedNo)) return onChange(selected.filter((s) => s.bedNo !== bed.bedNo));
+    if (selected.length >= max) return;
+    onChange([...selected, { bedNo: bed.bedNo, where: `${unit.label} · ${t('lodging.bed')} ${bed.bed}` }]);
+  };
+  const wholeTent = (unit) => {
+    const others = selected.filter((s) => !unit.beds.some((b) => b.bedNo === s.bedNo));
+    const room = Math.max(0, max - others.length);
+    const add = unit.beds.filter((b) => b.free).slice(0, room).map((b) => ({ bedNo: b.bedNo, where: `${unit.label} · ${t('lodging.bed')} ${b.bed}` }));
+    onChange([...others, ...add]);
+  };
+  const withRoom = map.units.filter((u) => u.free > 0);
+
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-ink-soft">{t('lodging.tapBeds', { n: max, size: map.unit.size })}</p>
+      <div className="flex flex-wrap gap-4 text-sm" aria-hidden>
+        <span className="flex items-center gap-1"><span className="h-4 w-4 rounded bg-white ring-2 ring-tulsi" /> {t('lodging.legendFree')}</span>
+        <span className="flex items-center gap-1"><span className="h-4 w-4 rounded bg-mist" /> {t('lodging.legendTaken')}</span>
+        <span className="flex items-center gap-1"><span className="h-4 w-4 rounded bg-kumkum" /> {t('lodging.legendYours')}</span>
+      </div>
+      {withRoom.length === 0 && <Notice>{t('lodging.soldOut')}</Notice>}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {withRoom.slice(0, shown).map((u) => (
+          <div key={u.unitNo} className="rounded-2xl border border-line bg-white p-3">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <span className="font-bold">{u.label}</span>
+              <span className="text-sm text-ink-soft">{t('lodging.freeIn', { n: u.free })}</span>
+            </div>
+            <div className="flex flex-wrap gap-2" role="group" aria-label={u.label}>
+              {u.beds.map((b) => {
+                const on = isOn(b.bedNo);
+                return (
+                  <button
+                    key={b.bedNo}
+                    type="button"
+                    disabled={!b.free}
+                    aria-pressed={on}
+                    aria-label={`${u.label}, ${t('lodging.bed')} ${b.bed}: ${b.free ? (on ? t('lodging.legendYours') : t('lodging.legendFree')) : t('lodging.legendTaken')}`}
+                    onClick={() => toggle(u, b)}
+                    className={`h-11 w-11 rounded-b-md rounded-t-xl text-sm font-bold tabular-nums transition ${
+                      !b.free ? 'cursor-not-allowed bg-mist text-ink-faint' : on ? 'bg-kumkum text-white' : 'bg-white text-ink ring-2 ring-tulsi hover:bg-tulsi/10'
+                    }`}
+                  >
+                    {b.bed}
+                  </button>
+                );
+              })}
+            </div>
+            {u.free > 1 && (
+              <button type="button" className="mt-2 text-sm font-semibold text-dusk underline" onClick={() => wholeTent(u)}>
+                {t('lodging.wholeTent')}
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+      {withRoom.length > shown && (
+        <button type="button" className="btn-ghost" onClick={() => setShown((n) => n + 24)}>{t('lodging.showMore')}</button>
+      )}
+    </div>
+  );
+}
+
 function BookingForm({ lodging, onDone, onCancel, onAdded, stay, prefill = {} }) {
   const cart = useCart();
   const t = useT();
   const { checkIn, checkOut } = stay; // chosen once at the top of the tab
-  const startBeds = Math.max(1, Math.min(MAX_BEDS, lodging.availableBeds, Number(prefill.beds) || 1));
-  const [beds, setBeds] = useState(startBeds);
-  const [guests, setGuests] = useState(() => Array.from({ length: startBeds }, () => ''));
+  const maxBeds = Math.min(MAX_BEDS, lodging.availableBeds);
+  const [mode, setMode] = useState('pick'); // 'pick' = choose on the map, 'auto' = any free beds
+  const [picked, setPicked] = useState([]); // [{ bedNo, where }]
+  const startBeds = Math.max(1, Math.min(maxBeds, Number(prefill.beds) || 1));
+  const [autoBeds, setAutoBeds] = useState(startBeds);
+  const [names, setNames] = useState({}); // key -> name
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  const maxBeds = Math.min(MAX_BEDS, lodging.availableBeds);
 
-  const changeBeds = (n) => {
-    const next = Math.max(1, Math.min(maxBeds, n));
-    setBeds(next);
-    setGuests((g) => Array.from({ length: next }, (_, i) => g[i] || ''));
-  };
+  // One row per person: the chosen bed (pick) or bed 1..n (auto)
+  const rows = mode === 'pick' ? [...picked].sort((a, b) => a.bedNo - b.bedNo).map((p) => ({ key: `b${p.bedNo}`, label: p.where })) : Array.from({ length: autoBeds }, (_, i) => ({ key: `a${i}`, label: t('lodging.guestN', { n: i + 1 }) }));
+  const beds = rows.length;
+  const guestNames = rows.map((r) => (names[r.key] || '').trim());
 
   const price = lodging.pricePerNight || 0;
   const nights = nightsBetween(checkIn, checkOut);
   const estimate = price * beds * nights;
+  const stayParams = useMemo(() => ({ checkIn, checkOut }), [checkIn, checkOut]);
 
   const submit = async (e) => {
     e.preventDefault();
     setError('');
+    if (beds === 0) return setError(t('lodging.pickFirst'));
+    if (guestNames.some((n) => n.length < 2)) return setError(t('lodging.namesNeeded'));
+    const input = { beds, guestNames, checkIn, checkOut, ...(mode === 'pick' ? { bedNos: picked.map((p) => p.bedNo) } : {}) };
+    const where = mode === 'pick' ? rows.map((r) => r.label).join(', ') : `${beds} bed${beds > 1 ? 's' : ''}`;
     if (price > 0) {
       cart.add({
         key: `LODGING:${lodging._id}`,
         kind: 'LODGING',
         refId: lodging._id,
         label: lodging.name,
-        detail: `${beds} bed${beds > 1 ? 's' : ''} · ${nights} night${nights > 1 ? 's' : ''} · ${checkIn === checkOut ? checkIn : `${checkIn} to ${checkOut}`}`,
+        detail: `${where} · ${nights} night${nights > 1 ? 's' : ''} · ${checkIn === checkOut ? checkIn : `${checkIn} to ${checkOut}`}`,
         estimate,
-        input: { beds, guestNames: guests, checkIn, checkOut },
+        input,
       });
       onAdded(lodging);
       return;
     }
     setBusy(true);
     try {
-      const { data } = await API.post(`/lodgings/${lodging._id}/book`, { beds, guestNames: guests, checkIn, checkOut });
+      const { data } = await API.post(`/lodgings/${lodging._id}/book`, input);
       cachePass(data.pass);
       onDone(data);
     } catch (err) {
       setError(errorMessage(err));
+      // a chosen bed was taken meanwhile: drop it so the pilgrim can pick another
+      const takenBeds = err?.response?.data?.takenBeds;
+      if (Array.isArray(takenBeds)) setPicked((p) => p.filter((x) => !takenBeds.includes(x.bedNo)));
     } finally {
       setBusy(false);
     }
@@ -76,39 +181,55 @@ function BookingForm({ lodging, onDone, onCancel, onAdded, stay, prefill = {} })
   return (
     <form onSubmit={submit} className="mt-4 space-y-4 border-t border-line pt-4">
       <Notice tone="error">{error}</Notice>
-      <div>
-        <span className="field-label" id={`beds-${lodging._id}`}>{t('lodging.numberOfBeds')}</span>
-        <div className="flex items-center gap-3" role="group" aria-labelledby={`beds-${lodging._id}`}>
-          <button type="button" className="btn-ghost w-12 px-0" onClick={() => changeBeds(beds - 1)} aria-label="One bed fewer" disabled={beds <= 1}>
-            <Minus size={20} />
-          </button>
-          <span className="w-10 text-center text-2xl font-bold tabular-nums" aria-live="polite">{beds}</span>
-          <button type="button" className="btn-ghost w-12 px-0" onClick={() => changeBeds(beds + 1)} aria-label="One bed more" disabled={beds >= maxBeds}>
-            <Plus size={20} />
-          </button>
-          <span className="text-sm text-ink-soft">{t('lodging.maxPerPerson', { n: MAX_BEDS })}</span>
-        </div>
-      </div>
-      <fieldset className="space-y-2">
-        <legend className="field-label">{t('lodging.guestNames')}</legend>
-        {guests.map((g, i) => (
-          <input
-            key={i}
-            className="field"
-            placeholder={t('lodging.guestN', { n: i + 1 })}
-            aria-label={t('lodging.guestN', { n: i + 1 })}
-            value={g}
-            onChange={(e) => setGuests(guests.map((x, j) => (j === i ? e.target.value : x)))}
-            required
-          />
-        ))}
-      </fieldset>
       <p className="text-ink-soft">
         {t('lodging.stay')}: <b>{showDate(checkIn)}</b>{checkOut !== checkIn && <> – <b>{showDate(checkOut)}</b></>} · {t('lodging.nights', { n: nights })}. {t('lodging.changeDates')}
       </p>
+      <div className="flex flex-wrap gap-2" role="group" aria-label={t('lodging.howToChoose')}>
+        <button type="button" aria-pressed={mode === 'pick'} className={mode === 'pick' ? 'btn-ink' : 'btn-ghost'} onClick={() => setMode('pick')}>{t('lodging.pickBeds')}</button>
+        <button type="button" aria-pressed={mode === 'auto'} className={mode === 'auto' ? 'btn-ink' : 'btn-ghost'} onClick={() => setMode('auto')}>{t('lodging.anyBeds')}</button>
+      </div>
+
+      {mode === 'pick' ? (
+        <BedPicker lodging={lodging} stay={stayParams} selected={picked} onChange={setPicked} max={maxBeds} />
+      ) : (
+        <div>
+          <span className="field-label" id={`beds-${lodging._id}`}>{t('lodging.numberOfBeds')}</span>
+          <div className="flex items-center gap-3" role="group" aria-labelledby={`beds-${lodging._id}`}>
+            <button type="button" className="btn-ghost w-12 px-0" onClick={() => setAutoBeds((b) => Math.max(1, b - 1))} aria-label="One bed fewer" disabled={autoBeds <= 1}>
+              <Minus size={20} />
+            </button>
+            <span className="w-10 text-center text-2xl font-bold tabular-nums" aria-live="polite">{autoBeds}</span>
+            <button type="button" className="btn-ghost w-12 px-0" onClick={() => setAutoBeds((b) => Math.min(maxBeds, b + 1))} aria-label="One bed more" disabled={autoBeds >= maxBeds}>
+              <Plus size={20} />
+            </button>
+            <span className="text-sm text-ink-soft">{t('lodging.maxPerPerson', { n: MAX_BEDS })}</span>
+          </div>
+        </div>
+      )}
+
+      {rows.length > 0 && (
+        <fieldset className="space-y-2">
+          <legend className="field-label">{t('lodging.guestNames')} <span className="font-normal text-ink-soft">({t('lodging.selected', { n: rows.length })})</span></legend>
+          {rows.map((r) => (
+            <label key={r.key} className="block">
+              <span className="text-sm text-ink-soft">{r.label}</span>
+              <input
+                className="field"
+                placeholder={t('lodging.fullName')}
+                value={names[r.key] || ''}
+                onChange={(e) => setNames((n) => ({ ...n, [r.key]: e.target.value }))}
+                minLength={2}
+                maxLength={60}
+                required
+              />
+            </label>
+          ))}
+        </fieldset>
+      )}
+
       <div className="flex flex-wrap gap-3">
-        <button type="submit" className="btn-primary" disabled={busy}>
-          {price > 0 ? t('lodging.addToCart', { amount: rupees(estimate) }) : busy ? t('lodging.booking') : t('lodging.bookFree', { n: beds })}
+        <button type="submit" className="btn-primary" disabled={busy || beds === 0}>
+          {beds === 0 ? t('lodging.pickFirst') : price > 0 ? t('lodging.addToCart', { amount: rupees(estimate) }) : busy ? t('lodging.booking') : t('lodging.bookFree', { n: beds })}
         </button>
         <button type="button" className="btn-ghost" onClick={onCancel}>{t('common.cancel')}</button>
       </div>
