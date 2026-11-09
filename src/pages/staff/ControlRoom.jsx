@@ -13,6 +13,7 @@ import VolunteerReview from './VolunteerReview';
 import { LiveBadge, useLive } from '../../lib/realtime';
 
 const SOS_STATUS = { OPEN: 'pill-out', ACKNOWLEDGED: 'pill-low', RESOLVED: 'pill-quiet' };
+const SOS_TYPE_LABEL = { MEDICAL: 'Medical', CROWD: 'Crowd crush', LOST: 'Lost / separated', FIRE: 'Fire or danger', GENERAL: 'General help' };
 
 function Stat({ label, value, tone }) {
   return (
@@ -50,6 +51,20 @@ function SosQueue({ eventId }) {
     }
   };
 
+  // Volunteers that can be sent; assigning also acknowledges the alert (the pilgrim sees their name)
+  const [responders, setResponders] = useState([]);
+  useEffect(() => {
+    API.get('/sos/responders').then(({ data }) => setResponders(data)).catch(() => {});
+  }, []);
+  const assign = async (incident, volunteerId) => {
+    try {
+      await API.patch(`/sos/${incident._id}`, { assignedTo: volunteerId || null, ...(incident.status === 'OPEN' && volunteerId ? { status: 'ACKNOWLEDGED' } : {}) });
+      load();
+    } catch (e) {
+      setError(errorMessage(e));
+    }
+  };
+
   const open = items.filter((i) => i.status !== 'RESOLVED');
   return (
     <section aria-labelledby="sos-q" className="space-y-3">
@@ -64,13 +79,15 @@ function SosQueue({ eventId }) {
             <div className="flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <span className={SOS_STATUS[i.status]}>{i.status.toLowerCase()}</span>
-                <span className="font-bold">{i.type.toLowerCase()} alert</span>
+                <span className="font-bold">{SOS_TYPE_LABEL[i.type] || i.type.toLowerCase()} alert</span>
+                {i.closedByUser && <span className="pill-quiet">pilgrim says safe</span>}
                 <span className="text-sm text-ink-soft">{fmtDateTime(i.updatedAt)}</span>
               </div>
               <p className="mt-1">
                 {i.userId?.name} · <a className="font-semibold underline" href={`tel:+${i.userId?.countryCode || '91'}${i.userId?.phone}`}>{formatPhone(i.userId?.countryCode, i.userId?.phone)}</a>
               </p>
               {i.message && <p className="text-ink-soft">"{i.message}"</p>}
+              {i.assignedTo?.name && <p className="text-sm font-semibold">Volunteer: {i.assignedTo.name}</p>}
               {i.location?.lat ? (
                 <a className="mt-1 inline-flex items-center gap-1 font-semibold text-dusk underline" target="_blank" rel="noreferrer" href={`https://www.google.com/maps/search/?api=1&query=${i.location.lat},${i.location.lng}`}>
                   <MapPin size={16} aria-hidden /> {i.location.lat.toFixed(5)}, {i.location.lng.toFixed(5)} (±{i.location.accuracy || '?'} m)
@@ -79,7 +96,20 @@ function SosQueue({ eventId }) {
                 <p className="text-sm text-ink-soft">No GPS shared</p>
               )}
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
+              {i.status !== 'RESOLVED' && responders.length > 0 && (
+                <select
+                  className="field min-h-11 w-auto"
+                  aria-label="Assign a volunteer"
+                  value={i.assignedTo?._id || ''}
+                  onChange={(e) => assign(i, e.target.value)}
+                >
+                  <option value="">Assign volunteer…</option>
+                  {responders.map((r) => (
+                    <option key={r._id} value={r._id}>{r.name}</option>
+                  ))}
+                </select>
+              )}
               {i.status === 'OPEN' && <button type="button" className="btn-ghost" onClick={() => setStatus(i._id, 'ACKNOWLEDGED')}>Acknowledge</button>}
               {i.status !== 'RESOLVED' && <button type="button" className="btn-ink" onClick={() => setStatus(i._id, 'RESOLVED')}>Mark resolved</button>}
             </div>

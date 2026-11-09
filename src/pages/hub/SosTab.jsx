@@ -1,11 +1,12 @@
 import { useT } from '../../lib/i18n';
-import { useEffect, useState } from 'react';
-import { Baby, Phone, Search, ShieldAlert, Siren, Stethoscope, Upload } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { Baby, Flame, HelpCircle, Phone, Search, ShieldAlert, Siren, Stethoscope, Upload, Users } from 'lucide-react';
 import API, { assetUrl, errorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { fmtDateTime } from '../../lib/format';
 import Notice from '../../components/Notice';
 import useLoginGate from './useLoginGate';
+import { useLive } from '../../lib/realtime';
 import { NumberField, TextField } from '../../components/Fields';
 import PhoneField from '../../components/PhoneField';
 import { firstError, intError, optionalPhoneError, textError } from '../../lib/validate';
@@ -31,47 +32,150 @@ const getPosition = () =>
     );
   });
 
+// What kind of help: the control room sees it straight away
+const SOS_TYPES = [
+  { id: 'MEDICAL', icon: Stethoscope },
+  { id: 'CROWD', icon: Users },
+  { id: 'LOST', icon: Search },
+  { id: 'FIRE', icon: Flame },
+  { id: 'GENERAL', icon: HelpCircle },
+];
+
+const timeOf = (d) => (d ? new Date(d).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit' }) : '');
+
+/** Live status of the pilgrim's latest alert: Sent -> Seen -> Help on the way -> Resolved */
+function MySosCard({ incident, onUpdateLocation, onSafe, busy }) {
+  const t = useT();
+  const resolved = incident.status === 'RESOLVED';
+  const steps = [
+    { label: t('sos.step.sent'), done: true, at: incident.createdAt },
+    { label: t('sos.step.seen'), done: !!incident.acknowledgedAt || incident.status !== 'OPEN', at: incident.acknowledgedAt },
+    { label: incident.assignedTo?.name ? t('sos.step.helper', { name: incident.assignedTo.name }) : t('sos.step.helperWait'), done: !!incident.assignedTo },
+    { label: incident.closedByUser ? t('sos.step.safe') : t('sos.step.resolved'), done: resolved, at: incident.resolvedAt },
+  ];
+  return (
+    <div className="rounded-2xl border-2 border-kumkum/30 bg-white p-4 text-left" aria-live="polite">
+      <p className="text-sm font-semibold uppercase tracking-wide text-kumkum">{t('sos.my')}</p>
+      <p className="text-lg font-bold">
+        {t(`sos.type.${incident.type}`)} · {t(`sos.status.${incident.status}`)}
+      </p>
+      {incident.message && <p className="text-ink-soft">"{incident.message}"</p>}
+      <ol className="mt-3 space-y-2">
+        {steps.map((st, i) => (
+          <li key={i} className="flex items-start gap-2">
+            <span className={`mt-1 h-3 w-3 shrink-0 rounded-full ${st.done ? 'bg-tulsi' : 'border-2 border-line bg-white'}`} aria-hidden />
+            <span className={st.done ? 'font-semibold' : 'text-ink-soft'}>
+              {st.label}
+              {st.done && st.at ? <span className="font-normal text-ink-soft"> · {timeOf(st.at)}</span> : null}
+            </span>
+          </li>
+        ))}
+      </ol>
+      {!resolved && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button type="button" className="btn-ghost min-h-11" disabled={busy} onClick={onUpdateLocation}>{t('sos.updateLocation')}</button>
+          <button type="button" className="btn-ink min-h-11" disabled={busy} onClick={onSafe}>{t('sos.safe')}</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SosBeacon({ event }) {
   const gate = useLoginGate();
+  const { user } = useAuth();
   const t = useT();
   const [state, setState] = useState({ phase: 'idle' });
+  const [type, setType] = useState('MEDICAL');
+  const [note, setNote] = useState('');
+  const [latest, setLatest] = useState(null);
 
-  const trigger = async () => {
+  // The pilgrim's latest alert (open, or closed in the last hour) stays on screen with its status
+  const loadMine = useCallback(() => {
+    if (!user) return;
+    API.get('/sos/mine')
+      .then(({ data }) => {
+        const a = data[0];
+        const recent = a && (a.status !== 'RESOLVED' || Date.now() - new Date(a.resolvedAt || a.updatedAt) < 3600000);
+        setLatest(recent ? a : null);
+      })
+      .catch(() => {});
+  }, [user]);
+  useEffect(() => {
+    loadMine();
+  }, [loadMine]);
+  useLive('sos', loadMine, { wait: 500 }); // control room acknowledges / assigns / resolves
+
+  const send = async () => {
     if (!gate()) return;
     setState({ phase: 'locating' });
     const pos = await getPosition();
     setState({ phase: 'sending', pos });
     try {
-      const { data } = await API.post('/sos', { eventId: event._id, ...(pos || {}) });
-      setState({ phase: 'sent', pos, incident: data.incident, updated: data.updated });
+      const { data } = await API.post('/sos', { eventId: event._id, type, ...(note.trim() ? { message: note.trim() } : {}), ...(pos || {}) });
+      setState({ phase: 'sent', pos, updated: data.updated });
+      setLatest(data.incident);
+      loadMine();
+    } catch (e) {
+      setState({ phase: 'error', error: errorMessage(e) });
+    }
+  };
+
+  const safe = async () => {
+    if (!latest) return;
+    setState({ phase: 'sending' });
+    try {
+      const { data } = await API.post(`/sos/${latest._id}/safe`);
+      setLatest(data);
+      setState({ phase: 'idle' });
     } catch (e) {
       setState({ phase: 'error', error: errorMessage(e) });
     }
   };
 
   const busy = state.phase === 'locating' || state.phase === 'sending';
+  const open = latest && latest.status !== 'RESOLVED';
   return (
     <section className="rounded-3xl border-2 border-kumkum bg-white p-6 text-center" aria-labelledby="sos-title">
       <h2 id="sos-title" className="text-2xl font-bold text-kumkum">{t('sos.title')}</h2>
       <p className="mx-auto mt-1 max-w-md text-ink-soft">{t('sos.lead')}</p>
+
+      <fieldset className="mx-auto mt-4 max-w-xl">
+        <legend className="mb-2 font-semibold">{t('sos.whatHelp')}</legend>
+        <div className="flex flex-wrap justify-center gap-2">
+          {SOS_TYPES.map(({ id, icon: Icon }) => (
+            <button
+              key={id}
+              type="button"
+              aria-pressed={type === id}
+              onClick={() => setType(id)}
+              className={`flex min-h-11 items-center gap-2 rounded-full border-2 px-4 font-semibold ${type === id ? 'border-kumkum bg-kumkum text-white' : 'border-line bg-white text-ink'}`}
+            >
+              <Icon size={18} aria-hidden /> {t(`sos.type.${id}`)}
+            </button>
+          ))}
+        </div>
+        <label className="sr-only" htmlFor="sos-note">{t('sos.notePlaceholder')}</label>
+        <input id="sos-note" className="field mt-3" maxLength={300} placeholder={t('sos.notePlaceholder')} value={note} onChange={(e) => setNote(e.target.value)} />
+      </fieldset>
+
       <button
         type="button"
-        onClick={trigger}
+        onClick={send}
         disabled={busy}
         className="mx-auto mt-5 flex h-44 w-44 flex-col items-center justify-center gap-1 rounded-full bg-kumkum text-2xl font-extrabold text-white shadow-[0_0_0_10px_var(--color-kumkum-wash)] transition-transform active:scale-95 disabled:opacity-80"
       >
         <Siren size={44} aria-hidden />
-        {busy ? (state.phase === 'locating' ? 'Finding you…' : 'Sending…') : 'SOS'}
+        {busy ? (state.phase === 'locating' ? t('sos.finding') : t('sos.sending')) : open ? t('sos.sendAgain') : 'SOS'}
       </button>
-      <div className="mx-auto mt-5 max-w-md text-left" aria-live="assertive">
+      <div className="mx-auto mt-5 max-w-md space-y-3 text-left" aria-live="assertive">
         {state.phase === 'sent' && (
           <Notice tone="success">
-            {state.updated ? 'Your location was updated on your open alert.' : 'Alert sent to the control room.'}{' '}
-            {state.pos ? `Location shared (accurate to about ${state.pos.accuracy} m).` : 'We could not get your GPS location. If you can, call 112 and tell them where you are.'}{' '}
-            Stay where you are if it's safe. Press again to update your location.
+            {state.updated ? t('sos.updated') : t('sos.sent')} {state.pos ? t('sos.located', { m: state.pos.accuracy }) : t('sos.noGps')}
           </Notice>
         )}
-        {state.phase === 'error' && <Notice tone="error">{state.error} Call 112 directly.</Notice>}
+        {state.phase === 'error' && <Notice tone="error">{state.error} {t('sos.call112')}</Notice>}
+        {latest && <MySosCard incident={latest} busy={busy} onUpdateLocation={send} onSafe={safe} />}
       </div>
     </section>
   );
