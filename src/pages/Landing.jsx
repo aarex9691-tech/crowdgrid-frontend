@@ -7,7 +7,6 @@ import {
   CalendarCheck,
   Compass,
   CreditCard,
-  Flame,
   LifeBuoy,
   HandHeart,
   MapPin,
