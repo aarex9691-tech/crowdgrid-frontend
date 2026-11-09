@@ -36,4 +36,33 @@ module.exports = async () => {
         await backend.start();
         console.log('[e2e] Backend is up.');
     }
+    await checkBackendVersion();
 };
+
+/**
+ * Stops early, with a plain message, when crowdgrid-backend is older than the
+ * November fixes (no sign-up code route) or the demo accounts don't use SEED_PASSWORD.
+ * Otherwise nearly every case fails with confusing 404 / 401 errors.
+ */
+async function checkBackendVersion() {
+    const post = (path, body) =>
+        fetch(`${env.API}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(async (r) => ({ status: r.status, body: await r.text() }));
+    const stop = async (msg) => {
+        await backend.stop();
+        throw new Error(`\n\n${msg}\n`);
+    };
+    const otp = await post('/auth/otp', { phone: '1', countryCode: '91' }); // invalid number: no code is created
+    if (otp.status === 404) {
+        await stop(
+            'Your crowdgrid-backend folder is older than the November fixes (it has no sign-up code step).\n' +
+                `Update it, then run the tests again:\n  cd "${env.BACKEND_DIR}"\n  git checkout main\n  git pull origin main\n  npm install`
+        );
+    }
+    const login = await post('/auth/login', { identifier: env.DEMO.AUTHORITY, password: env.SEED_PASSWORD, countryCode: '91' });
+    if (login.status === 401) {
+        await stop(
+            `The demo account ${env.DEMO.AUTHORITY} does not accept SEED_PASSWORD from crowdgrid-backend/.env after seeding the test database.\n` +
+                'Check SEED_PASSWORD in .env (8+ characters, a letter and a number), and that the backend is up to date (git pull origin main).'
+        );
+    }
+}
