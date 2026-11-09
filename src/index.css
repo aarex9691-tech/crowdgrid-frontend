@@ -233,3 +233,19 @@ body::before {
   .print-area, .print-area * { visibility: visible; }
   .print-area { position: absolute; inset: 0 auto auto 0; width: 100%; }
 }
+
+/* Yatra chooser tickets: half-circle notches at the perforation, cut in the page colour */
+.ticket-stub { position: relative; }
+.ticket-stub::before,
+.ticket-stub::after {
+  content: '';
+  position: absolute;
+  top: -11px;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: #faf6f0; /* page background */
+  border: 1px solid var(--color-line);
+}
+.ticket-stub::before { left: -31px; }
+.ticket-stub::after { right: -31px; }

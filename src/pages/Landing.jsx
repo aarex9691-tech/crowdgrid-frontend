@@ -13,43 +13,22 @@ import {
   MapPin,
   QrCode,
   ScanLine,
-  ShieldCheck,
   Siren,
   Ticket,
   UtensilsCrossed,
-  Users,
 } from 'lucide-react';
 import { SITE } from '../lib/site';
 import { canBook, homeFor, ROLE_LABELS, useAuth } from '../lib/auth';
 import HeroSearch from '../components/HeroSearch';
 import API, { errorMessage } from '../lib/api';
-import { addDaysIST, fmtDate, todayIST } from '../lib/format';
-import { InvitationCodeBox, PublicEventList, YatraCard } from '../components/EventCards';
+import { addDaysIST, todayIST } from '../lib/format';
+import { InvitationCodeBox, PublicEventList } from '../components/EventCards';
 import { DEFAULT_EVENTS } from '../data/defaultEvents';
 import NamasteIntro from '../components/NamasteIntro';
+import YatraChooser from '../components/YatraChooser';
 import { openTour } from '../components/GuidedTour';
-import { CornerPhataka, GrandSacredDiya } from '../components/FestiveDecorations';
+import { GrandSacredDiya } from '../components/FestiveDecorations';
 
-function useCountdown(target) {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
-  }, []);
-  const ms = Math.max(0, new Date(target).getTime() - now);
-  return {
-    done: ms === 0,
-    days: Math.floor(ms / 86400000),
-    hours: Math.floor((ms / 3600000) % 24),
-    minutes: Math.floor((ms / 60000) % 60),
-    seconds: Math.floor((ms / 1000) % 60),
-  };
-}
-
-/**
- * Full-Width Edge-to-Edge Marigold & Mango Leaf Festive Garland (Genda Phool Toran):
- * Seamlessly spans 100% of the viewport from edge to edge without any gaps.
- */
 function FullWidthGarland() {
   return (
     <div className="w-full overflow-hidden pointer-events-none select-none -mb-5 sm:-mb-7 z-20 relative" aria-hidden="true">
@@ -81,245 +60,6 @@ function FullWidthGarland() {
           );
         })}
       </svg>
-    </div>
-  );
-}
-
-/**
- * Full-Width Edge-to-Edge Sacred Running Ticker:
- * Spans 100% of the screen from edge to edge without any margins.
- */
-function FullWidthTicker() {
-  const items = [
-    '🚩 ॥ सिंहस्थ कुंभ २०२६–२८ ॥',
-    '✦ SIMHASTHA KUMBH 2026–28',
-    '✦ WHERE MILLIONS GATHER AS ONE',
-    '✦ 5 CRORE+ EXPECTED PILGRIMS',
-    '✦ FREE SEVA & ANNADANAM TOKENS',
-    '✦ SHUTTLES & TRANSPORT TO EVERY GHAT',
-    '✦ OFFLINE DIGITAL PASSBOOK QR',
-    '✦ 24/7 SOS & LOST AND FOUND',
-  ];
-
-  // Decorative only: not a link, slow, and paused on hover
-  return (
-    <div
-      className="block w-full overflow-hidden border-y-2 border-[#c99436] bg-[#7c1d13] py-2.5 text-xs sm:text-sm font-bold uppercase tracking-widest text-[#fcedd7] shadow-sm select-none"
-      aria-hidden="true"
-    >
-      <div className="animate-marquee flex gap-8 items-center whitespace-nowrap">
-        {[...items, ...items, ...items, ...items].map((text, i) => (
-          <span key={i} className="flex items-center gap-2">{text}</span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/**
- * Wide Horizontal Jharokha Bracket / Cartouche Frame:
- * Symmetrical 4-point cusped ogee bracket cartouche path matching Image 2,
- * arranged in a wide horizontal orientation (desktop split: titles on left, timer on right).
- */
-function HorizontalJharokhaHero({ event }) {
-  // Only dates still ahead (the list starts with Dhwajarohan, which may already be over)
-  const todayIso = new Date().toISOString().slice(0, 10);
-  const nextDates = (event.keyDates || []).filter((d) => String(d.date).slice(0, 10) >= todayIso).slice(0, 3);
-  // count down to the next key date (e.g. the 1st Amrut Snan); before the mela starts, to the start
-  const started = new Date(event.startDate) <= new Date();
-  const target = !started ? { label: 'The mela begins', date: event.startDate } : nextDates[0];
-  const c = useCountdown(target?.date || event.startDate);
-
-  // Desktop Wide Horizontal Jharokha Cartouche Path (1200x720)
-  const pathDesktop =
-    'M 600,15 C 680,55 770,65 870,65 C 990,65 1040,70 1105,120 C 1160,160 1145,230 1115,270 C 1140,310 1175,330 1195,350 C 1175,370 1140,390 1115,430 C 1145,470 1160,540 1105,580 C 1040,630 990,635 870,635 C 770,635 680,645 600,695 C 520,645 430,635 330,635 C 210,635 160,630 95,580 C 40,540 55,470 85,430 C 60,390 25,370 5,350 C 25,330 60,310 85,270 C 55,230 40,160 95,120 C 160,70 210,65 330,65 C 430,65 520,55 600,15 Z';
-
-  // Mobile Two-Point Arch Path (400x1000): Pointing UP at top, straight full-bleed sides, Pointing DOWN at bottom
-  const pathMobile =
-    'M 200,10 C 250,40 320,50 395,75 L 395,920 C 320,940 250,960 200,990 C 150,960 80,940 5,920 L 5,75 C 80,50 150,40 200,10 Z';
-
-  return (
-    <div className="relative mx-auto w-full max-w-6xl xl:max-w-7xl pt-1 sm:pt-4 -mx-1 sm:mx-auto">
-      {/* Subtle Floating Sacred Stars (✦) on Hero Corners */}
-      <div className="absolute top-6 left-8 sm:left-12 pointer-events-none animate-sacred-pulse text-amber-300/60 text-lg hidden sm:block z-20">✦</div>
-      <div className="absolute top-8 right-8 sm:right-14 pointer-events-none animate-sacred-pulse text-amber-300/60 text-base hidden sm:block z-20" style={{ animationDelay: '1.5s' }}>✦</div>
-      <div className="absolute bottom-20 left-12 sm:left-16 pointer-events-none animate-sacred-pulse text-amber-300/50 text-sm hidden md:block z-20" style={{ animationDelay: '0.8s' }}>✦</div>
-      <div className="absolute bottom-22 right-16 sm:right-20 pointer-events-none animate-sacred-pulse text-amber-300/50 text-base hidden md:block z-20" style={{ animationDelay: '2.2s' }}>✦</div>
-
-      {/* SVG Definitions shared across Desktop & Mobile */}
-      <svg className="sr-only" aria-hidden="true">
-        <defs>
-          <pattern id="jharokha-bandhani-pattern" width="160" height="154" patternUnits="userSpaceOnUse">
-            <image href="/assets/bandhani-pattern.png" width="160" height="154" preserveAspectRatio="none" />
-          </pattern>
-          <linearGradient id="jharokha-gold-stroke" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#d97706" />
-            <stop offset="20%" stopColor="#fef08a" />
-            <stop offset="50%" stopColor="#f59e0b" />
-            <stop offset="80%" stopColor="#fef08a" />
-            <stop offset="100%" stopColor="#b45309" />
-          </linearGradient>
-        </defs>
-      </svg>
-
-      {/* 1. Desktop Jharokha Frame: Wide Horizontal Cartouche (md: and up) */}
-      <svg
-        className="hidden md:block absolute inset-0 h-full w-full pointer-events-none drop-shadow-[0_20px_45px_rgba(131,32,20,0.45)]"
-        viewBox="0 0 1200 720"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <path
-          d={pathDesktop}
-          fill="url(#jharokha-bandhani-pattern)"
-          stroke="url(#jharokha-gold-stroke)"
-          strokeWidth="9"
-          strokeLinejoin="round"
-        />
-        <path
-          d={pathDesktop}
-          fill="none"
-          stroke="#fef08a"
-          strokeWidth="2.5"
-          strokeDasharray="7 4"
-          opacity="0.85"
-          transform="scale(0.97) translate(18, 11)"
-        />
-      </svg>
-
-      {/* 2. Mobile Jharokha Frame: Two-Point Full-Bleed Arch (up & down peaks, sides bleed out) */}
-      <svg
-        className="block md:hidden absolute inset-0 h-full w-full pointer-events-none drop-shadow-[0_15px_30px_rgba(131,32,20,0.4)]"
-        viewBox="0 0 400 1000"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <path
-          d={pathMobile}
-          fill="url(#jharokha-bandhani-pattern)"
-          stroke="url(#jharokha-gold-stroke)"
-          strokeWidth="6"
-          strokeLinejoin="round"
-        />
-        <path
-          d={pathMobile}
-          fill="none"
-          stroke="#fef08a"
-          strokeWidth="2"
-          strokeDasharray="5 3"
-          opacity="0.8"
-          transform="scale(0.975) translate(5, 12)"
-        />
-      </svg>
-
-      {/* Content Safely Framed: Generous padding guarantees all 3 buttons sit completely inside */}
-      <section
-        className="relative z-10 px-3 sm:px-8 md:px-16 lg:px-24 pt-8 sm:pt-12 md:pt-18 pb-20 sm:pb-24 md:pb-36 text-white flex flex-col items-center text-center"
-        aria-labelledby="hero-title"
-      >
-        {/* Sacred Sanskrit Invocation */}
-        <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-amber-300/40 bg-black/40 px-3.5 sm:px-5 py-1 text-[11px] sm:text-sm font-bold tracking-widest text-amber-200 backdrop-blur mb-2.5 sm:mb-3 shadow-md max-w-[92%] truncate">
-          <span>॥ ॐ नमः शिवाय · तीर्थराज सिंहस्थ कुंभ २०२६–२८ ॥</span>
-        </div>
-
-        {/* Crown Title */}
-        <h1
-          id="hero-title"
-          className="font-display text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-wide text-[#fff4d6] drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)] leading-tight"
-        >
-          Simhastha Kumbh 2026–28
-        </h1>
-
-        {/* Subtitle Line */}
-        <p className="font-display text-base sm:text-2xl md:text-3xl font-medium tracking-wide text-amber-300 italic mt-1.5 sm:mt-2 drop-shadow-md">
-          Where Millions Gather As One
-        </p>
-
-        {/* Descriptive overview */}
-        <p className="mt-2.5 sm:mt-3 max-w-2xl whitespace-pre-line text-sm sm:text-base md:text-lg leading-relaxed text-[#fde8d0] font-sans px-2">
-          {(event.description || 'The Simhastha Kumbh on the banks of the Godavari at Nashik and Trimbakeshwar. Find verified shelter, langar, transport and help in one place.').replace(/[.:]\s+(Find )/, '.\n$1')}
-        </p>
-
-        {/* Auspicious Badges */}
-        <div className="mt-3.5 sm:mt-4 flex flex-wrap items-center justify-center gap-2 text-xs font-bold px-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-3 py-1 text-amber-100 backdrop-blur text-xs sm:text-sm">
-            <Users size={14} aria-hidden /> {event.expectedFootfall >= 1e7 ? `${Math.round(event.expectedFootfall / 1e7)} crore+` : '15 lakh+'} expected pilgrims
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-3 py-1 text-amber-100 backdrop-blur text-xs sm:text-sm">
-            <MapPin size={14} aria-hidden /> Nashik & Trimbakeshwar
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-3 py-1 text-amber-100 backdrop-blur text-xs sm:text-sm">
-            <ShieldCheck size={14} aria-hidden /> One verified QR pass
-          </span>
-        </div>
-
-        {/* Temple Bell Countdown & Snan Schedule */}
-        <div className="mt-4 sm:mt-6 w-full max-w-xl mx-auto rounded-2xl border-2 border-amber-300/40 bg-black/50 p-3 sm:p-5 backdrop-blur shadow-2xl">
-          <div className="flex items-center justify-between border-b border-amber-300/20 pb-2 mb-2.5 sm:mb-3 text-xs sm:text-sm">
-            <span className="font-bold tracking-wide text-amber-300 flex items-center gap-1.5">
-              <Flame size={14} className="text-amber-400 animate-sacred-pulse" />
-              {target && !c.done ? `Countdown to ${target.label}` : 'The mela has begun'}
-            </span>
-            <span className="font-semibold text-amber-200 text-xs sm:text-sm">
-              {fmtDate(target?.date || event.startDate, { month: 'short', day: 'numeric', year: 'numeric' })}
-            </span>
-          </div>
-
-          {target && !c.done ? (
-            <div className="grid grid-cols-4 gap-1.5 sm:gap-2 text-center" aria-live="off">
-              <div className="rounded-xl border border-amber-300/30 bg-amber-950/70 p-1.5 sm:p-2">
-                <span className="block font-display text-lg sm:text-3xl font-extrabold text-amber-300">{c.days}</span>
-                <span className="text-xs font-semibold text-amber-200/90">Days</span>
-              </div>
-              <div className="rounded-xl border border-amber-300/30 bg-amber-950/70 p-1.5 sm:p-2">
-                <span className="block font-display text-lg sm:text-3xl font-extrabold text-white">{String(c.hours).padStart(2, '0')}</span>
-                <span className="text-xs font-semibold text-amber-200/90">Hours</span>
-              </div>
-              <div className="rounded-xl border border-amber-300/30 bg-amber-950/70 p-1.5 sm:p-2">
-                <span className="block font-display text-lg sm:text-3xl font-extrabold text-white">{String(c.minutes).padStart(2, '0')}</span>
-                <span className="text-xs font-semibold text-amber-200/90">Mins</span>
-              </div>
-              <div className="rounded-xl border border-amber-300/30 bg-amber-950/70 p-1.5 sm:p-2">
-                <span className="block font-display text-lg sm:text-3xl font-extrabold text-white">{String(c.seconds).padStart(2, '0')}</span>
-                <span className="text-xs font-semibold text-amber-200/90">Secs</span>
-              </div>
-            </div>
-          ) : (
-            <p className="font-display text-xl font-bold text-amber-300">The mela has begun. Book your stay, meals and transport below.</p>
-          )}
-
-          {nextDates.length > 1 && (
-            <div className="mt-2.5 sm:mt-3 pt-2 border-t border-amber-300/20 flex flex-wrap items-center justify-between gap-1 text-xs sm:text-sm text-amber-200">
-              <span className="font-semibold">After that:</span>
-              <span className="font-bold text-amber-300">
-                {nextDates.slice(started ? 1 : 0, started ? 3 : 2).map((d) => `${d.label} (${fmtDate(d.date, { month: 'short', day: 'numeric' })})`).join(' · ')}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Action Buttons - Fully responsive & securely placed inside the frame on all devices */}
-        <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2.5 sm:gap-3.5 w-full max-w-md sm:max-w-2xl px-2">
-          <Link
-            to={`/yatra/${event.slug}`}
-            className="btn-primary w-full sm:w-auto min-h-11 rounded-full bg-gradient-to-r from-amber-500 via-[#bd5338] to-[#9b2c16] px-6 py-2 text-sm sm:text-base font-bold text-white shadow-xl shadow-amber-950/40 hover:scale-105 border-2 border-amber-300 transition-all flex items-center justify-center gap-2"
-          >
-            Book stay, food &amp; transport <ArrowRight size={16} aria-hidden />
-          </Link>
-          <Link
-            to="/events?tab=public"
-            className="btn-ghost w-full sm:w-auto min-h-11 rounded-full border-2 border-amber-300/60 bg-black/50 px-5 text-sm font-bold text-amber-100 backdrop-blur hover:bg-black/70 transition flex items-center justify-center gap-2"
-          >
-            <Ticket size={15} className="text-amber-300" aria-hidden /> Events &amp; aartis
-          </Link>
-          <Link
-            to="/passbook"
-            className="btn-ghost w-full sm:w-auto min-h-11 rounded-full border-2 border-amber-300/60 bg-black/50 px-5 text-sm font-bold text-amber-100 backdrop-blur hover:bg-black/70 transition flex items-center justify-center gap-2"
-          >
-            <QrCode size={15} className="text-amber-300" aria-hidden /> My QR pass
-          </Link>
-        </div>
-      </section>
     </div>
   );
 }
@@ -606,12 +346,17 @@ export default function Landing() {
 
   const groups = useMemo(() => {
     const list = Array.isArray(events) ? events : DEFAULT_EVENTS;
+    const flagship = list.find((e) => e.kind === 'YATRA' && e.isFlagship) || DEFAULT_EVENTS[0];
     return {
-      flagship: list.find((e) => e.kind === 'YATRA' && e.isFlagship) || DEFAULT_EVENTS[0],
-      yatras: list.filter((e) => e.kind === 'YATRA' && !e.isFlagship),
+      flagship,
+      // every yatra on equal footing, soonest first
+      allYatras: [flagship, ...list.filter((e) => e.kind === 'YATRA' && e._id !== flagship._id)].sort((a, b) => new Date(a.startDate) - new Date(b.startDate)),
       publicEvents: list.filter((e) => e.kind === 'PUBLIC'),
     };
   }, [events]);
+  // The yatra the search bar and service shortcuts point at (the one the pilgrim picked)
+  const [picked, setPicked] = useState(null);
+  const current = groups.allYatras.find((e) => e._id === picked) || groups.allYatras[0];
 
   const filteredPublicEvents = useMemo(() => {
     const list = groups.publicEvents || [];
@@ -637,10 +382,7 @@ export default function Landing() {
     <div className="space-y-8 sm:space-y-12 pb-16">
       {/* Auspicious Welcome Namaste Entrance Transition */}
       <NamasteIntro />
-      {/* 1. Full-Width Edge-to-Edge Sacred Running Ticker */}
-      <FullWidthTicker />
-
-      {/* 2. Full-Width Edge-to-Edge Marigold & Mango Leaf Garland */}
+      {/* Marigold & mango-leaf garland: the one festive touch at the top */}
       <FullWidthGarland />
 
       {/* 3. Main Center Content Container */}
@@ -648,25 +390,23 @@ export default function Landing() {
         {!canBook(user) && (
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-[#fbf5ee] p-4 text-ink">
             <p className="text-sm">
-              Signed in as <b>{ROLE_LABELS[user.role]}</b>. Staff accounts manage the mela; booking is for pilgrims.
+              Signed in as <b>{ROLE_LABELS[user.role]}</b>. Staff accounts manage the yatras; booking is for pilgrims.
             </p>
             <Link to={homeFor(user.role)} className="btn-ink min-h-10 px-4 text-sm">Open my dashboard</Link>
           </div>
         )}
 
-        {/* Horizontal Jharokha Hero + Floating Travel Search Bar */}
-        {groups.flagship && (
-          <div className="space-y-4">
-            <HorizontalJharokhaHero event={groups.flagship} />
-            {canBook(user) && <HeroSearch event={groups.flagship} />}
-          </div>
-        )}
+        {/* Where are you going? Every yatra as an equal ticket, then search inside the chosen one */}
+        <div className="space-y-5 pt-6 sm:pt-10">
+          <YatraChooser yatras={groups.allYatras} selected={current} onSelect={(e) => setPicked(e._id)} />
+          {canBook(user) && current && <HeroSearch key={current._id} event={current} />}
+        </div>
 
         {/* First-time visitors: a clear way to learn the site */}
         {!user && <NewHereStrip />}
 
         {/* Jharokha Window Service Alcoves */}
-        <JharokhaConcourse flagshipSlug={groups.flagship?.slug} />
+        <JharokhaConcourse flagshipSlug={current?.slug} />
 
         {/* How it Works Stepper: right after the services, so new users see it early */}
         <HowItWorks />
@@ -676,7 +416,7 @@ export default function Landing() {
           <BrowsingFilterBar
             selectedFilter={selectedFilter}
             onSelectFilter={setSelectedFilter}
-            place={selectedFilter === 'Flagship Mela' ? 'Nashik & Trimbakeshwar' : 'All yatras'}
+            place={selectedFilter === 'Flagship Mela' ? groups.flagship?.city || 'All yatras' : 'All yatras'}
           />
         )}
 
@@ -706,35 +446,12 @@ export default function Landing() {
           </section>
         )}
 
-        {/* More Yatras Section */}
-        {groups.yatras.length > 0 && (
-          <section aria-labelledby="yatras">
-            <div className="flex items-end justify-between gap-3 mb-6">
-              <div>
-                <span className="font-display text-sm font-bold tracking-wider text-[#832014]">
-                  ॥ अन्य तीर्थ यात्राएं ॥
-                </span>
-                <h2 id="yatras" className="font-display text-2xl sm:text-4xl font-extrabold text-ink">
-                  More yatras
-                </h2>
-                <p className="mt-1 text-base text-ink-soft">Camps, meals and shuttles are open for these too.</p>
-              </div>
-              <Link to="/events?tab=yatras" className="font-bold text-sm text-[#832014] hover:underline">All yatras →</Link>
-            </div>
-            <ul className="grid gap-4 sm:grid-cols-2">
-              {groups.yatras.map((e) => <YatraCard key={e._id} event={e} />)}
-            </ul>
-          </section>
-        )}
-
         {/* Campus & Corporate Invitation Code Box */}
         <InvitationCodeBox from="/" />
 
         {/* Grand Eternal Sacred Flame Diya: a small closing blessing, not a full section */}
         <GrandSacredDiya compact />
 
-        {/* Festive Corner Phataka Sparkler */}
-        <CornerPhataka position="bottom-left" />
 
         {canBook(user) && <FloatingCta />}
       </div>

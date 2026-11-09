@@ -75,7 +75,7 @@ function BedPicker({ lodging, stay, selected, onChange, max }) {
       <div className="flex flex-wrap gap-4 text-sm" aria-hidden>
         <span className="flex items-center gap-1"><span className="h-4 w-4 rounded bg-white ring-2 ring-tulsi" /> {t('lodging.legendFree')}</span>
         <span className="flex items-center gap-1"><span className="h-4 w-4 rounded bg-mist" /> {t('lodging.legendTaken')}</span>
-        <span className="flex items-center gap-1"><span className="h-4 w-4 rounded bg-kumkum" /> {t('lodging.legendYours')}</span>
+        <span className="flex items-center gap-1"><span className="h-4 w-4 rounded bg-terracotta" /> {t('lodging.legendYours')}</span>
       </div>
       {withRoom.length === 0 && <Notice>{t('lodging.soldOut')}</Notice>}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -97,7 +97,7 @@ function BedPicker({ lodging, stay, selected, onChange, max }) {
                     aria-label={`${u.label}, ${t('lodging.bed')} ${b.bed}: ${b.free ? (on ? t('lodging.legendYours') : t('lodging.legendFree')) : t('lodging.legendTaken')}`}
                     onClick={() => toggle(u, b)}
                     className={`h-11 w-11 rounded-b-md rounded-t-xl text-sm font-bold tabular-nums transition ${
-                      !b.free ? 'cursor-not-allowed bg-mist text-ink-faint' : on ? 'bg-kumkum text-white' : 'bg-white text-ink ring-2 ring-tulsi hover:bg-tulsi/10'
+                      !b.free ? 'cursor-not-allowed bg-mist text-ink-faint' : on ? 'bg-terracotta text-white' : 'bg-white text-ink ring-2 ring-tulsi hover:bg-tulsi/10'
                     }`}
                   >
                     {b.bed}
@@ -117,6 +117,28 @@ function BedPicker({ lodging, stay, selected, onChange, max }) {
         <button type="button" className="btn-ghost" onClick={() => setShown((n) => n + 24)}>{t('lodging.showMore')}</button>
       )}
     </div>
+  );
+}
+
+/** Where the pilgrim is in booking: the first step not done yet is the current one. */
+function BookingSteps({ steps }) {
+  const current = steps.findIndex((s) => !s.done);
+  return (
+    <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm" aria-label="Booking steps">
+      {steps.map((s, i) => (
+        <li key={s.label} className="flex items-center gap-2" aria-current={i === current ? 'step' : undefined}>
+          <span
+            className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
+              s.done ? 'bg-tulsi text-white' : i === current ? 'bg-ink text-white' : 'bg-line text-ink-soft'
+            }`}
+          >
+            {s.done ? '✓' : i + 1}
+          </span>
+          <span className={i === current ? 'font-semibold' : 'text-ink-soft'}>{s.label}</span>
+          {i < steps.length - 1 && <span className="h-px w-5 bg-line" aria-hidden />}
+        </li>
+      ))}
+    </ol>
   );
 }
 
@@ -180,6 +202,14 @@ function BookingForm({ lodging, onDone, onCancel, onAdded, stay, prefill = {} })
 
   return (
     <form onSubmit={submit} className="mt-4 space-y-4 border-t border-line pt-4">
+      <BookingSteps
+        steps={[
+          { label: t('lodging.step.dates'), done: true },
+          { label: t('lodging.step.beds'), done: beds > 0 },
+          { label: t('lodging.step.names'), done: beds > 0 && guestNames.every((n) => n.length >= 2) },
+          { label: t('lodging.step.confirm'), done: false },
+        ]}
+      />
       <Notice tone="error">{error}</Notice>
       <p className="text-ink-soft">
         {t('lodging.stay')}: <b>{showDate(checkIn)}</b>{checkOut !== checkIn && <> – <b>{showDate(checkOut)}</b></>} · {t('lodging.nights', { n: nights })}. {t('lodging.changeDates')}
@@ -225,6 +255,18 @@ function BookingForm({ lodging, onDone, onCancel, onAdded, stay, prefill = {} })
             </label>
           ))}
         </fieldset>
+      )}
+
+      {beds > 0 && (
+        <div className="rounded-2xl border border-line bg-sand p-4">
+          <p className="font-bold">{t('lodging.summary')}</p>
+          <p>{lodging.name}</p>
+          <p className="text-ink-soft">
+            {showDate(checkIn)}{checkOut !== checkIn && <> – {showDate(checkOut)}</>} · {t('lodging.nights', { n: nights })}
+          </p>
+          <p className="text-ink-soft">{mode === 'pick' ? rows.map((r) => r.label).join(', ') : t('lodging.selected', { n: beds })}</p>
+          <p className="mt-1 text-lg font-bold">{price > 0 ? `${t('lodging.total')}: ${rupees(estimate)}` : t('lodging.free')}</p>
+        </div>
       )}
 
       <div className="flex flex-wrap gap-3">
