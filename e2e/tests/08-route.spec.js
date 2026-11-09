@@ -27,7 +27,7 @@ test.describe('Walking route', () => {
         await expect(walker.getByRole('button', { name: /Ramkund/, pressed: true })).toBeVisible();
         await expect(walker.getByText('Safest route (recommended)')).toBeVisible();
         // Shortest route is its own card, unless the safest one is also the shortest
-        await expect(walker.getByText(/^Shortest route$|also the shortest/).first()).toBeVisible();
+        await expect(walker.getByText('Shortest route', { exact: true }).or(walker.getByText(/also the shortest/)).first()).toBeVisible();
         // both routes are drawn on the map
         await expect.poll(() => walker.locator('.leaflet-overlay-pane path').count()).toBeGreaterThan(0);
     });
