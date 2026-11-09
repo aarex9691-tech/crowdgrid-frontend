@@ -37,7 +37,7 @@ const navFor = (role, t = (k) => k) => {
       return {
         // pilgrim navigation follows the chosen language (Hindi / Marathi / English)
         links: [{ to: '/', label: t('nav.home'), end: true }, { to: '/events', label: t('nav.events') }, { to: '/passbook', label: t('nav.passbook') }, { to: '/help', label: t('nav.help') }, about],
-        cta: { to: '/events?tab=yatras', label: t('nav.bookNow') }, // choose any yatra, not only the Kumbh
+        cta: { to: `/yatra/${SITE.flagshipSlug}`, label: t('nav.bookNow') },
         shopper: true,
       };
   }
