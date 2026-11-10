@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import API, { errorMessage } from '../lib/api';
+import { errorMessage } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import Notice from '../components/Notice';
 import PhoneField from '../components/PhoneField';
@@ -13,31 +13,7 @@ export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [form, setForm] = useState({ name: '', countryCode: '91', phone: '', password: '', otp: '' });
-  // Phone check: a 6-digit code is sent to the number (demo: shown on screen, no SMS)
-  const [codeInfo, setCodeInfo] = useState(null); // { message, devCode, forPhone }
-  const [sending, setSending] = useState(false);
-  const numberKey = `${form.countryCode}:${form.phone.replace(/\D/g, '')}`;
-  const codeSent = codeInfo && codeInfo.forPhone === numberKey;
-
-  const sendCode = async () => {
-    setError('');
-    const pErr = phoneError(form.countryCode, form.phone);
-    if (pErr) {
-      setPhoneTouched(true);
-      setError(pErr);
-      return;
-    }
-    setSending(true);
-    try {
-      const { data } = await API.post('/auth/otp', { countryCode: form.countryCode, phone: form.phone.replace(/\D/g, '') });
-      setCodeInfo({ ...data, forPhone: numberKey });
-    } catch (err) {
-      setError(errorMessage(err));
-    } finally {
-      setSending(false);
-    }
-  };
+  const [form, setForm] = useState({ name: '', countryCode: '91', phone: '', password: '' });
   const [phoneTouched, setPhoneTouched] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -60,8 +36,6 @@ export default function Register() {
       setError('Password must be at least 8 characters and include a letter and a number');
       return;
     }
-    if (!codeSent) return setError('Tap "Send code" to verify your mobile number first');
-    if (!/^\d{6}$/.test(form.otp)) return setError('Enter the 6-digit code sent to your mobile');
     setBusy(true);
     try {
       await register({ ...form, phone: form.phone.replace(/\D/g, '') });
@@ -90,33 +64,6 @@ export default function Register() {
           onBlur={() => setPhoneTouched(true)}
           onChange={(v) => setForm({ ...form, ...v })}
         />
-        <div className="space-y-2">
-          <button type="button" className="btn-ghost w-full" onClick={sendCode} disabled={sending}>
-            {sending ? 'Sending code…' : codeSent ? 'Send a new code' : 'Send code to verify this number'}
-          </button>
-          {codeSent && (
-            <>
-              <Notice tone="success">
-                {codeInfo.message}
-                {codeInfo.devCode && <> Code: <b className="tabular-nums tracking-widest">{codeInfo.devCode}</b></>}
-              </Notice>
-              <div>
-                <label className="field-label" htmlFor="otp">6-digit code</label>
-                <input
-                  id="otp"
-                  className="field text-center text-xl tracking-[0.4em] tabular-nums"
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  maxLength={6}
-                  value={form.otp}
-                  onChange={(e) => setForm({ ...form, otp: e.target.value.replace(/\D/g, '').slice(0, 6) })}
-                  required
-                />
-                <p className="mt-1 text-sm text-ink-soft">Valid for {codeInfo.expiresInMin || 5} minutes.</p>
-              </div>
-            </>
-          )}
-        </div>
         <PasswordField
           id="password"
           autoComplete="new-password"

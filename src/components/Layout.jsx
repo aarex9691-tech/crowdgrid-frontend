@@ -7,7 +7,7 @@ import { useConfirm } from '../lib/confirm';
 import { SITE } from '../lib/site';
 import LiveToasts from './LiveToasts';
 import GuidedTour, { openTour } from './GuidedTour';
-import { LanguageSwitch, useT } from '../lib/i18n';
+import { LANGUAGES_ENABLED, LanguageSwitch, useT } from '../lib/i18n';
 
 /**
  * Each role gets its own navigation. Pilgrims see booking (passbook, cart,
@@ -240,7 +240,7 @@ export default function Layout() {
             ) : (
               <Link to="/login" className="btn-ghost min-h-10 px-4">{t('nav.login')}</Link>
             )}
-            {(!user || user.role === 'USER') && <LanguageSwitch className="ml-1" />}
+            {LANGUAGES_ENABLED && (!user || user.role === 'USER') && <LanguageSwitch className="ml-1" />}
           </div>
 
           {/* Call to action */}
@@ -296,7 +296,7 @@ export default function Layout() {
               ) : (
                 <NavLink to="/login" className={menuCls} onClick={close}>Log in or create account</NavLink>
               )}
-              {(!user || user.role === 'USER') && <LanguageSwitch className="mt-2" />}
+              {LANGUAGES_ENABLED && (!user || user.role === 'USER') && <LanguageSwitch className="mt-2" />}
               <Link to={nav.cta.to} className="btn-primary mt-2 w-full sm:hidden" onClick={close}>
                 {nav.cta.label}
               </Link>

@@ -439,7 +439,19 @@ const mr = {
 const DICTS = { en, hi, mr };
 const KEY = 'cg_lang';
 
+// Hindi and Marathi cover only some screens so far, so the switch is hidden and everyone reads English.
+// Full translation is future scope: set this to true (and show <LanguageSwitch />) to bring it back.
+export const LANGUAGES_ENABLED = false;
+
 const readLang = () => {
+  if (!LANGUAGES_ENABLED) {
+    try {
+      localStorage.removeItem(KEY); // drop a Hindi/Marathi choice saved before the switch was hidden
+    } catch {
+      /* storage blocked: nothing saved anyway */
+    }
+    return 'en';
+  }
   try {
     const v = localStorage.getItem(KEY);
     return DICTS[v] ? v : 'en';
