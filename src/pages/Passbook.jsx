@@ -62,7 +62,7 @@ export default function Passbook() {
         <h1 className="text-3xl font-bold">My Yatra Passbook</h1>
         <p className="text-ink-soft">All your passes in one place. They stay on this phone, so they open even without network.</p>
       </div>
-      {user && <MyQrCard name={user.name} activeCount={withState.filter((p) => p.state === 'ACTIVE').length} />}
+      {user && <MyQrCard name={user.name} photoUrl={user.photoUrl} activeCount={withState.filter((p) => p.state === 'ACTIVE').length} />}
       {done && <Notice tone="success">{done}</Notice>}
       {offlineSince && <Notice>Showing passes saved on {fmtDateTime(offlineSince)}. You're offline, but these QR codes still work at the gate.</Notice>}
 

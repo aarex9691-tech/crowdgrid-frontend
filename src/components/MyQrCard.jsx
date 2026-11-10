@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { QrCode as QrIcon, RefreshCw } from 'lucide-react';
 import API, { errorMessage } from '../lib/api';
 import QrCode from './QrCode';
+import Avatar from './Avatar';
 import { useT } from '../lib/i18n';
 
 const KEY = 'cg_myqr';
@@ -55,7 +56,7 @@ async function liveQr(live, nowMs) {
  * It changes every 30 seconds, so a screenshot sent to someone else stops working
  * within about a minute. Works offline (the key is kept on the phone).
  */
-export default function MyQrCard({ name, activeCount }) {
+export default function MyQrCard({ name, photoUrl, activeCount }) {
   const t = useT();
   const [staticQr, setStaticQr] = useState(() => read(KEY));
   const [live, setLive] = useState(readLive);
@@ -140,7 +141,10 @@ export default function MyQrCard({ name, activeCount }) {
           <p className="flex items-center justify-center gap-2 text-sm font-semibold uppercase tracking-wide text-kumkum sm:justify-start">
             <QrIcon size={18} aria-hidden /> {t('qr.oneQr')}
           </p>
-          <h2 id="myqr-title" className="text-2xl font-bold">{name}</h2>
+          <div className="flex items-center gap-3">
+            {photoUrl && <Avatar name={name} photoUrl={photoUrl} size={48} />}
+            <h2 id="myqr-title" className="text-2xl font-bold">{name}</h2>
+          </div>
           <p className="text-ink-soft">
             {t('qr.show')}
             {activeCount ? ` (${activeCount})` : ''}

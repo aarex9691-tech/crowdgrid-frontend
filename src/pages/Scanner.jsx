@@ -5,6 +5,7 @@ import API, { errorMessage } from '../lib/api';
 import { fmtDateTime } from '../lib/format';
 import { PASS_META } from '../components/PassCard';
 import Notice from '../components/Notice';
+import Avatar from '../components/Avatar';
 
 const READER_ID = 'qr-reader';
 
@@ -31,6 +32,21 @@ const savedService = () => {
  * browser; no app install. Every decision is made by the server, which checks
  * the HMAC signature and redeems the pass atomically.
  */
+/** Who the pass belongs to: their photo (if they added one) so the volunteer can match the face. */
+function HolderId({ holder, light = false }) {
+  return (
+    <div className={`mt-4 flex items-center gap-4 rounded-2xl p-3 ${light ? 'bg-white' : 'bg-white/15'}`}>
+      <Avatar name={holder.name} photoUrl={holder.photoUrl} size={88} alt={holder.photoUrl ? `Photo of ${holder.name}` : ''} />
+      <div className="min-w-0">
+        <p className="text-sm opacity-90">Holder</p>
+        <p className="truncate text-xl font-bold">{holder.name}</p>
+        {holder.phone && <p className="tabular-nums">{holder.phone}</p>}
+        <p className="mt-1 text-sm font-semibold">{holder.photoUrl ? 'Match the face with the photo.' : 'No photo on file: check their ID.'}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function Scanner() {
   const scannerRef = useRef(null);
   const busyRef = useRef(false);
@@ -135,7 +151,7 @@ export default function Scanner() {
         <div role="status" aria-live="assertive" className="rounded-3xl bg-marigold-wash p-5">
           <p className="mb-1 inline-flex rounded-full bg-ink px-3 py-0.5 text-sm font-bold text-white">Personal QR · one QR for all passes</p>
           <p className="text-xl font-bold">{result.message}</p>
-          {result.holder && <p>Holder: {result.holder.name} ({result.holder.phone})</p>}
+          {result.holder && <HolderId holder={result.holder} light />}
           <ul className="mt-3 space-y-2">
             {result.options.map((o) => (
               <li key={o._id}>
@@ -165,13 +181,12 @@ export default function Scanner() {
               {!valid && <p className="text-lg font-semibold">{result.message}</p>}
             </div>
           </div>
-          {!result.pass && result.holder && <p className="mt-3">Holder: {result.holder.name} ({result.holder.phone})</p>}
+          {(result.holder || result.pass?.holder) && <HolderId holder={result.holder || result.pass.holder} />}
           {result.pass && (
             <div className="mt-4 rounded-2xl bg-white/15 p-4">
               <p className="text-sm opacity-90">{PASS_META[result.pass.type]?.label}</p>
               <p className="text-xl font-bold">{result.pass.title}</p>
               {result.pass.subtitle && <p>{result.pass.subtitle}</p>}
-              {result.pass.holder && <p className="mt-1">Holder: {result.pass.holder.name} ({result.pass.holder.phone})</p>}
               {result.pass.details?.people > 1 && (
                 <p className="mt-2 text-2xl font-extrabold">
                   {result.pass.type === 'MEAL' ? `Serve ${result.pass.details.people} plates` : `Admit ${result.pass.details.people} people`}

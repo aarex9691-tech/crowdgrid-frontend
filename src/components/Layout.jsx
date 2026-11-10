@@ -8,6 +8,7 @@ import { SITE } from '../lib/site';
 import LiveToasts from './LiveToasts';
 import GuidedTour, { openTour } from './GuidedTour';
 import { LANGUAGES_ENABLED, LanguageSwitch, useT } from '../lib/i18n';
+import Avatar from './Avatar';
 
 /**
  * Each role gets its own navigation. Pilgrims see booking (passbook, cart,
@@ -230,7 +231,7 @@ export default function Layout() {
             {user ? (
               <>
                 <NavLink to="/account" className={linkCls} title={ROLE_LABELS[user.role]}>
-                  <UserRound size={18} aria-hidden />
+                  {user.photoUrl ? <Avatar name={user.name} photoUrl={user.photoUrl} size={28} /> : <UserRound size={18} aria-hidden />}
                   <span className={`max-w-28 truncate ${wide ? 'sr-only' : ''}`}>{user.name.split(' ')[0]}</span>
                 </NavLink>
                 <button type="button" className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-ink-soft hover:text-ink" onClick={doLogout} aria-label="Log out" title="Log out">
@@ -287,7 +288,7 @@ export default function Layout() {
               {user ? (
                 <>
                   <NavLink to="/account" className={menuCls} onClick={close}>
-                    <UserRound size={20} aria-hidden /> {user.name} <span className="text-sm font-normal text-ink-soft">· {ROLE_LABELS[user.role]}</span>
+                    {user.photoUrl ? <Avatar name={user.name} photoUrl={user.photoUrl} size={28} /> : <UserRound size={20} aria-hidden />} {user.name} <span className="text-sm font-normal text-ink-soft">· {ROLE_LABELS[user.role]}</span>
                   </NavLink>
                   <button type="button" className="flex min-h-12 w-full items-center gap-3 rounded-xl px-4 text-lg font-semibold text-ink" onClick={doLogout}>
                     <LogOut size={20} aria-hidden /> Log out
