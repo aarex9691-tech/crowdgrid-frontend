@@ -1,5 +1,5 @@
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { BarChart3, Briefcase, CalendarPlus, LogOut, Menu, MessageCircle, ScanLine, Search, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
+import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { BarChart3, Briefcase, CalendarPlus, KeyRound, LogOut, Menu, MessageCircle, ScanLine, Search, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { ROLE_LABELS, useAuth } from '../lib/auth';
 import { useCart } from '../lib/cart';
@@ -16,16 +16,17 @@ import Avatar from './Avatar';
  */
 const navFor = (role, t = (k) => k) => {
   const scan = { to: '/scan', label: 'Scanner', icon: ScanLine };
+  const helpdesk = { to: '/helpdesk', label: 'Help desk', icon: KeyRound };
   const about = { to: '/about', label: t('nav.about') };
   switch (role) {
     case 'SUPER_ADMIN':
       return {
-        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, { to: '/analytics', label: 'Analytics', icon: BarChart3 }, { to: '/host', label: 'Hosted events', icon: CalendarPlus }, { to: '/corporate-admin', label: 'Campus & Corporate', icon: Briefcase }, scan],
+        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, { to: '/analytics', label: 'Analytics', icon: BarChart3 }, { to: '/host', label: 'Hosted events', icon: CalendarPlus }, { to: '/corporate-admin', label: 'Campus & Corporate', icon: Briefcase }, helpdesk, scan],
         cta: { to: '/host', label: 'Host an event' },
       };
     case 'AUTHORITY':
       return {
-        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, { to: '/analytics', label: 'Analytics', icon: BarChart3 }, { to: '/host', label: 'Hosted events', icon: CalendarPlus }, scan],
+        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, { to: '/analytics', label: 'Analytics', icon: BarChart3 }, { to: '/host', label: 'Hosted events', icon: CalendarPlus }, helpdesk, scan],
         cta: { to: '/host', label: 'Host an event' },
       };
     case 'NGO_ADMIN':
@@ -48,7 +49,7 @@ const TITLES = [
   [/^\/$/, ''], [/^\/login/, 'Log in'], [/^\/register/, 'Create account'], [/^\/events/, 'Events'], [/^\/event\//, 'Event'],
   [/^\/about/, 'About us'], [/^\/help/, 'Help centre'], [/^\/yatra\//, 'Yatra services'], [/^\/corporate\//, 'Campus & Corporate event'], [/^\/passbook/, 'My Passbook'],
   [/^\/account/, 'My account'], [/^\/checkout/, 'Checkout'], [/^\/scan/, 'Scanner'], [/^\/control/, 'Control room'], [/^\/analytics/, 'Analytics'],
-  [/^\/corporate-admin/, 'Campus & Corporate events'], [/^\/camps\/.+\/map/, 'Tent map'], [/^\/host/, 'Hosted events'], [/^\/ngo/, 'My camps'],
+  [/^\/corporate-admin/, 'Campus & Corporate events'], [/^\/camps\/.+\/map/, 'Tent map'], [/^\/host/, 'Hosted events'], [/^\/ngo/, 'My camps'], [/^\/helpdesk/, 'Help desk'], [/^\/set-password/, 'Set password'],
 ];
 
 /** New page: start at the top (or at the #section asked for) and name the browser tab. */
@@ -317,7 +318,7 @@ export default function Layout() {
       <GuidedTour auto={pathname === '/' && (!user || user.role === 'USER')} />
 
       <main className="flex-1 pb-16">
-        <Outlet />
+        {user?.mustChangePassword && pathname !== '/set-password' ? <Navigate to="/set-password" replace state={{ from: pathname }} /> : <Outlet />}
       </main>
 
       <a

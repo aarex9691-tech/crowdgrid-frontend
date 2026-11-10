@@ -27,7 +27,7 @@ export const homeFor = (role) =>
 // Which roles may open each restricted page (same lists as the <RequireRole> routes in App.jsx)
 const PAGE_ROLES = [
   [/^\/scan/, ['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'NGO_ADMIN', 'VOLUNTEER']],
-  [/^\/(control|analytics|host)/, ['SUPER_ADMIN', 'AUTHORITY']],
+  [/^\/(control|analytics|host|helpdesk)/, ['SUPER_ADMIN', 'AUTHORITY']],
   [/^\/corporate-admin/, ['SUPER_ADMIN', 'CORPORATE_ADMIN']],
   [/^\/camps\/.+\/map/, ['SUPER_ADMIN', 'AUTHORITY', 'NGO_ADMIN']],
   [/^\/ngo/, ['SUPER_ADMIN', 'NGO_ADMIN']],
@@ -80,8 +80,14 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     refresh();
     const onUnauthorized = () => logout();
+    // the server says a new password is needed (help desk reset): reload the profile so the app sends them there
+    const onPasswordRequired = () => refresh();
     window.addEventListener('cg:unauthorized', onUnauthorized);
-    return () => window.removeEventListener('cg:unauthorized', onUnauthorized);
+    window.addEventListener('cg:password-required', onPasswordRequired);
+    return () => {
+      window.removeEventListener('cg:unauthorized', onUnauthorized);
+      window.removeEventListener('cg:password-required', onPasswordRequired);
+    };
   }, [refresh, logout]);
 
   const value = useMemo(
@@ -94,6 +100,12 @@ export function AuthProvider({ children }) {
       },
       async register(form) {
         const { data } = await API.post('/auth/register', form);
+        save(data.token, data.user);
+        return data.user;
+      },
+      /** Sets a new password; other devices are logged out and this one gets a fresh token. */
+      async changePassword(currentPassword, newPassword) {
+        const { data } = await API.post('/auth/password', { currentPassword, newPassword });
         save(data.token, data.user);
         return data.user;
       },

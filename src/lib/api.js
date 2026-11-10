@@ -44,6 +44,9 @@ API.interceptors.response.use(
     if (err.response?.status === 401 && !url.startsWith('/auth/')) {
       window.dispatchEvent(new Event('cg:unauthorized'));
     }
+    if (err.response?.status === 403 && err.response.data?.code === 'PASSWORD_CHANGE_REQUIRED') {
+      window.dispatchEvent(new Event('cg:password-required'));
+    }
     return Promise.reject(err);
   }
 );

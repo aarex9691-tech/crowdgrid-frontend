@@ -23,6 +23,8 @@ import { Loading } from './components/Notice';
 const Analytics = lazy(() => import('./pages/staff/Analytics'));
 import NgoPortal from './pages/staff/NgoPortal';
 import CorporateAdmin from './pages/staff/CorporateAdmin';
+import SetPassword from './pages/SetPassword';
+import HelpDesk from './pages/staff/HelpDesk';
 
 export default function App() {
   return (
@@ -39,6 +41,7 @@ export default function App() {
         <Route path="/corporate/:slug" element={<Corporate />} />
 
         <Route element={<RequireRole />}>
+          <Route path="/set-password" element={<SetPassword />} />
           <Route path="/passbook" element={<Passbook />} />
           <Route path="/account" element={<Account />} />
           <Route path="/checkout" element={<Checkout />} />
@@ -58,6 +61,7 @@ export default function App() {
         </Route>
         <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY']} />}>
           <Route path="/host" element={<HostEvents />} />
+          <Route path="/helpdesk" element={<HelpDesk />} />
         </Route>
         <Route element={<RequireRole roles={['SUPER_ADMIN', 'NGO_ADMIN']} />}>
           <Route path="/ngo" element={<NgoPortal />} />
