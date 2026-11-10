@@ -24,7 +24,10 @@ import { canBook, homeFor, ROLE_LABELS, useAuth } from '../lib/auth';
 import HeroSearch from '../components/HeroSearch';
 import API, { errorMessage } from '../lib/api';
 import { addDaysIST, fmtDate, todayIST } from '../lib/format';
-import { InvitationCodeBox, PublicEventList, YatraCard } from '../components/EventCards';
+import { InvitationCodeBox, PublicEventList } from '../components/EventCards';
+import GhatDiorama from '../components/heritage/GhatDiorama';
+import YatraRing from '../components/heritage/YatraRing';
+import CraftsOfIndia from '../components/heritage/CraftsOfIndia';
 import { DEFAULT_EVENTS } from '../data/defaultEvents';
 import NamasteIntro from '../components/NamasteIntro';
 import { openTour } from '../components/GuidedTour';
@@ -643,6 +646,9 @@ export default function Landing() {
       {/* 2. Full-Width Edge-to-Edge Marigold & Mango Leaf Garland */}
       <FullWidthGarland />
 
+      {/* 2b. 3D scene: dawn at the ghats, seen from inside a mandapa */}
+      <GhatDiorama />
+
       {/* 3. Main Center Content Container */}
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
         {!canBook(user) && (
@@ -706,26 +712,11 @@ export default function Landing() {
           </section>
         )}
 
-        {/* More Yatras Section */}
-        {groups.yatras.length > 0 && (
-          <section aria-labelledby="yatras">
-            <div className="flex items-end justify-between gap-3 mb-6">
-              <div>
-                <span className="font-display text-sm font-bold tracking-wider text-[#832014]">
-                  ॥ अन्य तीर्थ यात्राएं ॥
-                </span>
-                <h2 id="yatras" className="font-display text-2xl sm:text-4xl font-extrabold text-ink">
-                  More yatras
-                </h2>
-                <p className="mt-1 text-base text-ink-soft">Camps, meals and shuttles are open for these too.</p>
-              </div>
-              <Link to="/events?tab=yatras" className="font-bold text-sm text-[#832014] hover:underline">All yatras →</Link>
-            </div>
-            <ul className="grid gap-4 sm:grid-cols-2">
-              {groups.yatras.map((e) => <YatraCard key={e._id} event={e} />)}
-            </ul>
-          </section>
-        )}
+        {/* All yatras as a 3D ring: each with its own emblem and colour */}
+        <YatraRing yatras={[groups.flagship, ...groups.yatras].filter(Boolean)} />
+
+        {/* Folk arts from across India, as 3D flip tiles */}
+        <CraftsOfIndia />
 
         {/* Campus & Corporate Invitation Code Box */}
         <InvitationCodeBox from="/" />
