@@ -5,7 +5,7 @@ import { ArrowLeft, CalendarDays, ExternalLink, MapPin, Phone, ShieldCheck, Tick
 import API, { errorMessage } from '../lib/api';
 import { canBook, useAuth } from '../lib/auth';
 import { rupees, useCart } from '../lib/cart';
-import { EVENT_CATEGORIES, fmtDate, fmtTime, googleMapsUrl } from '../lib/format';
+import { categoryLabel, fmtDate, fmtTime, googleMapsUrl } from '../lib/format';
 import Notice, { Loading } from '../components/Notice';
 import { cachePass } from '../lib/passCache';
 import { addTicketToCart, placesLeft } from '../components/EventCards';
@@ -77,7 +77,7 @@ export default function EventDetail() {
           <Link to="/events?tab=public" className="inline-flex items-center gap-1 text-sm text-[#c9d6ee] hover:text-white">
             <ArrowLeft size={16} aria-hidden /> All public events
           </Link>
-          <p className="mt-3 text-sm font-semibold uppercase tracking-widest text-marigold">{EVENT_CATEGORIES[event.category] || 'Public event'}</p>
+          <p className="mt-3 text-sm font-semibold uppercase tracking-widest text-marigold">{event.category ? categoryLabel(event.category) : 'Public event'}</p>
           <h1 className="font-display text-3xl sm:text-4xl">{event.title}</h1>
           <p className="mt-1 text-[#c9d6ee]">Hosted by {event.hostName || 'CrowdGrid'}</p>
         </div>

@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Briefcase, Flag, Ticket } from 'lucide-react';
 import API, { errorMessage } from '../lib/api';
-import { EVENT_CATEGORIES, fmtDate } from '../lib/format';
+import { categoryLabel, EVENT_CATEGORIES, fmtDate } from '../lib/format';
+import EventCategoryIcon from '../components/EventCategoryIcon';
 import Notice from '../components/Notice';
 import { InvitationCodeBox, PublicEventList, YatraCard } from '../components/EventCards';
 import { DEFAULT_EVENTS } from '../data/defaultEvents';
@@ -56,6 +57,13 @@ export default function Events() {
     [events, category, q]
   );
   const counts = { yatras: yatras.length, public: publicEvents.length };
+  // Category chips: only categories that have events on (plus the one in the link), in the usual order
+  const chips = useMemo(() => {
+    const n = {};
+    for (const e of events || []) if (e.kind === 'PUBLIC' && e.category) n[e.category] = (n[e.category] || 0) + 1;
+    const order = [...Object.keys(EVENT_CATEGORIES), ...Object.keys(n).filter((k) => !EVENT_CATEGORIES[k])];
+    return order.filter((k) => n[k] || k === category).map((k) => ({ k, label: categoryLabel(k), n: n[k] || 0 }));
+  }, [events, category]);
   // A search without a chosen tab opens the tab that has results
   const tabParam = params.get('tab');
   const active =
@@ -126,15 +134,17 @@ export default function Events() {
       ) : active.id === 'public' ? (
         <>
           <div className="flex flex-wrap gap-2" role="group" aria-label="Category">
-            {[['', 'All'], ...Object.entries(EVENT_CATEGORIES)].map(([k, v]) => (
+            {[{ k: '', label: 'All' }, ...chips].map(({ k, label, n }) => (
               <button
                 key={k || 'all'}
                 type="button"
                 aria-pressed={category === k}
                 onClick={() => setParams(withQ(k ? { tab: 'public', category: k } : { tab: 'public' }))}
-                className={category === k ? 'btn-ink min-h-10 px-3' : 'btn-ghost min-h-10 px-3'}
+                className={category === k ? 'btn-ink min-h-10 gap-1.5 px-3' : 'btn-ghost min-h-10 gap-1.5 px-3'}
               >
-                {v}
+                {k && <EventCategoryIcon category={k} size={16} />}
+                {label}
+                {k && <span className={`tabular-nums text-sm ${category === k ? 'text-white/75' : 'text-ink-faint'}`}>{n}</span>}
               </button>
             ))}
           </div>
@@ -144,7 +154,7 @@ export default function Events() {
             <Notice>
               {q
                 ? `No events found matching "${rawQ}".`
-                : `No ${category ? EVENT_CATEGORIES[category].toLowerCase() + ' ' : ''}events are open right now.`}
+                : `No ${category ? categoryLabel(category).toLowerCase() + ' ' : ''}events are open right now.`}
             </Notice>
           )}
         </>

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { CalendarPlus, X } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
 import { rupees } from '../../lib/cart';
-import { addDaysIST, EVENT_CATEGORIES, fmtDateTime, todayIST } from '../../lib/format';
+import { addDaysIST, categoryLabel, EVENT_CATEGORIES, fmtDateTime, todayIST } from '../../lib/format';
 import Notice, { Loading } from '../../components/Notice';
 import LocationPicker from '../../components/LocationPicker';
 import DateTimeRange, { toIsoRange, windowError } from '../../components/DateTimeRange';
@@ -247,7 +247,7 @@ export default function HostEvents() {
                 <tr key={e._id} className={new Date(e.endDate) < now ? 'text-ink-soft' : ''}>
                   <td className="px-4 py-3">
                     <Link to={`/event/${e.slug}`} className="font-semibold underline">{e.title}</Link>
-                    <span className="block text-sm text-ink-soft">{EVENT_CATEGORIES[e.category]} · {e.venue}</span>
+                    <span className="block text-sm text-ink-soft">{categoryLabel(e.category)} · {e.venue}</span>
                   </td>
                   <td className="px-4 py-3 text-sm">{fmtDateTime(e.startDate)}{new Date(e.endDate) < now ? ' (over)' : ''}</td>
                   <td className="px-4 py-3 text-right tabular-nums">{rupees(e.ticketPrice)}</td>

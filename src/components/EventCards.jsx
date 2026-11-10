@@ -5,7 +5,8 @@ import API, { errorMessage } from '../lib/api';
 import { canBook, useAuth } from '../lib/auth';
 import { cachePass } from '../lib/passCache';
 import { rupees, useCart } from '../lib/cart';
-import { EVENT_CATEGORIES, fmtDate, fmtDateTime, fmtTime } from '../lib/format';
+import { categoryLabel, fmtDate, fmtDateTime, fmtTime } from '../lib/format';
+import EventCategoryIcon from './EventCategoryIcon';
 import Notice from './Notice';
 
 export function YatraCard({ event }) {
@@ -51,8 +52,8 @@ function PublicEventCard({ event, onRegister, showRegister }) {
       {/* Event Header Banner with Warm Terracotta Gradient */}
       <div className="relative h-28 sm:h-32 w-full overflow-hidden bg-gradient-to-br from-[#bd5338] via-[#a8442a] to-[#7c2d1b] p-4 flex flex-col justify-between text-white">
         <div className="flex items-center justify-between gap-2">
-          <span className="rounded-full bg-white/20 backdrop-blur px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-white">
-            {EVENT_CATEGORIES[event.category] || 'Event'}
+          <span className="inline-flex items-center gap-1 rounded-full bg-white/20 backdrop-blur px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-white">
+            <EventCategoryIcon category={event.category} size={13} /> {categoryLabel(event.category)}
           </span>
           <span className="rounded-full bg-black/25 backdrop-blur px-2.5 py-0.5 text-xs font-medium text-white">
             {fmtDate(event.startDate, { weekday: 'short', month: 'short', day: 'numeric' })}
