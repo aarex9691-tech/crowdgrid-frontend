@@ -16,10 +16,12 @@
  *  - together: aerial view of a well-managed crowd moving through marked lanes, no text
  */
 export const LANDING_MEDIA = {
-  pilgrimage: null,
-  public: null,
-  corporate: null,
-  together: null,
+  // Panels take { src, depth, focus }: depth (white = near) makes the photo 3D under the mouse,
+  // focus [x, y] keeps that part of the photo in view when the tall panel crops it.
+  pilgrimage: { src: '/media/hero-pilgrimage.webp', depth: '/media/hero-pilgrimage-depth.webp', focus: [0.46, 0.5], strength: 0.024 },
+  public: { src: '/media/hero-public.webp', depth: '/media/hero-public-depth.webp', focus: [0.5, 0.5], strength: 0.016 },
+  corporate: { src: '/media/hero-corporate.webp', depth: '/media/hero-corporate-depth.webp', focus: [0.5, 0.5], strength: 0.016 },
+  together: '/media/together.webp',
 };
 
 export const isVideo = (src) => /\.(mp4|webm)$/i.test(src || '');

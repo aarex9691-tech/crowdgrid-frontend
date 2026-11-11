@@ -25,6 +25,7 @@ import { InvitationCodeBox, PublicEventList, YatraCard } from '../components/Eve
 import { DEFAULT_EVENTS } from '../data/defaultEvents';
 import { isVideo, LANDING_MEDIA } from '../data/landingMedia';
 import { CorporateScene, PilgrimageScene, PublicScene } from '../components/landing/Scenes';
+import DepthImage from '../components/landing/DepthImage';
 import { openTour } from '../components/GuidedTour';
 
 /*
@@ -40,11 +41,13 @@ const KIND_BY_TAB = Object.fromEntries(KINDS.map((k) => [k.tab, k]));
 const SCENES = { pilgrimage: PilgrimageScene, public: PublicScene, corporate: CorporateScene };
 
 /** A photo or clip when one is set in landingMedia.js, otherwise the drawn scene. */
-function Media({ slot }) {
-  const src = LANDING_MEDIA[slot];
+function Media({ slot, flat = false }) {
+  const entry = LANDING_MEDIA[slot];
+  const src = typeof entry === 'string' ? entry : entry?.src;
   const Scene = SCENES[slot];
   if (src && isVideo(src)) return <video src={src} autoPlay muted loop playsInline aria-hidden="true" />;
-  if (src) return <img src={src} alt="" decoding="async" />;
+  if (src && entry.depth && !flat) return <DepthImage src={src} depth={entry.depth} focus={entry.focus} strength={entry.strength} />;
+  if (src) return <img src={src} alt="" decoding="async" style={entry.focus ? { objectPosition: `${entry.focus[0] * 100}% 50%` } : undefined} />;
   return Scene ? <Scene /> : null;
 }
 
@@ -75,7 +78,7 @@ function Hero({ onInvite }) {
         </ul>
       </div>
 
-      <nav aria-label={t('home.chooseKind')} className="cg-tri">
+      <nav aria-label={t('home.chooseKind')} className="cg-tri" data-depth-group>
         {KINDS.map((k, i) => (
           <Link key={k.id} to={`/events?tab=${k.tab}`} className={`cg-panel cg-rise cg-rise-${i + 1}`} style={{ background: k.color }}>
             <span className="cg-panel-art"><Media slot={k.id} /></span>
@@ -346,7 +349,7 @@ function HostCta() {
               : <img src={together} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
           ) : (
             <div className="absolute inset-0 grid grid-cols-3">
-              {KINDS.map((k) => <div key={k.id} className="relative overflow-hidden"><Media slot={k.id} /></div>)}
+              {KINDS.map((k) => <div key={k.id} className="relative overflow-hidden"><Media slot={k.id} flat /></div>)}
             </div>
           )}
         </div>
