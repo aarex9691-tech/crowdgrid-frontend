@@ -24,7 +24,7 @@ import { fmtDate } from '../lib/format';
 import { InvitationCodeBox, PublicEventList, YatraCard } from '../components/EventCards';
 import { DEFAULT_EVENTS } from '../data/defaultEvents';
 import { isVideo, LANDING_MEDIA } from '../data/landingMedia';
-import { SCENES } from '../components/landing/Scenes';
+import { CorporateScene, PilgrimageScene, PublicScene } from '../components/landing/Scenes';
 import { openTour } from '../components/GuidedTour';
 
 /*
@@ -37,6 +37,7 @@ const KINDS = [
   { id: 'corporate', tab: 'corporate', color: '#138A43', deep: '#0D6331' },
 ];
 const KIND_BY_TAB = Object.fromEntries(KINDS.map((k) => [k.tab, k]));
+const SCENES = { pilgrimage: PilgrimageScene, public: PublicScene, corporate: CorporateScene };
 
 /** A photo or clip when one is set in landingMedia.js, otherwise the drawn scene. */
 function Media({ slot }) {

@@ -147,4 +147,3 @@ export function CorporateScene() {
   );
 }
 
-export const SCENES = { pilgrimage: PilgrimageScene, public: PublicScene, corporate: CorporateScene };
