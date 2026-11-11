@@ -108,7 +108,7 @@ function HostForm({ onCreated, onCancel }) {
     <form onSubmit={submit} noValidate className="panel space-y-5 p-5">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Host a public event</h2>
-        <button type="button" className="btn-ghost min-h-10 px-3" onClick={onCancel} aria-label="Close form"><X size={18} aria-hidden /></button>
+        <button type="button" className="btn-ghost min-h-11 px-3" onClick={onCancel} aria-label="Close form"><X size={18} aria-hidden /></button>
       </div>
       <Notice tone="error">{error}</Notice>
 

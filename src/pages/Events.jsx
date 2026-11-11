@@ -7,11 +7,12 @@ import Notice from '../components/Notice';
 import { InvitationCodeBox, PublicEventList, YatraCard } from '../components/EventCards';
 import { DEFAULT_EVENTS } from '../data/defaultEvents';
 import SnanDates from '../components/SnanDates';
+import PageHero from '../components/PageHero';
 
 const TABS = [
-  { id: 'yatras', label: 'Yatras & melas', icon: Flag, blurb: 'Large pilgrimages with lodging, food, transport and seva.' },
-  { id: 'public', label: 'Public events', icon: Ticket, blurb: 'Open to everyone. Register, pay at checkout and get your entry pass.' },
-  { id: 'corporate', label: 'Campus & Corporate', icon: Briefcase, blurb: 'Invite-only events for students and professionals: college fests, seminars, workshops, conferences and company summits. Enter the code from your invitation.' },
+  { id: 'yatras', label: 'Yatras & melas', icon: Flag, blurb: 'Large pilgrimages with lodging, food, transport and seva.', kind: 'pilgrimage', tone: 'border-marigold' },
+  { id: 'public', label: 'Public events', icon: Ticket, blurb: 'Open to everyone. Register, pay at checkout and get your entry pass.', kind: 'public', tone: 'border-blue' },
+  { id: 'corporate', label: 'Campus & Corporate', icon: Briefcase, blurb: 'Invite-only events for students and professionals. Enter the 6-digit code from your host.', kind: 'corporate', tone: 'border-leaf' },
 ];
 
 /** All events, one tab per type (yatras, public, invite-only). */
@@ -64,13 +65,11 @@ export default function Events() {
   const withQ = (p) => (rawQ ? { ...p, q: rawQ } : p);
 
   return (
-    <div className="shell space-y-6 py-8">
-      <div>
-        <h1 className="text-3xl font-bold">Events</h1>
-        <p className="text-ink-soft">Choose the kind of event you are looking for.</p>
-      </div>
-
-      <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Event types">
+    <div>
+      {/* The photo follows the chosen kind of event */}
+      <PageHero kind={active.kind} size="sm" title="Events" lead={active.blurb} />
+      <div className="shell space-y-6 py-8">
+      <div className="no-scrollbar flex gap-1 overflow-x-auto border-b border-line" role="tablist" aria-label="Event types">
         {TABS.map((t) => {
           const selected = t.id === active.id;
           return (
@@ -80,17 +79,14 @@ export default function Events() {
               role="tab"
               aria-selected={selected}
               onClick={() => setParams(withQ({ tab: t.id }))}
-              className={`flex min-h-12 shrink-0 items-center gap-2 rounded-xl px-4 font-semibold ${selected ? 'bg-blue text-white' : 'border border-line bg-white text-ink-soft hover:text-ink'}`}
+              className={`-mb-px flex min-h-12 shrink-0 items-center gap-2 border-b-[3px] px-3 font-semibold transition-colors sm:px-4 ${selected ? `${t.tone} text-ink` : 'border-transparent text-ink-soft hover:text-ink'}`}
             >
               <t.icon size={18} aria-hidden /> {t.label}
-              {counts[t.id] !== undefined && events && (
-                <span className={`rounded-full px-2 text-sm ${selected ? 'bg-white/20' : 'bg-mist'}`}>{counts[t.id]}</span>
-              )}
+              {counts[t.id] !== undefined && events && <span className="pill-quiet">{counts[t.id]}</span>}
             </button>
           );
         })}
       </div>
-      <p className="text-ink-soft" role="note">{active.blurb}</p>
       {rawQ && (
         <p className="flex flex-wrap items-center gap-2 text-ink-soft">
           Results for <b className="text-ink">“{rawQ}”</b>
@@ -99,7 +95,7 @@ export default function Events() {
       )}
 
       {error && (
-        <div className="rounded-xl bg-marigold-wash p-3 text-xs sm:text-sm text-marigold-deep">
+        <div className="rounded-xl bg-marigold-wash p-3 text-sm text-marigold-deep" role="status">
           Can't reach the server right now (it may be waking up). Showing the published schedule; booking works once it connects. Retrying…
         </div>
       )}
@@ -108,12 +104,13 @@ export default function Events() {
         yatras.length ? (
           <>
             {yatras[0]?.isFlagship && (
-              <Link to={`/yatra/${yatras[0].slug}`} className="cg-band block overflow-hidden rounded-3xl p-6 hover:bg-blue-deep">
+              <Link to={`/yatra/${yatras[0].slug}`} className="cg-band block rounded-2xl border-l-4 border-l-marigold p-6 sm:p-7">
                 <p className="cg-kicker text-saffron-light">Flagship</p>
-                <p className="font-display text-3xl">{yatras[0].title}</p>
-                <p className="text-blue-mist">{yatras[0].tagline || yatras[0].city} · {fmtDate(yatras[0].startDate)} to {fmtDate(yatras[0].endDate)}</p>
+                <p className="mt-1 font-display text-3xl sm:text-4xl">{yatras[0].title}</p>
+                <p className="mt-1 text-blue-mist">{yatras[0].tagline || yatras[0].city}</p>
+                <p className="text-blue-mist">{fmtDate(yatras[0].startDate)} to {fmtDate(yatras[0].endDate)}</p>
                 <SnanDates event={yatras[0]} />
-                <p className="mt-2 text-sm text-blue-mist">Book lodging, food and transport</p>
+                <span className="cg-btn cg-btn-white mt-5">Book lodging, food and transport</span>
               </Link>
             )}
             <ul className="grid gap-4 sm:grid-cols-2">
@@ -132,7 +129,7 @@ export default function Events() {
                 type="button"
                 aria-pressed={category === k}
                 onClick={() => setParams(withQ(k ? { tab: 'public', category: k } : { tab: 'public' }))}
-                className={category === k ? 'btn-ink min-h-10 px-3' : 'btn-ghost min-h-10 px-3'}
+                className={`pill min-h-11 px-4 transition-colors ${category === k ? 'bg-blue text-white' : 'bg-sand text-ink-soft hover:text-ink'}`}
               >
                 {v}
               </button>
@@ -151,6 +148,7 @@ export default function Events() {
       ) : (
         <InvitationCodeBox from="/events?tab=corporate" />
       )}
+      </div>
     </div>
   );
 }

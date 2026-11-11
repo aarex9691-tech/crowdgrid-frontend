@@ -1,40 +1,52 @@
 @import "tailwindcss";
 
+/*
+ * CrowdGrid tokens. The palette is the tricolour plus chakra blue:
+ * white pages, navy ink, saffron for actions, green for "valid / available", blue for structure.
+ * Token names are kept from earlier versions so every page picks the new values up.
+ * Contrast (WCAG): ink 16.8, ink-soft 8.2, ink-faint 4.9 on white; white on terracotta 5.0, blue 9.7, tulsi 7.4.
+ */
 @theme {
-  /* Saffron, white, green and blue. Every text colour here passes WCAG AA on white. */
-  --color-ink: #1b1e28;
-  --color-ink-soft: #4a4f5e;
-  --color-ink-faint: #6b7080;
-  --color-mist: #faf8f4;
-  --color-paper: #fffdf8;        /* header, footer and card white */
-  --color-sand: #f4f1ea;
-  --color-line: #e7e1d7;
-  --color-terracotta: #b4530f;   /* deep saffron: actions (5.0:1 with white) */
+  --color-ink: #111c3a;
+  --color-ink-soft: #454f69;
+  --color-ink-faint: #667089;
+  --color-paper: #ffffff;
+  --color-mist: #f4f6fb;          /* quiet surface: hover, grouped rows, page bands */
+  --color-sand: #edf0f7;          /* neutral chips */
+  --color-line: #dde2ec;          /* hairlines */
+  --color-edge: #7f89a2;          /* input borders: 3:1 against white */
+  --color-navy: #0f1a3c;          /* footer, hero title cards */
+
+  --color-terracotta: #b4530f;    /* deep saffron: actions and links */
   --color-terracotta-dark: #8a3f0b;
   --color-terracotta-wash: #fdeedf;
-  --color-marigold: #e36f1e;     /* bright saffron: accents and dots only, never small text */
+  --color-marigold: #e36f1e;      /* bright saffron: marks and dots, never small text on white */
   --color-marigold-deep: #8a3f0b;
   --color-marigold-wash: #fdeedf;
-  --color-kumkum: #c8102e;       /* red is kept for SOS only */
-  --color-kumkum-wash: #fbeaea;
-  --color-tulsi: #0d6331;        /* green: available / valid (7.4:1) */
+  --color-saffron-light: #ffd9b8; /* saffron text on navy or blue */
+
+  --color-tulsi: #0d6331;         /* green: valid, available, done */
+  --color-leaf: #138a43;          /* bright green: marks and dots */
   --color-tulsi-wash: #e5f3ea;
+
   --color-blue: #1f3f8f;
   --color-blue-deep: #142b66;
   --color-blue-wash: #e7edf9;
-  --color-saffron-light: #ffd9b8;
-  --color-blue-mist: #d5deed;    /* secondary text on blue bands */ /* text and icons on blue bands (8:1) */
-  --color-dusk: #2a2f3d;
+  --color-blue-mist: #d5deed;     /* secondary text on navy or blue */
 
-  /* Mukta ships with the app, so text still has a proper font offline or before web fonts load */
+  --color-kumkum: #c8102e;        /* red is for SOS and errors only */
+  --color-kumkum-wash: #fbeaea;
+  --color-dusk: #1b2750;
+
+  /* Mukta ships with the app, so text has a proper face offline and before web fonts load */
   --font-sans: "Plus Jakarta Sans", "Mukta", system-ui, sans-serif;
   --font-display: "Rozha One", "Mukta", Georgia, serif;
 }
 
 body {
   position: relative;
-  background-color: #faf8f4;
-  color: #1b1e28;
+  background-color: #ffffff;
+  color: #111c3a;
   min-height: 100dvh;
 }
 
@@ -44,32 +56,35 @@ body {
   body {
     @apply text-ink font-sans antialiased;
     font-size: 17px;
-    line-height: 1.5;
+    line-height: 1.55;
   }
-  h1, h2, h3 { line-height: 1.25; }
-  :focus-visible { outline: 3px solid var(--color-terracotta); outline-offset: 2px; }
+  h1, h2, h3 { line-height: 1.2; text-wrap: balance; }
+  h2, h3 { letter-spacing: -0.012em; }
+  p { text-wrap: pretty; }
+  :focus-visible { outline: 3px solid var(--color-blue); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) {
     /* Movement off everywhere; dialogs, alerts and the menu keep a short fade (styles/theme.css) */
     *:not(.cg-backdrop, .cg-dialog, .cg-toast, .cg-menu), *::before, *::after { animation: none !important; transition: none !important; }
   }
 }
 
-@utility shell { @apply mx-auto w-full max-w-5xl px-4 sm:px-6; }
+@utility shell { @apply mx-auto w-full max-w-6xl px-4 sm:px-6; }
 
+/* Controls share a 12px corner; cards 16px; photos 24px; chips are pills. */
 @utility btn {
-  @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-5 font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-60;
+  @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-5 font-semibold disabled:cursor-not-allowed disabled:opacity-60;
 }
-@utility btn-primary { @apply btn bg-[#B4530F] text-white hover:bg-[#8A3F0B] shadow-sm shadow-[#B4530F]/20; }
-@utility btn-brass { @apply btn bg-[#1F3F8F] text-white hover:bg-[#142B66] shadow-sm; }
+@utility btn-primary { @apply btn bg-terracotta text-white hover:bg-terracotta-dark; }
+@utility btn-brass { @apply btn bg-blue text-white hover:bg-blue-deep; }
 @utility btn-ink { @apply btn bg-blue text-white hover:bg-blue-deep; }
-@utility btn-ghost { @apply btn border border-line bg-white text-ink hover:bg-[#F4F1EA] hover:border-ink-faint disabled:border-ink-faint disabled:bg-white disabled:text-ink-soft; }
+@utility btn-ghost { @apply btn border-[1.5px] border-line bg-white text-ink hover:border-ink-faint hover:bg-mist disabled:border-edge disabled:bg-white disabled:text-ink-soft; }
 @utility btn-sos { @apply btn bg-kumkum text-white hover:bg-[#9e1f1f]; }
 
-@utility panel { @apply rounded-3xl border border-line bg-white; }
+@utility panel { @apply rounded-2xl border border-line bg-white; }
 
-@utility field-label { @apply mb-1.5 block text-xs font-bold uppercase tracking-wider text-ink-soft; }
+@utility field-label { @apply mb-1.5 block text-sm font-semibold text-ink; }
 @utility field {
-  @apply min-h-12 w-full rounded-xl border border-line bg-white px-4 text-ink outline-none placeholder:text-ink-faint focus:border-[#B4530F];
+  @apply min-h-12 w-full rounded-xl border-[1.5px] border-edge bg-white px-4 text-ink outline-none placeholder:text-ink-faint focus:border-blue;
 }
 
 @utility pill { @apply inline-flex items-center gap-1 rounded-full px-3 py-0.5 text-xs sm:text-sm font-semibold; }
@@ -86,10 +101,10 @@ body {
   }
 }
 
-/* Three-colour strip (saffron, white, green) along the top of header bands, as on the home page */
+/* Saffron, white and green rule: the one brand mark, drawn under the site header */
 @utility toran {
-  height: 6px;
-  background: linear-gradient(to right, #e36f1e 0 33.33%, #fffdf8 33.33% 66.66%, #138a43 66.66% 100%);
+  height: 3px;
+  background: linear-gradient(to right, #e36f1e 0 33.33%, #ffffff 33.33% 66.66%, #138a43 66.66% 100%);
 }
 
 /* Printing an invitation card: print only the card */

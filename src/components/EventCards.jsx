@@ -10,21 +10,18 @@ import Notice from './Notice';
 
 export function YatraCard({ event }) {
   return (
-    <li className="panel group flex flex-col overflow-hidden rounded-3xl border border-line bg-white p-5 sm:p-6 shadow-xs transition-[transform,border-color,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:border-terracotta hover:shadow-sm">
-      <div className="flex items-start justify-between gap-2">
-        <span className="rounded-full bg-marigold-wash px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-marigold-deep">Yatra & Mela</span>
-        <span className="text-xs font-semibold text-ink-faint">
-          {fmtDate(event.startDate, { year: undefined })} – {fmtDate(event.endDate)}
-        </span>
-      </div>
-      <h3 className="mt-2.5 text-xl font-bold text-ink group-hover:text-terracotta transition-colors">{event.title}</h3>
-      <p className="mt-1 text-sm text-ink-soft line-clamp-2">{event.tagline}</p>
-      <p className="mt-3 text-xs text-ink-soft flex items-center gap-1.5">
-        <MapPin size={14} className="text-terracotta shrink-0" />
+    <li className="panel flex flex-col border-l-4 border-l-marigold p-5 transition-colors hover:border-ink-faint hover:border-l-marigold sm:p-6">
+      <p className="text-sm font-semibold text-ink-soft">
+        {fmtDate(event.startDate, { year: undefined })} to {fmtDate(event.endDate)}
+      </p>
+      <h3 className="mt-1 text-xl font-bold">{event.title}</h3>
+      <p className="mt-1 line-clamp-2 text-ink-soft">{event.tagline}</p>
+      <p className="mt-3 flex items-center gap-1.5 text-sm text-ink-soft">
+        <MapPin size={16} className="shrink-0 text-terracotta" aria-hidden />
         {event.stats?.verifiedProviders ? `${event.stats.verifiedProviders} verified seva camps` : 'Seva camps open closer to the date'}
       </p>
-      <Link to={`/yatra/${event.slug}`} className="btn-ghost mt-4 self-start text-sm">
-        Explore services →
+      <Link to={`/yatra/${event.slug}`} className="btn-ghost mt-4 self-start">
+        Open services
       </Link>
     </li>
   );
@@ -42,80 +39,61 @@ export const addTicketToCart = (cart, event, people = 1) =>
     input: { people },
   });
 
-/*
- * Public events are blue on the home page colour key, so every public card stays in the blue family
- * (saffron means pilgrimage, green means corporate). Each shade keeps small white text above 4.5:1.
- */
-const CATEGORY_TONE = {
-  SPIRITUAL: '#1F3F8F',
-  CULTURAL: '#142B66',
-  HERITAGE_WALK: '#24508F',
-  WORKSHOP: '#2B3A6B',
-  SEVA: '#1D4A7A',
-  OTHER: '#3A3F4E',
-};
-
 export const placesLeft = (e) => Math.max(0, (e.capacity || 0) - (e.attendeesCount || 0));
+
+// One part of a date, in IST: the day number, the short month, or the short weekday
+const datePart = (d, part) =>
+  fmtDate(d, { day: undefined, month: undefined, year: undefined, ...part });
 
 function PublicEventCard({ event, onRegister, showRegister }) {
   const left = placesLeft(event);
   return (
-    <li className="panel group flex flex-col overflow-hidden rounded-3xl border border-line bg-white shadow-xs transition-[transform,border-color,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:border-ink-faint hover:shadow-md">
-      {/* Event Header Banner with Warm Terracotta Gradient */}
-      <div className="relative h-28 sm:h-32 w-full overflow-hidden p-4 flex flex-col justify-between text-white" style={{ background: CATEGORY_TONE[event.category] || CATEGORY_TONE.OTHER }}>
-        <div className="flex items-center justify-between gap-2">
-          <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-white">
-            {EVENT_CATEGORIES[event.category] || 'Event'}
-          </span>
-          <span className="rounded-full bg-black/25 px-2.5 py-0.5 text-xs font-medium text-white">
-            {fmtDate(event.startDate, { weekday: 'short', month: 'short', day: 'numeric' })}
-          </span>
-        </div>
-        <div className="flex items-end justify-between">
-          <span className="text-xs text-white/90 flex items-center gap-1">
-            <CalendarDays size={13} /> {fmtTime(event.startDate)}
-          </span>
-          <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
-            left === 0 ? 'bg-kumkum text-white' : left <= 5 ? 'bg-marigold text-white' : 'bg-tulsi text-white'
-          }`}>
-            {left === 0 ? 'Sold out' : `${left} left`}
-          </span>
+    <li className="panel flex flex-col overflow-hidden transition-colors hover:border-ink-faint">
+      <div className="flex flex-1 gap-4 p-4 sm:p-5">
+        {/* Calendar leaf: the date is the first thing people look for */}
+        <p className="flex w-16 shrink-0 flex-col items-center self-start rounded-xl bg-blue-wash py-2 text-blue" aria-label={fmtDate(event.startDate, { weekday: 'long' })}>
+          <span className="text-xs font-bold" aria-hidden>{datePart(event.startDate, { weekday: 'short' })}</span>
+          <span className="font-display text-3xl leading-none" aria-hidden>{datePart(event.startDate, { day: 'numeric' })}</span>
+          <span className="text-xs font-bold" aria-hidden>{datePart(event.startDate, { month: 'short' })}</span>
+        </p>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+            <span className="text-sm font-semibold text-blue">{EVENT_CATEGORIES[event.category] || 'Event'}</span>
+            <span className={left === 0 ? 'pill-out' : left <= 5 ? 'pill-low' : 'pill-ok'}>
+              {left === 0 ? 'Sold out' : `${left} left`}
+            </span>
+          </div>
+          <h3 className="mt-1 line-clamp-2 text-lg font-bold leading-snug">{event.title}</h3>
+          <p className="mt-1.5 flex items-center gap-1.5 text-sm text-ink-soft">
+            <MapPin size={15} className="shrink-0" aria-hidden />
+            <span className="truncate">{event.venue}, {event.city}</span>
+          </p>
+          <p className="mt-0.5 flex items-center gap-1.5 text-sm text-ink-soft">
+            <CalendarDays size={15} className="shrink-0" aria-hidden /> {fmtTime(event.startDate)}
+          </p>
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 p-4 sm:p-5">
-        <h3 className="text-lg font-bold leading-snug text-ink group-hover:text-terracotta transition-colors line-clamp-2">
-          {event.title}
-        </h3>
-        <p className="flex items-center gap-1.5 text-xs sm:text-sm text-ink-soft truncate">
-          <MapPin size={15} className="shrink-0 text-terracotta" aria-hidden />
-          <span className="truncate">{event.venue}, {event.city}</span>
-        </p>
-
-        <div className="mt-auto flex items-center justify-between border-t border-line/60 pt-3">
-          <div>
-            <span className="block text-[11px] font-semibold uppercase text-ink-faint">Pass</span>
-            {event.ticketPrice > 0 ? (
-              <span className="text-xl font-extrabold text-ink">{rupees(event.ticketPrice)}</span>
-            ) : (
-              <span className="text-xl font-extrabold text-tulsi">Free</span>
-            )}
-          </div>
-          <div className="flex gap-2">
-            <Link to={`/event/${event.slug}`} className="btn-ghost min-h-11 px-3 text-sm">
-              Details
-            </Link>
-            {showRegister && (
-              <button
-                type="button"
-                className="btn-primary min-h-11 px-4 text-sm"
-                disabled={left === 0}
-                onClick={() => onRegister(event)}
-              >
-                Register
-              </button>
-            )}
-          </div>
+      <div className="flex items-center justify-between gap-3 border-t border-line bg-mist px-4 py-3 sm:px-5">
+        {event.ticketPrice > 0 ? (
+          <p className="text-xl font-extrabold">{rupees(event.ticketPrice)}</p>
+        ) : (
+          <p className="text-xl font-extrabold text-tulsi">Free</p>
+        )}
+        <div className="flex gap-2">
+          <Link to={`/event/${event.slug}`} className="btn-ghost min-h-11 px-3 text-sm">
+            Details
+          </Link>
+          {showRegister && (
+            <button
+              type="button"
+              className="btn-primary min-h-11 px-4 text-sm"
+              disabled={left === 0}
+              onClick={() => onRegister(event)}
+            >
+              Register
+            </button>
+          )}
         </div>
       </div>
     </li>
@@ -193,12 +171,12 @@ export function InvitationCodeBox({ from = '/' }) {
   };
 
   return (
-    <section aria-labelledby="invite" className="panel flex flex-col gap-4 p-5 md:flex-row md:items-center">
+    <section aria-labelledby="invite" className="panel flex flex-col gap-4 border-l-4 border-l-leaf p-5 sm:p-6 md:flex-row md:items-center">
       <div className="flex-1">
         <h2 id="invite" className="flex items-center gap-2 text-xl font-bold">
-          <KeyRound size={20} aria-hidden /> Have an invitation code?
+          <KeyRound size={20} className="text-tulsi" aria-hidden /> Have an invitation code?
         </h2>
-        <p className="text-ink-soft">Campus and corporate events (college fests, seminars, company summits) are invite-only. Enter the 6-digit code from your invitation to claim your badge.</p>
+        <p className="mt-1 text-ink-soft">Campus and corporate events are invite-only. Enter the 6-digit code from your host to claim your badge.</p>
       </div>
       <form onSubmit={submit} className="flex flex-col gap-2 md:w-80">
         <div className="flex gap-2">

@@ -491,7 +491,7 @@ export function LanguageSwitch({ className = '' }) {
   return (
     <label className={`inline-flex items-center ${className}`}>
       <span className="sr-only">{t('nav.language')}</span>
-      <select className="min-h-10 rounded-xl border border-line bg-white px-2 text-sm font-semibold text-ink" value={lang} onChange={(e) => setLang(e.target.value)} aria-label={t('nav.language')}>
+      <select className="min-h-11 rounded-xl border border-line bg-white px-2 text-sm font-semibold text-ink" value={lang} onChange={(e) => setLang(e.target.value)} aria-label={t('nav.language')}>
         {LANGUAGES.map((l) => (
           <option key={l.code} value={l.code}>{l.label}</option>
         ))}

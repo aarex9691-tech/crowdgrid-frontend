@@ -14,7 +14,7 @@ const TABS = [
 function Field({ id, label, children }) {
   return (
     <div className="flex min-w-0 flex-1 flex-col rounded-xl border border-line bg-white px-3.5 py-2 transition-[border-color,box-shadow] focus-within:border-terracotta focus-within:shadow-xs hover:border-ink-faint">
-      <label htmlFor={id} className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">{label}</label>
+      <label htmlFor={id} className="text-sm font-semibold text-ink-soft">{label}</label>
       {children}
     </div>
   );

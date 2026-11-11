@@ -213,10 +213,10 @@ function EventCard({ event, onChanged, highlight, ended }) {
           <p className="text-sm text-ink-soft">Access code</p>
           <p className="text-3xl font-extrabold tracking-widest tabular-nums">{spacedCode(event.accessCode)}</p>
           <div className="mt-2 flex gap-2">
-            <button type="button" className="btn-ghost min-h-10 px-3 text-sm" onClick={() => copy('code', event.accessCode)}>
+            <button type="button" className="btn-ghost min-h-11 px-3 text-sm" onClick={() => copy('code', event.accessCode)}>
               <Copy size={16} aria-hidden /> {copied === 'code' ? 'Copied' : 'Copy'}
             </button>
-            <button type="button" className="btn-ghost min-h-10 px-3 text-sm" onClick={regenerate} disabled={busy}>
+            <button type="button" className="btn-ghost min-h-11 px-3 text-sm" onClick={regenerate} disabled={busy}>
               <RefreshCw size={16} aria-hidden /> {busy ? 'Working…' : 'Regenerate'}
             </button>
           </div>
@@ -298,7 +298,7 @@ function CreateEventForm({ onCreated, onCancel }) {
     <form onSubmit={submit} noValidate className="panel space-y-5 p-5">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">New campus or corporate event</h2>
-        <button type="button" className="btn-ghost min-h-10 px-3" onClick={onCancel} aria-label="Close form">
+        <button type="button" className="btn-ghost min-h-11 px-3" onClick={onCancel} aria-label="Close form">
           <X size={18} aria-hidden />
         </button>
       </div>

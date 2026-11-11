@@ -3,6 +3,7 @@ import {
   Activity, BedDouble, BusFront, Building2, Footprints, HandHeart, Landmark, Lock, Mail, MessageCircle, Phone, QrCode, ShieldCheck, Siren, Tent, Ticket, UserSearch, Users, UtensilsCrossed, WifiOff,
 } from 'lucide-react';
 import { SITE } from '../lib/site';
+import PageHero from '../components/PageHero';
 
 const CHALLENGES = [
   { icon: Users, title: 'Crowds bigger than cities', text: 'One festival day can draw more people than most cities hold. Narrow lanes turn unsafe fast.' },
@@ -41,47 +42,43 @@ export default function About() {
   const tel = `tel:${SITE.phone.replace(/[^\d+]/g, '')}`;
   return (
     <div className="pb-10">
-      <section className="cg-band">
-        <div className="toran" aria-hidden />
-        <div className="shell py-12">
-          <p className="cg-kicker text-saffron-light">About us</p>
-          <h1 className="mt-1 max-w-3xl font-display text-4xl sm:text-5xl">One app for every crowd</h1>
-          <p className="mt-4 max-w-2xl text-lg text-blue-mist">
-            Passes, stays, food, transport and SOS for pilgrimages, public events and company gatherings. We start with
-            Simhastha Kumbh 2026–28 at Nashik.
-          </p>
-          <dl className="mt-8 grid max-w-3xl grid-cols-2 gap-4 sm:grid-cols-4">
-            {[
-              ['3', 'kinds of gathering'],
-              ['5 crore+', 'expected at Simhastha'],
-              ['1 QR', 'for every service'],
-              ['24×7', 'SOS and live control room'],
-            ].map(([n, l]) => (
-              <div key={l} className="rounded-xl border border-white/15 bg-white/5 p-4">
-                <dt className="sr-only">{l}</dt>
-                <dd className="font-display text-3xl text-saffron-light">{n}</dd>
-                <dd className="mt-1 text-sm text-blue-mist">{l}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      </section>
+      <PageHero
+        kind="all"
+        title="One app for every crowd"
+        lead="Passes, stays, food, transport and SOS for pilgrimages, public events and company gatherings. We start with Simhastha Kumbh 2026–28 at Nashik."
+      />
+
+      {/* Four figures, set as a ruled row rather than boxes */}
+      <dl className="shell grid grid-cols-2 gap-y-6 border-b border-line py-8 sm:grid-cols-4">
+        {[
+          ['3', 'kinds of gathering'],
+          ['5 crore+', 'expected at Simhastha'],
+          ['1 QR', 'for every service'],
+          ['24×7', 'SOS and live control room'],
+        ].map(([n, l]) => (
+          <div key={l} className="border-l-[3px] border-marigold pl-4">
+            <dt className="sr-only">{l}</dt>
+            <dd className="font-display text-3xl sm:text-4xl">{n}</dd>
+            <dd className="text-sm text-ink-soft">{l}</dd>
+          </div>
+        ))}
+      </dl>
 
       <div className="shell space-y-14 py-12">
         <section aria-labelledby="mission-title" className="grid gap-8 lg:grid-cols-[0.9fr_2fr]">
           <div>
-            <h2 id="mission-title" className="text-3xl font-bold">Our mission</h2>
-            <p className="mt-3 text-lg text-ink-soft">
+            <h2 id="mission-title" className="text-2xl font-bold sm:text-3xl">Our mission</h2>
+            <p className="mt-3 max-w-prose text-lg text-ink-soft">
               Everyone in a crowd should find a bed, a meal and a way home, and get help within minutes. We put the people who make
               that happen on one live system.
             </p>
           </div>
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-ink-faint">The challenge</h3>
+            <h3 className="font-bold">The challenge</h3>
             <ul className="mt-3 grid gap-4 sm:grid-cols-3">
               {CHALLENGES.map((c) => (
-                <li key={c.title} className="panel p-5">
-                  <c.icon size={24} className="text-terracotta" aria-hidden />
+                <li key={c.title} className="border-t-[3px] border-line pt-4">
+                  <c.icon size={24} className="text-blue" aria-hidden />
                   <p className="mt-3 font-bold">{c.title}</p>
                   <p className="mt-1 text-sm text-ink-soft">{c.text}</p>
                 </li>
@@ -91,12 +88,12 @@ export default function About() {
         </section>
 
         <section aria-labelledby="offer-title">
-          <h2 id="offer-title" className="text-3xl font-bold">What we offer</h2>
+          <h2 id="offer-title" className="text-2xl font-bold sm:text-3xl">What we offer</h2>
           <p className="mt-1 text-ink-soft">Every service, in one place.</p>
-          <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <ul className="mt-6 grid gap-x-8 gap-y-7 sm:grid-cols-2 lg:grid-cols-4">
             {SERVICES.map((s) => (
-              <li key={s.title} className="flex gap-4 rounded-2xl border border-line bg-white p-5">
-                <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-marigold-wash text-marigold-deep"><s.icon size={22} aria-hidden /></span>
+              <li key={s.title} className="flex gap-3.5">
+                <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-blue-wash text-blue"><s.icon size={22} aria-hidden /></span>
                 <span>
                   <span className="block font-bold">{s.title}</span>
                   <span className="mt-1 block text-sm text-ink-soft">{s.text}</span>
@@ -107,11 +104,11 @@ export default function About() {
         </section>
 
         <section aria-labelledby="who-title">
-          <h2 id="who-title" className="text-3xl font-bold">Who it is for</h2>
+          <h2 id="who-title" className="text-2xl font-bold sm:text-3xl">Who it is for</h2>
           <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {AUDIENCES.map((a) => (
-              <li key={a.title} className="panel p-5">
-                <a.icon size={24} className="text-marigold-deep" aria-hidden />
+            {AUDIENCES.map((a, i) => (
+              <li key={a.title} className={`border-t-[3px] pt-4 ${['border-marigold', 'border-leaf', 'border-leaf', 'border-blue', 'border-leaf'][i] || 'border-line'}`}>
+                <a.icon size={24} className="text-ink" aria-hidden />
                 <p className="mt-3 font-bold">{a.title}</p>
                 <p className="mt-1 text-sm text-ink-soft">{a.text}</p>
               </li>
@@ -122,9 +119,9 @@ export default function About() {
           </p>
         </section>
 
-        <section aria-labelledby="trust-title" className="rounded-3xl bg-sand p-6 sm:p-10">
-          <h2 id="trust-title" className="text-3xl font-bold">Trust and safety</h2>
-          <p className="mt-1 text-ink-soft">How we keep pilgrims and their data safe.</p>
+        <section aria-labelledby="trust-title" className="rounded-2xl bg-mist p-6 sm:p-10">
+          <h2 id="trust-title" className="text-2xl font-bold sm:text-3xl">Trust and safety</h2>
+          <p className="mt-1 text-ink-soft">How we keep people and their data safe.</p>
           <ul className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {TRUST.map((t) => (
               <li key={t.title}>
@@ -153,12 +150,12 @@ export default function About() {
               </li>
             </ul>
             <p className="mt-4 rounded-xl bg-kumkum-wash p-3 text-sm">
-              In an emergency at the mela, call <a className="font-bold text-kumkum" href="tel:112">112</a> or medical{' '}
+              In an emergency at an event, call <a className="font-bold text-kumkum" href="tel:112">112</a> or medical{' '}
               <a className="font-bold text-kumkum" href="tel:108">108</a>, or use the <Link className="font-bold underline" to={`/yatra/${SITE.flagshipSlug}?tab=sos`}>SOS button</Link>.
             </p>
           </div>
 
-          <div className="cg-band flex flex-col justify-between gap-4 rounded-3xl p-6">
+          <div className="cg-band flex flex-col justify-between gap-4 rounded-2xl p-6">
             <div>
               <p className="cg-kicker text-saffron-light">Quick help</p>
               <h2 className="mt-1 text-2xl font-bold">Chat with customer care on WhatsApp</h2>
@@ -168,7 +165,7 @@ export default function About() {
               <a className="btn-primary" href={`https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent('Hi CrowdGrid customer care, I have a question.')}`} target="_blank" rel="noreferrer">
                 <MessageCircle size={20} aria-hidden /> Chat on WhatsApp
               </a>
-              <a className="btn border border-white/30 text-white hover:bg-white/10" href={`mailto:${SITE.email}`}>
+              <a className="btn border-[1.5px] border-white/40 text-white hover:bg-white/10" href={`mailto:${SITE.email}`}>
                 <Mail size={20} aria-hidden /> Email us
               </a>
             </div>

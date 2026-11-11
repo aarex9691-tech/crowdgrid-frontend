@@ -1,54 +1,61 @@
 /*
- * CrowdGrid theme, shared by every page: saffron, white, green and blue; no gradient text.
- * Loaded once in main.jsx. Plain CSS so it needs no build step; the cg- classes are the shared pieces.
+ * CrowdGrid theme, shared by every page. Loaded once in main.jsx.
+ * Direction: white pages, navy ink, saffron actions, green for "valid", blue for structure.
+ * The one bold element is documentary photography with real depth; everything around it stays quiet.
+ * No gradient text. Movement uses transform and opacity only, and is off under reduced motion.
  */
-:root,
-.cg-home {
+:root {
   --cg-saffron: #e36f1e;
   --cg-saffron-deep: #b4530f;
   --cg-saffron-wash: #fdeedf;
   --cg-blue: #1f3f8f;
   --cg-blue-deep: #142b66;
   --cg-blue-wash: #e7edf9;
+  --cg-navy: #0f1a3c;
   --cg-green: #138a43;
   --cg-green-deep: #0d6331;
   --cg-green-wash: #e5f3ea;
-  --cg-white: #fffdf8;
-  --cg-ink: #1b1e28;
-  --cg-ink-soft: #4a4f5e;
-  --cg-line: #e7e1d7;
+  --cg-white: #ffffff;
+  --cg-mist: #f4f6fb;
+  --cg-ink: #111c3a;
+  --cg-ink-soft: #454f69;
+  --cg-line: #dde2ec;
   --cg-display: "Rozha One", "Mukta", Georgia, serif;
-  /* Motion vocabulary: one curve for things settling, one for sheets sliding up */
+
+  /* Corners follow hierarchy: controls, cards, photos, chips */
   --radius-sm: 0.75rem;
   --radius-md: 1rem;
   --radius-lg: 1.5rem;
   --radius-pill: 999px;
   --ring-line: inset 0 0 0 1.5px var(--cg-line);
   --ring-ink: inset 0 0 0 1.5px var(--cg-ink);
+  /* One elevation, used only by things that float above the page */
+  --shadow-pop: 0 18px 40px -18px rgb(15 26 60 / 0.35);
+
+  /* One curve for things settling, one for sheets sliding up */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
-.cg-home {
-  color: var(--cg-ink);
-  font-family: "Plus Jakarta Sans", "Mukta", system-ui, sans-serif;
-}
 
-/* Every page title uses the display face, as on the home page (Rozha One has one weight) */
+/* ── Type ───────────────────────────────────────────────────────────── */
 h1 {
   font-family: var(--cg-display);
   font-weight: 400;
-  letter-spacing: 0.005em;
-  line-height: 1.12;
+  letter-spacing: 0.004em;
+  line-height: 1.1;
 }
-
-/* Header band used at the top of content pages: blue with a light dot pattern */
-.cg-band {
-  background-color: var(--cg-blue);
-  background-image: radial-gradient(circle, rgb(255 253 248 / 0.14) 1.6px, transparent 2px);
-  background-size: 22px 22px;
-  color: #fff;
+.cg-h1,
+.cg-h2 {
+  font-family: var(--cg-display);
+  font-weight: 400;
+  color: var(--cg-ink);
+  letter-spacing: 0.004em;
 }
-.cg-band h1 { color: #fff; }
+.cg-h1 { font-size: clamp(2.7rem, 6.4vw, 4.75rem); line-height: 1.02; }
+.cg-h2 { font-size: clamp(1.9rem, 4vw, 2.9rem); line-height: 1.1; }
+/* A short label above a title. Sentence case: capitals and wide tracking are hard to read
+   and break Devanagari letter joins. */
+.cg-kicker { font-size: 0.94rem; font-weight: 700; }
 
 .cg-shell {
   margin-inline: auto;
@@ -56,30 +63,9 @@ h1 {
   max-width: 76rem;
   padding-inline: clamp(1rem, 4vw, 2rem);
 }
-
 .cg-section { padding-block: clamp(3rem, 7vw, 5.5rem); }
 
-.cg-kicker {
-  font-size: 0.8rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.cg-h1,
-.cg-h2 {
-  font-family: var(--cg-display);
-  font-weight: 400;
-  color: var(--cg-ink);
-  letter-spacing: 0.005em;
-}
-.cg-h1 { font-size: clamp(2.6rem, 6.4vw, 4.6rem); line-height: 1.04; }
-.cg-h2 { font-size: clamp(1.9rem, 4vw, 2.9rem); line-height: 1.1; margin-top: 0.35rem; }
-
-/* Three-colour rule used as a quiet signature */
-.cg-tricolour { display: flex; height: 6px; width: 7.5rem; border-radius: var(--radius-pill); overflow: hidden; }
-.cg-tricolour > span { flex: 1; }
-
+/* ── Buttons used on photo and colour bands ─────────────────────────── */
 .cg-btn {
   display: inline-flex;
   align-items: center;
@@ -91,7 +77,7 @@ h1 {
   font-weight: 700;
   transition: transform 140ms var(--ease-out), background-color 150ms ease, color 150ms ease;
 }
-.cg-btn-saffron { background: var(--cg-saffron-deep); color: #fff; } /* deep shade: 5.0:1 with white */
+.cg-btn-saffron { background: var(--cg-saffron-deep); color: #fff; }
 .cg-btn-saffron:hover { background: #8a3f0b; }
 .cg-btn-blue { background: var(--cg-blue); color: #fff; }
 .cg-btn-blue:hover { background: var(--cg-blue-deep); }
@@ -100,40 +86,18 @@ h1 {
 .cg-btn-white { background: var(--cg-white); color: var(--cg-blue-deep); }
 .cg-btn-white:hover { background: var(--cg-saffron-wash); }
 
-/* ── Hero triptych: three gatherings side by side, the focused one widens ── */
-.cg-tri {
-  display: flex;
-  gap: 0.6rem;
-  height: clamp(22rem, 40vw, 30rem);
-}
-.cg-panel {
-  position: relative;
-  flex: 1 1 0;
-  min-width: 0;
-  overflow: hidden;
-  border-radius: var(--radius-lg);
-  isolation: isolate;
-}
-/* Hover and focus only move pixels (transform), so the browser never re-lays out the page */
-.cg-panel-art {
-  position: absolute;
-  inset: 0;
-  transition: transform 500ms var(--ease-out);
-}
-.cg-panel:focus-visible .cg-panel-art { transform: scale(1.06); }
-@media (hover: hover) and (pointer: fine) {
-  .cg-panel:hover .cg-panel-art { transform: scale(1.06); }
-  .cg-panel:hover .cg-panel-label {
-  position: absolute;
-  inset: auto 0.5rem 0.5rem 0.5rem;
-  z-index: 1;
-  border-radius: var(--radius-md);
-  padding: 0.55rem 0.75rem;
+/* ── Navy band: small dark surfaces (invite cards, callouts) ────────── */
+.cg-band,
+.cg-dots {
+  background-color: var(--cg-navy);
+  background-image: radial-gradient(circle, rgb(255 255 255 / 0.1) 1.4px, transparent 1.8px);
+  background-size: 22px 22px;
   color: #fff;
 }
-}
-.cg-panel-label { transition: transform 240ms var(--ease-out); }
-.cg-panel:focus-visible .cg-panel-label { transform: translateY(-4px); }
+.cg-band h1, .cg-band h2 { color: #fff; }
+:is(.cg-band, .cg-dots, .cg-hero, .cg-foot) :focus-visible { outline-color: #fff; }
+
+/* ── Photos with depth ──────────────────────────────────────────────── */
 .cg-depth {
   position: absolute;
   inset: 0;
@@ -143,19 +107,46 @@ h1 {
   transition: opacity 300ms var(--ease-out);
 }
 .cg-depth[data-live] { opacity: 1; }
+
+/* Home: three gatherings side by side */
+.cg-tri {
+  display: flex;
+  gap: 0.6rem;
+  height: clamp(22rem, 42vw, 32rem);
+}
+.cg-panel {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  isolation: isolate;
+}
+.cg-panel-art {
+  position: absolute;
+  inset: 0;
+  transition: transform 500ms var(--ease-out);
+}
 .cg-panel img,
 .cg-panel video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .cg-panel-label {
   position: absolute;
-  inset: auto 0.6rem 0.6rem 0.6rem;
+  inset: auto 0.5rem 0.5rem 0.5rem;
   z-index: 1;
   border-radius: var(--radius-md);
-  padding: 0.75rem 0.9rem;
+  padding: 0.55rem 0.75rem;
   color: #fff;
+  transition: transform 240ms var(--ease-out);
 }
 .cg-panel-label b { display: block; font-size: 1rem; line-height: 1.2; }
-.cg-panel-label small { display: block; font-size: 0.8rem; line-height: 1.3; opacity: 0.95; margin-top: 0.1rem; }
+.cg-panel-label small { display: block; font-size: 0.8rem; line-height: 1.3; margin-top: 0.1rem; }
 .cg-panel-label .cg-short { display: none; }
+.cg-panel:focus-visible .cg-panel-art { transform: scale(1.06); }
+.cg-panel:focus-visible .cg-panel-label { transform: translateY(-4px); }
+@media (hover: hover) and (pointer: fine) {
+  .cg-panel:hover .cg-panel-art { transform: scale(1.06); }
+  .cg-panel:hover .cg-panel-label { transform: translateY(-4px); }
+}
 @media (max-width: 639px) {
   .cg-tri { height: 18rem; gap: 0.45rem; }
   .cg-panel { border-radius: var(--radius-md); }
@@ -165,18 +156,87 @@ h1 {
   .cg-panel-label .cg-short { display: block; }
 }
 
-/* Staggered entrance, once */
-@keyframes cgRise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
-.cg-rise { animation: cgRise 600ms var(--ease-out) both; /* one-time page entrance, marketing budget */ }
-.cg-rise-1 { animation-delay: 0.08s; }
-.cg-rise-2 { animation-delay: 0.16s; }
-.cg-rise-3 { animation-delay: 0.24s; }
+/*
+ * Page hero: a full-width photo with the page title on a solid navy card.
+ * The card keeps text readable over any photo; its top edge carries the colour of the
+ * kind of gathering (saffron pilgrimage, blue public, green corporate).
+ */
+.cg-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--cg-navy);
+  color: #fff;
+}
+.cg-hero-media { position: absolute; inset: 0; }
+.cg-hero-media > * { animation: cgPush 1100ms var(--ease-out) both; /* one slow settle as the page opens */ }
+.cg-hero-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cg-hero-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgb(15 26 60 / 0.5), rgb(15 26 60 / 0) 60%);
+  pointer-events: none;
+}
+.cg-hero-shot { position: absolute; inset: 0; }
+.cg-hero-strip { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+.cg-hero-strip > div { position: relative; overflow: hidden; }
+.cg-hero-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  min-height: clamp(15rem, 29vw, 21rem);
+  padding-top: clamp(3rem, 7vw, 5.5rem); /* the photo always shows above the title card */
+}
+.cg-hero-sm .cg-hero-inner { min-height: clamp(12rem, 22vw, 16rem); }
+.cg-hero-card {
+  position: relative;
+  width: 100%;
+  max-width: 41rem;
+  padding: 1.4rem 1.5rem 1.5rem;
+  background: var(--cg-navy);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  overflow: hidden;
+}
+.cg-hero-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 5px; background: var(--hero-tone, #fff); }
+.cg-hero-card h1 { color: #fff; font-size: clamp(2rem, 4.4vw, 3.1rem); }
+.cg-hero-card a { text-underline-offset: 3px; }
+@media (max-width: 639px) {
+  .cg-hero-inner, .cg-hero-sm .cg-hero-inner { min-height: 0; padding-top: 8.5rem; }
+  .cg-hero-media { bottom: auto; height: 9rem; }
+  .cg-hero-card { max-width: none; margin-inline: -1rem; width: calc(100% + 2rem); border-radius: 0; padding-inline: 1rem; }
+}
 
-/* Service list: rows with rules, not a grid of boxes */
+/* Log in and sign up: form on the left, the three gatherings on the right */
+.cg-auth { display: grid; min-height: calc(100dvh - var(--header-h, 4rem)); }
+.cg-auth-form { display: flex; justify-content: center; padding: 2.5rem 1rem 4rem; }
+.cg-auth-art { position: relative; display: none; background: var(--cg-navy); overflow: hidden; }
+.cg-auth-art .cg-hero-strip { grid-template-columns: 1fr; grid-template-rows: repeat(3, 1fr); }
+.cg-auth-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cg-auth-quote {
+  position: absolute;
+  left: 0;
+  bottom: 2.5rem;
+  z-index: 1;
+  max-width: 24rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--cg-navy);
+  color: #fff;
+  border-left: 5px solid var(--cg-saffron);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+@media (min-width: 1024px) {
+  .cg-auth { grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr); }
+  .cg-auth-form { padding-top: 4rem; }
+  .cg-auth-art { display: block; }
+}
+
+/* ── Lists and marks ────────────────────────────────────────────────── */
 .cg-rows > li { border-top: 1px solid var(--cg-line); }
-.cg-dot { display: inline-block; width: 0.6rem; height: 0.6rem; border-radius: var(--radius-pill); }
+.cg-dot { display: inline-block; width: 0.6rem; height: 0.6rem; border-radius: var(--radius-pill); flex: none; }
 
-/* How it works: a numbered track */
+/* A real sequence gets numbers: how it works, checkout */
 .cg-steps { counter-reset: step; }
 .cg-steps > li { counter-increment: step; position: relative; }
 .cg-steps > li::before {
@@ -194,21 +254,14 @@ h1 {
   z-index: 1;
 }
 
-/* Rangoli-style dot field for the closing band, drawn in CSS */
-.cg-dots {
-  background-color: var(--cg-blue);
-  background-image: radial-gradient(circle, rgb(255 253 248 / 0.16) 1.6px, transparent 2px);
-  background-size: 22px 22px;
-}
+/* Checkout progress: cart, payment, pass */
+.cg-progress { display: flex; gap: 0.5rem; }
+.cg-progress > li { flex: 1; padding-top: 0.6rem; border-top: 4px solid var(--cg-line); font-size: 0.9rem; font-weight: 600; color: var(--cg-ink-soft); }
+.cg-progress > li[data-state="done"] { border-color: var(--cg-green); color: var(--cg-green-deep); }
+.cg-progress > li[aria-current="step"] { border-color: var(--cg-saffron); color: var(--cg-ink); }
 
-@media (prefers-reduced-motion: reduce) {
-  .cg-panel-art, .cg-panel-label { transition: none; }
-  .cg-dialog { animation: cgFade 200ms ease-out; }
-  .cg-toast, .cg-menu { transition: opacity 200ms ease-out; }
-  @starting-style { .cg-toast, .cg-menu { transform: none; } }
-}
-
-/* ── Dashboards: one header row on every role page (title left, actions right) ── */
+/* ── Dashboards ─────────────────────────────────────────────────────── */
+/* Title row on every role page: title left, actions right */
 .cg-pagehead {
   display: flex;
   flex-wrap: wrap;
@@ -218,19 +271,37 @@ h1 {
   padding-bottom: 1.25rem;
   border-bottom: 1px solid var(--cg-line);
 }
-
-/* ── Motion (find-animation-opportunities). Only transform and opacity; the global
-      reduced-motion rule in index.css switches all of it off. ── */
-
-/* 7. Press feedback on every button: tens of uses a day, so small and quick */
-:is(.btn, .btn-primary, .btn-brass, .btn-ink, .btn-ghost, .btn-sos, .cg-btn):not(:disabled):active {
-  transform: scale(0.97);
+/* Which role this console belongs to */
+.cg-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--cg-ink-soft);
 }
-:is(.btn, .btn-primary, .btn-brass, .btn-ink, .btn-ghost, .btn-sos) {
-  transition: transform 140ms var(--ease-out), background-color 150ms ease, color 150ms ease,
-    border-color 150ms ease;
-}
+.cg-role::before { content: ""; width: 0.6rem; height: 0.6rem; border-radius: var(--radius-pill); background: var(--role-tone, var(--cg-blue)); }
 
+/* A number someone reads at a glance: label above, figure below, no box-in-a-box */
+.cg-stat {
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--cg-line);
+  border-left: 4px solid var(--stat-tone, var(--cg-line));
+  border-radius: var(--radius-sm);
+  background: var(--cg-white);
+}
+.cg-stat-label { font-size: 0.9rem; font-weight: 600; color: var(--cg-ink-soft); }
+.cg-stat-value { margin-top: 0.15rem; font-size: 1.9rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+
+/* A pass that looks like a pass: coloured stub, perforation, body */
+.cg-ticket { position: relative; display: flex; border: 1px solid var(--cg-line); border-radius: var(--radius-md); background: var(--cg-white); overflow: hidden; }
+.cg-ticket-stub { flex: none; width: 0.6rem; background: var(--ticket-tone, var(--cg-blue)); }
+.cg-ticket-body { flex: 1; min-width: 0; }
+.cg-ticket-tear { border-top: 2px dashed var(--cg-line); }
+
+/* ── Motion ─────────────────────────────────────────────────────────── */
+@keyframes cgRise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes cgPush { from { transform: scale(1.06); } }
 @keyframes cgFade { from { opacity: 0; } }
 @keyframes cgPop { from { opacity: 0; transform: scale(0.96); } }
 @keyframes cgSheet { from { transform: translateY(100%); } }
@@ -241,33 +312,55 @@ h1 {
   60% { opacity: 1; transform: scale(1.08); }
   100% { transform: scale(1); }
 }
+@keyframes cgShimmer { 50% { opacity: 0.55; } }
 
-/* 2. Dialogs: backdrop fades; phones get a bottom sheet, wider screens a small grow */
+/* The one orchestrated moment: the home hero arriving */
+.cg-rise { animation: cgRise 600ms var(--ease-out) both; /* one-time page entrance, marketing budget */ }
+.cg-rise-1 { animation-delay: 0.08s; }
+.cg-rise-2 { animation-delay: 0.16s; }
+.cg-rise-3 { animation-delay: 0.24s; }
+
+/* Press feedback on every button: tens of uses a day, so small and quick */
+:is(.btn, .btn-primary, .btn-brass, .btn-ink, .btn-ghost, .btn-sos, .cg-btn):not(:disabled):active { transform: scale(0.97); }
+:is(.btn, .btn-primary, .btn-brass, .btn-ink, .btn-ghost, .btn-sos) {
+  transition: transform 140ms var(--ease-out), background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+
+/* Dialogs: backdrop fades; phones get a bottom sheet, wider screens a small grow */
 .cg-backdrop { animation: cgFade 200ms ease-out; }
-.cg-dialog { animation: cgSheet 280ms var(--ease-drawer); }
+.cg-dialog { animation: cgSheet 280ms var(--ease-drawer); box-shadow: var(--shadow-pop); }
 @media (min-width: 640px) { .cg-dialog { animation: cgPop 200ms var(--ease-out); } }
 
-/* 3. Live staff alerts slide down from where they sit. 5. Phone menu drops from its button.
-   Transitions + @starting-style, not keyframes, so a second alert mid-entry retargets smoothly. */
-.cg-toast { transition: opacity 240ms var(--ease-out), transform 240ms var(--ease-out); }
+/* Live staff alerts and the phone menu: transitions + @starting-style, so a second
+   alert arriving mid-entry retargets smoothly instead of restarting */
+.cg-toast { transition: opacity 240ms var(--ease-out), transform 240ms var(--ease-out); box-shadow: var(--shadow-pop); }
 .cg-menu { transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out); }
 @starting-style {
   .cg-toast, .cg-menu { opacity: 0; transform: translateY(-8px); }
 }
 
-/* 1. A new scan result always flashes in, so two greens in a row still read as two scans */
+/* A new scan result always flashes in, so two greens in a row still read as two scans */
 .cg-verdict { animation: cgVerdict 120ms var(--ease-out); }
-
-/* 4. Booking confirmed: the one celebratory beat in the app */
-.cg-celebrate { display: inline-block; animation: cgCelebrate 450ms var(--ease-out) both; } /* rare success moment: delight budget */
-
-/* 6. Opened FAQ and guide sections ease in instead of appearing */
+/* Booking confirmed: the one celebratory beat in the app */
+.cg-celebrate { display: inline-block; animation: cgCelebrate 450ms var(--ease-out) both; /* rare success moment: delight budget */ }
+/* Opened FAQ and guide sections ease in instead of appearing */
 details[open] > :not(summary) { animation: cgRise4 200ms var(--ease-out); }
-
-/* ── Loading skeleton: page-shaped grey blocks instead of a spinner ── */
-@keyframes cgShimmer { 50% { opacity: 0.55; } }
+/* Loading skeleton: page-shaped blocks instead of a spinner */
 .cg-skel { border-radius: var(--radius-sm); background: var(--cg-line); animation: cgShimmer 1.4s linear infinite; /* constant loading pulse */ }
 
-/* Hindi and Marathi: no capitals or letter-spacing, which break Devanagari letter joins */
-html:lang(hi-IN) .cg-kicker,
-html:lang(mr-IN) .cg-kicker { letter-spacing: 0; text-transform: none; font-size: 0.9rem; }
+@media (prefers-reduced-motion: reduce) {
+  .cg-panel-art, .cg-panel-label { transition: none; }
+  .cg-dialog { animation: cgFade 200ms ease-out; }
+  .cg-toast, .cg-menu { transition: opacity 200ms ease-out; }
+  @starting-style { .cg-toast, .cg-menu { transform: none; } }
+}
+
+/* A navy band that is a link darkens to blue when pointed at */
+a.cg-band { transition: background-color 150ms ease; }
+a.cg-band:hover { background-color: var(--cg-blue-deep); }
+
+/* Stat tiles pick their edge colour from the figure's own tone */
+.cg-stat:has(.text-tulsi) { --stat-tone: var(--cg-green); }
+.cg-stat:has(.text-kumkum) { --stat-tone: #c8102e; }
+.cg-stat:has(.text-terracotta, .text-marigold-deep) { --stat-tone: var(--cg-saffron); }
+.cg-stat:has(.text-blue) { --stat-tone: var(--cg-blue); }

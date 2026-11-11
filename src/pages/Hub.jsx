@@ -13,6 +13,7 @@ import SosTab from './hub/SosTab';
 import SnanDates from '../components/SnanDates';
 import YatraGuide from '../components/YatraGuide';
 import { useT } from '../lib/i18n';
+import PageHero from '../components/PageHero';
 
 // The walking map (Leaflet) only loads when the tab is opened
 const RouteTab = lazy(() => import('./hub/RouteTab'));
@@ -49,20 +50,20 @@ export default function Hub() {
 
   return (
     <div>
-      <div className="cg-band">
-        <div className="shell py-5">
-          <Link to="/" className="text-sm text-blue-mist hover:text-white">{t('hub.allYatras')}</Link>
-          <h1 className="font-display text-3xl">{event.title}</h1>
-          <p className="text-blue-mist">
-            {event.tagline} · {fmtDate(event.startDate)} to {fmtDate(event.endDate)}
-          </p>
-          <SnanDates event={event} all />
-        </div>
-      </div>
+      <PageHero
+        kind="pilgrimage"
+        size="sm"
+        back={{ to: '/events?tab=yatras', label: t('hub.allYatras') }}
+        title={event.title}
+        lead={event.tagline}
+      >
+        <p className="mt-1 text-blue-mist">{fmtDate(event.startDate)} to {fmtDate(event.endDate)}</p>
+        <SnanDates event={event} all />
+      </PageHero>
 
       {/* Service ribbon: switches tabs without a page reload (FR-03) */}
       <nav aria-label={t('hub.services')} className="sticky top-[var(--header-h,4rem)] z-20 border-b border-line bg-white">
-        <div className="shell flex gap-1 overflow-x-auto py-2" role="tablist">
+        <div className="shell no-scrollbar flex gap-1 overflow-x-auto" role="tablist">
           {tabs.map((tab) => {
             const selected = tab.id === active.id;
             const sos = tab.id === 'sos';
@@ -73,8 +74,8 @@ export default function Hub() {
                 role="tab"
                 aria-selected={selected}
                 onClick={() => setParams({ tab: tab.id }, { replace: true })}
-                className={`flex min-h-12 shrink-0 items-center gap-2 rounded-xl px-4 font-semibold transition-colors ${
-                  selected ? (sos ? 'bg-kumkum text-white' : 'bg-blue text-white') : sos ? 'text-kumkum hover:bg-kumkum-wash' : 'text-ink-soft hover:bg-mist hover:text-ink'
+                className={`flex min-h-12 shrink-0 items-center gap-2 border-b-[3px] px-3 font-semibold transition-colors sm:px-4 ${
+                  selected ? (sos ? 'border-kumkum text-kumkum' : 'border-marigold text-ink') : sos ? 'border-transparent text-kumkum hover:border-kumkum/40' : 'border-transparent text-ink-soft hover:text-ink'
                 }`}
               >
                 <tab.icon size={20} aria-hidden />

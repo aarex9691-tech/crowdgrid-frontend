@@ -55,7 +55,7 @@ function MySosCard({ incident, onUpdateLocation, onSafe, busy }) {
   ];
   return (
     <div className="rounded-2xl border-2 border-kumkum/30 bg-white p-4 text-left" aria-live="polite">
-      <p className="text-sm font-semibold uppercase tracking-wide text-kumkum">{t('sos.my')}</p>
+      <p className="cg-kicker text-kumkum">{t('sos.my')}</p>
       <p className="text-lg font-bold">
         {t(`sos.type.${incident.type}`)} · {t(`sos.status.${incident.status}`)}
       </p>

@@ -204,10 +204,10 @@ export function HourHeatmap({ heatmap }) {
 /** Big number tile. */
 export function Kpi({ label, value, hint, tone }) {
   return (
-    <div className="panel p-4">
-      <p className="text-sm text-ink-soft">{label}</p>
-      <p className={`mt-0.5 text-2xl font-extrabold tabular-nums sm:text-3xl ${tone || 'text-ink'}`}>{value}</p>
-      {hint && <p className="mt-0.5 text-xs text-ink-soft">{hint}</p>}
+    <div className="cg-stat">
+      <p className="cg-stat-label">{label}</p>
+      <p className={`cg-stat-value ${tone || 'text-ink'}`}>{value}</p>
+      {hint && <p className="mt-0.5 text-sm text-ink-soft">{hint}</p>}
     </div>
   );
 }

@@ -122,7 +122,7 @@ export default function Scanner() {
               role="radio"
               aria-checked={service === x.id}
               onClick={() => chooseService(x.id)}
-              className={service === x.id ? 'btn-ink min-h-10 px-3' : 'btn-ghost min-h-10 px-3'}
+              className={service === x.id ? 'btn-ink min-h-11 px-3' : 'btn-ghost min-h-11 px-3'}
             >
               {x.label}
             </button>

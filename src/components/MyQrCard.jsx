@@ -123,40 +123,39 @@ export default function MyQrCard({ name, activeCount }) {
   const isLive = !!code;
 
   return (
-    <section className="panel overflow-hidden" aria-labelledby="myqr-title">
-      <div className="toran" aria-hidden />
-      <div className="flex flex-col items-center gap-5 p-6 sm:flex-row sm:items-center">
+    <section className="cg-band overflow-hidden rounded-2xl border-l-4 border-l-marigold" aria-labelledby="myqr-title">
+      <div className="flex flex-col items-center gap-6 p-6 sm:flex-row sm:items-center sm:p-8">
         <div className="flex flex-col items-center gap-2">
-          <div className="rounded-2xl border border-line bg-white p-3">
+          <div className="rounded-2xl bg-white p-3">
             {shown ? <QrCode value={shown} size={200} label={`Personal QR for ${name}`} /> : <div className="h-[200px] w-[200px] animate-pulse rounded-lg bg-mist" />}
           </div>
           {isLive && (
-            <p className="text-sm font-semibold text-tulsi" aria-live="off">
+            <p className="text-sm font-semibold text-saffron-light" aria-live="off">
               {t('qr.live', { n: secondsLeft })}
             </p>
           )}
         </div>
         <div className="flex-1 space-y-2 text-center sm:text-left">
-          <p className="flex items-center justify-center gap-2 text-sm font-semibold uppercase tracking-wide text-kumkum sm:justify-start">
+          <p className="cg-kicker flex items-center justify-center gap-2 text-saffron-light sm:justify-start">
             <QrIcon size={18} aria-hidden /> {t('qr.oneQr')}
           </p>
-          <h2 id="myqr-title" className="text-2xl font-bold">{name}</h2>
-          <p className="text-ink-soft">
+          <h2 id="myqr-title" className="font-display text-3xl font-normal sm:text-4xl">{name}</h2>
+          <p className="text-white">
             {t('qr.show')}
             {activeCount ? ` (${activeCount})` : ''}
           </p>
-          <p className="text-sm text-ink-soft">
+          <p className="text-sm text-blue-mist">
             {isLive ? t('qr.liveNote') : t('qr.staticNote')}
           </p>
-          {error && <p className="text-sm font-semibold text-kumkum" role="alert">{error}</p>}
+          {error && <p className="rounded-lg bg-kumkum-wash px-3 py-2 text-sm font-semibold text-kumkum" role="alert">{error}</p>}
           {confirmReset ? (
             <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
               <span className="text-sm">Old copies and screenshots will stop working.</span>
-              <button type="button" className="btn-ink min-h-10 px-3" disabled={busy} onClick={reset}>{busy ? 'Resetting…' : 'Yes, reset'}</button>
-              <button type="button" className="btn-ghost min-h-10 px-3" onClick={() => setConfirmReset(false)}>Cancel</button>
+              <button type="button" className="cg-btn cg-btn-white min-h-11 px-4" disabled={busy} onClick={reset}>{busy ? 'Resetting…' : 'Yes, reset'}</button>
+              <button type="button" className="btn min-h-11 border-[1.5px] border-white/40 px-4 text-white hover:bg-white/10" onClick={() => setConfirmReset(false)}>Cancel</button>
             </div>
           ) : (
-            <button type="button" className="inline-flex items-center gap-1 text-sm font-semibold text-ink-soft underline" onClick={() => setConfirmReset(true)}>
+            <button type="button" className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-blue-mist underline underline-offset-4 hover:text-white" onClick={() => setConfirmReset(true)}>
               <RefreshCw size={14} aria-hidden /> {t('qr.reset')}
             </button>
           )}

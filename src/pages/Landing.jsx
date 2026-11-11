@@ -56,12 +56,7 @@ function Hero({ onInvite }) {
   return (
     <section className="cg-shell grid items-center gap-10 pt-8 pb-4 sm:pt-12 lg:grid-cols-[1fr_1.2fr] lg:gap-14">
       <div className="cg-rise">
-        <div className="cg-tricolour" aria-hidden>
-          <span style={{ background: '#E36F1E' }} />
-          <span style={{ background: '#FFFDF8', boxShadow: 'inset 0 0 0 1px #E7E1D7' }} />
-          <span style={{ background: '#138A43' }} />
-        </div>
-        <h1 className="cg-h1 mt-5">{t('home.title1')}<br />{t('home.title2')}</h1>
+        <h1 className="cg-h1">{t('home.title1')}<br />{t('home.title2')}</h1>
         <p className="mt-5 max-w-md text-lg text-ink-soft">{t('home.lead')}</p>
         <div className="mt-7 flex flex-wrap gap-3">
           <Link to="/events" className="cg-btn cg-btn-saffron">
@@ -74,7 +69,7 @@ function Hero({ onInvite }) {
         <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-ink-soft">
           <li className="flex items-center gap-1.5"><QrCode size={16} className="text-terracotta" aria-hidden /> {t('home.oneQr')}</li>
           <li className="flex items-center gap-1.5"><WifiOff size={16} className="text-blue" aria-hidden /> {t('home.offline')}</li>
-          <li className="flex items-center gap-1.5"><Languages size={16} className="text-tulsi" aria-hidden /> English · हिन्दी · मराठी</li>
+          <li className="flex items-center gap-1.5"><Languages size={16} className="text-tulsi" aria-hidden /> English, हिन्दी, मराठी</li>
         </ul>
       </div>
 
@@ -255,7 +250,7 @@ function Upcoming({ yatras, publicEvents, tab, setTab, sectionRef }) {
           <h2 id="upcoming-title" className="cg-h2">{t('up.title')}</h2>
         </div>
         <Link to={`/events?tab=${tab}`} className="inline-flex min-h-11 items-center font-bold text-blue underline-offset-4 hover:underline">
-          {t('up.seeAll')}: {kindName(tab)} →
+          {t('up.seeAll')}: {kindName(tab)}
         </Link>
       </div>
 
@@ -404,7 +399,7 @@ export default function Landing() {
   };
 
   return (
-    <div className="cg-home relative">
+    <div className="relative">
       {!canBook(user) && (
         <div className="cg-shell pt-4">
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-blue-wash p-4">

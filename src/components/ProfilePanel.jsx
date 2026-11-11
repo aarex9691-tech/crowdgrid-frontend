@@ -217,7 +217,7 @@ export default function ProfilePanel() {
           </div>
           {missing.length > 0 && !group && (
             <button type="button" className="mt-1 text-sm font-semibold text-ink underline-offset-2 hover:underline" onClick={() => open(missing[0].group)}>
-              Next: add your {missing[0].label.toLowerCase()} →
+              Next: add your {missing[0].label.toLowerCase()}
             </button>
           )}
         </div>
@@ -231,7 +231,7 @@ export default function ProfilePanel() {
             <div key={key} className="rounded-xl border border-line p-4">
               <div className="mb-1 flex items-center justify-between">
                 <h2 className="flex items-center gap-2 font-bold"><g.icon size={18} className="text-marigold-deep" aria-hidden /> {g.label}</h2>
-                <button type="button" className="flex min-h-9 items-center gap-1 rounded-lg px-2 text-sm font-semibold text-ink-soft hover:bg-mist hover:text-ink" onClick={() => open(key)} aria-label={`Edit ${g.label.toLowerCase()} details`}>
+                <button type="button" className="flex min-h-11 items-center gap-1 rounded-lg px-2 text-sm font-semibold text-ink-soft hover:bg-mist hover:text-ink" onClick={() => open(key)} aria-label={`Edit ${g.label.toLowerCase()} details`}>
                   <Pencil size={14} aria-hidden /> Edit
                 </button>
               </div>
@@ -252,14 +252,14 @@ export default function ProfilePanel() {
                   type="button"
                   role="tab"
                   aria-selected={group === key}
-                  className={`flex min-h-10 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold ${group === key ? 'bg-white text-ink shadow-sm' : 'text-ink-soft hover:text-ink'}`}
+                  className={`flex min-h-11 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold ${group === key ? 'bg-white text-ink shadow-sm' : 'text-ink-soft hover:text-ink'}`}
                   onClick={() => { setGroup(key); setError(''); setTried(false); }}
                 >
                   <g.icon size={16} aria-hidden /> <span className="hidden sm:inline">{g.label}</span>
                 </button>
               ))}
             </div>
-            <button type="button" className="btn-ghost min-h-10 px-3" onClick={close} aria-label="Close without saving"><X size={18} aria-hidden /></button>
+            <button type="button" className="btn-ghost min-h-11 px-3" onClick={close} aria-label="Close without saving"><X size={18} aria-hidden /></button>
           </div>
           <Notice tone="error">{error}</Notice>
 

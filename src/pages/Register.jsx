@@ -8,6 +8,7 @@ import PasswordField from '../components/PasswordField';
 import { phoneError } from '../lib/phone';
 import { TextField } from '../components/Fields';
 import { textError } from '../lib/validate';
+import AuthShell from '../components/AuthShell';
 
 export default function Register() {
   const { register } = useAuth();
@@ -75,11 +76,11 @@ export default function Register() {
   };
 
   return (
-    <div className="shell flex justify-center py-10">
-      <form onSubmit={submit} noValidate className="panel w-full max-w-md space-y-5 p-6 sm:p-8">
+    <AuthShell>
+      <form onSubmit={submit} noValidate className="w-full max-w-md space-y-5">
         <div>
-          <h1 className="text-3xl font-bold">Create your account</h1>
-          <p className="text-ink-soft">Book shelter, claim langar tokens and keep every pass in one place.</p>
+          <h1 className="text-4xl sm:text-5xl">Create your account</h1>
+          <p className="mt-2 text-ink-soft">One account for passes, stays, meals and rides at every event.</p>
         </div>
         <Notice tone="error">{error}</Notice>
         <TextField id="name" label="Full name" rule="personName" required autoComplete="name" value={form.name} onChange={(v) => setForm((f) => ({ ...f, name: v }))} showErrors={tried} placeholder="As on your ID card" />
@@ -132,9 +133,9 @@ export default function Register() {
           Running a camp or kitchen? Create an account first, then register your organisation from your profile.
         </p>
         <p className="text-center text-ink-soft">
-          Already registered? <Link to="/login" state={location.state} className="font-semibold text-ink underline">Log in</Link>
+          Already registered? <Link to="/login" state={location.state} className="font-semibold text-blue underline underline-offset-4">Log in</Link>
         </p>
       </form>
-    </div>
+    </AuthShell>
   );
 }

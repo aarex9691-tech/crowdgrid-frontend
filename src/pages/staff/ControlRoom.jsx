@@ -18,9 +18,9 @@ const SOS_TYPE_LABEL = { MEDICAL: 'Medical', CROWD: 'Crowd crush', LOST: 'Lost /
 
 function Stat({ label, value, tone }) {
   return (
-    <div className="panel p-4">
-      <p className="text-sm font-semibold text-ink-soft">{label}</p>
-      <p className={`mt-1 text-3xl font-extrabold tabular-nums ${tone || ''}`}>{value}</p>
+    <div className="cg-stat">
+      <p className="cg-stat-label">{label}</p>
+      <p className={`cg-stat-value ${tone || ''}`}>{value}</p>
     </div>
   );
 }
@@ -283,9 +283,9 @@ export default function ControlRoom() {
     <div className="shell space-y-8 py-6">
       <div className="cg-pagehead">
         <PageTitle kicker="Authority" tone="blue" title={<>Control room <LiveBadge /></>} lead={user.name} />
-        <div className="flex items-end gap-2">
+        <div className="flex flex-wrap items-end gap-2">
           <div>
-            <label htmlFor="ev" className="field-label">Yatra</label>
+            <label htmlFor="ev" className="field-label">Event</label>
             <select id="ev" className="field" value={eventId} onChange={(e) => setEventId(e.target.value)}>
               {events.map((e) => <option key={e._id} value={e._id}>{e.title}</option>)}
             </select>

@@ -5,6 +5,7 @@ import {
 import { SITE } from '../lib/site';
 import { MAX_PER_ACCOUNT } from '../lib/limits';
 import { openTour } from '../components/GuidedTour';
+import PageHero from '../components/PageHero';
 
 const flag = `/yatra/${SITE.flagshipSlug}`;
 
@@ -75,21 +76,11 @@ export default function Help() {
   const tel = `tel:${SITE.phone.replace(/[^\d+]/g, '')}`;
   return (
     <div className="pb-10">
-      <section className="cg-band">
-        <div className="toran" aria-hidden />
-        <div className="shell flex flex-col gap-6 py-10 md:flex-row md:items-end md:justify-between">
-          <div className="max-w-2xl">
-            <p className="cg-kicker text-saffron-light">Help centre</p>
-            <h1 className="mt-1 font-display text-4xl">New to {SITE.name}? Start here</h1>
-            <p className="mt-3 text-lg text-blue-mist">
-              Everything you need for your yatra in one place: where to stay, what to eat, how to travel and how to get help. Here is how it works.
-            </p>
-          </div>
-          <button type="button" className="btn-primary self-start md:self-auto" onClick={openTour}>
-            <Compass size={20} aria-hidden /> Take the 1-minute tour
-          </button>
-        </div>
-      </section>
+      <PageHero kind="all" title={`New to ${SITE.name}? Start here`} lead="Where to stay, what to eat, how to travel and how to get help.">
+        <button type="button" className="cg-btn cg-btn-white mt-4" onClick={openTour}>
+          <Compass size={20} aria-hidden /> Take the 1-minute tour
+        </button>
+      </PageHero>
 
       <div className="shell space-y-12 py-10">
         <section aria-labelledby="start-title">
@@ -103,7 +94,7 @@ export default function Help() {
                 </div>
                 <h3 className="mt-3 text-lg font-bold">{s.title}</h3>
                 <p className="mt-1 flex-1 text-ink-soft">{s.text}</p>
-                <Link to={s.to} className="mt-1 inline-flex min-h-11 items-center font-semibold text-terracotta underline-offset-4 hover:underline">{s.cta} →</Link>
+                <Link to={s.to} className="mt-1 inline-flex min-h-11 items-center font-semibold text-terracotta underline-offset-4 hover:underline">{s.cta}</Link>
               </li>
             ))}
           </ol>
