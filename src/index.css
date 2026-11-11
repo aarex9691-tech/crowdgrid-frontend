@@ -186,7 +186,7 @@ body {
 @utility btn-ghost { @apply btn border border-line bg-white text-ink hover:bg-[#F4F1EA] hover:border-ink-faint disabled:border-ink-faint disabled:bg-white disabled:text-ink-soft; }
 @utility btn-sos { @apply btn bg-kumkum text-white hover:bg-[#9e1f1f]; }
 
-@utility panel { @apply rounded-2xl border border-line bg-white; }
+@utility panel { @apply rounded-3xl border border-line bg-white; }
 
 @utility field-label { @apply mb-1.5 block text-xs font-bold uppercase tracking-wider text-ink-soft; }
 @utility field {

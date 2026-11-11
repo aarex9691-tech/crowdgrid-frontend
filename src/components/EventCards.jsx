@@ -10,7 +10,7 @@ import Notice from './Notice';
 
 export function YatraCard({ event }) {
   return (
-    <li className="panel group flex flex-col overflow-hidden rounded-2xl border border-line bg-white p-5 sm:p-6 shadow-xs transition-all hover:-translate-y-0.5 hover:border-[#B4530F] hover:shadow-sm">
+    <li className="panel group flex flex-col overflow-hidden rounded-3xl border border-line bg-white p-5 sm:p-6 shadow-xs transition-all hover:-translate-y-0.5 hover:border-[#B4530F] hover:shadow-sm">
       <div className="flex items-start justify-between gap-2">
         <span className="rounded-full bg-marigold-wash px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-marigold-deep">Yatra & Mela</span>
         <span className="text-xs font-semibold text-ink-faint">
@@ -60,14 +60,14 @@ export const placesLeft = (e) => Math.max(0, (e.capacity || 0) - (e.attendeesCou
 function PublicEventCard({ event, onRegister, showRegister }) {
   const left = placesLeft(event);
   return (
-    <li className="panel group flex flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-xs transition-all hover:-translate-y-1 hover:border-ink-faint hover:shadow-md">
+    <li className="panel group flex flex-col overflow-hidden rounded-3xl border border-line bg-white shadow-xs transition-all hover:-translate-y-1 hover:border-ink-faint hover:shadow-md">
       {/* Event Header Banner with Warm Terracotta Gradient */}
       <div className="relative h-28 sm:h-32 w-full overflow-hidden p-4 flex flex-col justify-between text-white" style={{ background: CATEGORY_TONE[event.category] || CATEGORY_TONE.OTHER }}>
         <div className="flex items-center justify-between gap-2">
-          <span className="rounded-full bg-white/20 backdrop-blur px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-white">
+          <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-white">
             {EVENT_CATEGORIES[event.category] || 'Event'}
           </span>
-          <span className="rounded-full bg-black/25 backdrop-blur px-2.5 py-0.5 text-xs font-medium text-white">
+          <span className="rounded-full bg-black/25 px-2.5 py-0.5 text-xs font-medium text-white">
             {fmtDate(event.startDate, { weekday: 'short', month: 'short', day: 'numeric' })}
           </span>
         </div>

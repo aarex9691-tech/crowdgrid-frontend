@@ -109,7 +109,7 @@ function NextUp({ yatras, publicEvents, onInvite }) {
   const item = 'flex min-h-16 items-center gap-3 px-4 py-3 sm:px-5';
   return (
     <section aria-labelledby="next-title" className="cg-shell pt-6">
-      <div className="grid overflow-hidden rounded-2xl bg-white ring-1 ring-[#E7E1D7] md:grid-cols-[auto_1fr_1fr_1fr]">
+      <div className="grid overflow-hidden rounded-3xl bg-white ring-1 ring-[#E7E1D7] md:grid-cols-[auto_1fr_1fr_1fr]">
         <h2 id="next-title" className="cg-kicker flex items-center gap-2 whitespace-nowrap bg-[#F4F1EA] px-5 py-3 text-[#4A4F5E]">
           <CalendarDays size={16} aria-hidden /> {t('next.title')}
         </h2>
@@ -151,8 +151,12 @@ const SERVICES = [
   { id: 'sos', icon: Siren, kinds: [0, 1, 2], sos: true },
 ];
 
+// Phones show the first four services until the visitor asks for the rest
+const SERVICES_ON_PHONE = 4;
+
 function Services() {
   const t = useT();
+  const [open, setOpen] = useState(false);
   return (
     <section aria-labelledby="services-title" className="cg-shell cg-section">
       <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
@@ -167,9 +171,9 @@ function Services() {
         </ul>
       </div>
 
-      <ul className="cg-rows mt-8 grid gap-x-12 md:grid-cols-2">
-        {SERVICES.map((s) => (
-          <li key={s.id} className="flex gap-4 py-5">
+      <ul id="services-list" className="cg-rows mt-8 grid gap-x-12 md:grid-cols-2">
+        {SERVICES.map((s, i) => (
+          <li key={s.id} className={`gap-4 py-5 ${!open && i >= SERVICES_ON_PHONE ? 'hidden md:flex' : 'flex'}`}>
             <span className={`grid size-11 shrink-0 place-items-center rounded-xl ${s.sos ? 'bg-[#FBEAEA] text-[#C8102E]' : 'bg-[#F4F1EA] text-[#1B1E28]'}`}>
               <s.icon size={22} aria-hidden />
             </span>
@@ -185,6 +189,18 @@ function Services() {
           </li>
         ))}
       </ul>
+      {/* Wrapper carries md:hidden; .cg-btn sets its own display, which would win over a utility */}
+      <div className="mt-2 md:hidden">
+        <button
+          type="button"
+          className="cg-btn cg-btn-line w-full"
+          aria-expanded={open}
+          aria-controls="services-list"
+          onClick={() => setOpen((o) => !o)}
+        >
+          {open ? t('svc.less') : t('svc.more', { n: SERVICES.length })}
+        </button>
+      </div>
     </section>
   );
 }
@@ -275,10 +291,7 @@ function Upcoming({ yatras, publicEvents, tab, setTab, sectionRef }) {
             : <p className="text-[#4A4F5E]">{t('up.noYatras')}</p>
         )}
         {tab === 'corporate' && (
-          <div className="space-y-4">
-            <p className="max-w-xl text-[#4A4F5E]">{t('up.corporateNote')}</p>
-            <InvitationCodeBox from="/" />
-          </div>
+          <InvitationCodeBox from="/" />
         )}
       </div>
     </section>
