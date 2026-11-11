@@ -130,7 +130,7 @@ export default function Analytics() {
         <Loading label="Crunching the numbers" />
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <Kpi label="Bed occupancy" value={`${k.occupancyPct}%`} hint={`${num(k.bedsTotal - k.bedsFree)} of ${num(k.bedsTotal)} beds`} />
             <Kpi label="Beds free" value={num(k.bedsFree)} tone="text-tulsi" />
             <Kpi label="Bed bookings today" value={num(k.bookingsToday)} />

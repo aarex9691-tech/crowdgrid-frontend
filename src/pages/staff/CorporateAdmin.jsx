@@ -368,7 +368,7 @@ export default function CorporateAdmin() {
     <div className="shell space-y-6 py-6">
       <div className="cg-pagehead">
         <PageTitle kicker="Corporate" tone="green" title="Campus & corporate events" lead="Invite guests with a code and see who's coming." />
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Link to="/scan" className="btn-ghost">Registration desk scanner</Link>
           {!creating && (
             <button type="button" className="btn-primary" onClick={() => setCreating(true)}>

@@ -292,6 +292,8 @@ h1 {
 }
 .cg-stat-label { font-size: 0.9rem; font-weight: 600; color: var(--cg-ink-soft); }
 .cg-stat-value { margin-top: 0.15rem; font-size: 1.9rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+/* Long figures (rupee totals) must fit a half-width tile on phones */
+@media (max-width: 39.99rem) { .cg-stat-value { font-size: 1.6rem; } }
 
 /* A pass that looks like a pass: coloured stub, perforation, body */
 .cg-ticket { position: relative; display: flex; border: 1px solid var(--cg-line); border-radius: var(--radius-md); background: var(--cg-white); overflow: hidden; }
@@ -364,3 +366,12 @@ a.cg-band:hover { background-color: var(--cg-blue-deep); }
 .cg-stat:has(.text-kumkum) { --stat-tone: #c8102e; }
 .cg-stat:has(.text-terracotta, .text-marigold-deep) { --stat-tone: var(--cg-saffron); }
 .cg-stat:has(.text-blue) { --stat-tone: var(--cg-blue); }
+
+/* Footer links: comfortable to tap without looking like buttons */
+.cg-foot ul li { padding-block: 0.3rem; }
+.cg-foot ul :is(a, button) { display: inline-block; padding-block: 0.2rem; }
+/* On touch screens every footer link is a full 44px target */
+@media (pointer: coarse), (max-width: 47.99rem) {
+  .cg-foot ul li { padding-block: 0; }
+  .cg-foot ul :is(a, button) { display: inline-flex; align-items: center; min-height: 2.75rem; padding-block: 0; }
+}

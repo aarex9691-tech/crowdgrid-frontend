@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
  * A photo that turns 3D under the mouse. A grey depth map (white = near, black = far)
  * shifts near things more than far things as the pointer moves, so the scene gains depth.
  *
- * The plain <img> always renders first: it is the fast first paint, the fallback, and what
+ * The plain photo always renders first: it is the fast first paint, the fallback, and what
  * phones, reduced-motion users, data savers and browsers without WebGL keep seeing.
  * The WebGL canvas fades in on top only after both textures have loaded.
  */

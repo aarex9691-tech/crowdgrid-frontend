@@ -90,7 +90,7 @@ export default function TentMap() {
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
           [`${data.unit.label}s`, summary.units],
           [`Free on ${day(data.date)}`, summary.free, 'text-tulsi'],

@@ -228,7 +228,26 @@ export default function HostEvents() {
       ) : events.length === 0 ? (
         <Notice>You have not hosted any events yet.</Notice>
       ) : (
-        <div className="panel overflow-x-auto">
+        <>
+        <ul className="space-y-3 sm:hidden">
+          {events.map((e) => {
+            const over = new Date(e.endDate) < now;
+            return (
+              <li key={e._id} className={`panel p-4 ${over ? 'text-ink-soft' : ''}`}>
+                <Link to={`/event/${e.slug}`} className="font-semibold underline">{e.title}</Link>
+                <p className="text-sm text-ink-soft">{EVENT_CATEGORIES[e.category]} · {e.venue}</p>
+                <p className="mt-1 text-sm">{fmtDateTime(e.startDate)}{over ? ' (over)' : ''}</p>
+                <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-line pt-3 text-sm">
+                  <div><dt className="text-ink-soft">Price</dt><dd className="font-semibold tabular-nums">{rupees(e.ticketPrice)}</dd></div>
+                  <div><dt className="text-ink-soft">Sold</dt><dd className="font-semibold tabular-nums">{e.ticketsSold} / {e.capacity}</dd></div>
+                  <div><dt className="text-ink-soft">Checked in</dt><dd className="font-semibold tabular-nums">{e.checkedIn}</dd></div>
+                  <div><dt className="text-ink-soft">Revenue</dt><dd className="font-semibold tabular-nums">{rupees(e.revenue)}</dd></div>
+                </dl>
+              </li>
+            );
+          })}
+        </ul>
+        <div className="panel hidden overflow-x-auto sm:block">
           <table className="w-full min-w-[640px] text-left">
             <thead className="bg-mist text-sm text-ink-soft">
               <tr>
@@ -257,6 +276,7 @@ export default function HostEvents() {
             </tbody>
           </table>
         </div>
+        </>
       )}
     </div>
   );

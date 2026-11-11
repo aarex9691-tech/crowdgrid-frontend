@@ -80,7 +80,8 @@ export default function Corporate() {
       <PageHero kind="corporate" size="sm" label={event.companyName} title={event.title} lead={`${event.venue}, ${event.city}`}>
         <p className="text-blue-mist">{fmtDateTime(event.startDate)}</p>
       </PageHero>
-      <div className="shell max-w-xl space-y-5 py-8">
+      <div className="shell py-8">
+      <div className="max-w-xl space-y-5">
       <Notice tone="error">{error}</Notice>
 
       {badge ? (
@@ -133,6 +134,7 @@ export default function Corporate() {
           </button>
         </div>
       )}
+      </div>
       </div>
     </div>
   );

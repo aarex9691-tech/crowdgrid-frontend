@@ -103,7 +103,7 @@ function NextUp({ yatras, publicEvents, onInvite }) {
   const when = (e) =>
     new Date(e.startDate).getTime() <= now ? t('next.on') : fmtDate(e.startDate, { weekday: 'short', month: 'short', day: 'numeric' });
 
-  const item = 'flex min-h-16 items-center gap-3 px-4 py-3 sm:px-5';
+  const item = 'flex min-h-16 min-w-0 items-center gap-3 px-4 py-3 sm:px-5';
   return (
     <section aria-labelledby="next-title" className="cg-shell pt-6">
       <div className="grid overflow-hidden rounded-3xl bg-white ring-1 ring-line md:grid-cols-[auto_1fr_1fr_1fr]">
@@ -128,8 +128,8 @@ function NextUp({ yatras, publicEvents, onInvite }) {
         <button type="button" onClick={onInvite} className={`${item} border-t border-line text-left hover:bg-mist md:border-t-0 md:border-l`}>
           <span className="cg-dot shrink-0" style={{ background: '#138A43' }} />
           <span className="min-w-0">
-            <span className="block truncate font-bold">{t('kind.corporate')} · {t('next.inviteOnly')}</span>
-            <span className="block text-sm text-ink-soft">{t('next.enterCode')}</span>
+            <span className="block truncate font-bold">{t('kind.corporate')}</span>
+            <span className="block truncate text-sm text-ink-soft">{t('next.inviteOnly')}. {t('next.enterCode')}</span>
           </span>
         </button>
       </div>

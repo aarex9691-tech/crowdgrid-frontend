@@ -171,7 +171,7 @@ export default function Layout() {
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-2 px-4">
           <Link
             to="/"
-            className={`group mr-2 flex flex-none items-center gap-2.5 ${showSearch ? '' : desk === 'xl' ? 'xl:mr-4' : 'lg:mr-4'}`}
+            className={`group mr-2 flex min-h-11 flex-none items-center gap-2.5 ${showSearch ? '' : desk === 'xl' ? 'xl:mr-4' : 'lg:mr-4'}`}
             aria-label="CrowdGrid home"
             onClick={() => {
               close();
@@ -202,12 +202,12 @@ export default function Layout() {
               value={navQuery}
               onChange={(e) => setNavQuery(e.target.value)}
               aria-label="Search events"
-              className="w-full bg-transparent px-2.5 text-sm text-ink outline-none placeholder:text-ink-soft"
+              className="h-9 w-full bg-transparent px-2.5 text-sm text-ink outline-none placeholder:text-ink-soft"
             />
             <button
               type="submit"
               aria-label="Search"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue text-white hover:bg-blue-deep"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue text-white hover:bg-blue-deep"
             >
               <Search size={13} strokeWidth={2.5} />
             </button>
@@ -223,6 +223,8 @@ export default function Layout() {
             ))}
           </nav>
 
+          {/* On phones, push the cart and menu button to the right edge */}
+          <span className={`flex-1 ${hideDesk}`} aria-hidden />
           {nav.shopper && cart.count > 0 && (
             <NavLink to="/checkout" className={linkCls} aria-label={`Cart, ${cart.count} item${cart.count > 1 ? 's' : ''}`} onClick={close}>
               <span className="relative">
@@ -343,7 +345,7 @@ export default function Layout() {
             <Link
               to="/"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="inline-flex items-center gap-2.5"
+              className="inline-flex min-h-11 items-center gap-2.5"
               aria-label="CrowdGrid home"
             >
               <img src="/assets/crowdgrid-logo.jpg" alt="" className="h-9 w-9 rounded-lg bg-white object-contain" />
@@ -356,7 +358,7 @@ export default function Layout() {
           </div>
           <div>
             <p className="font-semibold text-white">Explore</p>
-            <ul className="mt-3 space-y-2 text-sm">
+            <ul className="mt-2 text-sm">
               <li><Link className="hover:text-white" to="/events">All events</Link></li>
               <li><Link className="hover:text-white" to={`/yatra/${SITE.flagshipSlug}`}>Book lodging, food &amp; transport</Link></li>
               <li><Link className="hover:text-white" to="/events?tab=corporate">Campus &amp; corporate events</Link></li>
@@ -365,7 +367,7 @@ export default function Layout() {
           </div>
           <div>
             <p className="font-semibold text-white">About us</p>
-            <ul className="mt-3 space-y-2 text-sm">
+            <ul className="mt-2 text-sm">
               <li><Link className="hover:text-white" to="/about">About CrowdGrid</Link></li>
               <li><Link className="hover:text-white" to="/about#contact">Contact customer care</Link></li>
               <li><a className="hover:text-white" href={`tel:${SITE.phone.replace(/[^\d+]/g, '')}`}>{SITE.phone}</a></li>
@@ -374,7 +376,7 @@ export default function Layout() {
           </div>
           <div>
             <p className="font-semibold text-white">Help</p>
-            <ul className="mt-3 space-y-2 text-sm">
+            <ul className="mt-2 text-sm">
               <li><Link className="hover:text-white" to="/help">Help centre &amp; FAQs</Link></li>
               <li><button type="button" className="hover:text-white" onClick={openTour}>Take the tour</button></li>
               <li><Link className="hover:text-white" to={`/yatra/${SITE.flagshipSlug}?tab=sos`}>SOS &amp; lost and found</Link></li>
