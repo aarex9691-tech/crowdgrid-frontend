@@ -75,11 +75,11 @@ export default function Help() {
   const tel = `tel:${SITE.phone.replace(/[^\d+]/g, '')}`;
   return (
     <div className="pb-10">
-      <section className="bg-ink text-white">
+      <section className="cg-band">
         <div className="toran" aria-hidden />
         <div className="shell flex flex-col gap-6 py-10 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
-            <p className="text-sm font-semibold text-marigold">Help centre</p>
+            <p className="cg-kicker text-[#FFD9B8]">Help centre</p>
             <h1 className="mt-1 font-display text-4xl">New to {SITE.name}? Start here</h1>
             <p className="mt-3 text-lg text-[#d5deed]">
               Everything you need for your yatra in one place: where to stay, what to eat, how to travel and how to get help. Here is how it works.

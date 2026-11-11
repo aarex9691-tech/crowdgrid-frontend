@@ -80,7 +80,7 @@ export default function Events() {
               role="tab"
               aria-selected={selected}
               onClick={() => setParams(withQ({ tab: t.id }))}
-              className={`flex min-h-12 shrink-0 items-center gap-2 rounded-xl px-4 font-semibold ${selected ? 'bg-ink text-white' : 'border border-line bg-white text-ink-soft hover:text-ink'}`}
+              className={`flex min-h-12 shrink-0 items-center gap-2 rounded-xl px-4 font-semibold ${selected ? 'bg-blue text-white' : 'border border-line bg-white text-ink-soft hover:text-ink'}`}
             >
               <t.icon size={18} aria-hidden /> {t.label}
               {counts[t.id] !== undefined && events && (
@@ -99,7 +99,7 @@ export default function Events() {
       )}
 
       {error && (
-        <div className="rounded-xl border border-line bg-amber-50 p-3 text-xs sm:text-sm text-amber-900">
+        <div className="rounded-xl bg-marigold-wash p-3 text-xs sm:text-sm text-marigold-deep">
           Can't reach the server right now (it may be waking up). Showing the published schedule; booking works once it connects. Retrying…
         </div>
       )}
@@ -108,8 +108,8 @@ export default function Events() {
         yatras.length ? (
           <>
             {yatras[0]?.isFlagship && (
-              <Link to={`/yatra/${yatras[0].slug}`} className="block overflow-hidden rounded-2xl bg-ink p-6 text-white hover:bg-dusk">
-                <p className="text-sm uppercase tracking-wide text-marigold">Flagship</p>
+              <Link to={`/yatra/${yatras[0].slug}`} className="cg-band block overflow-hidden rounded-3xl p-6 hover:bg-[#142B66]">
+                <p className="cg-kicker text-[#FFD9B8]">Flagship</p>
                 <p className="font-display text-3xl">{yatras[0].title}</p>
                 <p className="text-[#c9d6ee]">{yatras[0].tagline || yatras[0].city} · {fmtDate(yatras[0].startDate)} to {fmtDate(yatras[0].endDate)}</p>
                 <SnanDates event={yatras[0]} />

@@ -31,7 +31,7 @@ export default function NgoAnalytics() {
         >
           <DailyBars data={data.daily} series={[{ key: 'mealsServed', label: 'Meals served' }]} />
           <p className="mt-3 text-sm font-semibold">Camp check-ins</p>
-          <DailyBars data={data.daily} series={[{ key: 'checkIns', label: 'Check-ins', color: '#eb6834' }]} height={140} />
+          <DailyBars data={data.daily} series={[{ key: 'checkIns', label: 'Check-ins', color: '#E36F1E' }]} height={140} />
         </ChartCard>
         <div className="space-y-4">
           <ChartCard

@@ -99,7 +99,7 @@ export default function Analytics() {
           )}
           <div className="flex rounded-xl bg-white p-1 ring-1 ring-line" role="group" aria-label="Time range">
             {RANGES.map((r) => (
-              <button key={r} type="button" aria-pressed={days === r} className={`min-h-9 rounded-lg px-3 text-sm font-bold ${days === r ? 'bg-ink text-white' : 'text-ink-soft hover:text-ink'}`} onClick={() => setDays(r)}>
+              <button key={r} type="button" aria-pressed={days === r} className={`min-h-9 rounded-lg px-3 text-sm font-bold ${days === r ? 'bg-blue text-white' : 'text-ink-soft hover:text-ink'}`} onClick={() => setDays(r)}>
                 {r} days
               </button>
             ))}

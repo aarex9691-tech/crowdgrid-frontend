@@ -129,7 +129,7 @@ function BookingSteps({ steps }) {
         <li key={s.label} className="flex items-center gap-2" aria-current={i === current ? 'step' : undefined}>
           <span
             className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
-              s.done ? 'bg-tulsi text-white' : i === current ? 'bg-ink text-white' : 'bg-line text-ink-soft'
+              s.done ? 'bg-tulsi text-white' : i === current ? 'bg-blue text-white' : 'bg-line text-ink-soft'
             }`}
           >
             {s.done ? '✓' : i + 1}

@@ -12,6 +12,7 @@ import '@fontsource/mukta/600.css';
 import '@fontsource/mukta/700.css';
 import '@fontsource/mukta/800.css';
 import './index.css';
+import './styles/theme.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

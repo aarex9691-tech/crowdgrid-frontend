@@ -25,9 +25,7 @@ import { InvitationCodeBox, PublicEventList, YatraCard } from '../components/Eve
 import { DEFAULT_EVENTS } from '../data/defaultEvents';
 import { isVideo, LANDING_MEDIA } from '../data/landingMedia';
 import { SCENES } from '../components/landing/Scenes';
-import RoleDashboards from '../components/landing/RoleDashboards';
 import { openTour } from '../components/GuidedTour';
-import '../styles/landing.css';
 
 /*
  * Each kind of gathering has a bright colour (panels, dots, illustrations) and a deep one
@@ -419,9 +417,6 @@ export default function Landing() {
       <Services />
       <HowItWorks />
       <Upcoming yatras={yatras} publicEvents={publicEvents} tab={tab} setTab={setTab} sectionRef={upcomingRef} />
-      <div className="bg-[#F4F1EA]/70">
-        <div className="cg-shell"><RoleDashboards /></div>
-      </div>
       <ForEveryone />
       <HostCta />
     </div>

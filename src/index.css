@@ -207,12 +207,10 @@ body {
   }
 }
 
-/* Auspicious toran garland edge */
+/* Three-colour strip (saffron, white, green) along the top of header bands, as on the home page */
 @utility toran {
-  height: 14px;
-  background:
-    radial-gradient(circle at 12px 0, #B4530F 8px, transparent 9px) 0 0 / 24px 14px repeat-x,
-    radial-gradient(circle at 0 0, #B4530F 4px, transparent 5px) 0 0 / 24px 14px repeat-x;
+  height: 6px;
+  background: linear-gradient(to right, #e36f1e 0 33.33%, #fffdf8 33.33% 66.66%, #138a43 66.66% 100%);
 }
 
 /* Printing an invitation card: print only the card */

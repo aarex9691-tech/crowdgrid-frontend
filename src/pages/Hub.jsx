@@ -49,7 +49,7 @@ export default function Hub() {
 
   return (
     <div>
-      <div className="bg-ink text-white">
+      <div className="cg-band">
         <div className="shell py-5">
           <Link to="/" className="text-sm text-[#c9d6ee] hover:text-white">{t('hub.allYatras')}</Link>
           <h1 className="font-display text-3xl">{event.title}</h1>
@@ -74,7 +74,7 @@ export default function Hub() {
                 aria-selected={selected}
                 onClick={() => setParams({ tab: tab.id }, { replace: true })}
                 className={`flex min-h-12 shrink-0 items-center gap-2 rounded-xl px-4 font-semibold transition-colors ${
-                  selected ? (sos ? 'bg-kumkum text-white' : 'bg-ink text-white') : sos ? 'text-kumkum hover:bg-kumkum-wash' : 'text-ink-soft hover:bg-mist hover:text-ink'
+                  selected ? (sos ? 'bg-kumkum text-white' : 'bg-blue text-white') : sos ? 'text-kumkum hover:bg-kumkum-wash' : 'text-ink-soft hover:bg-mist hover:text-ink'
                 }`}
               >
                 <tab.icon size={20} aria-hidden />

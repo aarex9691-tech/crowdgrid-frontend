@@ -54,7 +54,7 @@ function InvitationCard({ event, onClose }) {
           </button>
         </div>
         <article className="print-area overflow-hidden rounded-3xl bg-white text-ink shadow-xl print:shadow-none">
-          <div className="bg-ink px-6 py-5 text-white">
+          <div className="cg-band px-6 py-5">
             <p className="text-[#c9d6ee]">{event.companyName} invites you to</p>
             <h2 className="font-display text-3xl leading-tight">{event.title}</h2>
           </div>

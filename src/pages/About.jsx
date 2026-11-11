@@ -41,10 +41,10 @@ export default function About() {
   const tel = `tel:${SITE.phone.replace(/[^\d+]/g, '')}`;
   return (
     <div className="pb-10">
-      <section className="bg-ink text-white">
+      <section className="cg-band">
         <div className="toran" aria-hidden />
         <div className="shell py-12">
-          <p className="text-sm font-semibold text-marigold">About us</p>
+          <p className="cg-kicker text-[#FFD9B8]">About us</p>
           <h1 className="mt-1 max-w-3xl font-display text-4xl sm:text-5xl">Making India's largest gatherings safer and simpler</h1>
           <p className="mt-4 max-w-2xl text-lg text-[#d5deed]">
             {SITE.name} is one platform for pilgrims, seva groups and authorities: verified stays, meal tokens, transport, seva and
@@ -60,7 +60,7 @@ export default function About() {
             ].map(([n, l]) => (
               <div key={l} className="rounded-xl border border-white/15 bg-white/5 p-4">
                 <dt className="sr-only">{l}</dt>
-                <dd className="font-display text-3xl text-marigold">{n}</dd>
+                <dd className="font-display text-3xl text-[#FFD9B8]">{n}</dd>
                 <dd className="mt-1 text-sm text-[#d5deed]">{l}</dd>
               </div>
             ))}
@@ -159,9 +159,9 @@ export default function About() {
             </p>
           </div>
 
-          <div className="flex flex-col justify-between gap-4 rounded-2xl bg-ink p-6 text-white">
+          <div className="cg-band flex flex-col justify-between gap-4 rounded-3xl p-6">
             <div>
-              <p className="text-sm font-semibold text-marigold">Quick help</p>
+              <p className="cg-kicker text-[#FFD9B8]">Quick help</p>
               <h2 className="mt-1 text-2xl font-bold">Chat with customer care on WhatsApp</h2>
               <p className="mt-2 text-[#c9d6ee]">Send us a message and our team will get back to you, usually within a few hours.</p>
             </div>

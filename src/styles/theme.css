@@ -1,7 +1,8 @@
 /*
- * Home page (branch ui-3d-heritage, neutral redesign).
- * Saffron, white, green and blue; no gradient text. Plain CSS so it needs no build step.
+ * CrowdGrid theme, shared by every page: saffron, white, green and blue; no gradient text.
+ * Loaded once in main.jsx. Plain CSS so it needs no build step; the cg- classes are the shared pieces.
  */
+:root,
 .cg-home {
   --cg-saffron: #e36f1e;
   --cg-saffron-deep: #b4530f;
@@ -17,9 +18,28 @@
   --cg-ink-soft: #4a4f5e;
   --cg-line: #e7e1d7;
   --cg-display: "Rozha One", "Mukta", Georgia, serif;
+}
+.cg-home {
   color: var(--cg-ink);
   font-family: "Plus Jakarta Sans", "Mukta", system-ui, sans-serif;
 }
+
+/* Every page title uses the display face, as on the home page (Rozha One has one weight) */
+h1 {
+  font-family: var(--cg-display);
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  line-height: 1.12;
+}
+
+/* Header band used at the top of content pages: blue with a light dot pattern */
+.cg-band {
+  background-color: var(--cg-blue);
+  background-image: radial-gradient(circle, rgb(255 253 248 / 0.14) 1.6px, transparent 2px);
+  background-size: 22px 22px;
+  color: #fff;
+}
+.cg-band h1 { color: #fff; }
 
 .cg-shell {
   margin-inline: auto;
