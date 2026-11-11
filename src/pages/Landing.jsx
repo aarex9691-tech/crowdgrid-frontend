@@ -95,7 +95,8 @@ function Hero({ onInvite }) {
 /** The soonest thing of each kind, straight from the event list. */
 function NextUp({ yatras, publicEvents, onInvite }) {
   const t = useT();
-  const now = Date.now();
+  // Read the clock once when the strip appears, so every render compares against the same time
+  const [now] = useState(() => Date.now());
   const soonest = (list) =>
     [...list]
       .filter((e) => new Date(e.endDate || e.startDate).getTime() >= now)
