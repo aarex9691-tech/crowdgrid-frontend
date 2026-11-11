@@ -30,7 +30,7 @@ const CorporateAdmin = lazy(() => import('./pages/staff/CorporateAdmin'));
 
 /** Wraps a lazily loaded page; the header and footer stay on screen while it loads. */
 const page = (Page, label = 'Loading') => (
-  <Suspense fallback={<Loading label={label} />}>
+  <Suspense fallback={<Loading label={label} variant="page" />}>
     <Page />
   </Suspense>
 );

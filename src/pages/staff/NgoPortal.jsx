@@ -10,6 +10,7 @@ const NgoAnalytics = lazy(() => import('./NgoAnalytics'));
 import { NumberField, TextField } from '../../components/Fields';
 import { firstError, intError, textError } from '../../lib/validate';
 import { LiveBadge, useLive } from '../../lib/realtime';
+import PageTitle from '../../components/PageTitle';
 
 // Small digits-only box for inline controls (no e, +, -, decimals)
 const digitsUpTo = (raw, max) => raw.replace(/\D/g, '').replace(/^0+(?=\d)/, '').slice(0, String(max).length);
@@ -137,11 +138,8 @@ export default function NgoPortal() {
 
   return (
     <div className="shell space-y-8 py-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="flex flex-wrap items-center gap-3 text-3xl font-bold">{provider.name} <LiveBadge /></h1>
-          <p className="text-ink-soft">Camp &amp; kitchen manager</p>
-        </div>
+      <div className="cg-pagehead">
+        <PageTitle kicker="NGO / Seva" tone="green" title={<>{provider.name} <LiveBadge /></>} lead="Camps, beds and kitchens" />
         <Link to="/scan" className="btn-ink">Open scanner</Link>
       </div>
 

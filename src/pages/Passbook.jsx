@@ -8,6 +8,7 @@ import PassCard, { PASS_META } from '../components/PassCard';
 import MyQrCard from '../components/MyQrCard';
 import CancelPassDialog from '../components/CancelPassDialog';
 import { useAuth } from '../lib/auth';
+import PageTitle from '../components/PageTitle';
 
 /**
  * My Yatra Passbook (FR-11). Loads passes from the API and caches them; with no
@@ -58,9 +59,8 @@ export default function Passbook() {
 
   return (
     <div className="shell space-y-6 py-6">
-      <div>
-        <h1 className="text-3xl font-bold">My Yatra Passbook</h1>
-        <p className="text-ink-soft">All your passes in one place. They stay on this phone, so they open even without network.</p>
+      <div className="cg-pagehead">
+        <PageTitle kicker="Attendee" tone="saffron" title="My passbook" lead="Every pass in one place. Opens without network." />
       </div>
       {user && <MyQrCard name={user.name} activeCount={withState.filter((p) => p.state === 'ACTIVE').length} />}
       {done && <Notice tone="success">{done}</Notice>}

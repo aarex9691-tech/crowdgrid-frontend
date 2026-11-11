@@ -10,6 +10,7 @@ import DateTimeRange, { toIsoRange, windowError } from '../../components/DateTim
 import { NumberField, PinField, TextField } from '../../components/Fields';
 import PhoneField from '../../components/PhoneField';
 import { cleanText, firstError, intError, optionalPhoneError, pinError, textError } from '../../lib/validate';
+import PageTitle from '../../components/PageTitle';
 
 // Description length is counted without spaces (same rule as the server)
 const DESC_MIN = 150;
@@ -201,11 +202,8 @@ export default function HostEvents() {
   const now = new Date();
   return (
     <div className="shell space-y-6 py-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-bold">Hosted events</h1>
-          <p className="text-ink-soft">Pilgrims register for your events; paid tickets go through checkout, free ones are confirmed instantly.</p>
-        </div>
+      <div className="cg-pagehead">
+        <PageTitle kicker="Authority" tone="blue" title="Hosted events" lead="Free events confirm at once. Paid ones go through checkout." />
         {!creating && (
           <button type="button" className="btn-primary" onClick={() => setCreating(true)}>
             <CalendarPlus size={20} aria-hidden /> Host an event

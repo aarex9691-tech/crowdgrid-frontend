@@ -18,6 +18,9 @@
   --cg-ink-soft: #4a4f5e;
   --cg-line: #e7e1d7;
   --cg-display: "Rozha One", "Mukta", Georgia, serif;
+  /* Motion vocabulary: one curve for things settling, one for sheets sliding up */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 .cg-home {
   color: var(--cg-ink);
@@ -178,6 +181,65 @@ h1 {
 @media (prefers-reduced-motion: reduce) {
   .cg-panel-art, .cg-panel-label { transition: none; }
 }
+
+/* ── Dashboards: one header row on every role page (title left, actions right) ── */
+.cg-pagehead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--cg-line);
+}
+
+/* ── Motion (find-animation-opportunities). Only transform and opacity; the global
+      reduced-motion rule in index.css switches all of it off. ── */
+
+/* 7. Press feedback on every button: tens of uses a day, so small and quick */
+:is(.btn, .btn-primary, .btn-brass, .btn-ink, .btn-ghost, .btn-sos, .cg-btn):not(:disabled):active {
+  transform: scale(0.97);
+}
+:is(.btn, .btn-primary, .btn-brass, .btn-ink, .btn-ghost, .btn-sos) {
+  transition: transform 140ms var(--ease-out), background-color 150ms ease, color 150ms ease,
+    border-color 150ms ease, box-shadow 150ms ease;
+}
+
+@keyframes cgFade { from { opacity: 0; } }
+@keyframes cgPop { from { opacity: 0; transform: scale(0.96); } }
+@keyframes cgSheet { from { transform: translateY(100%); } }
+@keyframes cgDrop { from { opacity: 0; transform: translateY(-8px); } }
+@keyframes cgRise4 { from { opacity: 0; transform: translateY(-4px); } }
+@keyframes cgVerdict { from { opacity: 0.35; transform: scale(0.98); } }
+@keyframes cgCelebrate {
+  0% { opacity: 0; transform: scale(0.5); }
+  60% { opacity: 1; transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+/* 2. Dialogs: backdrop fades; phones get a bottom sheet, wider screens a small grow */
+.cg-backdrop { animation: cgFade 200ms ease-out; }
+.cg-dialog { animation: cgSheet 280ms var(--ease-drawer); }
+@media (min-width: 640px) { .cg-dialog { animation: cgPop 200ms var(--ease-out); } }
+
+/* 3. Live staff alerts slide down from where they sit */
+.cg-toast { animation: cgDrop 240ms var(--ease-out); }
+
+/* 5. Phone menu drops from the menu button */
+.cg-menu { animation: cgDrop 180ms var(--ease-out); }
+
+/* 1. A new scan result always flashes in, so two greens in a row still read as two scans */
+.cg-verdict { animation: cgVerdict 120ms var(--ease-out); }
+
+/* 4. Booking confirmed: the one celebratory beat in the app */
+.cg-celebrate { display: inline-block; animation: cgCelebrate 450ms var(--ease-out) both; }
+
+/* 6. Opened FAQ and guide sections ease in instead of appearing */
+details[open] > :not(summary) { animation: cgRise4 200ms var(--ease-out); }
+
+/* ── Loading skeleton: page-shaped grey blocks instead of a spinner ── */
+@keyframes cgShimmer { 50% { opacity: 0.55; } }
+.cg-skel { border-radius: 0.75rem; background: var(--cg-line); animation: cgShimmer 1.4s ease-in-out infinite; }
 
 /* Hindi and Marathi: no capitals or letter-spacing, which break Devanagari letter joins */
 html:lang(hi-IN) .cg-kicker,

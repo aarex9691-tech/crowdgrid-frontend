@@ -266,7 +266,7 @@ export default function Layout() {
         </div>
 
         {menuOpen && (
-          <nav id="mobile-menu" aria-label="Main" className={`max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-line bg-paper ${hideDesk}`}>
+          <nav id="mobile-menu" aria-label="Main" className={`cg-menu max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-line bg-paper ${hideDesk}`}>
             <div className="mx-auto w-full max-w-7xl space-y-1 px-4 py-3">
               {/* Mobile Search Bar */}
               {showSearch && <form onSubmit={handleNavSearch} className="mb-3 flex items-center rounded-xl border border-line bg-white px-3 py-2 text-sm focus-within:border-terracotta">

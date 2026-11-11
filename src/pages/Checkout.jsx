@@ -163,7 +163,7 @@ function Receipt({ order }) {
     <div className="space-y-5">
       <div className="panel space-y-2 p-6">
         <p className="flex items-center gap-2 text-2xl font-bold text-tulsi">
-          <CheckCircle2 size={28} aria-hidden /> {order.total === 0 ? 'Booking confirmed' : 'Payment successful'}
+          <span className="cg-celebrate"><CheckCircle2 size={28} aria-hidden /></span> {order.total === 0 ? 'Booking confirmed' : 'Payment successful'}
         </p>
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-[15px]">
           <dt className="text-ink-soft">Amount</dt>

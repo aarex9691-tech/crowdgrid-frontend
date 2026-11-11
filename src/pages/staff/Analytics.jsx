@@ -5,6 +5,7 @@ import API, { errorMessage } from '../../lib/api';
 import { LiveBadge, useLive } from '../../lib/realtime';
 import Notice, { Loading } from '../../components/Notice';
 import { ChartCard, DailyBars, DailyLine, HourHeatmap, inr, Kpi, num, PercentBars, shortDay } from '../../components/charts';
+import PageTitle from '../../components/PageTitle';
 
 const RANGES = [7, 14, 30];
 const SOS_TYPE = { MEDICAL: 'Medical', LOST: 'Lost person', CROWD: 'Crowd', FIRE: 'Fire', GENERAL: 'General' };
@@ -83,11 +84,13 @@ export default function Analytics() {
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-5 px-4 py-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="flex flex-wrap items-center gap-3 text-3xl font-bold">Analytics {paused ? <span className="rounded-full bg-mist px-2.5 py-0.5 text-xs font-bold text-ink-soft">Paused</span> : <LiveBadge />}</h1>
-          <p className="text-ink-soft">{data ? `${data.event.title} · ${shortDay(data.days[0])} to ${shortDay(data.days[data.days.length - 1])}` : 'Loading…'}</p>
-        </div>
+      <div className="cg-pagehead">
+        <PageTitle
+          kicker="Authority"
+          tone="blue"
+          title={<>Analytics {paused ? <span className="pill-quiet">Paused</span> : <LiveBadge />}</>}
+          lead={data ? `${data.event.title} · ${shortDay(data.days[0])} to ${shortDay(data.days[data.days.length - 1])}` : 'Loading…'}
+        />
         <div className="flex flex-wrap items-end gap-2">
           {events.length > 1 && (
             <div>

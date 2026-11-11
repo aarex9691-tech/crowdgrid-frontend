@@ -11,6 +11,7 @@ import { fmtDateTime, MEAL_LABELS } from '../../lib/format';
 import Notice, { Loading } from '../../components/Notice';
 import VolunteerReview from './VolunteerReview';
 import { LiveBadge, useLive } from '../../lib/realtime';
+import PageTitle from '../../components/PageTitle';
 
 const SOS_STATUS = { OPEN: 'pill-out', ACKNOWLEDGED: 'pill-low', RESOLVED: 'pill-quiet' };
 const SOS_TYPE_LABEL = { MEDICAL: 'Medical', CROWD: 'Crowd crush', LOST: 'Lost / separated', FIRE: 'Fire or danger', GENERAL: 'General help' };
@@ -18,8 +19,8 @@ const SOS_TYPE_LABEL = { MEDICAL: 'Medical', CROWD: 'Crowd crush', LOST: 'Lost /
 function Stat({ label, value, tone }) {
   return (
     <div className="panel p-4">
-      <p className="text-ink-soft">{label}</p>
-      <p className={`text-3xl font-extrabold tabular-nums ${tone || ''}`}>{value}</p>
+      <p className="text-sm font-semibold text-ink-soft">{label}</p>
+      <p className={`mt-1 text-3xl font-extrabold tabular-nums ${tone || ''}`}>{value}</p>
     </div>
   );
 }
@@ -280,11 +281,8 @@ export default function ControlRoom() {
 
   return (
     <div className="shell space-y-8 py-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="flex flex-wrap items-center gap-3 text-3xl font-bold">District control room <LiveBadge /></h1>
-          <p className="text-ink-soft">{user.name}</p>
-        </div>
+      <div className="cg-pagehead">
+        <PageTitle kicker="Authority" tone="blue" title={<>Control room <LiveBadge /></>} lead={user.name} />
         <div className="flex items-end gap-2">
           <div>
             <label htmlFor="ev" className="field-label">Yatra</label>

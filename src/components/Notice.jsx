@@ -18,7 +18,29 @@ export default function Notice({ tone = 'info', children, className = '' }) {
   );
 }
 
-export function Loading({ label = 'Loading' }) {
+/**
+ * Loading state. `variant="page"` draws grey blocks shaped like a page (title, cards, panel),
+ * so a page that is still downloading already looks like itself instead of a spinner.
+ */
+export function Loading({ label = 'Loading', variant }) {
+  if (variant === 'page') {
+    return (
+      <div className="shell space-y-6 py-6" role="status" aria-live="polite">
+        <span className="sr-only">{label}</span>
+        <div className="space-y-2 border-b border-line pb-5" aria-hidden>
+          <div className="cg-skel h-3 w-24" />
+          <div className="cg-skel h-9 w-64 max-w-full" />
+          <div className="cg-skel h-4 w-80 max-w-full" />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-3" aria-hidden>
+          <div className="cg-skel h-24" />
+          <div className="cg-skel h-24" />
+          <div className="cg-skel h-24" />
+        </div>
+        <div className="cg-skel h-56" aria-hidden />
+      </div>
+    );
+  }
   return (
     <div className="flex items-center justify-center gap-3 py-16 text-ink-soft" role="status">
       <span className="h-5 w-5 animate-spin rounded-full border-2 border-line border-t-ink" aria-hidden />

@@ -5,6 +5,7 @@ import API, { errorMessage } from '../lib/api';
 import { fmtDateTime } from '../lib/format';
 import { PASS_META } from '../components/PassCard';
 import Notice from '../components/Notice';
+import PageTitle from '../components/PageTitle';
 
 const READER_ID = 'qr-reader';
 
@@ -63,7 +64,7 @@ export default function Scanner() {
     try {
       const { data } = await API.post('/passes/scan', { qr, service: serviceRef.current, passId });
       const ms = Math.round(performance.now() - started);
-      setResult({ ...data, ms, qr });
+      setResult({ ...data, ms, qr, at: Date.now() }); // `at` gives every scan its own flash
       if (data.result === 'CHOOSE') return;
       setLog((l) => [{ ...data, at: new Date() }, ...l].slice(0, 8));
       if (navigator.vibrate) navigator.vibrate(data.result === 'VALID' ? 80 : [60, 60, 60]);
@@ -107,9 +108,8 @@ export default function Scanner() {
 
   return (
     <div className="shell max-w-xl space-y-5 py-6">
-      <div>
-        <h1 className="text-3xl font-bold">Pass scanner</h1>
-        <p className="text-ink-soft">Point the camera at a pilgrim's QR. Green means let them in.</p>
+      <div className="cg-pagehead">
+        <PageTitle kicker="Volunteer" tone="green" title="Pass scanner" lead="Point the camera at a QR. Green means let them in." />
       </div>
 
       <div className="panel p-4">
@@ -151,9 +151,10 @@ export default function Scanner() {
 
       {result && !choosing && (
         <div
+          key={result.at}
           role="status"
           aria-live="assertive"
-          className={`rounded-3xl p-6 text-white ${valid ? 'bg-tulsi' : 'bg-kumkum'}`}
+          className={`cg-verdict rounded-3xl p-6 text-white ${valid ? 'bg-tulsi' : 'bg-kumkum'}`}
         >
           {result.personal && (
             <p className="mb-3 inline-flex rounded-full bg-white/20 px-3 py-0.5 text-sm font-bold">Personal QR · one QR for all passes</p>

@@ -5,24 +5,24 @@ import {
 import { SITE } from '../lib/site';
 
 const CHALLENGES = [
-  { icon: Users, title: 'Crowds beyond any city\'s size', text: 'A single Amrut Snan day can bring more people to Nashik than live in most Indian cities. Narrow lanes to the ghats turn dangerous within minutes.' },
-  { icon: Tent, title: 'Unverified stays and touts', text: 'Pilgrims arriving from villages are easy targets for overpriced or unsafe lodging, with no way to check who runs it.' },
-  { icon: UserSearch, title: 'Families separated in the crowd', text: 'Elderly pilgrims and children get separated every day. Information sits on paper at help booths that families cannot reach.' },
+  { icon: Users, title: 'Crowds bigger than cities', text: 'One festival day can draw more people than most cities hold. Narrow lanes turn unsafe fast.' },
+  { icon: Tent, title: 'Unverified stays and sellers', text: 'First-time visitors cannot tell who runs a stay or a ticket counter.' },
+  { icon: UserSearch, title: 'People lost in the crowd', text: 'Elders and children get separated, and help desks still run on paper.' },
 ];
 
 const SERVICES = [
   { icon: BedDouble, title: 'Verified stays', text: 'Dharamshalas and tent camps run by verified trusts, with live bed availability.' },
   { icon: UtensilsCrossed, title: 'Meal tokens', text: 'Free annadanam tokens for a family, with timed slots so queues stay short.' },
   { icon: BusFront, title: 'Shuttles and buses', text: 'Passes for shuttles between parking, stations and the ghats.' },
-  { icon: Footprints, title: 'Safest walking route', text: 'The least crowded path to the ghat, rerouted live when a lane fills up.' },
+  { icon: Footprints, title: 'Safest walking route', text: 'The least crowded path, rerouted live when a lane fills.' },
   { icon: Siren, title: 'Emergency SOS', text: 'One-tap help with location, and a missing and found persons bulletin.' },
   { icon: HandHeart, title: 'Seva', text: 'Volunteer sign-up for crowd guidance, first aid and annadanam.' },
-  { icon: Ticket, title: 'Events', text: 'Aartis, kirtans, heritage walks and invite-only campus or corporate events.' },
+  { icon: Ticket, title: 'Events', text: 'Concerts, aartis, walks and invite-only campus or corporate events.' },
   { icon: Activity, title: 'Live control room', text: 'Authorities see SOS, occupancy and crowding on one screen, as it happens.' },
 ];
 
 const AUDIENCES = [
-  { icon: Users, title: 'Pilgrims and families', text: 'Plan the whole yatra from one phone, for up to 5 people per account.' },
+  { icon: Users, title: 'Attendees and families', text: 'Plan the whole trip from one phone, for up to 5 people.' },
   { icon: Tent, title: 'Trusts, NGOs and seva groups', text: 'List camps and kitchens, manage beds and meals, check people in.' },
   { icon: HandHeart, title: 'Volunteers', text: 'Get a seva role, a volunteer ID and nearby help requests.' },
   { icon: Landmark, title: 'Authorities', text: 'Verify providers, manage lanes and respond to emergencies with live data.' },
@@ -45,17 +45,16 @@ export default function About() {
         <div className="toran" aria-hidden />
         <div className="shell py-12">
           <p className="cg-kicker text-saffron-light">About us</p>
-          <h1 className="mt-1 max-w-3xl font-display text-4xl sm:text-5xl">Making India's largest gatherings safer and simpler</h1>
+          <h1 className="mt-1 max-w-3xl font-display text-4xl sm:text-5xl">One app for every crowd</h1>
           <p className="mt-4 max-w-2xl text-lg text-blue-mist">
-            {SITE.name} is one platform for pilgrims, seva groups and authorities: verified stays, meal tokens, transport, seva and
-            emergency help, with a single QR pass. We start with the Simhastha Kumbh Mela 2026–28 at Nashik–Trimbakeshwar, and also
-            serve the Pandharpur Wari and the Jagannath Rath Yatra.
+            Passes, stays, food, transport and SOS for pilgrimages, public events and company gatherings. We start with
+            Simhastha Kumbh 2026–28 at Nashik.
           </p>
           <dl className="mt-8 grid max-w-3xl grid-cols-2 gap-4 sm:grid-cols-4">
             {[
-              ['3', 'yatras supported'],
-              ['5 crore+', 'pilgrims expected at Simhastha'],
-              ['1 QR', 'for stay, food and travel'],
+              ['3', 'kinds of gathering'],
+              ['5 crore+', 'expected at Simhastha'],
+              ['1 QR', 'for every service'],
               ['24×7', 'SOS and live control room'],
             ].map(([n, l]) => (
               <div key={l} className="rounded-xl border border-white/15 bg-white/5 p-4">
@@ -69,12 +68,12 @@ export default function About() {
       </section>
 
       <div className="shell space-y-14 py-12">
-        <section aria-labelledby="mission-title" className="grid gap-8 lg:grid-cols-[1fr_1.4fr]">
+        <section aria-labelledby="mission-title" className="grid gap-8 lg:grid-cols-[0.9fr_2fr]">
           <div>
             <h2 id="mission-title" className="text-3xl font-bold">Our mission</h2>
             <p className="mt-3 text-lg text-ink-soft">
-              Every pilgrim should be able to find a safe place to stay, a meal and a way home, and get help in minutes if something goes
-              wrong. We bring the people who make that happen onto one live system.
+              Everyone in a crowd should find a bed, a meal and a way home, and get help within minutes. We put the people who make
+              that happen on one live system.
             </p>
           </div>
           <div>
@@ -93,7 +92,7 @@ export default function About() {
 
         <section aria-labelledby="offer-title">
           <h2 id="offer-title" className="text-3xl font-bold">What we offer</h2>
-          <p className="mt-1 text-ink-soft">Every service of the yatra, in one place.</p>
+          <p className="mt-1 text-ink-soft">Every service, in one place.</p>
           <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {SERVICES.map((s) => (
               <li key={s.title} className="flex gap-4 rounded-2xl border border-line bg-white p-5">
