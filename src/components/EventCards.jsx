@@ -42,6 +42,16 @@ export const addTicketToCart = (cart, event, people = 1) =>
     input: { people },
   });
 
+/** One solid colour per category (saffron, blue, green family), so cards read at a glance. */
+const CATEGORY_TONE = {
+  SPIRITUAL: '#C4560F',
+  CULTURAL: '#1F3F8F',
+  HERITAGE_WALK: '#0D6331',
+  WORKSHOP: '#142B66',
+  SEVA: '#138A43',
+  OTHER: '#3A3F4E',
+};
+
 export const placesLeft = (e) => Math.max(0, (e.capacity || 0) - (e.attendeesCount || 0));
 
 function PublicEventCard({ event, onRegister, showRegister }) {
@@ -49,7 +59,7 @@ function PublicEventCard({ event, onRegister, showRegister }) {
   return (
     <li className="panel group flex flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-xs transition-all hover:-translate-y-1 hover:border-ink-faint hover:shadow-md">
       {/* Event Header Banner with Warm Terracotta Gradient */}
-      <div className="relative h-28 sm:h-32 w-full overflow-hidden bg-gradient-to-br from-[#bd5338] via-[#a8442a] to-[#7c2d1b] p-4 flex flex-col justify-between text-white">
+      <div className="relative h-28 sm:h-32 w-full overflow-hidden p-4 flex flex-col justify-between text-white" style={{ background: CATEGORY_TONE[event.category] || CATEGORY_TONE.OTHER }}>
         <div className="flex items-center justify-between gap-2">
           <span className="rounded-full bg-white/20 backdrop-blur px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-white">
             {EVENT_CATEGORIES[event.category] || 'Event'}

@@ -1,0 +1,160 @@
+/*
+ * Home page (branch ui-3d-heritage, neutral redesign).
+ * Saffron, white, green and blue; no gradient text. Plain CSS so it needs no build step.
+ */
+.cg-home {
+  --cg-saffron: #e36f1e;
+  --cg-saffron-deep: #b4530f;
+  --cg-saffron-wash: #fdeedf;
+  --cg-blue: #1f3f8f;
+  --cg-blue-deep: #142b66;
+  --cg-blue-wash: #e7edf9;
+  --cg-green: #138a43;
+  --cg-green-deep: #0d6331;
+  --cg-green-wash: #e5f3ea;
+  --cg-white: #fffdf8;
+  --cg-ink: #1b1e28;
+  --cg-ink-soft: #4a4f5e;
+  --cg-line: #e7e1d7;
+  --cg-display: "Rozha One", "Mukta", Georgia, serif;
+  color: var(--cg-ink);
+  font-family: "Plus Jakarta Sans", "Mukta", system-ui, sans-serif;
+}
+
+.cg-shell {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 76rem;
+  padding-inline: clamp(1rem, 4vw, 2rem);
+}
+
+.cg-section { padding-block: clamp(3rem, 7vw, 5.5rem); }
+
+.cg-kicker {
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cg-h1,
+.cg-h2 {
+  font-family: var(--cg-display);
+  font-weight: 400;
+  color: var(--cg-ink);
+  letter-spacing: 0.005em;
+}
+.cg-h1 { font-size: clamp(2.6rem, 6.4vw, 4.6rem); line-height: 1.04; }
+.cg-h2 { font-size: clamp(1.9rem, 4vw, 2.9rem); line-height: 1.1; margin-top: 0.35rem; }
+
+/* Three-colour rule used as a quiet signature */
+.cg-tricolour { display: flex; height: 6px; width: 7.5rem; border-radius: 999px; overflow: hidden; }
+.cg-tricolour > span { flex: 1; }
+
+.cg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding-inline: 1.35rem;
+  border-radius: 0.85rem;
+  font-weight: 700;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cg-btn:active { transform: translateY(1px); }
+.cg-btn-saffron { background: var(--cg-saffron); color: #fff; }
+.cg-btn-saffron:hover { background: var(--cg-saffron-deep); }
+.cg-btn-blue { background: var(--cg-blue); color: #fff; }
+.cg-btn-blue:hover { background: var(--cg-blue-deep); }
+.cg-btn-line { background: var(--cg-white); color: var(--cg-ink); box-shadow: inset 0 0 0 1.5px var(--cg-line); }
+.cg-btn-line:hover { box-shadow: inset 0 0 0 1.5px var(--cg-ink); }
+.cg-btn-white { background: var(--cg-white); color: var(--cg-blue-deep); }
+.cg-btn-white:hover { background: #fff; box-shadow: 0 0 0 3px rgb(255 255 255 / 0.35); }
+
+/* ── Hero triptych: three gatherings side by side, the focused one widens ── */
+.cg-tri {
+  display: flex;
+  gap: 0.6rem;
+  height: clamp(22rem, 40vw, 30rem);
+}
+.cg-panel {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  isolation: isolate;
+  transition: flex-grow 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cg-tri:hover .cg-panel,
+.cg-tri:focus-within .cg-panel { flex-grow: 0.8; }
+.cg-tri .cg-panel:hover,
+.cg-tri .cg-panel:focus-visible { flex-grow: 1.7; }
+.cg-panel img,
+.cg-panel video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cg-panel-label {
+  position: absolute;
+  inset: auto 0.6rem 0.6rem 0.6rem;
+  z-index: 1;
+  border-radius: 1rem;
+  padding: 0.75rem 0.9rem;
+  color: #fff;
+}
+.cg-panel-label b { display: block; font-size: 1.05rem; line-height: 1.2; }
+.cg-panel-label small { display: block; font-size: 0.85rem; opacity: 0.92; margin-top: 0.1rem; }
+.cg-panel-label .cg-short { display: none; }
+@media (max-width: 639px) {
+  .cg-tri { height: 18rem; gap: 0.45rem; }
+  .cg-panel { border-radius: 1.1rem; }
+  .cg-panel-label { inset: auto 0.4rem 0.4rem 0.4rem; padding: 0.5rem 0.6rem; border-radius: 0.75rem; }
+  .cg-panel-label b { font-size: 0.9rem; }
+  .cg-panel-label .cg-long, .cg-panel-label small { display: none; }
+  .cg-panel-label .cg-short { display: block; }
+}
+
+/* Staggered entrance, once */
+@keyframes cgRise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.cg-rise { animation: cgRise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.cg-rise-1 { animation-delay: 0.08s; }
+.cg-rise-2 { animation-delay: 0.16s; }
+.cg-rise-3 { animation-delay: 0.24s; }
+
+/* Service list: rows with rules, not a grid of boxes */
+.cg-rows > li { border-top: 1px solid var(--cg-line); }
+.cg-dot { display: inline-block; width: 0.6rem; height: 0.6rem; border-radius: 999px; }
+
+/* How it works: a numbered track */
+.cg-steps { counter-reset: step; }
+.cg-steps > li { counter-increment: step; position: relative; }
+.cg-steps > li::before {
+  content: counter(step);
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  background: var(--cg-white);
+  border: 2px solid var(--cg-saffron);
+  color: var(--cg-saffron-deep);
+  font-weight: 800;
+  position: relative;
+  z-index: 1;
+}
+
+/* Rangoli-style dot field for the closing band, drawn in CSS */
+.cg-dots {
+  background-color: var(--cg-blue);
+  background-image: radial-gradient(circle, rgb(255 253 248 / 0.16) 1.6px, transparent 2px);
+  background-size: 22px 22px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cg-panel { transition: none; }
+}
+
+/* Shared buttons inside the home page follow its palette */
+.cg-home .btn-primary { background: var(--cg-saffron); }
+.cg-home .btn-primary:hover { background: var(--cg-saffron-deep); }
+.cg-home .btn-ink { background: var(--cg-blue); }
+.cg-home .btn-ink:hover { background: var(--cg-blue-deep); }
