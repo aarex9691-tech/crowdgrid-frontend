@@ -13,7 +13,7 @@ const TABS = [
 /** One labelled box in the search bar, like the fields on a travel site. */
 function Field({ id, label, children }) {
   return (
-    <div className="flex min-w-0 flex-1 flex-col rounded-xl border border-line bg-white px-3.5 py-2 transition-all focus-within:border-terracotta focus-within:shadow-xs hover:border-ink-faint">
+    <div className="flex min-w-0 flex-1 flex-col rounded-xl border border-line bg-white px-3.5 py-2 transition-[border-color,box-shadow] focus-within:border-terracotta focus-within:shadow-xs hover:border-ink-faint">
       <label htmlFor={id} className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">{label}</label>
       {children}
     </div>

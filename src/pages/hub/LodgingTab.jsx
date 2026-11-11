@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { BadgeCheck, Minus, Plus } from 'lucide-react';
+import { BadgeCheck, Check, Minus, Plus } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
 import { cachePass } from '../../lib/passCache';
 import { rupees, useCart } from '../../lib/cart';
@@ -132,7 +132,7 @@ function BookingSteps({ steps }) {
               s.done ? 'bg-tulsi text-white' : i === current ? 'bg-blue text-white' : 'bg-line text-ink-soft'
             }`}
           >
-            {s.done ? '✓' : i + 1}
+            {s.done ? <Check size={14} strokeWidth={3} aria-label="Done" /> : i + 1}
           </span>
           <span className={i === current ? 'font-semibold' : 'text-ink-soft'}>{s.label}</span>
           {i < steps.length - 1 && <span className="h-px w-5 bg-line" aria-hidden />}

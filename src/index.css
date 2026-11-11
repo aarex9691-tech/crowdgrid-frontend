@@ -35,7 +35,7 @@ body {
   position: relative;
   background-color: #faf8f4;
   color: #1b1e28;
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 @layer base {
@@ -49,7 +49,8 @@ body {
   h1, h2, h3 { line-height: 1.25; }
   :focus-visible { outline: 3px solid var(--color-terracotta); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation: none !important; transition: none !important; }
+    /* Movement off everywhere; dialogs, alerts and the menu keep a short fade (styles/theme.css) */
+    *:not(.cg-backdrop, .cg-dialog, .cg-toast, .cg-menu), *::before, *::after { animation: none !important; transition: none !important; }
   }
 }
 

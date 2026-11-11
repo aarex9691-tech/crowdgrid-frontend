@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { BarChart3, Briefcase, CalendarPlus, LogOut, Menu, MessageCircle, ScanLine, Search, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
+import { BarChart3, Briefcase, Check, CalendarPlus, LogOut, Menu, MessageCircle, ScanLine, Search, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { ROLE_LABELS, useAuth } from '../lib/auth';
 import { useCart } from '../lib/cart';
@@ -192,7 +192,7 @@ export default function Layout() {
           {/* Clean Warm Search Pill */}
           {showSearch && <form
             onSubmit={handleNavSearch}
-            className="hidden xl:flex flex-1 max-w-sm lg:max-w-md items-center rounded-full border border-line bg-white/85 px-3 py-1.5 text-sm hover:border-ink-faint focus-within:border-terracotta focus-within:bg-white shadow-xs transition-all mx-2"
+            className="hidden xl:flex flex-1 max-w-sm lg:max-w-md items-center rounded-full border border-line bg-white/85 px-3 py-1.5 text-sm hover:border-ink-faint focus-within:border-terracotta focus-within:bg-white shadow-xs transition-[border-color,background-color] mx-2"
           >
             <Search size={16} className="text-ink-soft shrink-0" />
             <input
@@ -351,10 +351,10 @@ export default function Layout() {
               the Jagannath Rath Yatra at Puri, plus aartis, kirtans, heritage walks and campus or corporate events.
             </p>
             <ul className="mt-3 space-y-1 text-sm">
-              <li>✓ Every camp, kitchen and seva group verified</li>
-              <li>✓ Stay, meals, shuttles and tickets under one QR</li>
-              <li>✓ Least crowded walking route to the ghat</li>
-              <li>✓ 24×7 SOS and missing-person help</li>
+              <li className="flex items-center gap-2"><Check size={16} className="shrink-0 text-saffron-light" aria-hidden /> Every camp, kitchen and seva group verified</li>
+              <li className="flex items-center gap-2"><Check size={16} className="shrink-0 text-saffron-light" aria-hidden /> Stay, meals, shuttles and tickets under one QR</li>
+              <li className="flex items-center gap-2"><Check size={16} className="shrink-0 text-saffron-light" aria-hidden /> Least crowded walking route to the ghat</li>
+              <li className="flex items-center gap-2"><Check size={16} className="shrink-0 text-saffron-light" aria-hidden /> 24×7 SOS and missing-person help</li>
             </ul>
           </div>
           <div>

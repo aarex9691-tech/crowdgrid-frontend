@@ -160,7 +160,6 @@ function Services() {
     <section aria-labelledby="services-title" className="cg-shell cg-section">
       <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
         <div className="max-w-xl">
-          <p className="cg-kicker text-terracotta">{t('svc.kicker')}</p>
           <h2 id="services-title" className="cg-h2">{t('svc.title')}</h2>
         </div>
         <ul className="flex flex-wrap gap-4 text-sm font-semibold text-ink-soft" aria-label={t('svc.key')}>
@@ -250,7 +249,6 @@ function Upcoming({ yatras, publicEvents, tab, setTab, sectionRef }) {
     <section ref={sectionRef} aria-labelledby="upcoming-title" className="cg-shell cg-section scroll-mt-20">
       <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
         <div>
-          <p className="cg-kicker text-tulsi">{t('up.kicker')}</p>
           <h2 id="upcoming-title" className="cg-h2">{t('up.title')}</h2>
         </div>
         <Link to={`/events?tab=${tab}`} className="inline-flex min-h-11 items-center font-bold text-blue underline-offset-4 hover:underline">
