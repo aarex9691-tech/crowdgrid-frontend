@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import '../../styles/heritage.css';
 import { Link } from 'react-router-dom';
 import { fmtDate } from '../../lib/format';
 

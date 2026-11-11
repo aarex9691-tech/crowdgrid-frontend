@@ -2,57 +2,16 @@ import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Check, Siren } from 'lucide-react';
 import { homeFor, useAuth } from '../../lib/auth';
+import { useT } from '../../lib/i18n';
 
-/** One entry per role. `path` is where that role works; copy stays short on purpose. */
+/** One entry per role: where that role works, and which preview to draw. Text lives in homeStrings.js. */
 const ROLES = [
-  {
-    id: 'USER',
-    tab: 'Attendee',
-    who: 'Anyone going to an event',
-    does: ['Book passes, stays, meals and rides', 'One QR for everything, even offline', 'SOS and lost & found in one tap'],
-    path: '/passbook',
-    mock: 'pass',
-  },
-  {
-    id: 'VOLUNTEER',
-    tab: 'Volunteer',
-    who: 'Staff at gates, kitchens and buses',
-    does: ['Scan a pass in about a second', 'Green means valid, red means stop', 'Works with a phone camera'],
-    path: '/scan',
-    mock: 'scan',
-  },
-  {
-    id: 'NGO_ADMIN',
-    tab: 'NGO / Seva',
-    who: 'Groups running camps and kitchens',
-    does: ['Beds and tents on a live map', 'Daily meal quotas and check-ins', 'Approve volunteer seva requests'],
-    path: '/ngo',
-    mock: 'beds',
-  },
-  {
-    id: 'CORPORATE_ADMIN',
-    tab: 'Corporate',
-    who: 'Company, campus and private hosts',
-    does: ['Invite guests with a 6-digit code', 'Session check-in and badges', 'Guest list that updates live'],
-    path: '/corporate-admin',
-    mock: 'guests',
-  },
-  {
-    id: 'AUTHORITY',
-    tab: 'Authority',
-    who: 'District and venue officials',
-    does: ['Crowd level for every sector', 'SOS queue with locations', 'Verify NGOs and host public events'],
-    path: '/control',
-    mock: 'control',
-  },
-  {
-    id: 'SUPER_ADMIN',
-    tab: 'Super Admin',
-    who: 'The team running CrowdGrid',
-    does: ['Every dashboard in one login', 'Create events of any kind', 'Manage roles and access'],
-    path: '/control',
-    mock: 'admin',
-  },
+  { id: 'USER', path: '/passbook', mock: 'pass' },
+  { id: 'VOLUNTEER', path: '/scan', mock: 'scan' },
+  { id: 'NGO_ADMIN', path: '/ngo', mock: 'beds' },
+  { id: 'CORPORATE_ADMIN', path: '/corporate-admin', mock: 'guests' },
+  { id: 'AUTHORITY', path: '/control', mock: 'control' },
+  { id: 'SUPER_ADMIN', path: '/control', mock: 'admin' },
 ];
 
 function Bar({ label, value, tone }) {
@@ -90,7 +49,7 @@ function Mock({ kind }) {
       <div className="flex items-center gap-4">
         <div className="relative grid size-32 shrink-0 place-items-center rounded-xl bg-[#1B1E28]" aria-hidden>
           <span className="absolute inset-4 rounded-md border-2 border-dashed border-white/40" />
-          <span className="grid size-14 place-items-center rounded-full bg-[#138A43] text-white"><Check size={30} strokeWidth={3} /></span>
+          <span className="grid size-14 place-items-center rounded-full bg-[#0D6331] text-white"><Check size={30} strokeWidth={3} /></span>
         </div>
         <div className="space-y-1 text-sm">
           <p className="text-lg font-bold text-[#0D6331]">Valid pass</p>
@@ -142,19 +101,35 @@ function Mock({ kind }) {
     );
   }
   return (
-    <div className="grid grid-cols-3 gap-2 text-center text-xs font-bold">
-      {['Events', 'Control room', 'Analytics', 'NGOs', 'Corporate', 'Scanner'].map((x, i) => (
-        <span key={x} className={`rounded-lg px-2 py-4 ${['bg-[#FDEEDF] text-[#8A3F0B]', 'bg-[#E7EDF9] text-[#1F3F8F]', 'bg-[#E5F3EA] text-[#0D6331]'][i % 3]}`}>{x}</span>
-      ))}
+    <div className="space-y-3">
+      <div className="grid grid-cols-3 gap-2 text-center">
+        {[['12', 'Live events', 'bg-[#FDEEDF] text-[#8A3F0B]'], ['3', 'NGOs to verify', 'bg-[#E7EDF9] text-[#1F3F8F]'], ['1', 'Open SOS', 'bg-[#FBEAEA] text-[#9E1F1F]']].map(([n, l, c]) => (
+          <span key={l} className={`rounded-lg px-2 py-3 ${c}`}>
+            <b className="block text-xl tabular-nums">{n}</b>
+            <span className="text-xs font-semibold">{l}</span>
+          </span>
+        ))}
+      </div>
+      <ul className="space-y-1.5 text-sm">
+        {[['Pilgrimage', 'Simhastha Kumbh', '#E36F1E'], ['Public', 'Riverfront music night', '#1F3F8F'], ['Corporate', 'Annual partner summit', '#138A43']].map(([k, n, c]) => (
+          <li key={n} className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 ring-1 ring-[#E7E1D7]">
+            <span className="size-2.5 shrink-0 rounded-full" style={{ background: c }} />
+            <span className="font-semibold">{n}</span>
+            <span className="ml-auto text-xs text-[#4A4F5E]">{k}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
 
 export default function RoleDashboards() {
   const { user } = useAuth();
+  const t = useT();
   const [active, setActive] = useState(0);
   const tabs = useRef([]);
   const role = ROLES[active];
+  const name = t(`role.${role.id}`);
 
   // Arrow keys move between tabs, as screen-reader users expect
   const onKey = (e) => {
@@ -168,23 +143,24 @@ export default function RoleDashboards() {
 
   const mine = user?.role === role.id;
   const action = mine
-    ? { to: role.id === 'USER' ? role.path : homeFor(role.id), label: 'Open my dashboard' }
+    ? { to: role.id === 'USER' ? role.path : homeFor(role.id), label: t('home.openDashboard') }
     : !user && role.id === 'USER'
-      ? { to: '/register', label: 'Create a free account' }
+      ? { to: '/register', label: t('roles.signup') }
       : !user
-        ? { to: '/login', label: 'Staff log in' }
+        ? { to: '/login', label: t('roles.staffLogin') }
         : null;
 
   return (
     <section aria-labelledby="roles-title" className="cg-section">
       <div className="max-w-2xl">
-        <p className="cg-kicker text-[#1F3F8F]">Role-based dashboards</p>
-        <h2 id="roles-title" className="cg-h2">One app. Six ways in.</h2>
-        <p className="mt-2 text-[#4A4F5E]">Everyone sees only what their job needs.</p>
+        <p className="cg-kicker text-[#1F3F8F]">{t('roles.kicker')}</p>
+        <h2 id="roles-title" className="cg-h2">{t('roles.title')}</h2>
+        <p className="mt-2 text-[#4A4F5E]">{t('roles.lead')}</p>
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[15rem_1fr]">
-        <div role="tablist" aria-label="Roles" aria-orientation="vertical" className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:flex-col lg:px-0" onKeyDown={onKey}>
+        {/* All six roles stay visible: a 2 or 3 column grid on phones and tablets, a column on desktop */}
+        <div role="tablist" aria-label={t('roles.list')} className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:flex lg:flex-col" onKeyDown={onKey}>
           {ROLES.map((r, i) => (
             <button
               key={r.id}
@@ -196,11 +172,11 @@ export default function RoleDashboards() {
               aria-controls="role-panel"
               tabIndex={i === active ? 0 : -1}
               onClick={() => setActive(i)}
-              className={`min-h-12 shrink-0 rounded-xl px-4 text-left font-semibold transition-colors ${
+              className={`min-h-12 rounded-xl px-4 text-left font-semibold transition-colors ${
                 i === active ? 'bg-[#1F3F8F] text-white' : 'bg-white text-[#1B1E28] ring-1 ring-[#E7E1D7] hover:ring-[#1F3F8F]'
               }`}
             >
-              {r.tab}
+              {t(`role.${r.id}`)}
             </button>
           ))}
         </div>
@@ -209,16 +185,16 @@ export default function RoleDashboards() {
           id="role-panel"
           role="tabpanel"
           aria-labelledby={`role-tab-${role.id}`}
-          className="grid gap-6 rounded-3xl bg-[#F4F1EA] p-5 sm:p-8 md:grid-cols-2"
+          className="grid items-center gap-6 rounded-3xl bg-white p-5 ring-1 ring-[#E7E1D7] sm:p-8 md:grid-cols-2"
         >
           <div>
-            <p className="text-sm font-bold uppercase tracking-wider text-[#4A4F5E]">{role.who}</p>
-            <h3 className="mt-1 text-2xl font-bold">{role.tab}</h3>
+            <p className="text-sm font-bold uppercase tracking-wider text-[#4A4F5E]">{t(`role.${role.id}.who`)}</p>
+            <h3 className="mt-1 text-2xl font-bold">{name}</h3>
             <ul className="mt-4 space-y-2.5">
-              {role.does.map((d) => (
-                <li key={d} className="flex gap-2.5">
-                  <Check size={20} className="mt-0.5 shrink-0 text-[#138A43]" aria-hidden />
-                  <span>{d}</span>
+              {[1, 2, 3].map((n) => (
+                <li key={n} className="flex gap-2.5">
+                  <Check size={20} className="mt-0.5 shrink-0 text-[#0D6331]" aria-hidden />
+                  <span>{t(`role.${role.id}.${n}`)}</span>
                 </li>
               ))}
             </ul>
@@ -228,7 +204,7 @@ export default function RoleDashboards() {
               </Link>
             )}
           </div>
-          <div className="rounded-2xl bg-[#FFFDF8] p-4 ring-1 ring-[#E7E1D7]" aria-label={`Preview of the ${role.tab} dashboard`} role="img">
+          <div className="rounded-2xl bg-[#FAF8F4] p-4 ring-1 ring-[#E7E1D7]" role="img" aria-label={t('roles.preview', { role: name })}>
             <div className="mb-3 flex items-center gap-1.5" aria-hidden>
               <span className="size-2.5 rounded-full bg-[#E36F1E]" />
               <span className="size-2.5 rounded-full bg-[#E7E1D7]" />

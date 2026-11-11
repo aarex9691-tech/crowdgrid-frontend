@@ -1,27 +1,31 @@
 @import "tailwindcss";
 
 @theme {
-  --color-ink: #26211e;          /* Deep temple teak / charcoal walnut */
-  --color-ink-soft: #5e534d;     /* Warm walnut midtone */
-  --color-ink-faint: #8e827a;    /* Warm sandstone mute */
-  --color-mist: #fbf8f3;         /* Sandstone linen page background */
-  --color-sand: #f4ede2;         /* Architectural Chunar sandstone */
-  --color-line: #e6ddd1;         /* Warm stone line */
-  --color-terracotta: #bd5338;   /* Baked Gerua clay / Terracotta */
-  --color-terracotta-dark: #a14129;
-  --color-terracotta-wash: #fbede8;
-  --color-marigold: #c99436;     /* Brushed temple brass / Champak gold */
-  --color-marigold-deep: #9e6f1f;
-  --color-marigold-wash: #fdf5e6;
-  --color-kumkum: #c52828;       /* Sindoor red (SOS only) */
-  --color-kumkum-wash: #fbebeb;
-  --color-tulsi: #2b724a;        /* Sacred Tulsi leaf */
-  --color-tulsi-wash: #eaf4ee;
-  --color-dusk: #3d342f;
+  /* Saffron, white, green and blue. Every text colour here passes WCAG AA on white. */
+  --color-ink: #1b1e28;
+  --color-ink-soft: #4a4f5e;
+  --color-ink-faint: #6b7080;
+  --color-mist: #f7f5f0;
+  --color-sand: #f4f1ea;
+  --color-line: #e7e1d7;
+  --color-terracotta: #b4530f;   /* deep saffron: actions (5.0:1 with white) */
+  --color-terracotta-dark: #8a3f0b;
+  --color-terracotta-wash: #fdeedf;
+  --color-marigold: #e36f1e;     /* bright saffron: accents and dots only, never small text */
+  --color-marigold-deep: #8a3f0b;
+  --color-marigold-wash: #fdeedf;
+  --color-kumkum: #c8102e;       /* red is kept for SOS only */
+  --color-kumkum-wash: #fbeaea;
+  --color-tulsi: #0d6331;        /* green: available / valid (7.4:1) */
+  --color-tulsi-wash: #e5f3ea;
+  --color-blue: #1f3f8f;
+  --color-blue-deep: #142b66;
+  --color-blue-wash: #e7edf9;
+  --color-dusk: #2a2f3d;
 
-  /* Mukta is bundled with the app: Hindi/Marathi text and offline use still get a proper font */
-  --font-sans: "Plus Jakarta Sans", "Mukta", "Marcellus", system-ui, sans-serif;
-  --font-display: "Rozha One", "Cinzel", "Marcellus", "Mukta", serif;
+  /* Mukta ships with the app, so text still has a proper font offline or before web fonts load */
+  --font-sans: "Plus Jakarta Sans", "Mukta", system-ui, sans-serif;
+  --font-display: "Rozha One", "Mukta", Georgia, serif;
 }
 
 @keyframes marquee {
@@ -38,27 +42,11 @@
   animation-play-state: paused;
 }
 
-/* Subtle Art-Deco Golden Wallpaper Pattern across entire application */
 body {
   position: relative;
-  background-color: #faf6f0;
-  color: #26211e;
+  background-color: #faf8f4;
+  color: #1b1e28;
   min-height: 100vh;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url('/assets/golden-pattern.jpg');
-  background-repeat: repeat;
-  background-size: 260px auto;
-  opacity: 0.085; /* Subtle, delicate, non-intrusive */
-  pointer-events: none;
-  z-index: 0;
 }
 
 /* Floating Sacred Animations */
@@ -146,7 +134,7 @@ body::before {
 
 /* Authentic Indian Bandhani tie-dye resist pattern */
 .bg-bandhani {
-  background-color: #832014;
+  background-color: #8A3F0B;
   background-image: url('/assets/bandhani-pattern.png');
   background-repeat: repeat;
   background-size: 160px 154px;
@@ -190,26 +178,26 @@ body::before {
 @utility shell { @apply mx-auto w-full max-w-5xl px-4 sm:px-6; }
 
 @utility btn {
-  @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-5 font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50;
+  @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-5 font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-60;
 }
-@utility btn-primary { @apply btn bg-[#bd5338] text-white hover:bg-[#a14129] shadow-sm shadow-[#bd5338]/20; }
-@utility btn-brass { @apply btn bg-[#c99436] text-white hover:bg-[#9e6f1f] shadow-sm; }
-@utility btn-ink { @apply btn bg-ink text-white hover:bg-dusk; }
-@utility btn-ghost { @apply btn border border-line bg-white text-ink hover:bg-[#f5ede3] hover:border-ink-faint; }
+@utility btn-primary { @apply btn bg-[#B4530F] text-white hover:bg-[#8A3F0B] shadow-sm shadow-[#B4530F]/20; }
+@utility btn-brass { @apply btn bg-[#1F3F8F] text-white hover:bg-[#142B66] shadow-sm; }
+@utility btn-ink { @apply btn bg-blue text-white hover:bg-blue-deep; }
+@utility btn-ghost { @apply btn border border-line bg-white text-ink hover:bg-[#F4F1EA] hover:border-ink-faint disabled:border-ink-faint disabled:bg-white disabled:text-ink-soft; }
 @utility btn-sos { @apply btn bg-kumkum text-white hover:bg-[#9e1f1f]; }
 
 @utility panel { @apply rounded-2xl border border-line bg-white; }
 
 @utility field-label { @apply mb-1.5 block text-xs font-bold uppercase tracking-wider text-ink-soft; }
 @utility field {
-  @apply min-h-12 w-full rounded-xl border border-line bg-white px-4 text-ink outline-none placeholder:text-ink-faint focus:border-[#bd5338];
+  @apply min-h-12 w-full rounded-xl border border-line bg-white px-4 text-ink outline-none placeholder:text-ink-faint focus:border-[#B4530F];
 }
 
 @utility pill { @apply inline-flex items-center gap-1 rounded-full px-3 py-0.5 text-xs sm:text-sm font-semibold; }
 @utility pill-ok { @apply pill bg-tulsi-wash text-tulsi; }
 @utility pill-low { @apply pill bg-marigold-wash text-marigold-deep; }
 @utility pill-out { @apply pill bg-kumkum-wash text-kumkum; }
-@utility pill-quiet { @apply pill bg-[#f2e9dc] text-ink-soft; }
+@utility pill-quiet { @apply pill bg-sand text-ink-soft; }
 
 @utility no-scrollbar {
   -ms-overflow-style: none;
@@ -223,8 +211,8 @@ body::before {
 @utility toran {
   height: 14px;
   background:
-    radial-gradient(circle at 12px 0, #c99436 8px, transparent 9px) 0 0 / 24px 14px repeat-x,
-    radial-gradient(circle at 0 0, #bd5338 4px, transparent 5px) 0 0 / 24px 14px repeat-x;
+    radial-gradient(circle at 12px 0, #B4530F 8px, transparent 9px) 0 0 / 24px 14px repeat-x,
+    radial-gradient(circle at 0 0, #B4530F 4px, transparent 5px) 0 0 / 24px 14px repeat-x;
 }
 
 /* Printing an invitation card: print only the card */

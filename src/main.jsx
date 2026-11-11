@@ -8,13 +8,10 @@ import { ConfirmProvider } from './lib/confirm.jsx';
 import { RealtimeProvider } from './lib/realtime.jsx';
 import { LanguageProvider } from './lib/i18n.jsx';
 import '@fontsource/mukta/400.css';
-import '@fontsource/mukta/500.css';
 import '@fontsource/mukta/600.css';
 import '@fontsource/mukta/700.css';
 import '@fontsource/mukta/800.css';
-import '@fontsource/yatra-one/400.css';
 import './index.css';
-import './styles/heritage.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

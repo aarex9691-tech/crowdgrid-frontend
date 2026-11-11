@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import '../../styles/heritage.css';
 
 /*
  * "One yatra, many hands": eight folk arts from different parts of India, drawn as original

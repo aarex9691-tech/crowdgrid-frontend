@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { HOME_STRINGS } from './homeStrings';
 
 /**
  * Hindi and Marathi for the pilgrim screens (navigation, yatra tabs, lodging,
@@ -436,7 +437,12 @@ const mr = {
   'qr.reset': 'फोन हरवला किंवा स्क्रीनशॉट पाठवला? हा QR बदला',
 };
 
-const DICTS = { en, hi, mr };
+const DICTS = {
+  en: { ...en, ...HOME_STRINGS.en },
+  hi: { ...hi, ...HOME_STRINGS.hi },
+  mr: { ...mr, ...HOME_STRINGS.mr },
+};
+const EN = DICTS.en;
 const KEY = 'cg_lang';
 
 const readLang = () => {
@@ -450,7 +456,7 @@ const readLang = () => {
 
 const fill = (text, vars) => (vars ? text.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? `{${k}}`)) : text);
 
-const LangContext = createContext({ lang: 'en', setLang: () => {}, t: (k, v) => fill(en[k] ?? k, v) });
+const LangContext = createContext({ lang: 'en', setLang: () => {}, t: (k, v) => fill(EN[k] ?? k, v) });
 
 export function LanguageProvider({ children }) {
   const [lang, setLangState] = useState(readLang);
@@ -469,7 +475,7 @@ export function LanguageProvider({ children }) {
     }
   }, []);
 
-  const t = useCallback((key, vars) => fill(DICTS[lang][key] ?? en[key] ?? key, vars), [lang]);
+  const t = useCallback((key, vars) => fill(DICTS[lang][key] ?? EN[key] ?? key, vars), [lang]);
   const value = useMemo(() => ({ lang, setLang, t }), [lang, setLang, t]);
   return <LangContext.Provider value={value}>{children}</LangContext.Provider>;
 }

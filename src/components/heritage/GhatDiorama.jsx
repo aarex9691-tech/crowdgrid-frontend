@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import '../../styles/heritage.css';
 import { attachTilt, pauseOffscreen } from '../../lib/tilt';
 
 /*

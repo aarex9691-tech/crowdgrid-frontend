@@ -1,13 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
   BadgeCheck,
   BedDouble,
   BusFront,
+  CalendarDays,
   Compass,
   Gauge,
   HandHeart,
+  KeyRound,
   Languages,
   QrCode,
   Siren,
@@ -17,6 +19,8 @@ import {
 } from 'lucide-react';
 import { canBook, homeFor, ROLE_LABELS, useAuth } from '../lib/auth';
 import API, { errorMessage } from '../lib/api';
+import { useT } from '../lib/i18n';
+import { fmtDate } from '../lib/format';
 import { InvitationCodeBox, PublicEventList, YatraCard } from '../components/EventCards';
 import { DEFAULT_EVENTS } from '../data/defaultEvents';
 import { isVideo, LANDING_MEDIA } from '../data/landingMedia';
@@ -25,62 +29,61 @@ import RoleDashboards from '../components/landing/RoleDashboards';
 import { openTour } from '../components/GuidedTour';
 import '../styles/landing.css';
 
-const SAFFRON = '#E36F1E';
-const BLUE = '#1F3F8F';
-const GREEN = '#138A43';
-
-/** The three kinds of gathering, given equal room everywhere on the page. */
+/*
+ * Each kind of gathering has a bright colour (panels, dots, illustrations) and a deep one
+ * for anything carrying white text, so labels and buttons pass WCAG AA contrast.
+ */
 const KINDS = [
-  { id: 'pilgrimage', tab: 'yatras', name: 'Pilgrimages', short: 'Pilgrimage', line: 'Melas, yatras, darshan', color: SAFFRON },
-  { id: 'public', tab: 'public', name: 'Public events', short: 'Public', line: 'Concerts, fests, walks, shows', color: BLUE },
-  { id: 'corporate', tab: 'corporate', name: 'Corporate & campus', short: 'Corporate', line: 'Summits, seminars, college fests', color: GREEN },
+  { id: 'pilgrimage', tab: 'yatras', color: '#E36F1E', deep: '#B4530F' },
+  { id: 'public', tab: 'public', color: '#1F3F8F', deep: '#1F3F8F' },
+  { id: 'corporate', tab: 'corporate', color: '#138A43', deep: '#0D6331' },
 ];
+const KIND_BY_TAB = Object.fromEntries(KINDS.map((k) => [k.tab, k]));
 
 /** A photo or clip when one is set in landingMedia.js, otherwise the drawn scene. */
 function Media({ slot }) {
   const src = LANDING_MEDIA[slot];
   const Scene = SCENES[slot];
-  if (src && isVideo(src)) {
-    return <video src={src} autoPlay muted loop playsInline aria-hidden="true" />;
-  }
-  if (src) return <img src={src} alt="" loading="eager" />;
+  if (src && isVideo(src)) return <video src={src} autoPlay muted loop playsInline aria-hidden="true" />;
+  if (src) return <img src={src} alt="" decoding="async" />;
   return Scene ? <Scene /> : null;
 }
 
-function Hero() {
+function Hero({ onInvite }) {
+  const t = useT();
   return (
     <section className="cg-shell grid items-center gap-10 pt-8 pb-4 sm:pt-12 lg:grid-cols-[1fr_1.2fr] lg:gap-14">
       <div className="cg-rise">
         <div className="cg-tricolour" aria-hidden>
-          <span style={{ background: SAFFRON }} />
+          <span style={{ background: '#E36F1E' }} />
           <span style={{ background: '#FFFDF8', boxShadow: 'inset 0 0 0 1px #E7E1D7' }} />
-          <span style={{ background: GREEN }} />
+          <span style={{ background: '#138A43' }} />
         </div>
-        <h1 className="cg-h1 mt-5">Every crowd,<br />cared for.</h1>
-        <p className="mt-5 max-w-md text-lg text-[#4A4F5E]">
-          Pilgrimages, public shows and company events. Passes, stays, food, transport and safety, all in one place.
-        </p>
+        <h1 className="cg-h1 mt-5">{t('home.title1')}<br />{t('home.title2')}</h1>
+        <p className="mt-5 max-w-md text-lg text-[#4A4F5E]">{t('home.lead')}</p>
         <div className="mt-7 flex flex-wrap gap-3">
           <Link to="/events" className="cg-btn cg-btn-saffron">
-            Find an event <ArrowRight size={18} aria-hidden />
+            {t('home.find')} <ArrowRight size={18} aria-hidden />
           </Link>
-          <a href="#invite" className="cg-btn cg-btn-line">I have an invite code</a>
+          <button type="button" className="cg-btn cg-btn-line" onClick={onInvite}>
+            <KeyRound size={18} aria-hidden /> {t('home.haveCode')}
+          </button>
         </div>
         <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-[#4A4F5E]">
-          <li className="flex items-center gap-1.5"><QrCode size={16} className="text-[#E36F1E]" aria-hidden /> One QR pass</li>
-          <li className="flex items-center gap-1.5"><WifiOff size={16} className="text-[#1F3F8F]" aria-hidden /> Works offline</li>
-          <li className="flex items-center gap-1.5"><Languages size={16} className="text-[#138A43]" aria-hidden /> English · हिन्दी · मराठी</li>
+          <li className="flex items-center gap-1.5"><QrCode size={16} className="text-[#B4530F]" aria-hidden /> {t('home.oneQr')}</li>
+          <li className="flex items-center gap-1.5"><WifiOff size={16} className="text-[#1F3F8F]" aria-hidden /> {t('home.offline')}</li>
+          <li className="flex items-center gap-1.5"><Languages size={16} className="text-[#0D6331]" aria-hidden /> English · हिन्दी · मराठी</li>
         </ul>
       </div>
 
-      <nav aria-label="Choose a kind of event" className="cg-tri">
+      <nav aria-label={t('home.chooseKind')} className="cg-tri">
         {KINDS.map((k, i) => (
           <Link key={k.id} to={`/events?tab=${k.tab}`} className={`cg-panel cg-rise cg-rise-${i + 1}`} style={{ background: k.color }}>
-            <Media slot={k.id} />
-            <span className="cg-panel-label" style={{ background: k.color }}>
-              <b className="cg-long">{k.name}</b>
-              <b className="cg-short">{k.short}</b>
-              <small>{k.line}</small>
+            <span className="cg-panel-art"><Media slot={k.id} /></span>
+            <span className="cg-panel-label" style={{ background: k.deep }}>
+              <b className="cg-long">{t(`kind.${k.id}`)}</b>
+              <b className="cg-short">{t(`kind.${k.id}.short`)}</b>
+              <small>{t(`kind.${k.id}.line`)}</small>
             </span>
           </Link>
         ))}
@@ -89,47 +92,94 @@ function Hero() {
   );
 }
 
-/** What the platform does, with which kinds of event each part serves. */
+/** The soonest thing of each kind, straight from the event list. */
+function NextUp({ yatras, publicEvents, onInvite }) {
+  const t = useT();
+  const now = Date.now();
+  const soonest = (list) =>
+    [...list]
+      .filter((e) => new Date(e.endDate || e.startDate).getTime() >= now)
+      .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))[0];
+  const yatra = soonest(yatras);
+  const pub = soonest(publicEvents);
+  const when = (e) =>
+    new Date(e.startDate).getTime() <= now ? t('next.on') : fmtDate(e.startDate, { weekday: 'short', month: 'short', day: 'numeric' });
+
+  const item = 'flex min-h-16 items-center gap-3 px-4 py-3 sm:px-5';
+  return (
+    <section aria-labelledby="next-title" className="cg-shell pt-6">
+      <div className="grid overflow-hidden rounded-2xl bg-white ring-1 ring-[#E7E1D7] md:grid-cols-[auto_1fr_1fr_1fr]">
+        <h2 id="next-title" className="cg-kicker flex items-center gap-2 whitespace-nowrap bg-[#F4F1EA] px-5 py-3 text-[#4A4F5E]">
+          <CalendarDays size={16} aria-hidden /> {t('next.title')}
+        </h2>
+        {[['pilgrimage', yatra, (e) => `/yatra/${e.slug}`], ['public', pub, (e) => `/event/${e.slug}`]].map(([id, e, href]) => {
+          const k = KINDS.find((x) => x.id === id);
+          const body = (
+            <>
+              <span className="cg-dot shrink-0" style={{ background: k.color }} />
+              <span className="min-w-0">
+                <span className="block truncate font-bold">{e ? e.title : t(`kind.${id}`)}</span>
+                <span className="block text-sm text-[#4A4F5E]">{e ? when(e) : t('next.soon')}</span>
+              </span>
+            </>
+          );
+          return e
+            ? <Link key={id} to={href(e)} className={`${item} border-t border-[#E7E1D7] hover:bg-[#FAF8F4] md:border-t-0 md:border-l`}>{body}</Link>
+            : <div key={id} className={`${item} border-t border-[#E7E1D7] md:border-t-0 md:border-l`}>{body}</div>;
+        })}
+        <button type="button" onClick={onInvite} className={`${item} border-t border-[#E7E1D7] text-left hover:bg-[#FAF8F4] md:border-t-0 md:border-l`}>
+          <span className="cg-dot shrink-0" style={{ background: '#138A43' }} />
+          <span className="min-w-0">
+            <span className="block truncate font-bold">{t('kind.corporate')} · {t('next.inviteOnly')}</span>
+            <span className="block text-sm text-[#4A4F5E]">{t('next.enterCode')}</span>
+          </span>
+        </button>
+      </div>
+    </section>
+  );
+}
+
 const SERVICES = [
-  { icon: QrCode, name: 'Entry passes', text: 'Tickets and passes on one QR, checked in a second.', kinds: [0, 1, 2] },
-  { icon: BedDouble, name: 'Stays & tents', text: 'Pick a tent and beds on a map. Named bed for each person.', kinds: [0] },
-  { icon: UtensilsCrossed, name: 'Meals', text: 'Free langar tokens or paid meal plans, with daily quotas.', kinds: [0, 2] },
-  { icon: BusFront, name: 'Transport', text: 'Shuttle seats and the least crowded walking route.', kinds: [0, 1] },
-  { icon: BadgeCheck, name: 'Badges & sessions', text: 'Invite codes, session check-in and printable badges.', kinds: [2] },
-  { icon: HandHeart, name: 'Volunteers', text: 'Sign up for seva or crew shifts and get a staff pass.', kinds: [0, 1] },
-  { icon: Gauge, name: 'Live crowd levels', text: 'Occupancy by sector, so staff act before it gets tight.', kinds: [0, 1, 2] },
-  { icon: Siren, name: 'SOS & lost and found', text: 'One tap sends your location. Missing-person reports too.', kinds: [0, 1, 2], sos: true },
+  { id: 'passes', icon: QrCode, kinds: [0, 1, 2] },
+  { id: 'stays', icon: BedDouble, kinds: [0] },
+  { id: 'meals', icon: UtensilsCrossed, kinds: [0, 2] },
+  { id: 'transport', icon: BusFront, kinds: [0, 1] },
+  { id: 'badges', icon: BadgeCheck, kinds: [2] },
+  { id: 'volunteers', icon: HandHeart, kinds: [0, 1] },
+  { id: 'crowd', icon: Gauge, kinds: [0, 1, 2] },
+  { id: 'sos', icon: Siren, kinds: [0, 1, 2], sos: true },
 ];
 
 function Services() {
+  const t = useT();
   return (
     <section aria-labelledby="services-title" className="cg-shell cg-section">
       <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
         <div className="max-w-xl">
-          <p className="cg-kicker text-[#B4530F]">What you get</p>
-          <h2 id="services-title" className="cg-h2">Everything an event needs</h2>
+          <p className="cg-kicker text-[#B4530F]">{t('svc.kicker')}</p>
+          <h2 id="services-title" className="cg-h2">{t('svc.title')}</h2>
         </div>
-        <ul className="flex flex-wrap gap-4 text-sm font-semibold text-[#4A4F5E]" aria-label="Colour key">
+        <ul className="flex flex-wrap gap-4 text-sm font-semibold text-[#4A4F5E]" aria-label={t('svc.key')}>
           {KINDS.map((k) => (
-            <li key={k.id} className="flex items-center gap-2"><span className="cg-dot" style={{ background: k.color }} /> {k.name}</li>
+            <li key={k.id} className="flex items-center gap-2"><span className="cg-dot" style={{ background: k.color }} /> {t(`kind.${k.id}`)}</li>
           ))}
         </ul>
       </div>
 
       <ul className="cg-rows mt-8 grid gap-x-12 md:grid-cols-2">
         {SERVICES.map((s) => (
-          <li key={s.name} className="flex gap-4 py-5">
+          <li key={s.id} className="flex gap-4 py-5">
             <span className={`grid size-11 shrink-0 place-items-center rounded-xl ${s.sos ? 'bg-[#FBEAEA] text-[#C8102E]' : 'bg-[#F4F1EA] text-[#1B1E28]'}`}>
               <s.icon size={22} aria-hidden />
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="text-lg font-bold">{s.name}</h3>
-                <span className="flex gap-1.5" aria-label={`For ${s.kinds.map((i) => KINDS[i].name).join(', ')}`}>
+                <h3 className="text-lg font-bold">{t(`svc.${s.id}`)}</h3>
+                <span className="flex gap-1.5" role="img" aria-label={t('svc.for', { list: s.kinds.map((i) => t(`kind.${KINDS[i].id}`)).join(', ') })}>
                   {s.kinds.map((i) => <span key={i} className="cg-dot" style={{ background: KINDS[i].color }} />)}
                 </span>
               </div>
-              <p className="mt-0.5 text-[#4A4F5E]">{s.text}</p>
+              <p className="mt-0.5 text-[#4A4F5E]">{t(`svc.${s.id}.text`)}</p>
             </div>
           </li>
         ))}
@@ -138,32 +188,26 @@ function Services() {
   );
 }
 
-const STEPS = [
-  { title: 'Pick an event', text: 'Search by place or date, or enter your invite code.' },
-  { title: 'Book for your group', text: 'Up to 5 people. Free items confirm at once; paid ones by UPI or card.' },
-  { title: 'Get one QR', text: 'Everything sits in your passbook, ready without network.' },
-  { title: 'Show and walk in', text: 'Staff scan it at the gate, kitchen or bus.' },
-];
-
 function HowItWorks() {
+  const t = useT();
   return (
     <section aria-labelledby="how-title" className="bg-[#FDEEDF]">
       <div className="cg-shell cg-section">
         <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
           <div>
-            <p className="cg-kicker text-[#B4530F]">How it works</p>
-            <h2 id="how-title" className="cg-h2">Four steps, one pass</h2>
+            <p className="cg-kicker text-[#8A3F0B]">{t('how.kicker')}</p>
+            <h2 id="how-title" className="cg-h2">{t('how.title')}</h2>
           </div>
           <button type="button" className="cg-btn cg-btn-line self-start md:self-auto" onClick={openTour}>
-            <Compass size={18} aria-hidden /> Take the 1-minute tour
+            <Compass size={18} aria-hidden /> {t('how.tour')}
           </button>
         </div>
         <ol className="cg-steps relative mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <span className="absolute top-5 right-8 left-8 hidden h-0.5 bg-[#E36F1E]/35 lg:block" aria-hidden />
-          {STEPS.map((s) => (
-            <li key={s.title}>
-              <h3 className="mt-4 text-lg font-bold">{s.title}</h3>
-              <p className="mt-1 text-[#4A4F5E]">{s.text}</p>
+          {[1, 2, 3, 4].map((n) => (
+            <li key={n}>
+              <h3 className="mt-4 text-lg font-bold">{t(`how.${n}`)}</h3>
+              <p className="mt-1 text-[#4A4F5E]">{t(`how.${n}.text`)}</p>
             </li>
           ))}
         </ol>
@@ -172,57 +216,58 @@ function HowItWorks() {
   );
 }
 
-const EVENT_TABS = [
-  { id: 'public', label: 'Public events', color: BLUE },
-  { id: 'yatras', label: 'Pilgrimages', color: SAFFRON },
-  { id: 'corporate', label: 'Corporate & campus', color: GREEN },
-];
+const EVENT_TABS = ['public', 'yatras', 'corporate'];
 
-function Upcoming({ yatras, publicEvents }) {
-  const [tab, setTab] = useState('public');
+function Upcoming({ yatras, publicEvents, tab, setTab, sectionRef }) {
+  const t = useT();
+  const kindName = (tb) => t(`kind.${KIND_BY_TAB[tb].id}`);
   return (
-    <section aria-labelledby="upcoming-title" className="cg-shell cg-section">
+    <section ref={sectionRef} aria-labelledby="upcoming-title" className="cg-shell cg-section scroll-mt-20">
       <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
         <div>
-          <p className="cg-kicker text-[#0D6331]">Coming up</p>
-          <h2 id="upcoming-title" className="cg-h2">Where people are heading</h2>
+          <p className="cg-kicker text-[#0D6331]">{t('up.kicker')}</p>
+          <h2 id="upcoming-title" className="cg-h2">{t('up.title')}</h2>
         </div>
         <Link to={`/events?tab=${tab}`} className="font-bold text-[#1F3F8F] underline-offset-4 hover:underline">
-          See all {EVENT_TABS.find((t) => t.id === tab).label.toLowerCase()} →
+          {t('up.seeAll')}: {kindName(tab)} →
         </Link>
       </div>
 
-      <div role="tablist" aria-label="Event type" className="no-scrollbar mt-6 flex gap-2 overflow-x-auto">
-        {EVENT_TABS.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            role="tab"
-            id={`ev-tab-${t.id}`}
-            aria-selected={tab === t.id}
-            aria-controls="ev-panel"
-            onClick={() => setTab(t.id)}
-            className="flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 font-semibold transition-colors"
-            style={tab === t.id ? { background: t.color, color: '#fff' } : { background: '#fff', boxShadow: 'inset 0 0 0 1.5px #E7E1D7' }}
-          >
-            {t.label}
-          </button>
-        ))}
+      <div role="tablist" aria-label={t('up.type')} className="no-scrollbar mt-6 flex gap-2 overflow-x-auto">
+        {EVENT_TABS.map((tb) => {
+          const k = KIND_BY_TAB[tb];
+          const on = tab === tb;
+          return (
+            <button
+              key={tb}
+              type="button"
+              role="tab"
+              id={`ev-tab-${tb}`}
+              aria-selected={on}
+              aria-controls="ev-panel"
+              onClick={() => setTab(tb)}
+              className="flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 font-semibold transition-colors"
+              style={on ? { background: k.deep, color: '#fff' } : { background: '#fff', boxShadow: 'inset 0 0 0 1.5px #E7E1D7' }}
+            >
+              {!on && <span className="cg-dot" style={{ background: k.color }} />}
+              {kindName(tb)}
+            </button>
+          );
+        })}
       </div>
 
       <div id="ev-panel" role="tabpanel" aria-labelledby={`ev-tab-${tab}`} className="mt-6">
-        {tab === 'public' && (
-          <PublicEventList events={publicEvents.slice(0, 6)} emptyMessage="No public events listed right now. Check back soon." from="/" />
-        )}
+        {tab === 'public' && <PublicEventList events={publicEvents.slice(0, 6)} emptyMessage={t('up.noPublic')} from="/" />}
         {tab === 'yatras' && (
           yatras.length > 0
             ? <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{yatras.slice(0, 6).map((e) => <YatraCard key={e._id} event={e} />)}</ul>
-            : <p className="text-[#4A4F5E]">No pilgrimages listed right now.</p>
+            : <p className="text-[#4A4F5E]">{t('up.noYatras')}</p>
         )}
         {tab === 'corporate' && (
-          <p className="max-w-xl text-[#4A4F5E]">
-            Company and campus events are private, so they are not listed. Your host sends a 6-digit code. Enter it below.
-          </p>
+          <div className="space-y-4">
+            <p className="max-w-xl text-[#4A4F5E]">{t('up.corporateNote')}</p>
+            <InvitationCodeBox from="/" />
+          </div>
         )}
       </div>
     </section>
@@ -230,25 +275,26 @@ function Upcoming({ yatras, publicEvents }) {
 }
 
 const ACCESS = [
-  { icon: Languages, text: 'English, हिन्दी and मराठी' },
-  { icon: WifiOff, text: 'Passes open without network' },
-  { icon: Smartphone, text: 'Big buttons, made for phones' },
-  { icon: Siren, text: 'Help is always one tap away' },
+  { id: 'lang', icon: Languages },
+  { id: 'offline', icon: WifiOff },
+  { id: 'phone', icon: Smartphone },
+  { id: 'help', icon: Siren },
 ];
 
 function ForEveryone() {
+  const t = useT();
   return (
     <section aria-labelledby="access-title" className="cg-dots text-white">
       <div className="cg-shell grid gap-8 py-14 sm:py-16 lg:grid-cols-[1fr_1.4fr] lg:items-center">
         <div>
-          <p className="cg-kicker text-[#FFD9B8]">Open to all</p>
-          <h2 id="access-title" className="cg-h2" style={{ color: '#fff' }}>Built for every visitor</h2>
-          <p className="mt-2 max-w-sm text-white/85">First-timers, elders, families and staff use the same app.</p>
+          <p className="cg-kicker text-[#FFD9B8]">{t('access.kicker')}</p>
+          <h2 id="access-title" className="cg-h2" style={{ color: '#fff' }}>{t('access.title')}</h2>
+          <p className="mt-2 max-w-sm text-white/90">{t('access.lead')}</p>
         </div>
         <ul className="grid gap-3 sm:grid-cols-2">
           {ACCESS.map((a) => (
-            <li key={a.text} className="flex items-center gap-3 rounded-2xl bg-[#142B66] px-4 py-4 font-semibold">
-              <a.icon size={22} className="shrink-0 text-[#FFD9B8]" aria-hidden /> {a.text}
+            <li key={a.id} className="flex items-center gap-3 rounded-2xl bg-[#142B66] px-4 py-4 font-semibold">
+              <a.icon size={22} className="shrink-0 text-[#FFD9B8]" aria-hidden /> {t(`access.${a.id}`)}
             </li>
           ))}
         </ul>
@@ -258,25 +304,25 @@ function ForEveryone() {
 }
 
 function HostCta() {
+  const t = useT();
+  const together = LANDING_MEDIA.together;
   return (
-    <section aria-labelledby="host-title" className="cg-shell pb-16">
+    <section aria-labelledby="host-title" className="cg-shell py-14 sm:py-16">
       <div className="grid overflow-hidden rounded-3xl bg-[#E5F3EA] md:grid-cols-[1.3fr_1fr]">
         <div className="p-6 sm:p-10">
-          <p className="cg-kicker text-[#0D6331]">For organisers</p>
-          <h2 id="host-title" className="cg-h2">Running a gathering?</h2>
-          <p className="mt-3 max-w-md text-[#4A4F5E]">
-            Tell us the dates and expected crowd. We set up passes, staff logins and a control room for you.
-          </p>
+          <p className="cg-kicker text-[#0D6331]">{t('host.kicker')}</p>
+          <h2 id="host-title" className="cg-h2">{t('host.title')}</h2>
+          <p className="mt-3 max-w-md text-[#4A4F5E]">{t('host.text')}</p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link to="/help" className="cg-btn cg-btn-blue">Talk to us <ArrowRight size={18} aria-hidden /></Link>
-            <Link to="/about" className="cg-btn cg-btn-line">About CrowdGrid</Link>
+            <Link to="/help" className="cg-btn cg-btn-blue">{t('host.talk')} <ArrowRight size={18} aria-hidden /></Link>
+            <Link to="/about" className="cg-btn cg-btn-line">{t('host.about')}</Link>
           </div>
         </div>
         <div className="relative hidden min-h-64 md:block" aria-hidden>
-          {LANDING_MEDIA.together ? (
-            isVideo(LANDING_MEDIA.together)
-              ? <video src={LANDING_MEDIA.together} autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" />
-              : <img src={LANDING_MEDIA.together} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+          {together ? (
+            isVideo(together)
+              ? <video src={together} autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" />
+              : <img src={together} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
           ) : (
             <div className="absolute inset-0 grid grid-cols-3">
               {KINDS.map((k) => <div key={k.id} className="relative overflow-hidden"><Media slot={k.id} /></div>)}
@@ -290,8 +336,11 @@ function HostCta() {
 
 export default function Landing() {
   const { user } = useAuth();
+  const t = useT();
   const [events, setEvents] = useState(DEFAULT_EVENTS);
   const [error, setError] = useState('');
+  const [tab, setTab] = useState('public');
+  const upcomingRef = useRef(null);
 
   const load = () =>
     API.get('/events')
@@ -309,8 +358,8 @@ export default function Landing() {
   // The free server sleeps when idle: keep retrying until the real list arrives
   useEffect(() => {
     if (!error) return undefined;
-    const t = setTimeout(load, 15000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(load, 15000);
+    return () => clearTimeout(timer);
   }, [error]);
 
   const { yatras, publicEvents } = useMemo(() => {
@@ -321,28 +370,35 @@ export default function Landing() {
     };
   }, [events]);
 
+  // "I have an invite code": open the corporate tab and put the cursor in the code box
+  const openInvite = () => {
+    setTab('corporate');
+    requestAnimationFrame(() => {
+      upcomingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => document.getElementById('invite-code')?.focus({ preventScroll: true }), 450);
+    });
+  };
+
   return (
     <div className="cg-home relative">
       {!canBook(user) && (
         <div className="cg-shell pt-4">
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[#E7EDF9] p-4">
-            <p className="text-sm">Signed in as <b>{ROLE_LABELS[user.role]}</b>. Your tools are on your dashboard.</p>
-            <Link to={homeFor(user.role)} className="cg-btn cg-btn-blue min-h-10 text-sm">Open my dashboard</Link>
+            <p className="text-sm">{t('home.staffNote', { role: ROLE_LABELS[user.role] })}</p>
+            <Link to={homeFor(user.role)} className="cg-btn cg-btn-blue text-sm">{t('home.openDashboard')}</Link>
           </div>
         </div>
       )}
 
-      <Hero />
+      <Hero onInvite={openInvite} />
+      <NextUp yatras={yatras} publicEvents={publicEvents} onInvite={openInvite} />
       <Services />
       <HowItWorks />
-      <Upcoming yatras={yatras} publicEvents={publicEvents} />
-      <div className="bg-[#F4F1EA]/60">
+      <Upcoming yatras={yatras} publicEvents={publicEvents} tab={tab} setTab={setTab} sectionRef={upcomingRef} />
+      <div className="bg-[#F4F1EA]/70">
         <div className="cg-shell"><RoleDashboards /></div>
       </div>
       <ForEveryone />
-      <div className="cg-shell py-14">
-        <InvitationCodeBox from="/" />
-      </div>
       <HostCta />
     </div>
   );
