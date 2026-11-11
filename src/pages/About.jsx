@@ -44,9 +44,9 @@ export default function About() {
       <section className="cg-band">
         <div className="toran" aria-hidden />
         <div className="shell py-12">
-          <p className="cg-kicker text-[#FFD9B8]">About us</p>
+          <p className="cg-kicker text-saffron-light">About us</p>
           <h1 className="mt-1 max-w-3xl font-display text-4xl sm:text-5xl">Making India's largest gatherings safer and simpler</h1>
-          <p className="mt-4 max-w-2xl text-lg text-[#d5deed]">
+          <p className="mt-4 max-w-2xl text-lg text-blue-mist">
             {SITE.name} is one platform for pilgrims, seva groups and authorities: verified stays, meal tokens, transport, seva and
             emergency help, with a single QR pass. We start with the Simhastha Kumbh Mela 2026–28 at Nashik–Trimbakeshwar, and also
             serve the Pandharpur Wari and the Jagannath Rath Yatra.
@@ -60,8 +60,8 @@ export default function About() {
             ].map(([n, l]) => (
               <div key={l} className="rounded-xl border border-white/15 bg-white/5 p-4">
                 <dt className="sr-only">{l}</dt>
-                <dd className="font-display text-3xl text-[#FFD9B8]">{n}</dd>
-                <dd className="mt-1 text-sm text-[#d5deed]">{l}</dd>
+                <dd className="font-display text-3xl text-saffron-light">{n}</dd>
+                <dd className="mt-1 text-sm text-blue-mist">{l}</dd>
               </div>
             ))}
           </dl>
@@ -143,12 +143,12 @@ export default function About() {
             <p className="mt-1 text-ink-soft">Questions about a booking, a camp or kitchen to list, or a campus or corporate event? We are here to help.</p>
             <ul className="mt-4 space-y-3">
               <li>
-                <a className="flex items-center gap-3 font-semibold underline" href={`mailto:${SITE.email}`}>
+                <a className="flex min-h-11 items-center gap-3 font-semibold underline" href={`mailto:${SITE.email}`}>
                   <Mail size={20} aria-hidden /> {SITE.email}
                 </a>
               </li>
               <li>
-                <a className="flex items-center gap-3 font-semibold underline" href={tel}>
+                <a className="flex min-h-11 items-center gap-3 font-semibold underline" href={tel}>
                   <Phone size={20} aria-hidden /> {SITE.phone}
                 </a>
               </li>
@@ -161,9 +161,9 @@ export default function About() {
 
           <div className="cg-band flex flex-col justify-between gap-4 rounded-3xl p-6">
             <div>
-              <p className="cg-kicker text-[#FFD9B8]">Quick help</p>
+              <p className="cg-kicker text-saffron-light">Quick help</p>
               <h2 className="mt-1 text-2xl font-bold">Chat with customer care on WhatsApp</h2>
-              <p className="mt-2 text-[#c9d6ee]">Send us a message and our team will get back to you, usually within a few hours.</p>
+              <p className="mt-2 text-blue-mist">Send us a message and our team will get back to you, usually within a few hours.</p>
             </div>
             <div className="flex flex-wrap gap-3">
               <a className="btn-primary" href={`https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent('Hi CrowdGrid customer care, I have a question.')}`} target="_blank" rel="noreferrer">

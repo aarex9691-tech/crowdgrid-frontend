@@ -79,9 +79,9 @@ export default function Help() {
         <div className="toran" aria-hidden />
         <div className="shell flex flex-col gap-6 py-10 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
-            <p className="cg-kicker text-[#FFD9B8]">Help centre</p>
+            <p className="cg-kicker text-saffron-light">Help centre</p>
             <h1 className="mt-1 font-display text-4xl">New to {SITE.name}? Start here</h1>
-            <p className="mt-3 text-lg text-[#d5deed]">
+            <p className="mt-3 text-lg text-blue-mist">
               Everything you need for your yatra in one place: where to stay, what to eat, how to travel and how to get help. Here is how it works.
             </p>
           </div>
@@ -103,7 +103,7 @@ export default function Help() {
                 </div>
                 <h3 className="mt-3 text-lg font-bold">{s.title}</h3>
                 <p className="mt-1 flex-1 text-ink-soft">{s.text}</p>
-                <Link to={s.to} className="mt-3 font-semibold text-terracotta underline-offset-4 hover:underline">{s.cta} →</Link>
+                <Link to={s.to} className="mt-1 inline-flex min-h-11 items-center font-semibold text-terracotta underline-offset-4 hover:underline">{s.cta} →</Link>
               </li>
             ))}
           </ol>
@@ -114,7 +114,7 @@ export default function Help() {
           <p className="mt-1 text-ink-soft">Choose who you are to see what you can do.</p>
           <nav aria-label="Guides" className="mt-4 flex flex-wrap gap-2">
             {GUIDES.map((g) => (
-              <a key={g.id} href={`#${g.id}`} className="pill border border-line bg-white px-4 py-2 text-sm font-semibold hover:border-ink-faint">
+              <a key={g.id} href={`#${g.id}`} className="pill min-h-11 border border-line bg-white px-4 py-2 text-sm font-semibold hover:border-ink-faint">
                 {g.title}
               </a>
             ))}
@@ -159,9 +159,9 @@ export default function Help() {
               <h2 className="flex items-center gap-2 text-lg font-bold"><LifeBuoy size={20} aria-hidden /> Still need help?</h2>
               <p className="mt-1 text-ink-soft">Our customer care team replies within a day.</p>
               <ul className="mt-3 space-y-2">
-                <li><a className="flex items-center gap-2 font-semibold underline" href={`mailto:${SITE.email}`}><Mail size={18} aria-hidden /> {SITE.email}</a></li>
-                <li><a className="flex items-center gap-2 font-semibold underline" href={tel}><Phone size={18} aria-hidden /> {SITE.phone}</a></li>
-                <li><a className="flex items-center gap-2 font-semibold underline" href={`https://wa.me/${SITE.whatsapp}`} target="_blank" rel="noreferrer"><MessageCircle size={18} aria-hidden /> WhatsApp</a></li>
+                <li><a className="flex min-h-11 items-center gap-2 font-semibold underline" href={`mailto:${SITE.email}`}><Mail size={18} aria-hidden /> {SITE.email}</a></li>
+                <li><a className="flex min-h-11 items-center gap-2 font-semibold underline" href={tel}><Phone size={18} aria-hidden /> {SITE.phone}</a></li>
+                <li><a className="flex min-h-11 items-center gap-2 font-semibold underline" href={`https://wa.me/${SITE.whatsapp}`} target="_blank" rel="noreferrer"><MessageCircle size={18} aria-hidden /> WhatsApp</a></li>
               </ul>
             </div>
             <div className="rounded-2xl bg-kumkum-wash p-5">

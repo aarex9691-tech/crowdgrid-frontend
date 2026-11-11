@@ -74,12 +74,12 @@ export default function EventDetail() {
       <section className="cg-band">
         <div className="toran" aria-hidden />
         <div className="shell py-8">
-          <Link to="/events?tab=public" className="inline-flex items-center gap-1 text-sm text-[#c9d6ee] hover:text-white">
+          <Link to="/events?tab=public" className="inline-flex items-center gap-1 text-sm text-blue-mist hover:text-white">
             <ArrowLeft size={16} aria-hidden /> All public events
           </Link>
-          <p className="mt-3 cg-kicker text-[#FFD9B8]">{EVENT_CATEGORIES[event.category] || 'Public event'}</p>
+          <p className="mt-3 cg-kicker text-saffron-light">{EVENT_CATEGORIES[event.category] || 'Public event'}</p>
           <h1 className="font-display text-3xl sm:text-4xl">{event.title}</h1>
-          <p className="mt-1 text-[#c9d6ee]">Hosted by {event.hostName || 'CrowdGrid'}</p>
+          <p className="mt-1 text-blue-mist">Hosted by {event.hostName || 'CrowdGrid'}</p>
         </div>
       </section>
 

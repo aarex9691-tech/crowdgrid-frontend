@@ -5,7 +5,8 @@
   --color-ink: #1b1e28;
   --color-ink-soft: #4a4f5e;
   --color-ink-faint: #6b7080;
-  --color-mist: #f7f5f0;
+  --color-mist: #faf8f4;
+  --color-paper: #fffdf8;        /* header, footer and card white */
   --color-sand: #f4f1ea;
   --color-line: #e7e1d7;
   --color-terracotta: #b4530f;   /* deep saffron: actions (5.0:1 with white) */
@@ -21,6 +22,8 @@
   --color-blue: #1f3f8f;
   --color-blue-deep: #142b66;
   --color-blue-wash: #e7edf9;
+  --color-saffron-light: #ffd9b8;
+  --color-blue-mist: #d5deed;    /* secondary text on blue bands */ /* text and icons on blue bands (8:1) */
   --color-dusk: #2a2f3d;
 
   /* Mukta ships with the app, so text still has a proper font offline or before web fonts load */
@@ -162,6 +165,7 @@ body {
 }
 
 @layer base {
+  button:not(:disabled), [role='button'], [role='tab'], summary, label[for], select { cursor: pointer; }
   html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--header-h, 4rem) + 0.75rem); }
   body {
     @apply text-ink font-sans antialiased;

@@ -51,9 +51,9 @@ export default function Hub() {
     <div>
       <div className="cg-band">
         <div className="shell py-5">
-          <Link to="/" className="text-sm text-[#c9d6ee] hover:text-white">{t('hub.allYatras')}</Link>
+          <Link to="/" className="text-sm text-blue-mist hover:text-white">{t('hub.allYatras')}</Link>
           <h1 className="font-display text-3xl">{event.title}</h1>
-          <p className="text-[#c9d6ee]">
+          <p className="text-blue-mist">
             {event.tagline} · {fmtDate(event.startDate)} to {fmtDate(event.endDate)}
           </p>
           <SnanDates event={event} all />

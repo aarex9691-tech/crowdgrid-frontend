@@ -163,10 +163,10 @@ export default function Layout() {
   return (
     <div className="relative z-10 flex min-h-dvh flex-col bg-transparent">
       {/* First Tab stop: jump past the header straight to the page */}
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-xl focus:bg-[#1F3F8F] focus:px-4 focus:py-3 focus:font-bold focus:text-white">
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-xl focus:bg-blue focus:px-4 focus:py-3 focus:font-bold focus:text-white">
         Skip to main content
       </a>
-      <header ref={headerRef} className="sticky top-0 z-30 border-b border-line bg-[#FFFDF8]">
+      <header ref={headerRef} className="sticky top-0 z-30 border-b border-line bg-paper">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-2 px-4">
           <Link
             to="/"
@@ -182,9 +182,9 @@ export default function Layout() {
             <img
               src="/assets/crowdgrid-logo.jpg"
               alt="CrowdGrid Logo"
-              className="h-10 w-10 sm:h-11 sm:w-11 rounded-xl object-contain border border-line shadow-xs bg-[#FFFDF8]"
+              className="h-10 w-10 sm:h-11 sm:w-11 rounded-xl object-contain border border-line shadow-xs bg-paper"
             />
-            <span className="font-display text-xl leading-none text-ink sm:text-2xl group-hover:text-[#B4530F] transition-colors">
+            <span className="font-display text-xl leading-none text-ink sm:text-2xl group-hover:text-terracotta transition-colors">
               CrowdGrid
             </span>
           </Link>
@@ -192,7 +192,7 @@ export default function Layout() {
           {/* Clean Warm Search Pill */}
           {showSearch && <form
             onSubmit={handleNavSearch}
-            className="hidden xl:flex flex-1 max-w-sm lg:max-w-md items-center rounded-full border border-line bg-white/85 px-3 py-1.5 text-sm hover:border-ink-faint focus-within:border-[#B4530F] focus-within:bg-white shadow-xs transition-all mx-2"
+            className="hidden xl:flex flex-1 max-w-sm lg:max-w-md items-center rounded-full border border-line bg-white/85 px-3 py-1.5 text-sm hover:border-ink-faint focus-within:border-terracotta focus-within:bg-white shadow-xs transition-all mx-2"
           >
             <Search size={16} className="text-ink-soft shrink-0" />
             <input
@@ -205,7 +205,7 @@ export default function Layout() {
             <button
               type="submit"
               aria-label="Search"
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-[#B4530F] text-white hover:bg-[#8A3F0B] shrink-0 transition"
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-terracotta text-white hover:bg-terracotta-dark shrink-0 transition"
             >
               <Search size={13} strokeWidth={2.5} />
             </button>
@@ -266,10 +266,10 @@ export default function Layout() {
         </div>
 
         {menuOpen && (
-          <nav id="mobile-menu" aria-label="Main" className={`max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-line bg-[#FFFDF8] ${hideDesk}`}>
+          <nav id="mobile-menu" aria-label="Main" className={`max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-line bg-paper ${hideDesk}`}>
             <div className="mx-auto w-full max-w-7xl space-y-1 px-4 py-3">
               {/* Mobile Search Bar */}
-              {showSearch && <form onSubmit={handleNavSearch} className="mb-3 flex items-center rounded-xl border border-line bg-white px-3 py-2 text-sm focus-within:border-[#B4530F]">
+              {showSearch && <form onSubmit={handleNavSearch} className="mb-3 flex items-center rounded-xl border border-line bg-white px-3 py-2 text-sm focus-within:border-terracotta">
                 <Search size={18} className="text-ink-soft mr-2 shrink-0" />
                 <input
                   type="text"
@@ -278,7 +278,7 @@ export default function Layout() {
                   onChange={(e) => setNavQuery(e.target.value)}
                   className="bg-transparent text-ink placeholder:text-ink-faint outline-none w-full text-base"
                 />
-                <button type="submit" className="rounded-lg bg-[#B4530F] px-3.5 py-1 text-xs font-bold text-white shrink-0">
+                <button type="submit" className="rounded-lg bg-terracotta px-3.5 py-1 text-xs font-bold text-white shrink-0">
                   Search
                 </button>
               </form>}
@@ -343,8 +343,8 @@ export default function Layout() {
               className="group inline-flex items-center gap-2 cursor-pointer transition-transform hover:scale-105 active:scale-95"
               aria-label="CrowdGrid home"
             >
-              <img src="/assets/crowdgrid-logo.jpg" alt="CrowdGrid Logo" className="h-8 w-8 rounded-lg object-contain border border-line shadow-2xs bg-[#FFFDF8]" />
-              <span className="font-display text-xl text-ink group-hover:text-[#B4530F] transition-colors">CrowdGrid</span>
+              <img src="/assets/crowdgrid-logo.jpg" alt="CrowdGrid Logo" className="h-8 w-8 rounded-lg object-contain border border-line shadow-2xs bg-paper" />
+              <span className="font-display text-xl text-ink group-hover:text-terracotta transition-colors">CrowdGrid</span>
             </Link>
             <p className="mt-2 text-sm">
               {SITE.tagline}. One platform for the Simhastha Kumbh Mela at Nashik–Trimbakeshwar, the Pandharpur Ashadhi Wari and

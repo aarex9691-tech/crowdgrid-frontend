@@ -10,17 +10,17 @@ import Notice from './Notice';
 
 export function YatraCard({ event }) {
   return (
-    <li className="panel group flex flex-col overflow-hidden rounded-3xl border border-line bg-white p-5 sm:p-6 shadow-xs transition-all hover:-translate-y-0.5 hover:border-[#B4530F] hover:shadow-sm">
+    <li className="panel group flex flex-col overflow-hidden rounded-3xl border border-line bg-white p-5 sm:p-6 shadow-xs transition-all hover:-translate-y-0.5 hover:border-terracotta hover:shadow-sm">
       <div className="flex items-start justify-between gap-2">
         <span className="rounded-full bg-marigold-wash px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-marigold-deep">Yatra & Mela</span>
         <span className="text-xs font-semibold text-ink-faint">
           {fmtDate(event.startDate, { year: undefined })} – {fmtDate(event.endDate)}
         </span>
       </div>
-      <h3 className="mt-2.5 text-xl font-bold text-ink group-hover:text-[#B4530F] transition-colors">{event.title}</h3>
+      <h3 className="mt-2.5 text-xl font-bold text-ink group-hover:text-terracotta transition-colors">{event.title}</h3>
       <p className="mt-1 text-sm text-ink-soft line-clamp-2">{event.tagline}</p>
       <p className="mt-3 text-xs text-ink-soft flex items-center gap-1.5">
-        <MapPin size={14} className="text-[#B4530F] shrink-0" />
+        <MapPin size={14} className="text-terracotta shrink-0" />
         {event.stats?.verifiedProviders ? `${event.stats.verifiedProviders} verified seva camps` : 'Seva camps open closer to the date'}
       </p>
       <Link to={`/yatra/${event.slug}`} className="btn-ghost mt-4 self-start text-sm">
@@ -84,11 +84,11 @@ function PublicEventCard({ event, onRegister, showRegister }) {
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-4 sm:p-5">
-        <h3 className="text-lg font-bold leading-snug text-ink group-hover:text-[#B4530F] transition-colors line-clamp-2">
+        <h3 className="text-lg font-bold leading-snug text-ink group-hover:text-terracotta transition-colors line-clamp-2">
           {event.title}
         </h3>
         <p className="flex items-center gap-1.5 text-xs sm:text-sm text-ink-soft truncate">
-          <MapPin size={15} className="shrink-0 text-[#B4530F]" aria-hidden />
+          <MapPin size={15} className="shrink-0 text-terracotta" aria-hidden />
           <span className="truncate">{event.venue}, {event.city}</span>
         </p>
 

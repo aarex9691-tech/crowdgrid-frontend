@@ -197,7 +197,7 @@ export default function ProfilePanel() {
     <section className="panel overflow-hidden" aria-labelledby="profile-title">
       {/* Header: who you are and how complete the profile is */}
       <div className="flex flex-wrap items-center gap-4 border-b border-line bg-gradient-to-r from-marigold-wash to-white p-5">
-        <span className="flex h-14 w-14 flex-none items-center justify-center rounded-full bg-blue font-display text-xl text-[#FFD9B8]" aria-hidden>
+        <span className="flex h-14 w-14 flex-none items-center justify-center rounded-full bg-blue font-display text-xl text-saffron-light" aria-hidden>
           {initials(user.name)}
         </span>
         <div className="min-w-0 flex-1">

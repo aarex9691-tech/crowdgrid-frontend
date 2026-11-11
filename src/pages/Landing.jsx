@@ -58,7 +58,7 @@ function Hero({ onInvite }) {
           <span style={{ background: '#138A43' }} />
         </div>
         <h1 className="cg-h1 mt-5">{t('home.title1')}<br />{t('home.title2')}</h1>
-        <p className="mt-5 max-w-md text-lg text-[#4A4F5E]">{t('home.lead')}</p>
+        <p className="mt-5 max-w-md text-lg text-ink-soft">{t('home.lead')}</p>
         <div className="mt-7 flex flex-wrap gap-3">
           <Link to="/events" className="cg-btn cg-btn-saffron">
             {t('home.find')} <ArrowRight size={18} aria-hidden />
@@ -67,10 +67,10 @@ function Hero({ onInvite }) {
             <KeyRound size={18} aria-hidden /> {t('home.haveCode')}
           </button>
         </div>
-        <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-[#4A4F5E]">
-          <li className="flex items-center gap-1.5"><QrCode size={16} className="text-[#B4530F]" aria-hidden /> {t('home.oneQr')}</li>
-          <li className="flex items-center gap-1.5"><WifiOff size={16} className="text-[#1F3F8F]" aria-hidden /> {t('home.offline')}</li>
-          <li className="flex items-center gap-1.5"><Languages size={16} className="text-[#0D6331]" aria-hidden /> English · हिन्दी · मराठी</li>
+        <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-ink-soft">
+          <li className="flex items-center gap-1.5"><QrCode size={16} className="text-terracotta" aria-hidden /> {t('home.oneQr')}</li>
+          <li className="flex items-center gap-1.5"><WifiOff size={16} className="text-blue" aria-hidden /> {t('home.offline')}</li>
+          <li className="flex items-center gap-1.5"><Languages size={16} className="text-tulsi" aria-hidden /> English · हिन्दी · मराठी</li>
         </ul>
       </div>
 
@@ -107,8 +107,8 @@ function NextUp({ yatras, publicEvents, onInvite }) {
   const item = 'flex min-h-16 items-center gap-3 px-4 py-3 sm:px-5';
   return (
     <section aria-labelledby="next-title" className="cg-shell pt-6">
-      <div className="grid overflow-hidden rounded-3xl bg-white ring-1 ring-[#E7E1D7] md:grid-cols-[auto_1fr_1fr_1fr]">
-        <h2 id="next-title" className="cg-kicker flex items-center gap-2 whitespace-nowrap bg-[#F4F1EA] px-5 py-3 text-[#4A4F5E]">
+      <div className="grid overflow-hidden rounded-3xl bg-white ring-1 ring-line md:grid-cols-[auto_1fr_1fr_1fr]">
+        <h2 id="next-title" className="cg-kicker flex items-center gap-2 whitespace-nowrap bg-sand px-5 py-3 text-ink-soft">
           <CalendarDays size={16} aria-hidden /> {t('next.title')}
         </h2>
         {[['pilgrimage', yatra, (e) => `/yatra/${e.slug}`], ['public', pub, (e) => `/event/${e.slug}`]].map(([id, e, href]) => {
@@ -118,19 +118,19 @@ function NextUp({ yatras, publicEvents, onInvite }) {
               <span className="cg-dot shrink-0" style={{ background: k.color }} />
               <span className="min-w-0">
                 <span className="block truncate font-bold">{e ? e.title : t(`kind.${id}`)}</span>
-                <span className="block text-sm text-[#4A4F5E]">{e ? when(e) : t('next.soon')}</span>
+                <span className="block text-sm text-ink-soft">{e ? when(e) : t('next.soon')}</span>
               </span>
             </>
           );
           return e
-            ? <Link key={id} to={href(e)} className={`${item} border-t border-[#E7E1D7] hover:bg-[#FAF8F4] md:border-t-0 md:border-l`}>{body}</Link>
-            : <div key={id} className={`${item} border-t border-[#E7E1D7] md:border-t-0 md:border-l`}>{body}</div>;
+            ? <Link key={id} to={href(e)} className={`${item} border-t border-line hover:bg-mist md:border-t-0 md:border-l`}>{body}</Link>
+            : <div key={id} className={`${item} border-t border-line md:border-t-0 md:border-l`}>{body}</div>;
         })}
-        <button type="button" onClick={onInvite} className={`${item} border-t border-[#E7E1D7] text-left hover:bg-[#FAF8F4] md:border-t-0 md:border-l`}>
+        <button type="button" onClick={onInvite} className={`${item} border-t border-line text-left hover:bg-mist md:border-t-0 md:border-l`}>
           <span className="cg-dot shrink-0" style={{ background: '#138A43' }} />
           <span className="min-w-0">
             <span className="block truncate font-bold">{t('kind.corporate')} · {t('next.inviteOnly')}</span>
-            <span className="block text-sm text-[#4A4F5E]">{t('next.enterCode')}</span>
+            <span className="block text-sm text-ink-soft">{t('next.enterCode')}</span>
           </span>
         </button>
       </div>
@@ -159,10 +159,10 @@ function Services() {
     <section aria-labelledby="services-title" className="cg-shell cg-section">
       <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
         <div className="max-w-xl">
-          <p className="cg-kicker text-[#B4530F]">{t('svc.kicker')}</p>
+          <p className="cg-kicker text-terracotta">{t('svc.kicker')}</p>
           <h2 id="services-title" className="cg-h2">{t('svc.title')}</h2>
         </div>
-        <ul className="flex flex-wrap gap-4 text-sm font-semibold text-[#4A4F5E]" aria-label={t('svc.key')}>
+        <ul className="flex flex-wrap gap-4 text-sm font-semibold text-ink-soft" aria-label={t('svc.key')}>
           {KINDS.map((k) => (
             <li key={k.id} className="flex items-center gap-2"><span className="cg-dot" style={{ background: k.color }} /> {t(`kind.${k.id}`)}</li>
           ))}
@@ -172,7 +172,7 @@ function Services() {
       <ul id="services-list" className="cg-rows mt-8 grid gap-x-12 md:grid-cols-2">
         {SERVICES.map((s, i) => (
           <li key={s.id} className={`gap-4 py-5 ${!open && i >= SERVICES_ON_PHONE ? 'hidden md:flex' : 'flex'}`}>
-            <span className={`grid size-11 shrink-0 place-items-center rounded-xl ${s.sos ? 'bg-[#FBEAEA] text-[#C8102E]' : 'bg-[#F4F1EA] text-[#1B1E28]'}`}>
+            <span className={`grid size-11 shrink-0 place-items-center rounded-xl ${s.sos ? 'bg-kumkum-wash text-kumkum' : 'bg-sand text-ink'}`}>
               <s.icon size={22} aria-hidden />
             </span>
             <div className="min-w-0 flex-1">
@@ -182,7 +182,7 @@ function Services() {
                   {s.kinds.map((i) => <span key={i} className="cg-dot" style={{ background: KINDS[i].color }} />)}
                 </span>
               </div>
-              <p className="mt-0.5 text-[#4A4F5E]">{t(`svc.${s.id}.text`)}</p>
+              <p className="mt-0.5 text-ink-soft">{t(`svc.${s.id}.text`)}</p>
             </div>
           </li>
         ))}
@@ -206,11 +206,11 @@ function Services() {
 function HowItWorks() {
   const t = useT();
   return (
-    <section aria-labelledby="how-title" className="bg-[#FDEEDF]">
+    <section aria-labelledby="how-title" className="bg-terracotta-wash">
       <div className="cg-shell cg-section">
         <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
           <div>
-            <p className="cg-kicker text-[#8A3F0B]">{t('how.kicker')}</p>
+            <p className="cg-kicker text-terracotta-dark">{t('how.kicker')}</p>
             <h2 id="how-title" className="cg-h2">{t('how.title')}</h2>
           </div>
           <button type="button" className="cg-btn cg-btn-line self-start md:self-auto" onClick={openTour}>
@@ -218,11 +218,11 @@ function HowItWorks() {
           </button>
         </div>
         <ol className="cg-steps relative mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          <span className="absolute top-5 right-8 left-8 hidden h-0.5 bg-[#E36F1E]/35 lg:block" aria-hidden />
+          <span className="absolute top-5 right-8 left-8 hidden h-0.5 bg-marigold/35 lg:block" aria-hidden />
           {[1, 2, 3, 4].map((n) => (
             <li key={n}>
               <h3 className="mt-4 text-lg font-bold">{t(`how.${n}`)}</h3>
-              <p className="mt-1 text-[#4A4F5E]">{t(`how.${n}.text`)}</p>
+              <p className="mt-1 text-ink-soft">{t(`how.${n}.text`)}</p>
             </li>
           ))}
         </ol>
@@ -249,10 +249,10 @@ function Upcoming({ yatras, publicEvents, tab, setTab, sectionRef }) {
     <section ref={sectionRef} aria-labelledby="upcoming-title" className="cg-shell cg-section scroll-mt-20">
       <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
         <div>
-          <p className="cg-kicker text-[#0D6331]">{t('up.kicker')}</p>
+          <p className="cg-kicker text-tulsi">{t('up.kicker')}</p>
           <h2 id="upcoming-title" className="cg-h2">{t('up.title')}</h2>
         </div>
-        <Link to={`/events?tab=${tab}`} className="inline-flex min-h-11 items-center font-bold text-[#1F3F8F] underline-offset-4 hover:underline">
+        <Link to={`/events?tab=${tab}`} className="inline-flex min-h-11 items-center font-bold text-blue underline-offset-4 hover:underline">
           {t('up.seeAll')}: {kindName(tab)} →
         </Link>
       </div>
@@ -286,7 +286,7 @@ function Upcoming({ yatras, publicEvents, tab, setTab, sectionRef }) {
         {tab === 'yatras' && (
           yatras.length > 0
             ? <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{yatras.slice(0, 6).map((e) => <YatraCard key={e._id} event={e} />)}</ul>
-            : <p className="text-[#4A4F5E]">{t('up.noYatras')}</p>
+            : <p className="text-ink-soft">{t('up.noYatras')}</p>
         )}
         {tab === 'corporate' && (
           <InvitationCodeBox from="/" />
@@ -309,14 +309,14 @@ function ForEveryone() {
     <section aria-labelledby="access-title" className="cg-dots text-white">
       <div className="cg-shell grid gap-8 py-14 sm:py-16 lg:grid-cols-[1fr_1.4fr] lg:items-center">
         <div>
-          <p className="cg-kicker text-[#FFD9B8]">{t('access.kicker')}</p>
+          <p className="cg-kicker text-saffron-light">{t('access.kicker')}</p>
           <h2 id="access-title" className="cg-h2" style={{ color: '#fff' }}>{t('access.title')}</h2>
           <p className="mt-2 max-w-sm text-white/90">{t('access.lead')}</p>
         </div>
         <ul className="grid gap-3 sm:grid-cols-2">
           {ACCESS.map((a) => (
-            <li key={a.id} className="flex items-center gap-3 rounded-2xl bg-[#142B66] px-4 py-4 font-semibold">
-              <a.icon size={22} className="shrink-0 text-[#FFD9B8]" aria-hidden /> {t(`access.${a.id}`)}
+            <li key={a.id} className="flex items-center gap-3 rounded-2xl bg-blue-deep px-4 py-4 font-semibold">
+              <a.icon size={22} className="shrink-0 text-saffron-light" aria-hidden /> {t(`access.${a.id}`)}
             </li>
           ))}
         </ul>
@@ -330,11 +330,11 @@ function HostCta() {
   const together = LANDING_MEDIA.together;
   return (
     <section aria-labelledby="host-title" className="cg-shell py-14 sm:py-16">
-      <div className="grid overflow-hidden rounded-3xl bg-[#E5F3EA] md:grid-cols-[1.3fr_1fr]">
+      <div className="grid overflow-hidden rounded-3xl bg-tulsi-wash md:grid-cols-[1.3fr_1fr]">
         <div className="p-6 sm:p-10">
-          <p className="cg-kicker text-[#0D6331]">{t('host.kicker')}</p>
+          <p className="cg-kicker text-tulsi">{t('host.kicker')}</p>
           <h2 id="host-title" className="cg-h2">{t('host.title')}</h2>
-          <p className="mt-3 max-w-md text-[#4A4F5E]">{t('host.text')}</p>
+          <p className="mt-3 max-w-md text-ink-soft">{t('host.text')}</p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link to="/help" className="cg-btn cg-btn-blue">{t('host.talk')} <ArrowRight size={18} aria-hidden /></Link>
             <Link to="/about" className="cg-btn cg-btn-line">{t('host.about')}</Link>
@@ -405,7 +405,7 @@ export default function Landing() {
     <div className="cg-home relative">
       {!canBook(user) && (
         <div className="cg-shell pt-4">
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-[#E7EDF9] p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-blue-wash p-4">
             <p className="text-sm">{t('home.staffNote', { role: ROLE_LABELS[user.role] })}</p>
             <Link to={homeFor(user.role)} className="cg-btn cg-btn-blue text-sm">{t('home.openDashboard')}</Link>
           </div>

@@ -108,12 +108,12 @@ export default function Events() {
         yatras.length ? (
           <>
             {yatras[0]?.isFlagship && (
-              <Link to={`/yatra/${yatras[0].slug}`} className="cg-band block overflow-hidden rounded-3xl p-6 hover:bg-[#142B66]">
-                <p className="cg-kicker text-[#FFD9B8]">Flagship</p>
+              <Link to={`/yatra/${yatras[0].slug}`} className="cg-band block overflow-hidden rounded-3xl p-6 hover:bg-blue-deep">
+                <p className="cg-kicker text-saffron-light">Flagship</p>
                 <p className="font-display text-3xl">{yatras[0].title}</p>
-                <p className="text-[#c9d6ee]">{yatras[0].tagline || yatras[0].city} · {fmtDate(yatras[0].startDate)} to {fmtDate(yatras[0].endDate)}</p>
+                <p className="text-blue-mist">{yatras[0].tagline || yatras[0].city} · {fmtDate(yatras[0].startDate)} to {fmtDate(yatras[0].endDate)}</p>
                 <SnanDates event={yatras[0]} />
-                <p className="mt-2 text-sm text-[#c9d6ee]">Book lodging, food and transport</p>
+                <p className="mt-2 text-sm text-blue-mist">Book lodging, food and transport</p>
               </Link>
             )}
             <ul className="grid gap-4 sm:grid-cols-2">
