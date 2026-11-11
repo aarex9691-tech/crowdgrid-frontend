@@ -162,6 +162,10 @@ export default function Layout() {
 
   return (
     <div className="relative z-10 flex min-h-dvh flex-col bg-transparent">
+      {/* First Tab stop: jump past the header straight to the page */}
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-xl focus:bg-[#1F3F8F] focus:px-4 focus:py-3 focus:font-bold focus:text-white">
+        Skip to main content
+      </a>
       <header ref={headerRef} className="sticky top-0 z-30 border-b border-line bg-[#FFFDF8]">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-2 px-4">
           <Link
@@ -315,7 +319,7 @@ export default function Layout() {
       {/* first-visit tour: home page, pilgrims and visitors only */}
       <GuidedTour auto={pathname === '/' && (!user || user.role === 'USER')} />
 
-      <main className="flex-1 pb-16">
+      <main id="main" tabIndex={-1} className="flex-1 pb-16 focus:outline-none">
         <Outlet />
       </main>
 

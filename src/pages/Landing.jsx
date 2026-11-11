@@ -222,6 +222,15 @@ const EVENT_TABS = ['public', 'yatras', 'corporate'];
 function Upcoming({ yatras, publicEvents, tab, setTab, sectionRef }) {
   const t = useT();
   const kindName = (tb) => t(`kind.${KIND_BY_TAB[tb].id}`);
+  // Left / right arrows move between the three tabs, matching the role tabs further down
+  const onKey = (e) => {
+    const step = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+    if (!step) return;
+    e.preventDefault();
+    const next = EVENT_TABS[(EVENT_TABS.indexOf(tab) + step + EVENT_TABS.length) % EVENT_TABS.length];
+    setTab(next);
+    requestAnimationFrame(() => document.getElementById(`ev-tab-${next}`)?.focus());
+  };
   return (
     <section ref={sectionRef} aria-labelledby="upcoming-title" className="cg-shell cg-section scroll-mt-20">
       <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
@@ -229,12 +238,12 @@ function Upcoming({ yatras, publicEvents, tab, setTab, sectionRef }) {
           <p className="cg-kicker text-[#0D6331]">{t('up.kicker')}</p>
           <h2 id="upcoming-title" className="cg-h2">{t('up.title')}</h2>
         </div>
-        <Link to={`/events?tab=${tab}`} className="font-bold text-[#1F3F8F] underline-offset-4 hover:underline">
+        <Link to={`/events?tab=${tab}`} className="inline-flex min-h-11 items-center font-bold text-[#1F3F8F] underline-offset-4 hover:underline">
           {t('up.seeAll')}: {kindName(tab)} →
         </Link>
       </div>
 
-      <div role="tablist" aria-label={t('up.type')} className="no-scrollbar mt-6 flex gap-2 overflow-x-auto">
+      <div role="tablist" aria-label={t('up.type')} className="no-scrollbar mt-6 flex gap-2 overflow-x-auto" onKeyDown={onKey}>
         {EVENT_TABS.map((tb) => {
           const k = KIND_BY_TAB[tb];
           const on = tab === tb;
@@ -246,6 +255,7 @@ function Upcoming({ yatras, publicEvents, tab, setTab, sectionRef }) {
               id={`ev-tab-${tb}`}
               aria-selected={on}
               aria-controls="ev-panel"
+              tabIndex={on ? 0 : -1}
               onClick={() => setTab(tb)}
               className="flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 font-semibold transition-colors"
               style={on ? { background: k.deep, color: '#fff' } : { background: '#fff', boxShadow: 'inset 0 0 0 1.5px #E7E1D7' }}

@@ -42,13 +42,16 @@ export const addTicketToCart = (cart, event, people = 1) =>
     input: { people },
   });
 
-/** One solid colour per category (saffron, blue, green family), so cards read at a glance. */
+/*
+ * Public events are blue on the home page colour key, so every public card stays in the blue family
+ * (saffron means pilgrimage, green means corporate). Each shade keeps small white text above 4.5:1.
+ */
 const CATEGORY_TONE = {
-  SPIRITUAL: '#C4560F',
-  CULTURAL: '#1F3F8F',
-  HERITAGE_WALK: '#0D6331',
-  WORKSHOP: '#142B66',
-  SEVA: '#138A43',
+  SPIRITUAL: '#1F3F8F',
+  CULTURAL: '#142B66',
+  HERITAGE_WALK: '#24508F',
+  WORKSHOP: '#2B3A6B',
+  SEVA: '#1D4A7A',
   OTHER: '#3A3F4E',
 };
 
@@ -99,13 +102,13 @@ function PublicEventCard({ event, onRegister, showRegister }) {
             )}
           </div>
           <div className="flex gap-2">
-            <Link to={`/event/${event.slug}`} className="btn-ghost min-h-10 px-3 text-sm">
+            <Link to={`/event/${event.slug}`} className="btn-ghost min-h-11 px-3 text-sm">
               Details
             </Link>
             {showRegister && (
               <button
                 type="button"
-                className="btn-primary min-h-10 px-4 text-sm"
+                className="btn-primary min-h-11 px-4 text-sm"
                 disabled={left === 0}
                 onClick={() => onRegister(event)}
               >
