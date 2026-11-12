@@ -31,6 +31,7 @@ export default function HeroSearch({ event = {} }) {
   // Only days of the yatra (the event can arrive after the first render, so the defaults follow it)
   const { first, end } = yatraDays(event);
   const days = nextYatraDays(event, 4);
+  const ended = first > end; // nothing left to book for stays or meals
   const [tab, setTab] = useState('stay');
   const [sector, setSector] = useState('');
   const [pickedIn, setCheckIn] = useState('');
@@ -134,7 +135,7 @@ export default function HeroSearch({ event = {} }) {
             </select>
           </Field>
         )}
-        <button type="submit" className="btn-primary min-h-14 px-8 text-lg md:self-stretch">
+        <button type="submit" className="btn-primary min-h-14 px-8 text-lg md:self-stretch" disabled={ended && (tab === 'stay' || tab === 'food')} title={ended && (tab === 'stay' || tab === 'food') ? 'This yatra has ended' : undefined}>
           <Search size={20} aria-hidden /> Search
         </button>
       </div>

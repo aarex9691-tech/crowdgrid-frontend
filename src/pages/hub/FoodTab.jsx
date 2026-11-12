@@ -30,7 +30,9 @@ export default function FoodTab({ event }) {
   const days = nextYatraDays(event, 4);
   const realToday = todayIST();
   const [params] = useSearchParams();
-  const [date, setDate] = useState(() => (days.includes(params.get('date')) ? params.get('date') : days[0] || realToday));
+  // Derived each render, so a tab left open past midnight moves on to the next day of the yatra
+  const [picked, setDate] = useState(() => params.get('date') || '');
+  const date = days.includes(picked) ? picked : days[0] || realToday;
   const [meal, setMeal] = useState(() => (['BREAKFAST', 'LUNCH', 'DINNER'].includes(params.get('meal')) ? params.get('meal') : currentMeal()));
   const [sector, setSector] = useState(() => params.get('sector') || '');
   const [data, setData] = useState(null);
@@ -75,6 +77,8 @@ export default function FoodTab({ event }) {
       setBusySlot(null);
     }
   };
+
+  if (!days.length) return <Notice>This yatra has ended. Meal tokens are closed.</Notice>;
 
   if (claimed) {
     return (
