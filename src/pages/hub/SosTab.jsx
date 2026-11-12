@@ -65,6 +65,8 @@ function MySosCard({ incident, onUpdateLocation, onSafe, busy }) {
           <li key={i} className="flex items-start gap-2">
             <span className={`mt-1 h-3 w-3 shrink-0 rounded-full ${st.done ? 'bg-tulsi' : 'border-2 border-line bg-white'}`} aria-hidden />
             <span className={st.done ? 'font-semibold' : 'text-ink-soft'}>
+              <span className="sr-only">{st.done ? 'Done: ' : 'Waiting: '}</span>
+              {st.done && <span aria-hidden>✓ </span>}
               {st.label}
               {st.done && st.at ? <span className="font-normal text-ink-soft"> · {timeOf(st.at)}</span> : null}
             </span>
@@ -161,13 +163,17 @@ function SosBeacon({ event }) {
 
       <button
         type="button"
-        onClick={send}
-        disabled={busy}
-        className="mx-auto mt-5 flex h-44 w-44 flex-col items-center justify-center gap-1 rounded-full bg-kumkum text-2xl font-extrabold text-white shadow-[0_0_0_10px_var(--color-kumkum-wash)] transition-transform active:scale-95 disabled:opacity-80"
+        onClick={() => !busy && send()}
+        aria-disabled={busy}
+        aria-label={busy ? undefined : open ? undefined : 'Send SOS alert'}
+        className="mx-auto mt-5 flex h-44 w-44 flex-col items-center justify-center gap-1 rounded-full bg-kumkum text-2xl font-extrabold text-white shadow-[0_0_0_10px_var(--color-kumkum-wash)] transition-transform active:scale-95 aria-disabled:opacity-80"
       >
         <Siren size={44} aria-hidden />
         {busy ? (state.phase === 'locating' ? t('sos.finding') : t('sos.sending')) : open ? t('sos.sendAgain') : 'SOS'}
       </button>
+      <p className="sr-only" role="status">
+        {busy ? (state.phase === 'locating' ? t('sos.finding') : t('sos.sending')) : ''}
+      </p>
       <div className="mx-auto mt-5 max-w-md space-y-3 text-left" aria-live="assertive">
         {state.phase === 'sent' && (
           <Notice tone="success">

@@ -5,6 +5,7 @@ import { Ambulance, Droplets, Footprints, MapPin, Toilet, Waves } from 'lucide-r
 import API, { errorMessage } from '../../lib/api';
 import { cachePass } from '../../lib/passCache';
 import { rupees, useCart } from '../../lib/cart';
+import { fmtDate, todayIST } from '../../lib/format';
 import Notice, { Loading } from '../../components/Notice';
 import PassCard from '../../components/PassCard';
 import PeopleStepper from '../../components/PeopleStepper';
@@ -43,18 +44,34 @@ export default function TransitTab({ event }) {
   const t = useT();
   const { user } = useAuth();
   const staff = !canBook(user);
-  const [routes, setRoutes] = useState(null);
+  const [loaded, setLoaded] = useState({ day: null, routes: null }); // routes and the day they were read for
+  const routes = loaded.routes;
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(null);
   const [issued, setIssued] = useState(null);
   const [added, setAdded] = useState(null);
   const cart = useCart();
+  // Travel day: any day of the yatra from today; before the yatra starts this is a pre-booking
+  const ist = (d) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date(d));
+  const today = todayIST();
+  const start = ist(event.startDate);
+  const end = ist(event.endDate);
+  const firstDay = start > today ? start : today;
+  const [day, setDay] = useState(firstDay);
+  const prebooking = !!routes?.some((r) => r.prebooking);
+  const stale = loaded.day !== day; // seats on screen are for another day until the new answer arrives
 
   useEffect(() => {
-    API.get('/transit', { params: { eventId: event._id } })
-      .then(({ data }) => setRoutes(data))
-      .catch((e) => setError(errorMessage(e)));
-  }, [event._id]);
+    // Only the answer for the day still chosen is shown (quick day changes can answer out of order)
+    let live = true;
+    setError('');
+    API.get('/transit', { params: { eventId: event._id, date: day } })
+      .then(({ data }) => live && setLoaded({ day, routes: data }))
+      .catch((e) => live && setError(errorMessage(e)));
+    return () => {
+      live = false;
+    };
+  }, [event._id, day]);
 
   const [people, setPeople] = useState({}); // route id -> how many travel on the pass
   const peopleFor = (id) => people[id] || 1;
@@ -64,13 +81,13 @@ export default function TransitTab({ event }) {
     const n = peopleFor(route._id);
     if (route.fare > 0) {
       cart.add({
-        key: `TRANSIT:${route._id}`,
+        key: `TRANSIT:${route._id}:${day}`,
         kind: 'TRANSIT',
         refId: route._id,
         label: route.name,
-        detail: `Day pass${n > 1 ? ` for ${n} people` : ''} · ${route.origin} to ${route.destination}`,
+        detail: `${prebooking ? 'Pre-booked day pass' : 'Day pass'} for ${fmtDate(`${day}T12:00:00+05:30`)}${n > 1 ? ` for ${n} people` : ''} · ${route.origin} to ${route.destination}`,
         estimate: route.fare * n,
-        input: { people: n },
+        input: { people: n, date: day },
       });
       setAdded(route);
       return;
@@ -78,7 +95,7 @@ export default function TransitTab({ event }) {
     setBusy(route._id);
     setError('');
     try {
-      const { data } = await API.post(`/transit/${route._id}/pass`, { people: n });
+      const { data } = await API.post(`/transit/${route._id}/pass`, { people: n, date: day });
       cachePass(data.pass);
       setIssued(data.pass);
     } catch (e) {
@@ -91,7 +108,10 @@ export default function TransitTab({ event }) {
   if (issued) {
     return (
       <div className="mx-auto max-w-lg space-y-4">
-        <Notice tone="success">Boarding pass ready for {issued.details?.date || 'today'}{issued.details?.people > 1 ? ` for ${issued.details.people} people` : ''}.</Notice>
+        <Notice tone="success">
+          {issued.details?.prebooked ? 'Pre-booked' : 'Boarding pass ready'} for {issued.details?.date ? fmtDate(`${issued.details.date}T12:00:00+05:30`) : 'today'}
+          {issued.details?.people > 1 ? ` for ${issued.details.people} people` : ''}. It opens for scanning on that day.
+        </Notice>
         <PassCard pass={issued} />
         <div className="flex flex-wrap gap-3">
           <Link to="/passbook" className="btn-ink">Open my passbook</Link>
@@ -104,6 +124,7 @@ export default function TransitTab({ event }) {
   if (!routes) return error ? <Notice tone="error">{error}</Notice> : <Loading label="Loading shuttle schedule" />;
   const shuttles = routes.filter((r) => r.kind === 'SHUTTLE');
   const processions = routes.filter((r) => r.kind === 'PROCESSION');
+  const closed = shuttles.find((r) => r.closed)?.closed;
 
   return (
     <div className="space-y-8">
@@ -114,7 +135,18 @@ export default function TransitTab({ event }) {
         </Notice>
       )}
       <section>
-        <h2 className="text-2xl font-bold">{t('transit.schedule')}</h2>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <h2 className="text-2xl font-bold">{t('transit.schedule')}</h2>
+          {!staff && !closed && shuttles.length > 0 && (
+            <div>
+              <label className="field-label" htmlFor="travel-day">
+                Travel day {prebooking && <span className="pill-quiet ml-1">Pre-booking</span>}
+              </label>
+              <input id="travel-day" type="date" className="field" min={firstDay} max={end} value={day} onChange={(e) => e.target.value && setDay(e.target.value)} required />
+            </div>
+          )}
+        </div>
+        {closed && <Notice className="mt-3">{closed}</Notice>}
         <ul className="mt-4 grid gap-4 md:grid-cols-2">
           {shuttles.map((r) => (
             <li key={r._id} className="panel flex flex-col p-5">
@@ -129,7 +161,9 @@ export default function TransitTab({ event }) {
                 {r.vehicleType} · every {r.frequencyMins} min · {r.firstDeparture} to {r.lastDeparture}
               </p>
               <p className="text-ink-soft">{t('transit.boardAt', { gate: r.boardingGate })}</p>
-              {typeof r.seatsLeft === 'number' && (
+              {stale ? (
+                <p className="mt-1 text-ink-soft">Checking seats for this day…</p>
+              ) : typeof r.seatsLeft === 'number' && (
                 <p className="mt-1">
                   {r.seatsLeft === 0 ? (
                     <span className="pill-out">{t('transit.full', { day: r.travelDay })}</span>
@@ -144,7 +178,7 @@ export default function TransitTab({ event }) {
               {!staff && (
                 <div className="mt-5 flex flex-wrap items-end gap-4">
                   <PeopleStepper id={`tp-${r._id}`} label={t('transit.travelling')} value={peopleFor(r._id)} onChange={(v) => setPeople((p) => ({ ...p, [r._id]: v }))} hint="One pass for up to 5 people" />
-                  <button type="button" className="btn-primary" disabled={busy === r._id || r.seatsLeft === 0 || (typeof r.seatsLeft === 'number' && peopleFor(r._id) > r.seatsLeft)} onClick={() => getPass(r)}>
+                  <button type="button" className="btn-primary" disabled={stale || busy === r._id || r.seatsLeft === 0 || (typeof r.seatsLeft === 'number' && peopleFor(r._id) > r.seatsLeft)} onClick={() => getPass(r)}>
                     {busy === r._id ? t('transit.preparing') : r.fare > 0 ? t('lodging.addToCart', { amount: rupees(r.fare * peopleFor(r._id)) }) : t('transit.getPass')}
                   </button>
                 </div>

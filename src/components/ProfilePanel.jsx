@@ -7,6 +7,7 @@ import { emailError, firstError, optionalPhoneError, textError } from '../lib/va
 import Notice from './Notice';
 import PhoneField from './PhoneField';
 import { TextField } from './Fields';
+import ProfilePhoto from './ProfilePhoto';
 
 const GENDERS = { FEMALE: 'Female', MALE: 'Male', OTHER: 'Other' };
 const isoDay = (d) => (d ? new Date(d).toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' }) : '');
@@ -65,8 +66,6 @@ function DobInput({ id, value, onChange, invalid, describedBy }) {
     />
   );
 }
-
-const initials = (name = '') => name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?';
 
 /** The three groups of the profile; each is edited on its own so the form stays short. */
 const GROUPS = {
@@ -197,9 +196,7 @@ export default function ProfilePanel() {
     <section className="panel overflow-hidden" aria-labelledby="profile-title">
       {/* Header: who you are and how complete the profile is */}
       <div className="flex flex-wrap items-center gap-4 border-b border-line bg-gradient-to-r from-marigold-wash to-white p-5">
-        <span className="flex h-14 w-14 flex-none items-center justify-center rounded-full bg-blue font-display text-xl text-saffron-light" aria-hidden>
-          {initials(user.name)}
-        </span>
+        <ProfilePhoto />
         <div className="min-w-0 flex-1">
           <h1 id="profile-title" className="truncate text-2xl font-bold">{user.name}</h1>
           <p className="text-sm text-ink-soft">

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import API, { errorMessage } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { useConfirm } from '../lib/confirm';
@@ -130,15 +130,19 @@ function SecurityPanel() {
       <h2 className="text-2xl font-bold">Security</h2>
       <p className="text-ink-soft">Lost your phone, or logged in on someone else's? This signs you out everywhere at once.</p>
       <Notice tone="error">{state.error}</Notice>
-      <button type="button" className="btn-ghost" onClick={logoutAll} disabled={state.busy}>
-        {state.busy ? 'Logging out…' : 'Log out of all devices'}
-      </button>
+      <div className="flex flex-wrap gap-2">
+        <Link to="/set-password" className="btn-ghost">Change password</Link>
+        <button type="button" className="btn-ghost" onClick={logoutAll} disabled={state.busy}>
+          {state.busy ? 'Logging out…' : 'Log out of all devices'}
+        </button>
+      </div>
     </section>
   );
 }
 
 export default function Account() {
   const { user } = useAuth();
+  const saved = useLocation().state?.saved;
   const [orgs, setOrgs] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const loadOrgs = () => API.get('/providers/mine').then(({ data }) => setOrgs(data)).catch(() => {});
@@ -148,6 +152,7 @@ export default function Account() {
 
   return (
     <div className="shell max-w-3xl space-y-8 py-6">
+      {saved && <Notice tone="success">{saved}</Notice>}
       <ProfilePanel />
 
       <MyBookings />

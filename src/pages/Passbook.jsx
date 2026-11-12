@@ -62,7 +62,7 @@ export default function Passbook() {
       <div className="cg-pagehead">
         <PageTitle kicker="Attendee" tone="saffron" title="My passbook" lead="Every pass in one place. Opens without network." />
       </div>
-      {user && <MyQrCard name={user.name} activeCount={withState.filter((p) => p.state === 'ACTIVE').length} />}
+      {user && <MyQrCard name={user.name} photoUrl={user.photoUrl} activeCount={withState.filter((p) => p.state === 'ACTIVE').length} />}
       {done && <Notice tone="success">{done}</Notice>}
       {offlineSince && <Notice>Showing passes saved on {fmtDateTime(offlineSince)}. You're offline, but these QR codes still work at the gate.</Notice>}
 

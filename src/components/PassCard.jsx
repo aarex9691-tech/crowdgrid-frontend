@@ -39,6 +39,7 @@ const detailRows = (pass) => {
   if (d.menu?.length && pass.type === 'MEAL') rows.push(['Menu', d.menu.join(', ')]);
   if (d.guests?.length) rows.push([pass.type === 'MEAL' ? 'Names' : 'Guests', d.guests.join(', ')]);
   if (d.checkIn) rows.push(['Stay', d.checkIn === d.checkOut ? day(d.checkIn) : `${day(d.checkIn)} to ${day(d.checkOut)}`]);
+  if (d.date && pass.type === 'TRANSIT') rows.push(['Travel day', day(d.date)]);
   if (d.gate) rows.push(['Board at', d.gate]);
   if (d.fare !== undefined && pass.type === 'TRANSIT') rows.push(['Fare', d.fare ? `₹${d.fare}` : 'Free seva']);
   if (d.sessions?.length) rows.push(['Sessions', d.sessions.join(', ')]);
@@ -76,7 +77,10 @@ export default function PassCard({ pass, expanded = true, onCancel }) {
         <div className="min-w-0 flex-1">
           <p className="flex flex-wrap items-center justify-between gap-2 text-sm font-semibold text-ink-soft">
             {meta.label}
-            <span className={state.cls}>{state.text}</span>
+            <span className="flex flex-wrap gap-1.5">
+              {pass.details?.prebooked && <span className="pill-quiet">Pre-booked</span>}
+              <span className={state.cls}>{state.text}</span>
+            </span>
           </p>
           <h3 className="text-lg font-bold leading-snug">{pass.title}</h3>
           {pass.subtitle && <p className="text-ink-soft">{pass.subtitle}</p>}

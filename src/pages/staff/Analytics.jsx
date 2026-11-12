@@ -36,26 +36,36 @@ export default function Analytics() {
   const [updatedAt, setUpdatedAt] = useState(null);
 
   useEffect(() => {
-    API.get('/events', { params: { kind: 'YATRA' } }).then(({ data: list }) => {
-      setEvents(list);
-      setEventId((list.find((e) => e.isFlagship) || list[0])?._id || '');
-    });
+    API.get('/events', { params: { kind: 'YATRA' } })
+      .then(({ data: list }) => {
+        setEvents(list);
+        const first = (list.find((e) => e.isFlagship) || list[0])?._id || '';
+        if (!first) setError('No yatras found to show figures for.');
+        setEventId(first);
+      })
+      .catch((e) => setError(errorMessage(e)));
   }, []);
 
-  // Only one request at a time: repeated Refresh clicks or live updates no longer pile up heavy queries
-  const loading = useRef(false);
+  // Repeated Refresh clicks or live updates for the SAME view share one request; changing the yatra or the
+  // range always starts a new one, and only the newest answer is shown (an older, slower one is ignored).
+  const inFlight = useRef('');
+  const latest = useRef(0);
   const load = useCallback(() => {
-    if (!eventId || loading.current) return;
-    loading.current = true;
+    if (!eventId) return;
+    const key = `${eventId}|${days}`;
+    if (inFlight.current === key) return;
+    inFlight.current = key;
+    const ticket = ++latest.current;
     API.get('/analytics/overview', { params: { eventId, days } })
       .then(({ data: d }) => {
+        if (ticket !== latest.current) return;
         setData(d);
         setUpdatedAt(new Date());
         setError('');
       })
-      .catch((e) => setError(errorMessage(e))) // the last figures stay on screen
+      .catch((e) => ticket === latest.current && setError(errorMessage(e))) // the last figures stay on screen
       .finally(() => {
-        loading.current = false;
+        if (inFlight.current === key) inFlight.current = '';
       });
   }, [eventId, days]);
   useEffect(() => {
@@ -127,7 +137,7 @@ export default function Analytics() {
       </p>
 
       {!data ? (
-        <Loading label="Crunching the numbers" />
+        error ? null : <Loading label="Crunching the numbers" />
       ) : (
         <>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">

@@ -16,6 +16,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [forgot, setForgot] = useState(false);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -25,6 +26,8 @@ export default function Login() {
     setBusy(true);
     try {
       const user = await login(identifier, password, countryCode);
+      // a temporary password from the help desk must be replaced first
+      if (user.mustChangePassword) return navigate('/set-password', { replace: true, state: { from: location.state?.from } });
       // a page left over from someone else's session (e.g. /control) must not trap this role
       navigate(afterLogin(user.role, location.state?.from), { replace: true });
     } catch (err) {
@@ -69,7 +72,20 @@ export default function Login() {
             />
           </div>
         </div>
-        <PasswordField id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <div>
+          <PasswordField id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <button type="button" className="mt-2 min-h-10 text-sm font-semibold text-ink-soft underline hover:text-ink" aria-expanded={forgot} aria-controls="forgot-help" onClick={() => setForgot((f) => !f)}>
+            Forgot password?
+          </button>
+          {forgot && (
+            <div id="forgot-help" className="mt-1 rounded-xl border border-line bg-sand p-4 text-[15px]">
+              <p className="font-semibold">Visit any CrowdGrid help desk with an ID card.</p>
+              <p className="mt-1 text-ink-soft">
+                Staff will check your ID and give you a temporary password. Log in with it, then choose your own. Help desks are at the camp offices and the control room.
+              </p>
+            </div>
+          )}
+        </div>
         <button type="submit" className="btn-primary w-full text-lg" disabled={busy}>
           {busy ? 'Logging in…' : 'Log in'}
         </button>

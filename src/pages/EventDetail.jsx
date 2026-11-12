@@ -5,7 +5,7 @@ import { CalendarDays, ExternalLink, MapPin, Phone, ShieldCheck, Ticket, Users }
 import API, { errorMessage } from '../lib/api';
 import { canBook, useAuth } from '../lib/auth';
 import { rupees, useCart } from '../lib/cart';
-import { EVENT_CATEGORIES, fmtDate, fmtTime, googleMapsUrl } from '../lib/format';
+import { categoryLabel, fmtDate, fmtTime, googleMapsUrl } from '../lib/format';
 import Notice, { Loading } from '../components/Notice';
 import { cachePass } from '../lib/passCache';
 import { addTicketToCart, placesLeft } from '../components/EventCards';
@@ -75,7 +75,7 @@ export default function EventDetail() {
       <PageHero
         kind="public"
         back={{ to: '/events?tab=public', label: 'All public events' }}
-        label={EVENT_CATEGORIES[event.category] || 'Public event'}
+        label={event.category ? categoryLabel(event.category) : 'Public event'}
         title={event.title}
         lead={`Hosted by ${event.hostName || 'CrowdGrid'}`}
       />

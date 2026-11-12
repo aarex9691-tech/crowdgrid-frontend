@@ -5,7 +5,8 @@ import API, { errorMessage } from '../lib/api';
 import { canBook, useAuth } from '../lib/auth';
 import { cachePass } from '../lib/passCache';
 import { rupees, useCart } from '../lib/cart';
-import { EVENT_CATEGORIES, fmtDate, fmtDateTime, fmtTime } from '../lib/format';
+import { categoryLabel, fmtDate, fmtDateTime, fmtTime } from '../lib/format';
+import EventCategoryIcon from './EventCategoryIcon';
 import Notice from './Notice';
 
 export function YatraCard({ event }) {
@@ -67,7 +68,9 @@ function PublicEventCard({ event, onRegister, showRegister, large = false }) {
         </p>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
-            <span className="text-sm font-semibold text-blue">{EVENT_CATEGORIES[event.category] || 'Event'}</span>
+            <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue">
+              <EventCategoryIcon category={event.category} size={15} /> {categoryLabel(event.category)}
+            </span>
             <span className={left === 0 ? 'pill-out' : left <= 5 ? 'pill-low' : 'pill-ok'}>
               {left === 0 ? 'Sold out' : `${left} left`}
             </span>
