@@ -55,6 +55,7 @@ const TITLES = [
 /** New page: start at the top (or at the #section asked for) and name the browser tab. */
 function useRouteChange() {
   const { pathname, hash } = useLocation();
+  const firstRoute = useRef(true);
   useEffect(() => {
     const t = TITLES.find(([re]) => re.test(pathname));
     document.title = t && t[1] ? `${t[1]} · CrowdGrid` : 'CrowdGrid · Pilgrimage & mass gathering platform';
@@ -67,7 +68,9 @@ function useRouteChange() {
     }
     window.scrollTo(0, 0);
     // Move keyboard and screen-reader focus to the new page instead of leaving it on the old link
-    document.getElementById('main')?.focus({ preventScroll: true });
+    // (not on the first load, so the skip link and the menu stay first in the tab order)
+    if (firstRoute.current) firstRoute.current = false;
+    else document.getElementById('main')?.focus({ preventScroll: true });
     return undefined;
   }, [pathname, hash]);
 }
