@@ -1,6 +1,6 @@
 import { useT } from '../../lib/i18n';
 import { MAX_PER_ACCOUNT } from '../../lib/limits';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import API, { errorMessage } from '../../lib/api';
 import { cachePass } from '../../lib/passCache';
@@ -27,8 +27,8 @@ export default function FoodTab({ event }) {
   const { user } = useAuth();
   const staff = !canBook(user);
   // Tokens for up to 4 days of the yatra: from today, or from day 1 of a yatra that has not started yet
-  const days = nextYatraDays(event, 4);
   const realToday = todayIST();
+  const days = useMemo(() => nextYatraDays(event, 4), [event, realToday]); // recomputed when the date changes
   const [params] = useSearchParams();
   // Derived each render, so a tab left open past midnight moves on to the next day of the yatra
   const [picked, setDate] = useState(() => params.get('date') || '');
