@@ -53,7 +53,7 @@ function Media({ slot, flat = false }) {
 function Hero({ onInvite }) {
   const t = useT();
   return (
-    <section className="cg-shell grid items-center gap-6 py-3 sm:py-5 lg:min-h-[calc(100dvh-4.5rem)] lg:max-h-[820px] lg:grid-cols-[0.85fr_1.45fr] xl:grid-cols-[0.78fr_1.55fr] lg:gap-12 xl:gap-16">
+    <section className="cg-shell grid items-center gap-6 py-3 sm:py-5 lg:min-h-[calc(100dvh-4.5rem)] lg:max-h-[820px] lg:grid-cols-[0.95fr_1.35fr] xl:grid-cols-[0.9fr_1.35fr] lg:gap-12 xl:gap-16">
       <div className="cg-rise py-1">
         <h1 className="cg-h1 font-bold tracking-tight text-ink">{t('home.title1')}<br />{t('home.title2')}</h1>
         <p className="mt-3.5 sm:mt-4 max-w-md text-base sm:text-lg text-ink-soft leading-relaxed">{t('home.lead')}</p>
