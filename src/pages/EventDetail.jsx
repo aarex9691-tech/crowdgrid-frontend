@@ -83,11 +83,11 @@ export default function EventDetail() {
       <div className="shell grid gap-6 py-8 lg:grid-cols-[1fr_22rem]">
         <div className="space-y-6">
           <section>
-            <h2 className="text-2xl font-bold">About this event</h2>
-            <p className="mt-2 max-w-prose whitespace-pre-line text-ink-soft">{event.description}</p>
+            <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink">About this event</h2>
+            <p className="mt-3 max-w-prose whitespace-pre-line text-base sm:text-lg text-ink-soft leading-relaxed">{event.description}</p>
           </section>
 
-          <section className="panel space-y-3 p-5" aria-label="Details">
+          <section className="panel space-y-4 p-6 sm:p-7 shadow-xs" aria-label="Details">
             <p className="flex items-start gap-3">
               <CalendarDays size={22} className="mt-0.5 shrink-0 text-blue" aria-hidden />
               <span>
@@ -133,11 +133,11 @@ export default function EventDetail() {
         </div>
 
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <div className="panel space-y-4 border-t-4 border-t-marigold p-5">
+          <div className="panel space-y-5 border-t-[6px] border-t-marigold p-6 sm:p-8 shadow-md">
             {free ? (
-              <p className="text-3xl font-extrabold text-tulsi">Free entry</p>
+              <p className="font-display text-3xl sm:text-4xl font-bold text-tulsi">Free entry</p>
             ) : (
-              <p className="text-3xl font-extrabold">{rupees(event.ticketPrice)}<span className="text-base font-normal text-ink-soft"> per person</span></p>
+              <p className="font-display text-3xl sm:text-4xl font-bold text-ink">{rupees(event.ticketPrice)}<span className="font-sans text-base font-normal text-ink-soft"> per person</span></p>
             )}
             {freeMsg && <Notice tone={freeMsg.tone}>{freeMsg.text}</Notice>}
             <p className="flex items-center gap-2 text-ink-soft">

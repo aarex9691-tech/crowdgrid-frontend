@@ -53,7 +53,7 @@ function Media({ slot, flat = false }) {
 function Hero({ onInvite }) {
   const t = useT();
   return (
-    <section className="cg-shell grid items-center gap-10 pt-8 pb-4 sm:pt-12 lg:grid-cols-[1fr_1.2fr] lg:gap-14">
+    <section className="cg-shell grid items-center gap-10 pt-8 pb-4 sm:pt-12 lg:grid-cols-[0.85fr_1.45fr] xl:grid-cols-[0.78fr_1.55fr] lg:gap-12 xl:gap-16">
       <div className="cg-rise">
         <h1 className="cg-h1">{t('home.title1')}<br />{t('home.title2')}</h1>
         <p className="mt-5 max-w-md text-lg text-ink-soft">{t('home.lead')}</p>
@@ -65,10 +65,7 @@ function Hero({ onInvite }) {
             <KeyRound size={18} aria-hidden /> {t('home.haveCode')}
           </button>
         </div>
-        <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-ink-soft">
-          <li className="flex items-center gap-1.5"><QrCode size={16} className="text-terracotta" aria-hidden /> {t('home.oneQr')}</li>
-          <li className="flex items-center gap-1.5"><WifiOff size={16} className="text-blue" aria-hidden /> {t('home.offline')}</li>
-        </ul>
+
       </div>
 
       <nav aria-label={t('home.chooseKind')} className="cg-tri" data-depth-group>
@@ -113,7 +110,7 @@ function NextUp({ yatras, onInvite }) {
             <>
               <span className="cg-dot cg-dot-lg shrink-0" style={{ background: k.color }} />
               <span className="min-w-0">
-                <span className="block truncate text-xl font-bold">{e ? e.title : t(`kind.${id}`)}</span>
+                <span className="block truncate font-display text-xl sm:text-2xl font-bold tracking-tight text-ink">{e ? e.title : t(`kind.${id}`)}</span>
                 <span className="block text-ink-soft">{e ? when(e) : t('next.soon')}</span>
               </span>
             </>
@@ -125,7 +122,7 @@ function NextUp({ yatras, onInvite }) {
         <button type="button" onClick={onInvite} className={`${item} border-t border-line text-left hover:bg-mist md:border-t-0 md:border-l`}>
           <span className="cg-dot cg-dot-lg shrink-0" style={{ background: '#138A43' }} />
           <span className="min-w-0">
-            <span className="block truncate text-xl font-bold">{t('kind.corporate')}</span>
+            <span className="block truncate font-display text-xl sm:text-2xl font-bold tracking-tight text-ink">{t('kind.corporate')}</span>
             <span className="block truncate text-ink-soft">{t('next.inviteOnly')}. {t('next.enterCode')}</span>
           </span>
         </button>

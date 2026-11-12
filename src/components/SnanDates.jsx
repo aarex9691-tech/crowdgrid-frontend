@@ -22,9 +22,9 @@ export default function SnanDates({ event, all = false }) {
   return (
     <ul className="mt-3 flex flex-wrap gap-2" aria-label={all ? 'Key dates' : 'Main snan dates'}>
       {dates.map((d) => (
-        <li key={d.label} className="inline-flex items-center gap-1.5 rounded-full border border-saffron-light/40 bg-white/10 px-3 py-1 text-sm text-white">
+        <li key={d.label} className="inline-flex items-center gap-2 rounded-full border border-saffron-light/50 bg-white/15 px-4 py-1.5 text-sm sm:text-base text-white shadow-xs backdrop-blur-sm">
           <CalendarDays size={14} className="text-saffron-light" aria-hidden />
-          <span className="font-semibold">{d.label}</span>
+          <span className="font-bold">{d.label}</span>
           <span className="text-blue-mist">{fmtDate(d.date)}</span>
         </li>
       ))}

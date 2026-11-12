@@ -82,7 +82,7 @@ export default function Help() {
         </button>
       </PageHero>
 
-      <div className="shell space-y-12 py-10">
+      <div className="shell space-y-10 py-5 sm:py-6">
         <section aria-labelledby="start-title">
           <h2 id="start-title" className="text-2xl font-bold">Getting started in 4 steps</h2>
           <ol className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

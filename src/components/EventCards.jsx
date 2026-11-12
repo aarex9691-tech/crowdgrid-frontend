@@ -10,18 +10,27 @@ import Notice from './Notice';
 
 export function YatraCard({ event }) {
   return (
-    <li className="panel flex flex-col border-l-4 border-l-marigold p-5 transition-colors hover:border-ink-faint hover:border-l-marigold sm:p-6">
-      <p className="text-sm font-semibold text-ink-soft">
-        {fmtDate(event.startDate, { year: undefined })} to {fmtDate(event.endDate)}
-      </p>
-      <h3 className="mt-1 text-xl font-bold">{event.title}</h3>
-      <p className="mt-1 line-clamp-2 text-ink-soft">{event.tagline}</p>
-      <p className="mt-3 flex items-center gap-1.5 text-sm text-ink-soft">
-        <MapPin size={16} className="shrink-0 text-terracotta" aria-hidden />
-        {event.stats?.verifiedProviders ? `${event.stats.verifiedProviders} verified seva camps` : 'Seva camps open closer to the date'}
-      </p>
-      <Link to={`/yatra/${event.slug}`} className="btn-ghost mt-4 self-start">
-        Open services
+    <li>
+      <Link
+        to={`/yatra/${event.slug}`}
+        className="group panel flex flex-col border-l-[6px] border-l-marigold p-6 sm:p-7 md:p-8 shadow-xs transition-all duration-200 hover:shadow-lg hover:border-l-terracotta hover:-translate-y-0.5 block focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta h-full"
+      >
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-marigold-wash px-3.5 py-1 text-xs sm:text-sm font-bold text-marigold-deep border border-marigold/20">
+            <CalendarDays size={14} className="text-marigold-deep" aria-hidden />
+            {fmtDate(event.startDate, { year: undefined })} to {fmtDate(event.endDate)}
+          </span>
+        </div>
+        <h3 className="font-display mt-3 text-2xl sm:text-[1.75rem] font-bold leading-snug tracking-tight text-ink group-hover:text-terracotta transition-colors">
+          {event.title}
+        </h3>
+        <p className="mt-2 text-base sm:text-lg leading-relaxed text-ink-soft">
+          {event.tagline}
+        </p>
+        <p className="mt-4 flex items-center gap-2 text-sm sm:text-base text-ink-soft font-medium">
+          <MapPin size={18} className="shrink-0 text-terracotta" aria-hidden />
+          {event.stats?.verifiedProviders ? `${event.stats.verifiedProviders} verified seva camps` : 'Seva camps open closer to the date'}
+        </p>
       </Link>
     </li>
   );

@@ -45,7 +45,13 @@
 
 body {
   position: relative;
-  background-color: #ffffff;
+  background-color: #f8fafc;
+  background-image:
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.88)),
+    url('/media/white-wave-texture.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
   color: #111c3a;
   min-height: 100dvh;
 }
@@ -101,14 +107,11 @@ body {
   }
 }
 
-/* Saffron, white and green rule: the one brand mark, drawn under the site header */
+/* Saffron, white and green rule: one single bold line divided in three equal parts */
 @utility toran {
-  /* Two lines: a thick band, a gap, then a thin echo of it */
-  height: 11px;
-  background:
-    linear-gradient(to right, #e36f1e 0 33.33%, #ffffff 33.33% 66.66%, #138a43 66.66% 100%) top / 100% 6px no-repeat,
-    linear-gradient(to right, #e36f1e 0 33.33%, #dde2ec 33.33% 66.66%, #138a43 66.66% 100%) bottom / 100% 2px no-repeat,
-    #ffffff;
+  height: 6px;
+  background: linear-gradient(to right, #e36f1e 0 33.333%, #ffffff 33.333% 66.666%, #138a43 66.666% 100%);
+  box-shadow: 0 1px 2px rgba(17, 28, 58, 0.08);
 }
 
 /* Printing an invitation card: print only the card */
@@ -116,4 +119,31 @@ body {
   body * { visibility: hidden; }
   .print-area, .print-area * { visibility: visible; }
   .print-area { position: absolute; inset: 0 auto auto 0; width: 100%; }
+}
+
+/* Google Translate: seamless inline translation without banner or layout shift */
+.goog-te-banner-frame.skiptranslate,
+iframe.goog-te-banner-frame {
+  display: none !important;
+  visibility: hidden !important;
+}
+body {
+  top: 0px !important;
+  position: static !important;
+}
+.goog-logo-link,
+.goog-te-gadget span {
+  display: none !important;
+}
+.goog-te-gadget {
+  color: transparent !important;
+  font-size: 0 !important;
+}
+#goog-gt-tt,
+.goog-te-balloon-frame {
+  display: none !important;
+}
+.goog-text-highlight {
+  background: none !important;
+  box-shadow: none !important;
 }

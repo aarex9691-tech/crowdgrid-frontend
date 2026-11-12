@@ -7,7 +7,7 @@ import { useConfirm } from '../lib/confirm';
 import { SITE } from '../lib/site';
 import LiveToasts from './LiveToasts';
 import GuidedTour, { openTour } from './GuidedTour';
-import { useT } from '../lib/i18n';
+import { LanguageSwitcherButton, applyBackgroundTranslation, useLang, useT } from '../lib/i18n';
 
 /**
  * Each role gets its own navigation. Pilgrims see booking (passbook, cart,
@@ -37,7 +37,7 @@ const navFor = (role, t = (k) => k) => {
       return {
         // pilgrim navigation follows the chosen language (Hindi / Marathi / English)
         links: [{ to: '/', label: t('nav.home'), end: true }, { to: '/events', label: t('nav.events') }, { to: '/passbook', label: t('nav.passbook') }, { to: '/help', label: t('nav.help') }, about],
-        cta: { to: `/yatra/${SITE.flagshipSlug}`, label: t('nav.bookNow') },
+        cta: null,
         shopper: true,
       };
   }
@@ -51,15 +51,42 @@ const TITLES = [
 ];
 
 /** New page: start at the top (or at the #section asked for) and name the browser tab. */
-function useRouteChange() {
+function useRouteChange(lang) {
   const { pathname, hash } = useLocation();
   useEffect(() => {
     const t = TITLES.find(([re]) => re.test(pathname));
-    document.title = t && t[1] ? `${t[1]} · CrowdGrid` : 'CrowdGrid · Every crowd, cared for';
-  }, [pathname]);
+    let title = t && t[1] ? `${t[1]} · CrowdGrid` : 'CrowdGrid · Every crowd, cared for';
+    if (lang === 'hi') {
+      const hiMap = {
+        'Log in': 'लॉग इन',
+        'Create account': 'खाता बनाएँ',
+        'Events': 'कार्यक्रम',
+        'Event': 'कार्यक्रम',
+        'About us': 'हमारे बारे में',
+        'Help centre': 'सहायता केंद्र',
+        'Yatra services': 'यात्रा सेवाएँ',
+        'Campus & Corporate event': 'कैंपस और कॉर्पोरेट कार्यक्रम',
+        'My Passbook': 'मेरी पासबुक',
+        'My account': 'मेरा खाता',
+        'Checkout': 'चेकआउट',
+        'Scanner': 'स्कैनर',
+        'Control room': 'नियंत्रण कक्ष',
+        'Analytics': 'विश्लेषण',
+        'Campus & Corporate events': 'कैंपस और कॉर्पोरेट कार्यक्रम',
+        'Tent map': 'टेंट नक्शा',
+        'Hosted events': 'आयोजित कार्यक्रम',
+        'My camps': 'मेरे शिविर',
+      };
+      if (t && t[1] && hiMap[t[1]]) {
+        title = `${hiMap[t[1]]} · CrowdGrid`;
+      } else if (!t || !t[1]) {
+        title = 'CrowdGrid · हर भीड़ की देखभाल';
+      }
+    }
+    document.title = title;
+  }, [pathname, lang]);
   useEffect(() => {
     if (hash) {
-      // Wait a moment for the page to render its sections
       const id = setTimeout(() => document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
       return () => clearTimeout(id);
     }
@@ -88,7 +115,8 @@ export default function Layout() {
   const cart = useCart();
   const navigate = useNavigate();
   const online = useOnline();
-  useRouteChange();
+  const { lang } = useLang();
+  useRouteChange(lang);
   const [menuOpen, setMenuOpen] = useState(false);
   const confirm = useConfirm();
   const headerRef = useRef(null);
@@ -97,6 +125,10 @@ export default function Layout() {
   const close = () => setMenuOpen(false);
   const [navQuery, setNavQuery] = useState('');
   const { pathname } = useLocation();
+
+  useEffect(() => {
+    applyBackgroundTranslation(lang);
+  }, [pathname, lang]);
 
   const handleNavSearch = (e) => {
     e.preventDefault();
@@ -156,9 +188,9 @@ export default function Layout() {
   };
 
   const linkCls = ({ isActive }) =>
-    `flex h-16 items-center gap-2 whitespace-nowrap border-y-[3px] border-t-transparent ${wide ? 'px-2' : 'px-3'} font-semibold transition-colors ${isActive ? 'border-b-marigold text-ink' : 'border-b-transparent text-ink-soft hover:text-ink'}`;
+    `flex h-16 items-center gap-2 whitespace-nowrap border-y-[3px] border-t-transparent ${wide ? 'px-2.5 text-base' : 'px-3.5 text-[1.125rem]'} font-semibold tracking-tight transition-colors ${isActive ? 'border-b-marigold text-ink font-bold' : 'border-b-transparent text-ink-soft hover:text-ink'}`;
   const menuCls = ({ isActive }) =>
-    `flex min-h-12 items-center gap-3 rounded-xl px-4 text-lg font-semibold ${isActive ? 'bg-blue-wash text-blue' : 'text-ink'}`;
+    `flex min-h-14 items-center gap-3.5 rounded-xl px-4 text-xl font-bold ${isActive ? 'bg-blue-wash text-blue' : 'text-ink'}`;
 
   return (
     <div className="relative z-10 flex min-h-dvh flex-col">
@@ -198,7 +230,7 @@ export default function Layout() {
             <Search size={16} className="text-ink-soft shrink-0" />
             <input
               type="text"
-              placeholder="Search events and places"
+              placeholder={t("nav.searchPlaceholder")}
               value={navQuery}
               onChange={(e) => setNavQuery(e.target.value)}
               aria-label="Search events"
@@ -234,7 +266,7 @@ export default function Layout() {
             </NavLink>
           )}
 
-          <div className={`flex-none items-center gap-1 ${showDesk}`}>
+          <div className={`flex-none items-center gap-2 ${showDesk}`}>
             {user ? (
               <>
                 <NavLink to="/account" className={linkCls} title={ROLE_LABELS[user.role]}>
@@ -251,9 +283,18 @@ export default function Layout() {
           </div>
 
           {/* Call to action */}
-          <Link to={nav.cta.to} className="btn-primary ml-1 hidden min-h-11 flex-none whitespace-nowrap px-4 sm:inline-flex" onClick={close}>
-            {nav.cta.label}
-          </Link>
+          {nav.cta && (
+            <Link to={nav.cta.to} className="btn-primary ml-1 hidden min-h-11 flex-none whitespace-nowrap px-4 sm:inline-flex" onClick={close}>
+              {nav.cta.label}
+            </Link>
+          )}
+
+          {/* Language Switcher in the corner */}
+          {(!user || user.role === 'USER') && (
+            <div className="ml-1 sm:ml-2 flex-none flex items-center">
+              <LanguageSwitcherButton />
+            </div>
+          )}
 
           {/* Mobile menu button */}
           <button
@@ -276,15 +317,13 @@ export default function Layout() {
                 <Search size={18} className="text-ink-soft mr-2 shrink-0" />
                 <input
                   type="text"
-                  placeholder="Search events and places"
+                  placeholder={t("nav.searchPlaceholder")}
                   aria-label="Search events"
                   value={navQuery}
                   onChange={(e) => setNavQuery(e.target.value)}
                   className="bg-transparent text-ink placeholder:text-ink-faint outline-none w-full text-base"
                 />
-                <button type="submit" className="flex min-h-11 shrink-0 items-center rounded-lg bg-blue px-3.5 text-sm font-bold text-white">
-                  Search
-                </button>
+                <button type="submit" className="flex min-h-11 shrink-0 items-center rounded-lg bg-blue px-3.5 text-sm font-bold text-white">{t("nav.search")}</button>
               </form>}
               {nav.links.map((l) => (
                 <NavLink key={l.to} to={l.to} end={l.end} className={menuCls} onClick={close}>
@@ -304,9 +343,16 @@ export default function Layout() {
               ) : (
                 <NavLink to="/login" className={menuCls} onClick={close}>Log in or create account</NavLink>
               )}
-              <Link to={nav.cta.to} className="btn-primary mt-2 w-full sm:hidden" onClick={close}>
-                {nav.cta.label}
-              </Link>
+              {(!user || user.role === 'USER') && (
+                <div className="pt-2">
+                  <LanguageSwitcherButton className="w-full justify-center" />
+                </div>
+              )}
+              {nav.cta && (
+                <Link to={nav.cta.to} className="btn-primary mt-2 w-full sm:hidden" onClick={close}>
+                  {nav.cta.label}
+                </Link>
+              )}
             </div>
           </nav>
         )}
