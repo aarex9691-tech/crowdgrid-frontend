@@ -445,14 +445,9 @@ const DICTS = {
 const EN = DICTS.en;
 const KEY = 'cg_lang';
 
-const readLang = () => {
-  try {
-    const v = localStorage.getItem(KEY);
-    return DICTS[v] ? v : 'en';
-  } catch {
-    return 'en';
-  }
-};
+// Translation is paused: the site opens in English until the language picker returns.
+// To bring it back, read the saved choice here again and put LanguageSwitch back in Layout.
+const readLang = () => 'en';
 
 const fill = (text, vars) => (vars ? text.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? `{${k}}`)) : text);
 

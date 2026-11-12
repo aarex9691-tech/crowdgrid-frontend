@@ -103,8 +103,12 @@ body {
 
 /* Saffron, white and green rule: the one brand mark, drawn under the site header */
 @utility toran {
-  height: 3px;
-  background: linear-gradient(to right, #e36f1e 0 33.33%, #ffffff 33.33% 66.66%, #138a43 66.66% 100%);
+  /* Two lines: a thick band, a gap, then a thin echo of it */
+  height: 11px;
+  background:
+    linear-gradient(to right, #e36f1e 0 33.33%, #ffffff 33.33% 66.66%, #138a43 66.66% 100%) top / 100% 6px no-repeat,
+    linear-gradient(to right, #e36f1e 0 33.33%, #dde2ec 33.33% 66.66%, #138a43 66.66% 100%) bottom / 100% 2px no-repeat,
+    #ffffff;
 }
 
 /* Printing an invitation card: print only the card */

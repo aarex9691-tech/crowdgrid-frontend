@@ -10,7 +10,6 @@ import {
   Gauge,
   HandHeart,
   KeyRound,
-  Languages,
   QrCode,
   Siren,
   Smartphone,
@@ -69,7 +68,6 @@ function Hero({ onInvite }) {
         <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-ink-soft">
           <li className="flex items-center gap-1.5"><QrCode size={16} className="text-terracotta" aria-hidden /> {t('home.oneQr')}</li>
           <li className="flex items-center gap-1.5"><WifiOff size={16} className="text-blue" aria-hidden /> {t('home.offline')}</li>
-          <li className="flex items-center gap-1.5"><Languages size={16} className="text-tulsi" aria-hidden /> English, हिन्दी, मराठी</li>
         </ul>
       </div>
 
@@ -90,7 +88,7 @@ function Hero({ onInvite }) {
 }
 
 /** The soonest thing of each kind, straight from the event list. */
-function NextUp({ yatras, publicEvents, onInvite }) {
+function NextUp({ yatras, onInvite }) {
   const t = useT();
   // Read the clock once when the strip appears, so every render compares against the same time
   const [now] = useState(() => Date.now());
@@ -99,25 +97,24 @@ function NextUp({ yatras, publicEvents, onInvite }) {
       .filter((e) => new Date(e.endDate || e.startDate).getTime() >= now)
       .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))[0];
   const yatra = soonest(yatras);
-  const pub = soonest(publicEvents);
   const when = (e) =>
     new Date(e.startDate).getTime() <= now ? t('next.on') : fmtDate(e.startDate, { weekday: 'short', month: 'short', day: 'numeric' });
 
-  const item = 'flex min-h-16 min-w-0 items-center gap-3 px-4 py-3 sm:px-5';
+  const item = 'flex min-h-24 min-w-0 items-center gap-4 px-5 py-5 sm:px-7';
   return (
     <section aria-labelledby="next-title" className="cg-shell pt-6">
-      <div className="grid overflow-hidden rounded-3xl bg-white ring-1 ring-line md:grid-cols-[auto_1fr_1fr_1fr]">
-        <h2 id="next-title" className="cg-kicker flex items-center gap-2 whitespace-nowrap bg-sand px-5 py-3 text-ink-soft">
-          <CalendarDays size={16} aria-hidden /> {t('next.title')}
+      <div className="grid overflow-hidden rounded-3xl bg-white ring-1 ring-line md:grid-cols-[auto_1fr_1fr]">
+        <h2 id="next-title" className="flex items-center gap-2.5 whitespace-nowrap bg-sand px-6 py-4 text-lg font-bold text-ink sm:px-8">
+          <CalendarDays size={22} aria-hidden /> {t('next.title')}
         </h2>
-        {[['pilgrimage', yatra, (e) => `/yatra/${e.slug}`], ['public', pub, (e) => `/event/${e.slug}`]].map(([id, e, href]) => {
+        {[['pilgrimage', yatra, (e) => `/yatra/${e.slug}`]].map(([id, e, href]) => {
           const k = KINDS.find((x) => x.id === id);
           const body = (
             <>
-              <span className="cg-dot shrink-0" style={{ background: k.color }} />
+              <span className="cg-dot cg-dot-lg shrink-0" style={{ background: k.color }} />
               <span className="min-w-0">
-                <span className="block truncate font-bold">{e ? e.title : t(`kind.${id}`)}</span>
-                <span className="block text-sm text-ink-soft">{e ? when(e) : t('next.soon')}</span>
+                <span className="block truncate text-xl font-bold">{e ? e.title : t(`kind.${id}`)}</span>
+                <span className="block text-ink-soft">{e ? when(e) : t('next.soon')}</span>
               </span>
             </>
           );
@@ -126,10 +123,10 @@ function NextUp({ yatras, publicEvents, onInvite }) {
             : <div key={id} className={`${item} border-t border-line md:border-t-0 md:border-l`}>{body}</div>;
         })}
         <button type="button" onClick={onInvite} className={`${item} border-t border-line text-left hover:bg-mist md:border-t-0 md:border-l`}>
-          <span className="cg-dot shrink-0" style={{ background: '#138A43' }} />
+          <span className="cg-dot cg-dot-lg shrink-0" style={{ background: '#138A43' }} />
           <span className="min-w-0">
-            <span className="block truncate font-bold">{t('kind.corporate')}</span>
-            <span className="block truncate text-sm text-ink-soft">{t('next.inviteOnly')}. {t('next.enterCode')}</span>
+            <span className="block truncate text-xl font-bold">{t('kind.corporate')}</span>
+            <span className="block truncate text-ink-soft">{t('next.inviteOnly')}. {t('next.enterCode')}</span>
           </span>
         </button>
       </div>
@@ -205,22 +202,22 @@ function HowItWorks() {
   const t = useT();
   return (
     <section aria-labelledby="how-title" className="bg-terracotta-wash">
-      <div className="cg-shell cg-section">
-        <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+      <div className="cg-shell py-8 sm:py-10">
+        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <p className="cg-kicker text-terracotta-dark">{t('how.kicker')}</p>
-            <h2 id="how-title" className="cg-h2">{t('how.title')}</h2>
+            <h2 id="how-title" className="cg-h2 cg-h2-sm">{t('how.title')}</h2>
           </div>
           <button type="button" className="cg-btn cg-btn-line self-start md:self-auto" onClick={openTour}>
             <Compass size={18} aria-hidden /> {t('how.tour')}
           </button>
         </div>
-        <ol className="cg-steps relative mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <ol className="cg-steps relative mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <span className="absolute top-5 right-8 left-8 hidden h-0.5 bg-marigold/35 lg:block" aria-hidden />
           {[1, 2, 3, 4].map((n) => (
             <li key={n}>
-              <h3 className="mt-4 text-lg font-bold">{t(`how.${n}`)}</h3>
-              <p className="mt-1 text-ink-soft">{t(`how.${n}.text`)}</p>
+              <h3 className="mt-3 font-bold">{t(`how.${n}`)}</h3>
+              <p className="mt-0.5 text-[0.95rem] text-ink-soft">{t(`how.${n}.text`)}</p>
             </li>
           ))}
         </ol>
@@ -279,10 +276,10 @@ function Upcoming({ yatras, publicEvents, tab, setTab, sectionRef }) {
       </div>
 
       <div id="ev-panel" role="tabpanel" aria-labelledby={`ev-tab-${tab}`} className="mt-6">
-        {tab === 'public' && <PublicEventList events={publicEvents.slice(0, 6)} emptyMessage={t('up.noPublic')} from="/" />}
+        {tab === 'public' && <PublicEventList events={publicEvents.slice(0, 6)} emptyMessage={t('up.noPublic')} from="/" large />}
         {tab === 'yatras' && (
           yatras.length > 0
-            ? <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{yatras.slice(0, 6).map((e) => <YatraCard key={e._id} event={e} />)}</ul>
+            ? <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{yatras.slice(0, 6).map((e) => <YatraCard key={e._id} event={e} />)}</ul>
             : <p className="text-ink-soft">{t('up.noYatras')}</p>
         )}
         {tab === 'corporate' && (
@@ -294,7 +291,6 @@ function Upcoming({ yatras, publicEvents, tab, setTab, sectionRef }) {
 }
 
 const ACCESS = [
-  { id: 'lang', icon: Languages },
   { id: 'offline', icon: WifiOff },
   { id: 'phone', icon: Smartphone },
   { id: 'help', icon: Siren },
@@ -310,7 +306,7 @@ function ForEveryone() {
           <h2 id="access-title" className="cg-h2" style={{ color: '#fff' }}>{t('access.title')}</h2>
           <p className="mt-2 max-w-sm text-white/90">{t('access.lead')}</p>
         </div>
-        <ul className="grid gap-3 sm:grid-cols-2">
+        <ul className="grid gap-3 sm:grid-cols-3">
           {ACCESS.map((a) => (
             <li key={a.id} className="flex items-center gap-3 rounded-2xl bg-blue-deep px-4 py-4 font-semibold">
               <a.icon size={22} className="shrink-0 text-saffron-light" aria-hidden /> {t(`access.${a.id}`)}
@@ -399,7 +395,7 @@ export default function Landing() {
   };
 
   return (
-    <div className="relative">
+    <div className="cg-home relative">
       {!canBook(user) && (
         <div className="cg-shell pt-4">
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-blue-wash p-4">
@@ -410,7 +406,7 @@ export default function Landing() {
       )}
 
       <Hero onInvite={openInvite} />
-      <NextUp yatras={yatras} publicEvents={publicEvents} onInvite={openInvite} />
+      <NextUp yatras={yatras} onInvite={openInvite} />
       <Services />
       <HowItWorks />
       <Upcoming yatras={yatras} publicEvents={publicEvents} tab={tab} setTab={setTab} sectionRef={upcomingRef} />

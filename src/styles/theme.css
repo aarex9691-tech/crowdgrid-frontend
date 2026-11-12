@@ -375,3 +375,12 @@ a.cg-band:hover { background-color: var(--cg-blue-deep); }
   .cg-foot ul li { padding-block: 0; }
   .cg-foot ul :is(a, button) { display: inline-flex; align-items: center; min-height: 2.75rem; padding-block: 0; }
 }
+
+/* ── Home page: content runs the full width of the screen ───────────── */
+.cg-home .cg-shell { max-width: none; padding-inline: clamp(1rem, 4vw, 4.5rem); }
+.cg-home .cg-tri { height: clamp(22rem, 38vw, 40rem); }
+.cg-h2-sm { font-size: clamp(1.5rem, 2.6vw, 2rem); }
+.cg-dot-lg { width: 0.9rem; height: 0.9rem; }
+/* Header and footer line up with the full-width home page */
+body:has(.cg-home) header > .max-w-7xl,
+body:has(.cg-home) .cg-foot > .shell { max-width: none; padding-inline: clamp(1rem, 4vw, 4.5rem); }

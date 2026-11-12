@@ -45,11 +45,11 @@ export const placesLeft = (e) => Math.max(0, (e.capacity || 0) - (e.attendeesCou
 const datePart = (d, part) =>
   fmtDate(d, { day: undefined, month: undefined, year: undefined, ...part });
 
-function PublicEventCard({ event, onRegister, showRegister }) {
+function PublicEventCard({ event, onRegister, showRegister, large = false }) {
   const left = placesLeft(event);
   return (
     <li className="panel flex flex-col overflow-hidden transition-colors hover:border-ink-faint">
-      <div className="flex flex-1 gap-4 p-4 sm:p-5">
+      <div className={`flex flex-1 gap-4 p-4 ${large ? 'sm:gap-5 sm:p-7' : 'sm:p-5'}`}>
         {/* Calendar leaf: the date is the first thing people look for */}
         <p className="flex w-16 shrink-0 flex-col items-center self-start rounded-xl bg-blue-wash py-2 text-blue" aria-label={fmtDate(event.startDate, { weekday: 'long' })}>
           <span className="text-xs font-bold" aria-hidden>{datePart(event.startDate, { weekday: 'short' })}</span>
@@ -63,7 +63,7 @@ function PublicEventCard({ event, onRegister, showRegister }) {
               {left === 0 ? 'Sold out' : `${left} left`}
             </span>
           </div>
-          <h3 className="mt-1 line-clamp-2 text-lg font-bold leading-snug">{event.title}</h3>
+          <h3 className={`mt-1 line-clamp-2 font-bold leading-snug ${large ? 'text-xl sm:text-2xl' : 'text-lg'}`}>{event.title}</h3>
           <p className="mt-1.5 flex items-center gap-1.5 text-sm text-ink-soft">
             <MapPin size={15} className="shrink-0" aria-hidden />
             <span className="truncate">{event.venue}, {event.city}</span>
@@ -74,7 +74,7 @@ function PublicEventCard({ event, onRegister, showRegister }) {
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-3 border-t border-line bg-mist px-4 py-3 sm:px-5">
+      <div className={`flex items-center justify-between gap-3 border-t border-line bg-mist px-4 ${large ? 'py-4 sm:px-7' : 'py-3 sm:px-5'}`}>
         {event.ticketPrice > 0 ? (
           <p className="text-xl font-extrabold">{rupees(event.ticketPrice)}</p>
         ) : (
@@ -101,7 +101,7 @@ function PublicEventCard({ event, onRegister, showRegister }) {
 }
 
 /** Paid public events. Register adds a ticket to the cart; payment at checkout. */
-export function PublicEventList({ events = [], from = '/', emptyMessage }) {
+export function PublicEventList({ events = [], from = '/', emptyMessage, large = false }) {
   const { user } = useAuth();
   const cart = useCart();
   const navigate = useNavigate();
@@ -137,9 +137,9 @@ export function PublicEventList({ events = [], from = '/', emptyMessage }) {
       {events.length === 0 ? (
         <Notice className="mt-4">{emptyMessage || 'No events available right now.'}</Notice>
       ) : (
-        <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className={`mt-4 grid ${large ? 'gap-5 sm:grid-cols-2 xl:grid-cols-3' : 'gap-4 sm:grid-cols-2 lg:grid-cols-3'}`}>
           {events.map((e) => (
-            <PublicEventCard key={e._id} event={e} onRegister={register} showRegister={canBook(user)} />
+            <PublicEventCard key={e._id} event={e} onRegister={register} showRegister={canBook(user)} large={large} />
           ))}
         </ul>
       )}
