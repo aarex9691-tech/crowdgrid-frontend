@@ -75,6 +75,7 @@ export default function Scanner() {
     lastRef.current = { text: qr, at: Date.now() };
     busyRef.current = true;
     setError('');
+    setResult(null); // never leave the previous pilgrim's VALID card up while this scan runs or if it fails
     const started = performance.now();
     try {
       const { data } = await API.post('/passes/scan', { qr, service: serviceRef.current, passId });

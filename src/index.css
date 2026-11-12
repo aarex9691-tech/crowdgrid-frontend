@@ -3,7 +3,7 @@
 @theme {
   --color-ink: #26211e;          /* Deep temple teak / charcoal walnut */
   --color-ink-soft: #5e534d;     /* Warm walnut midtone */
-  --color-ink-faint: #8e827a;    /* Warm sandstone mute */
+  --color-ink-faint: #6f645c;    /* Warm sandstone mute: 5.4:1 on the page, readable in sun (was #8e827a, 3.6:1) */
   --color-mist: #fbf8f3;         /* Sandstone linen page background */
   --color-sand: #f4ede2;         /* Architectural Chunar sandstone */
   --color-line: #e6ddd1;         /* Warm stone line */
@@ -11,7 +11,7 @@
   --color-terracotta-dark: #a14129;
   --color-terracotta-wash: #fbede8;
   --color-marigold: #c99436;     /* Brushed temple brass / Champak gold */
-  --color-marigold-deep: #9e6f1f;
+  --color-marigold-deep: #85590f; /* 5.6:1 on marigold-wash (was #9e6f1f, 4.1:1) */
   --color-marigold-wash: #fdf5e6;
   --color-kumkum: #c52828;       /* Sindoor red (SOS only) */
   --color-kumkum-wash: #fbebeb;
@@ -202,7 +202,8 @@ body::before {
 
 @utility field-label { @apply mb-1.5 block text-xs font-bold uppercase tracking-wider text-ink-soft; }
 @utility field {
-  @apply min-h-12 w-full rounded-xl border border-line bg-white px-4 text-ink outline-none placeholder:text-ink-faint focus:border-[#bd5338];
+  /* border 3.5:1 against white so fields are visible in sun; focus keeps the global 3px ring */
+  @apply min-h-12 w-full rounded-xl border border-[#8e827a] bg-white px-4 text-ink placeholder:text-ink-faint focus:border-[#bd5338] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#bd5338];
 }
 
 @utility pill { @apply inline-flex items-center gap-1 rounded-full px-3 py-0.5 text-xs sm:text-sm font-semibold; }

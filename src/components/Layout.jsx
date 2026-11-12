@@ -66,6 +66,8 @@ function useRouteChange() {
       return () => clearTimeout(id);
     }
     window.scrollTo(0, 0);
+    // Move keyboard and screen-reader focus to the new page instead of leaving it on the old link
+    document.getElementById('main')?.focus({ preventScroll: true });
     return undefined;
   }, [pathname, hash]);
 }
@@ -164,6 +166,9 @@ export default function Layout() {
 
   return (
     <div className="relative z-10 flex min-h-dvh flex-col bg-transparent">
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-xl focus:bg-ink focus:px-4 focus:py-3 focus:font-semibold focus:text-white">
+        Skip to main content
+      </a>
       <header ref={headerRef} className="sticky top-0 z-30 border-b border-line bg-[#fbf8f3]/90 backdrop-blur-md">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-2 px-4">
           <Link
@@ -317,7 +322,7 @@ export default function Layout() {
       {/* first-visit tour: home page, pilgrims and visitors only */}
       <GuidedTour auto={pathname === '/' && (!user || user.role === 'USER')} />
 
-      <main className="flex-1 pb-16">
+      <main id="main" tabIndex={-1} className="flex-1 pb-16 outline-none">
         {user?.mustChangePassword && pathname !== '/set-password' ? <Navigate to="/set-password" replace state={{ from: pathname }} /> : <Outlet />}
       </main>
 
