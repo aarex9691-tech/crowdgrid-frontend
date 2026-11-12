@@ -1,588 +1,357 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
+  BadgeCheck,
   BedDouble,
   BusFront,
-  CalendarCheck,
+  CalendarDays,
   Compass,
-  CreditCard,
-  Flame,
-  LifeBuoy,
+  Gauge,
   HandHeart,
-  MapPin,
+  KeyRound,
   QrCode,
-  ScanLine,
-  ShieldCheck,
   Siren,
-  Ticket,
+  Smartphone,
   UtensilsCrossed,
-  Users,
+  WifiOff,
 } from 'lucide-react';
-import { SITE } from '../lib/site';
 import { canBook, homeFor, ROLE_LABELS, useAuth } from '../lib/auth';
-import HeroSearch from '../components/HeroSearch';
 import API, { errorMessage } from '../lib/api';
-import { addDaysIST, fmtDate, todayIST } from '../lib/format';
+import { useT } from '../lib/i18n';
+import { fmtDate } from '../lib/format';
 import { InvitationCodeBox, PublicEventList, YatraCard } from '../components/EventCards';
 import { DEFAULT_EVENTS } from '../data/defaultEvents';
-import NamasteIntro from '../components/NamasteIntro';
+import { isVideo, LANDING_MEDIA } from '../data/landingMedia';
+import { CorporateScene, PilgrimageScene, PublicScene } from '../components/landing/Scenes';
+import DepthImage from '../components/landing/DepthImage';
 import { openTour } from '../components/GuidedTour';
-import { CornerPhataka, GrandSacredDiya } from '../components/FestiveDecorations';
 
-function useCountdown(target) {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
-  }, []);
-  const ms = Math.max(0, new Date(target).getTime() - now);
-  return {
-    done: ms === 0,
-    days: Math.floor(ms / 86400000),
-    hours: Math.floor((ms / 3600000) % 24),
-    minutes: Math.floor((ms / 60000) % 60),
-    seconds: Math.floor((ms / 1000) % 60),
-  };
+/*
+ * Each kind of gathering has a bright colour (panels, dots, illustrations) and a deep one
+ * for anything carrying white text, so labels and buttons pass WCAG AA contrast.
+ */
+const KINDS = [
+  { id: 'pilgrimage', tab: 'yatras', color: '#E36F1E', deep: '#B4530F' },
+  { id: 'public', tab: 'public', color: '#1F3F8F', deep: '#1F3F8F' },
+  { id: 'corporate', tab: 'corporate', color: '#138A43', deep: '#0D6331' },
+];
+const KIND_BY_TAB = Object.fromEntries(KINDS.map((k) => [k.tab, k]));
+const SCENES = { pilgrimage: PilgrimageScene, public: PublicScene, corporate: CorporateScene };
+
+/** A photo or clip when one is set in landingMedia.js, otherwise the drawn scene. */
+function Media({ slot, flat = false }) {
+  const entry = LANDING_MEDIA[slot];
+  const src = typeof entry === 'string' ? entry : entry?.src;
+  const Scene = SCENES[slot];
+  if (src && isVideo(src)) return <video src={src} autoPlay muted loop playsInline aria-hidden="true" />;
+  if (src && entry.depth && !flat) return <DepthImage src={src} depth={entry.depth} focus={entry.focus} strength={entry.strength} />;
+  if (src) return <img src={src} alt="" decoding="async" style={entry.focus ? { objectPosition: `${entry.focus[0] * 100}% 50%` } : undefined} />;
+  return Scene ? <Scene /> : null;
 }
 
-/**
- * Full-Width Edge-to-Edge Marigold & Mango Leaf Festive Garland (Genda Phool Toran):
- * Seamlessly spans 100% of the viewport from edge to edge without any gaps.
- */
-function FullWidthGarland() {
+function Hero({ onInvite }) {
+  const t = useT();
   return (
-    <div className="w-full overflow-hidden pointer-events-none select-none -mb-5 sm:-mb-7 z-20 relative" aria-hidden="true">
-      <svg className="w-full h-12 sm:h-16" viewBox="0 0 1600 64" preserveAspectRatio="none">
-        {/* Festive Swag Strings across 1600 width */}
-        <path d="M0,8 Q100,56 200,8 Q300,56 400,8 Q500,56 600,8 Q700,56 800,8 Q900,56 1000,8 Q1100,56 1200,8 Q1300,56 1400,8 Q1500,56 1600,8" fill="none" stroke="#d97706" strokeWidth="2.5" />
-        <path d="M0,12 Q100,60 200,12 Q300,60 400,12 Q500,60 600,12 Q700,60 800,12 Q900,60 1000,12 Q1100,60 1200,12 Q1300,60 1400,12 Q1500,60 1600,12" fill="none" stroke="#b45309" strokeWidth="1.5" strokeDasharray="3 3" />
+    <section className="cg-shell grid items-center gap-6 py-3 sm:py-5 lg:min-h-[calc(100dvh-4.5rem)] lg:max-h-[820px] lg:grid-cols-[0.95fr_1.35fr] xl:grid-cols-[0.9fr_1.35fr] lg:gap-12 xl:gap-16">
+      <div className="cg-rise py-1">
+        <h1 className="cg-h1 font-bold tracking-tight text-ink">{t('home.title1')}<br />{t('home.title2')}</h1>
+        <p className="mt-3.5 sm:mt-4 max-w-md text-base sm:text-lg text-ink-soft leading-relaxed">{t('home.lead')}</p>
+        <div className="mt-5 sm:mt-6 flex flex-wrap gap-3">
+          <Link to="/events" className="cg-btn cg-btn-saffron">
+            {t('home.find')} <ArrowRight size={18} aria-hidden />
+          </Link>
+          <button type="button" className="cg-btn cg-btn-line" onClick={onInvite}>
+            <KeyRound size={18} aria-hidden /> {t('home.haveCode')}
+          </button>
+        </div>
+      </div>
 
-        {/* Mango Leaves at each peak */}
-        {[0, 200, 400, 600, 800, 1000, 1200, 1400, 1600].map((x, i) => (
-          <g key={`leaf-${i}`} transform={`translate(${x - 8}, 6)`}>
-            <path d="M8,0 C2,14 0,28 8,38 C16,28 14,14 8,0 Z" fill="#1b5e20" stroke="#0d3d12" strokeWidth="1" />
-            <path d="M8,4 L8,34" stroke="#2e7d32" strokeWidth="1" />
-          </g>
+      <nav aria-label={t('home.chooseKind')} className="cg-tri my-auto" data-depth-group>
+        {KINDS.map((k, i) => (
+          <Link key={k.id} to={`/events?tab=${k.tab}`} className={`cg-panel cg-rise cg-rise-${i + 1}`} style={{ background: k.color }}>
+            <span className="cg-panel-art"><Media slot={k.id} /></span>
+            <span className="cg-panel-label" style={{ background: k.deep }}>
+              <b className="cg-long">{t(`kind.${k.id}`)}</b>
+              <b className="cg-short">{t(`kind.${k.id}.short`)}</b>
+              <small>{t(`kind.${k.id}.line`)}</small>
+            </span>
+          </Link>
         ))}
+      </nav>
+    </section>
+  );
+}
 
-        {/* Marigold Flowers along the swags */}
-        {Array.from({ length: 49 }).map((_, i) => {
-          const x = (i * 1600) / 48;
-          const phase = (x % 200) / 200;
-          const y = 8 + 44 * Math.sin(phase * Math.PI);
-          return (
-            <g key={`flower-${i}`} transform={`translate(${x}, ${y})`}>
-              <circle cx="0" cy="0" r="7.5" fill="#f59e0b" />
-              <circle cx="0" cy="0" r="5.5" fill="#fbbf24" />
-              <circle cx="0" cy="0" r="3.5" fill="#f97316" />
-              <circle cx="0" cy="0" r="1.5" fill="#c2410c" />
-            </g>
+/** The soonest thing of each kind, straight from the event list. */
+function NextUp({ yatras, onInvite }) {
+  const t = useT();
+  // Read the clock once when the strip appears, so every render compares against the same time
+  const [now] = useState(() => Date.now());
+  const soonest = (list) =>
+    [...list]
+      .filter((e) => new Date(e.endDate || e.startDate).getTime() >= now)
+      .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))[0];
+  const yatra = soonest(yatras);
+  const when = (e) =>
+    new Date(e.startDate).getTime() <= now ? t('next.on') : fmtDate(e.startDate, { weekday: 'short', month: 'short', day: 'numeric' });
+
+  const item = 'flex min-h-24 min-w-0 items-center gap-4 px-5 py-5 sm:px-7';
+  return (
+    <section aria-labelledby="next-title" className="cg-shell pt-6">
+      <div className="grid overflow-hidden rounded-3xl bg-white ring-1 ring-line md:grid-cols-[auto_1fr_1fr]">
+        <h2 id="next-title" className="flex items-center gap-2.5 whitespace-nowrap bg-sand px-6 py-4 text-lg font-bold text-ink sm:px-8">
+          <CalendarDays size={22} aria-hidden /> {t('next.title')}
+        </h2>
+        {[['pilgrimage', yatra, (e) => `/yatra/${e.slug}`]].map(([id, e, href]) => {
+          const k = KINDS.find((x) => x.id === id);
+          const body = (
+            <>
+              <span className="cg-dot cg-dot-lg shrink-0" style={{ background: k.color }} />
+              <span className="min-w-0">
+                <span className="block truncate font-display text-xl sm:text-2xl font-bold tracking-tight text-ink">{e ? e.title : t(`kind.${id}`)}</span>
+                <span className="block text-ink-soft">{e ? when(e) : t('next.soon')}</span>
+              </span>
+            </>
           );
+          return e
+            ? <Link key={id} to={href(e)} className={`${item} border-t border-line hover:bg-mist md:border-t-0 md:border-l`}>{body}</Link>
+            : <div key={id} className={`${item} border-t border-line md:border-t-0 md:border-l`}>{body}</div>;
         })}
-      </svg>
-    </div>
-  );
-}
-
-/**
- * Full-Width Edge-to-Edge Sacred Running Ticker:
- * Spans 100% of the screen from edge to edge without any margins.
- */
-function FullWidthTicker() {
-  const items = [
-    '🚩 ॥ सिंहस्थ कुंभ २०२६–२८ ॥',
-    '✦ SIMHASTHA KUMBH 2026–28',
-    '✦ WHERE MILLIONS GATHER AS ONE',
-    '✦ 5 CRORE+ EXPECTED PILGRIMS',
-    '✦ FREE SEVA & ANNADANAM TOKENS',
-    '✦ SHUTTLES & TRANSPORT TO EVERY GHAT',
-    '✦ OFFLINE DIGITAL PASSBOOK QR',
-    '✦ 24/7 SOS & LOST AND FOUND',
-  ];
-
-  // Decorative only: not a link, slow, and paused on hover
-  return (
-    <div
-      className="block w-full overflow-hidden border-y-2 border-[#c99436] bg-[#7c1d13] py-2.5 text-xs sm:text-sm font-bold uppercase tracking-widest text-[#fcedd7] shadow-sm select-none"
-      aria-hidden="true"
-    >
-      <div className="animate-marquee flex gap-8 items-center whitespace-nowrap">
-        {[...items, ...items, ...items, ...items].map((text, i) => (
-          <span key={i} className="flex items-center gap-2">{text}</span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/**
- * Wide Horizontal Jharokha Bracket / Cartouche Frame:
- * Symmetrical 4-point cusped ogee bracket cartouche path matching Image 2,
- * arranged in a wide horizontal orientation (desktop split: titles on left, timer on right).
- */
-function HorizontalJharokhaHero({ event }) {
-  // Only dates still ahead (the list starts with Dhwajarohan, which may already be over)
-  const todayIso = new Date().toISOString().slice(0, 10);
-  const nextDates = (event.keyDates || []).filter((d) => String(d.date).slice(0, 10) >= todayIso).slice(0, 3);
-  // count down to the next key date (e.g. the 1st Amrut Snan); before the mela starts, to the start
-  const started = new Date(event.startDate) <= new Date();
-  const target = !started ? { label: 'The mela begins', date: event.startDate } : nextDates[0];
-  const c = useCountdown(target?.date || event.startDate);
-
-  // Desktop Wide Horizontal Jharokha Cartouche Path (1200x720)
-  const pathDesktop =
-    'M 600,15 C 680,55 770,65 870,65 C 990,65 1040,70 1105,120 C 1160,160 1145,230 1115,270 C 1140,310 1175,330 1195,350 C 1175,370 1140,390 1115,430 C 1145,470 1160,540 1105,580 C 1040,630 990,635 870,635 C 770,635 680,645 600,695 C 520,645 430,635 330,635 C 210,635 160,630 95,580 C 40,540 55,470 85,430 C 60,390 25,370 5,350 C 25,330 60,310 85,270 C 55,230 40,160 95,120 C 160,70 210,65 330,65 C 430,65 520,55 600,15 Z';
-
-  // Mobile Two-Point Arch Path (400x1000): Pointing UP at top, straight full-bleed sides, Pointing DOWN at bottom
-  const pathMobile =
-    'M 200,10 C 250,40 320,50 395,75 L 395,920 C 320,940 250,960 200,990 C 150,960 80,940 5,920 L 5,75 C 80,50 150,40 200,10 Z';
-
-  return (
-    <div className="relative mx-auto w-full max-w-6xl xl:max-w-7xl pt-1 sm:pt-4 -mx-1 sm:mx-auto">
-      {/* Subtle Floating Sacred Stars (✦) on Hero Corners */}
-      <div className="absolute top-6 left-8 sm:left-12 pointer-events-none animate-sacred-pulse text-amber-300/60 text-lg hidden sm:block z-20">✦</div>
-      <div className="absolute top-8 right-8 sm:right-14 pointer-events-none animate-sacred-pulse text-amber-300/60 text-base hidden sm:block z-20" style={{ animationDelay: '1.5s' }}>✦</div>
-      <div className="absolute bottom-20 left-12 sm:left-16 pointer-events-none animate-sacred-pulse text-amber-300/50 text-sm hidden md:block z-20" style={{ animationDelay: '0.8s' }}>✦</div>
-      <div className="absolute bottom-22 right-16 sm:right-20 pointer-events-none animate-sacred-pulse text-amber-300/50 text-base hidden md:block z-20" style={{ animationDelay: '2.2s' }}>✦</div>
-
-      {/* SVG Definitions shared across Desktop & Mobile */}
-      <svg className="sr-only" aria-hidden="true">
-        <defs>
-          <pattern id="jharokha-bandhani-pattern" width="160" height="154" patternUnits="userSpaceOnUse">
-            <image href="/assets/bandhani-pattern.png" width="160" height="154" preserveAspectRatio="none" />
-          </pattern>
-          <linearGradient id="jharokha-gold-stroke" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#d97706" />
-            <stop offset="20%" stopColor="#fef08a" />
-            <stop offset="50%" stopColor="#f59e0b" />
-            <stop offset="80%" stopColor="#fef08a" />
-            <stop offset="100%" stopColor="#b45309" />
-          </linearGradient>
-        </defs>
-      </svg>
-
-      {/* 1. Desktop Jharokha Frame: Wide Horizontal Cartouche (md: and up) */}
-      <svg
-        className="hidden md:block absolute inset-0 h-full w-full pointer-events-none drop-shadow-[0_20px_45px_rgba(131,32,20,0.45)]"
-        viewBox="0 0 1200 720"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <path
-          d={pathDesktop}
-          fill="url(#jharokha-bandhani-pattern)"
-          stroke="url(#jharokha-gold-stroke)"
-          strokeWidth="9"
-          strokeLinejoin="round"
-        />
-        <path
-          d={pathDesktop}
-          fill="none"
-          stroke="#fef08a"
-          strokeWidth="2.5"
-          strokeDasharray="7 4"
-          opacity="0.85"
-          transform="scale(0.97) translate(18, 11)"
-        />
-      </svg>
-
-      {/* 2. Mobile Jharokha Frame: Two-Point Full-Bleed Arch (up & down peaks, sides bleed out) */}
-      <svg
-        className="block md:hidden absolute inset-0 h-full w-full pointer-events-none drop-shadow-[0_15px_30px_rgba(131,32,20,0.4)]"
-        viewBox="0 0 400 1000"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <path
-          d={pathMobile}
-          fill="url(#jharokha-bandhani-pattern)"
-          stroke="url(#jharokha-gold-stroke)"
-          strokeWidth="6"
-          strokeLinejoin="round"
-        />
-        <path
-          d={pathMobile}
-          fill="none"
-          stroke="#fef08a"
-          strokeWidth="2"
-          strokeDasharray="5 3"
-          opacity="0.8"
-          transform="scale(0.975) translate(5, 12)"
-        />
-      </svg>
-
-      {/* Content Safely Framed: Generous padding guarantees all 3 buttons sit completely inside */}
-      <section
-        className="relative z-10 px-3 sm:px-8 md:px-16 lg:px-24 pt-8 sm:pt-12 md:pt-18 pb-20 sm:pb-24 md:pb-36 text-white flex flex-col items-center text-center"
-        aria-labelledby="hero-title"
-      >
-        {/* Sacred Sanskrit Invocation */}
-        <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-amber-300/40 bg-black/40 px-3.5 sm:px-5 py-1 text-[11px] sm:text-sm font-bold tracking-widest text-amber-200 backdrop-blur mb-2.5 sm:mb-3 shadow-md max-w-[92%] truncate">
-          <span>॥ ॐ नमः शिवाय · तीर्थराज सिंहस्थ कुंभ २०२६–२८ ॥</span>
-        </div>
-
-        {/* Crown Title */}
-        <h1
-          id="hero-title"
-          className="font-display text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-wide text-[#fff4d6] drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)] leading-tight"
-        >
-          Simhastha Kumbh 2026–28
-        </h1>
-
-        {/* Subtitle Line */}
-        <p className="font-display text-base sm:text-2xl md:text-3xl font-medium tracking-wide text-amber-300 italic mt-1.5 sm:mt-2 drop-shadow-md">
-          Where Millions Gather As One
-        </p>
-
-        {/* Descriptive overview */}
-        <p className="mt-2.5 sm:mt-3 max-w-2xl whitespace-pre-line text-sm sm:text-base md:text-lg leading-relaxed text-[#fde8d0] font-sans px-2">
-          {(event.description || 'The Simhastha Kumbh on the banks of the Godavari at Nashik and Trimbakeshwar. Find verified shelter, langar, transport and help in one place.').replace(/[.:]\s+(Find )/, '.\n$1')}
-        </p>
-
-        {/* Auspicious Badges */}
-        <div className="mt-3.5 sm:mt-4 flex flex-wrap items-center justify-center gap-2 text-xs font-bold px-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-3 py-1 text-amber-100 backdrop-blur text-xs sm:text-sm">
-            <Users size={14} aria-hidden /> {event.expectedFootfall >= 1e7 ? `${Math.round(event.expectedFootfall / 1e7)} crore+` : '15 lakh+'} expected pilgrims
+        <button type="button" onClick={onInvite} className={`${item} border-t border-line text-left hover:bg-mist md:border-t-0 md:border-l`}>
+          <span className="cg-dot cg-dot-lg shrink-0" style={{ background: '#138A43' }} />
+          <span className="min-w-0">
+            <span className="block truncate font-display text-xl sm:text-2xl font-bold tracking-tight text-ink">{t('kind.corporate')}</span>
+            <span className="block truncate text-ink-soft">{t('next.inviteOnly')}. {t('next.enterCode')}</span>
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-3 py-1 text-amber-100 backdrop-blur text-xs sm:text-sm">
-            <MapPin size={14} aria-hidden /> Nashik & Trimbakeshwar
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/20 border border-amber-300/40 px-3 py-1 text-amber-100 backdrop-blur text-xs sm:text-sm">
-            <ShieldCheck size={14} aria-hidden /> One verified QR pass
-          </span>
-        </div>
-
-        {/* Temple Bell Countdown & Snan Schedule */}
-        <div className="mt-4 sm:mt-6 w-full max-w-xl mx-auto rounded-2xl border-2 border-amber-300/40 bg-black/50 p-3 sm:p-5 backdrop-blur shadow-2xl">
-          <div className="flex items-center justify-between border-b border-amber-300/20 pb-2 mb-2.5 sm:mb-3 text-xs sm:text-sm">
-            <span className="font-bold tracking-wide text-amber-300 flex items-center gap-1.5">
-              <Flame size={14} className="text-amber-400 animate-sacred-pulse" />
-              {target && !c.done ? `Countdown to ${target.label}` : 'The mela has begun'}
-            </span>
-            <span className="font-semibold text-amber-200 text-xs sm:text-sm">
-              {fmtDate(target?.date || event.startDate, { month: 'short', day: 'numeric', year: 'numeric' })}
-            </span>
-          </div>
-
-          {target && !c.done ? (
-            <div className="grid grid-cols-4 gap-1.5 sm:gap-2 text-center" aria-live="off">
-              <div className="rounded-xl border border-amber-300/30 bg-amber-950/70 p-1.5 sm:p-2">
-                <span className="block font-display text-lg sm:text-3xl font-extrabold text-amber-300">{c.days}</span>
-                <span className="text-xs font-semibold text-amber-200/90">Days</span>
-              </div>
-              <div className="rounded-xl border border-amber-300/30 bg-amber-950/70 p-1.5 sm:p-2">
-                <span className="block font-display text-lg sm:text-3xl font-extrabold text-white">{String(c.hours).padStart(2, '0')}</span>
-                <span className="text-xs font-semibold text-amber-200/90">Hours</span>
-              </div>
-              <div className="rounded-xl border border-amber-300/30 bg-amber-950/70 p-1.5 sm:p-2">
-                <span className="block font-display text-lg sm:text-3xl font-extrabold text-white">{String(c.minutes).padStart(2, '0')}</span>
-                <span className="text-xs font-semibold text-amber-200/90">Mins</span>
-              </div>
-              <div className="rounded-xl border border-amber-300/30 bg-amber-950/70 p-1.5 sm:p-2">
-                <span className="block font-display text-lg sm:text-3xl font-extrabold text-white">{String(c.seconds).padStart(2, '0')}</span>
-                <span className="text-xs font-semibold text-amber-200/90">Secs</span>
-              </div>
-            </div>
-          ) : (
-            <p className="font-display text-xl font-bold text-amber-300">The mela has begun. Book your stay, meals and transport below.</p>
-          )}
-
-          {nextDates.length > 1 && (
-            <div className="mt-2.5 sm:mt-3 pt-2 border-t border-amber-300/20 flex flex-wrap items-center justify-between gap-1 text-xs sm:text-sm text-amber-200">
-              <span className="font-semibold">After that:</span>
-              <span className="font-bold text-amber-300">
-                {nextDates.slice(started ? 1 : 0, started ? 3 : 2).map((d) => `${d.label} (${fmtDate(d.date, { month: 'short', day: 'numeric' })})`).join(' · ')}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Action Buttons - Fully responsive & securely placed inside the frame on all devices */}
-        <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2.5 sm:gap-3.5 w-full max-w-md sm:max-w-2xl px-2">
-          <Link
-            to={`/yatra/${event.slug}`}
-            className="btn-primary w-full sm:w-auto min-h-11 rounded-full bg-gradient-to-r from-amber-500 via-[#bd5338] to-[#9b2c16] px-6 py-2 text-sm sm:text-base font-bold text-white shadow-xl shadow-amber-950/40 hover:scale-105 border-2 border-amber-300 transition-all flex items-center justify-center gap-2"
-          >
-            Book stay, food &amp; transport <ArrowRight size={16} aria-hidden />
-          </Link>
-          <Link
-            to="/events?tab=public"
-            className="btn-ghost w-full sm:w-auto min-h-11 rounded-full border-2 border-amber-300/60 bg-black/50 px-5 text-sm font-bold text-amber-100 backdrop-blur hover:bg-black/70 transition flex items-center justify-center gap-2"
-          >
-            <Ticket size={15} className="text-amber-300" aria-hidden /> Events &amp; aartis
-          </Link>
-          <Link
-            to="/passbook"
-            className="btn-ghost w-full sm:w-auto min-h-11 rounded-full border-2 border-amber-300/60 bg-black/50 px-5 text-sm font-bold text-amber-100 backdrop-blur hover:bg-black/70 transition flex items-center justify-center gap-2"
-          >
-            <QrCode size={15} className="text-amber-300" aria-hidden /> My QR pass
-          </Link>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-/**
- * Traditional Jharokha Window Service Alcoves:
- * Shaped like ornate temple windows (cusped arch tops) on a warm Bandhani-sandstone background.
- */
-function JharokhaConcourse({ flagshipSlug }) {
-  const base = flagshipSlug ? `/yatra/${flagshipSlug}` : '/events';
-
-  const services = [
-    {
-      to: `${base}?tab=lodging`,
-      icon: BedDouble,
-      hindi: 'आवास एवं तंबू',
-      title: 'Stays & tents',
-      desc: 'Verified dharamshalas, family tents & clean bedding with confirmed bed number.',
-      pill: 'Verified stays',
-      highlight: false,
-    },
-    {
-      to: `${base}?tab=food`,
-      icon: UtensilsCrossed,
-      hindi: 'अन्नदानम्',
-      title: 'Annadanam & prasad',
-      desc: 'Daily kitchen timings and family meal tokens for registered pilgrims.',
-      pill: 'Free prasad',
-      highlight: false,
-    },
-    {
-      to: `${base}?tab=transit`,
-      icon: BusFront,
-      hindi: 'घाट शटल सेवा',
-      title: 'Transport to the ghats',
-      desc: 'Feeder buses and e-rickshaws to the bathing ghats, plus the safest walking route.',
-      pill: 'Transport',
-      highlight: false,
-    },
-    {
-      to: `${base}?tab=seva`,
-      icon: HandHeart,
-      hindi: 'सेवा एवं स्वयंसेवक',
-      title: 'Seva & volunteering',
-      desc: 'Serve with registered ashrams & trusts and receive your official volunteer pass.',
-      pill: 'Volunteer ID',
-      highlight: false,
-    },
-    {
-      to: '/events?tab=public',
-      icon: Ticket,
-      hindi: 'आरती एवं दर्शन',
-      title: 'Aartis & passes',
-      desc: 'Maha Aartis, heritage walks, and bhajan evenings with digital entry passes.',
-      pill: 'Entry passes',
-      highlight: false,
-    },
-    {
-      to: `${base}?tab=sos`,
-      icon: Siren,
-      hindi: 'आपातकालीन सहायता',
-      title: 'Emergency SOS',
-      desc: 'One-tap SOS with your location, emergency helplines, and lost and found for families.',
-      pill: '24/7 helpline',
-      highlight: true,
-    },
-  ];
-
-  return (
-    <section aria-labelledby="concourse-title" className="space-y-6 pt-4">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 border-b-2 border-[#c99436]/40 pb-4">
-        <div>
-          <span className="font-display text-sm font-bold tracking-widest text-[#832014]">
-            ॥ तीर्थ यात्री सेवा ॥
-          </span>
-          <h2 id="concourse-title" className="font-display text-2xl sm:text-4xl font-extrabold text-ink">
-            Pilgrim services
-          </h2>
-        </div>
-        <p className="text-base text-ink-soft max-w-sm">
-          Everything you need for the yatra. Choose a service to book or get help.
-        </p>
-      </div>
-
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {services.map((s) => (
-          <Link
-            key={s.title}
-            to={s.to}
-            className={`group relative flex flex-col justify-between overflow-hidden rounded-t-[3.5rem] rounded-b-2xl border-2 p-6 transition-all hover:-translate-y-1 hover:shadow-lg ${
-              s.highlight
-                ? 'border-kumkum bg-gradient-to-b from-[#fff5f5] to-[#fdebeb]'
-                : 'border-[#c99436]/60 bg-gradient-to-b from-[#fdfbf7] to-[#f7ede0] hover:border-[#832014]'
-            }`}
-          >
-            {/* Top Arch Finial Icon */}
-            <div className="flex flex-col items-center text-center">
-              <span className="font-display text-xs font-bold text-[#832014] tracking-widest mb-2">
-                {s.hindi}
-              </span>
-
-              <div
-                className={`flex h-14 w-14 items-center justify-center rounded-2xl shadow-sm mb-3 transition-transform group-hover:scale-110 ${
-                  s.highlight
-                    ? 'bg-kumkum text-white'
-                    : 'bg-[#832014] text-[#fff4d6] border border-amber-300'
-                }`}
-              >
-                <s.icon size={26} strokeWidth={1.8} />
-              </div>
-
-              <h3 className="font-display text-xl font-bold text-ink group-hover:text-[#832014] transition-colors">
-                {s.title}
-              </h3>
-              <span className="mt-1 inline-block rounded-full bg-white/80 border border-line px-3 py-0.5 text-xs font-bold text-ink-soft">
-                {s.pill}
-              </span>
-              <p className="mt-2 text-sm sm:text-base text-ink-soft leading-relaxed">
-                {s.desc}
-              </p>
-            </div>
-
-            <div className="mt-6 flex items-center justify-center gap-1.5 text-sm font-bold text-[#832014] group-hover:underline pt-3 border-t border-line/60">
-              <span>{s.highlight ? 'Get help now' : `Open ${s.title.toLowerCase()}`}</span> <ArrowRight size={14} aria-hidden />
-            </div>
-          </Link>
-        ))}
+        </button>
       </div>
     </section>
   );
 }
 
-/**
- * Traditional Location Tag & Filter Chips:
- */
-function BrowsingFilterBar({ selectedFilter, onSelectFilter, place }) {
-  const chips = ['All', 'Free Entry', 'Today & Weekend', 'Aartis & Rituals', 'Flagship Mela'];
+const SERVICES = [
+  { id: 'passes', icon: QrCode, kinds: [0, 1, 2] },
+  { id: 'stays', icon: BedDouble, kinds: [0] },
+  { id: 'meals', icon: UtensilsCrossed, kinds: [0, 2] },
+  { id: 'transport', icon: BusFront, kinds: [0, 1] },
+  { id: 'badges', icon: BadgeCheck, kinds: [2] },
+  { id: 'volunteers', icon: HandHeart, kinds: [0, 1] },
+  { id: 'crowd', icon: Gauge, kinds: [0, 1, 2] },
+  { id: 'sos', icon: Siren, kinds: [0, 1, 2], sos: true },
+];
 
+// Phones show the first four services until the visitor asks for the rest
+const SERVICES_ON_PHONE = 4;
+
+function Services() {
+  const t = useT();
+  const [open, setOpen] = useState(false);
   return (
-    <div className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between border-b-2 border-[#c99436]/40 pb-5 pt-3">
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-semibold text-ink-soft">Showing</span>
-        <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-[#c99436] bg-[#fbf5ec] px-4 py-1.5 text-sm font-bold text-ink shadow-2xs">
-          <MapPin size={14} className="text-[#832014] shrink-0" aria-hidden />
-          <span>{place}</span>
-        </span>
+    <section aria-labelledby="services-title" className="cg-shell cg-section">
+      <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+        <div className="max-w-xl">
+          <h2 id="services-title" className="cg-h2">{t('svc.title')}</h2>
+        </div>
+        <ul className="flex flex-wrap gap-4 text-sm font-semibold text-ink-soft" aria-label={t('svc.key')}>
+          {KINDS.map((k) => (
+            <li key={k.id} className="flex items-center gap-2"><span className="cg-dot" style={{ background: k.color }} /> {t(`kind.${k.id}`)}</li>
+          ))}
+        </ul>
       </div>
 
-      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-        {chips.map((chip) => {
-          const active = selectedFilter === chip;
+      <ul id="services-list" className="cg-rows mt-8 grid gap-x-12 md:grid-cols-2">
+        {SERVICES.map((s, i) => (
+          <li key={s.id} className={`gap-4 py-5 ${!open && i >= SERVICES_ON_PHONE ? 'hidden md:flex' : 'flex'}`}>
+            <span className={`grid size-11 shrink-0 place-items-center rounded-xl ${s.sos ? 'bg-kumkum-wash text-kumkum' : 'bg-sand text-ink'}`}>
+              <s.icon size={22} aria-hidden />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-lg font-bold">{t(`svc.${s.id}`)}</h3>
+                <span className="flex gap-1.5" role="img" aria-label={t('svc.for', { list: s.kinds.map((i) => t(`kind.${KINDS[i].id}`)).join(', ') })}>
+                  {s.kinds.map((i) => <span key={i} className="cg-dot" style={{ background: KINDS[i].color }} />)}
+                </span>
+              </div>
+              <p className="mt-0.5 text-ink-soft">{t(`svc.${s.id}.text`)}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+      {/* Wrapper carries md:hidden; .cg-btn sets its own display, which would win over a utility */}
+      <div className="mt-2 md:hidden">
+        <button
+          type="button"
+          className="cg-btn cg-btn-line w-full"
+          aria-expanded={open}
+          aria-controls="services-list"
+          onClick={() => setOpen((o) => !o)}
+        >
+          {open ? t('svc.less') : t('svc.more', { n: SERVICES.length })}
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function HowItWorks() {
+  const t = useT();
+  return (
+    <section aria-labelledby="how-title" className="bg-terracotta-wash">
+      <div className="cg-shell py-8 sm:py-10">
+        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <div>
+            <p className="cg-kicker text-terracotta-dark">{t('how.kicker')}</p>
+            <h2 id="how-title" className="cg-h2 cg-h2-sm">{t('how.title')}</h2>
+          </div>
+          <button type="button" className="cg-btn cg-btn-line self-start md:self-auto" onClick={openTour}>
+            <Compass size={18} aria-hidden /> {t('how.tour')}
+          </button>
+        </div>
+        <ol className="cg-steps relative mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <span className="absolute top-5 right-8 left-8 hidden h-0.5 bg-marigold/35 lg:block" aria-hidden />
+          {[1, 2, 3, 4].map((n) => (
+            <li key={n}>
+              <h3 className="mt-3 font-bold">{t(`how.${n}`)}</h3>
+              <p className="mt-0.5 text-[0.95rem] text-ink-soft">{t(`how.${n}.text`)}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
+const EVENT_TABS = ['public', 'yatras', 'corporate'];
+
+function Upcoming({ yatras, publicEvents, tab, setTab, sectionRef }) {
+  const t = useT();
+  const kindName = (tb) => t(`kind.${KIND_BY_TAB[tb].id}`);
+  // Left / right arrows move between the three tabs, matching the role tabs further down
+  const onKey = (e) => {
+    const step = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+    if (!step) return;
+    e.preventDefault();
+    const next = EVENT_TABS[(EVENT_TABS.indexOf(tab) + step + EVENT_TABS.length) % EVENT_TABS.length];
+    setTab(next);
+    requestAnimationFrame(() => document.getElementById(`ev-tab-${next}`)?.focus());
+  };
+  return (
+    <section ref={sectionRef} aria-labelledby="upcoming-title" className="cg-shell cg-section scroll-mt-20">
+      <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+        <div>
+          <h2 id="upcoming-title" className="cg-h2">{t('up.title')}</h2>
+        </div>
+        <Link to={`/events?tab=${tab}`} className="inline-flex min-h-11 items-center font-bold text-blue underline-offset-4 hover:underline">
+          {t('up.seeAll')}: {kindName(tab)}
+        </Link>
+      </div>
+
+      <div role="tablist" aria-label={t('up.type')} className="no-scrollbar mt-6 flex gap-2 overflow-x-auto" onKeyDown={onKey}>
+        {EVENT_TABS.map((tb) => {
+          const k = KIND_BY_TAB[tb];
+          const on = tab === tb;
           return (
             <button
-              key={chip}
+              key={tb}
               type="button"
-              onClick={() => onSelectFilter(chip)}
-              aria-pressed={active}
-              className={`min-h-10 rounded-full px-4 py-1.5 text-sm font-bold whitespace-nowrap transition-all ${
-                active
-                  ? 'bg-[#832014] text-[#fff4d6] shadow-sm border border-amber-300 scale-105'
-                  : 'border border-[#d0c0ad] bg-white text-ink-soft hover:border-[#832014] hover:text-ink'
-              }`}
+              role="tab"
+              id={`ev-tab-${tb}`}
+              aria-selected={on}
+              aria-controls="ev-panel"
+              tabIndex={on ? 0 : -1}
+              onClick={() => setTab(tb)}
+              className="flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 font-semibold transition-colors"
+              style={on ? { background: k.deep, color: '#fff' } : { background: '#fff', boxShadow: 'inset 0 0 0 1.5px #E7E1D7' }}
             >
-              {chip}
+              {!on && <span className="cg-dot" style={{ background: k.color }} />}
+              {kindName(tb)}
             </button>
           );
         })}
       </div>
-    </div>
+
+      <div id="ev-panel" role="tabpanel" aria-labelledby={`ev-tab-${tab}`} className="mt-6">
+        {tab === 'public' && <PublicEventList events={publicEvents.slice(0, 6)} emptyMessage={t('up.noPublic')} from="/" large />}
+        {tab === 'yatras' && (
+          yatras.length > 0
+            ? <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{yatras.slice(0, 6).map((e) => <YatraCard key={e._id} event={e} />)}</ul>
+            : <p className="text-ink-soft">{t('up.noYatras')}</p>
+        )}
+        {tab === 'corporate' && (
+          <InvitationCodeBox from="/" />
+        )}
+      </div>
+    </section>
   );
 }
 
-const STEPS = [
-  { icon: CalendarCheck, title: '1. Choose a service', text: 'Pick a camp, a free meal token, a bus or a seva slot. Book for up to 5 people.' },
-  { icon: CreditCard, title: '2. Get it confirmed', text: 'Free services are confirmed at once. Paid stays, buses and events are paid by UPI or card.' },
-  { icon: QrCode, title: '3. One QR in your passbook', text: 'Everything you book is saved in My Passbook, under one QR that also works offline.' },
-  { icon: ScanLine, title: '4. Show it at the counter', text: 'Show your QR at the camp gate, kitchen or bus. Staff scan it in a second.' },
+const ACCESS = [
+  { id: 'offline', icon: WifiOff },
+  { id: 'phone', icon: Smartphone },
+  { id: 'help', icon: Siren },
 ];
 
-function HowItWorks() {
+function ForEveryone() {
+  const t = useT();
   return (
-    <section aria-labelledby="how" className="rounded-3xl border-2 border-[#c99436]/40 bg-[#fdfbf8] p-5 sm:p-10 shadow-xs">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-line pb-4">
+    <section aria-labelledby="access-title" className="cg-dots text-white">
+      <div className="cg-shell grid gap-8 py-14 sm:py-16 lg:grid-cols-[1fr_1.4fr] lg:items-center">
         <div>
-          <span className="font-display text-sm font-bold tracking-wider text-[#832014]">
-            ॥ चार सरल चरण ॥
-          </span>
-          <h2 id="how" className="font-display text-2xl sm:text-3xl font-extrabold text-ink">
-            How CrowdGrid works
-          </h2>
-          <p className="mt-1 text-base text-ink-soft max-w-md">No paper slips or separate queues. Everything is on your phone.</p>
+          <p className="cg-kicker text-saffron-light">{t('access.kicker')}</p>
+          <h2 id="access-title" className="cg-h2" style={{ color: '#fff' }}>{t('access.title')}</h2>
+          <p className="mt-2 max-w-sm text-white/90">{t('access.lead')}</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <button type="button" className="btn-primary min-h-11 px-4 text-sm" onClick={openTour}>
-            <Compass size={18} aria-hidden /> Take the 1-minute tour
-          </button>
-          <Link to="/help" className="btn-ghost min-h-11 px-4 text-sm">
-            <LifeBuoy size={18} aria-hidden /> Help &amp; FAQs
-          </Link>
-        </div>
+        <ul className="grid gap-3 sm:grid-cols-3">
+          {ACCESS.map((a) => (
+            <li key={a.id} className="flex items-center gap-3 rounded-2xl bg-blue-deep px-4 py-4 font-semibold">
+              <a.icon size={22} className="shrink-0 text-saffron-light" aria-hidden /> {t(`access.${a.id}`)}
+            </li>
+          ))}
+        </ul>
       </div>
-      <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {STEPS.map((s) => (
-          <li key={s.title} className="flex flex-col justify-between rounded-2xl border border-line bg-white p-5 shadow-2xs">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f5ede2] text-[#832014] border border-[#c99436]/40 mb-4">
-              <s.icon size={22} aria-hidden strokeWidth={2} />
-            </span>
-            <div>
-              <p className="font-display text-lg font-bold text-ink">{s.title}</p>
-              <p className="mt-1 text-sm text-ink-soft leading-relaxed">{s.text}</p>
+    </section>
+  );
+}
+
+function HostCta() {
+  const t = useT();
+  const together = LANDING_MEDIA.together;
+  return (
+    <section aria-labelledby="host-title" className="cg-shell py-14 sm:py-16">
+      <div className="grid overflow-hidden rounded-3xl bg-tulsi-wash md:grid-cols-[1.3fr_1fr]">
+        <div className="p-6 sm:p-10">
+          <p className="cg-kicker text-tulsi">{t('host.kicker')}</p>
+          <h2 id="host-title" className="cg-h2">{t('host.title')}</h2>
+          <p className="mt-3 max-w-md text-ink-soft">{t('host.text')}</p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link to="/help" className="cg-btn cg-btn-blue">{t('host.talk')} <ArrowRight size={18} aria-hidden /></Link>
+            <Link to="/about" className="cg-btn cg-btn-line">{t('host.about')}</Link>
+          </div>
+        </div>
+        <div className="relative hidden min-h-64 md:block" aria-hidden>
+          {together ? (
+            isVideo(together)
+              ? <video src={together} autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" />
+              : <img src={together} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
+          ) : (
+            <div className="absolute inset-0 grid grid-cols-3">
+              {KINDS.map((k) => <div key={k.id} className="relative overflow-hidden"><Media slot={k.id} flat /></div>)}
             </div>
-          </li>
-        ))}
-      </ol>
-    </section>
-  );
-}
-
-const flag = `/yatra/${SITE.flagshipSlug}`;
-
-/** For first-time visitors: what the site is and where to learn it, right under the hero. */
-function NewHereStrip() {
-  return (
-    <section aria-label="New to CrowdGrid" className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 shadow-xs sm:flex-row sm:items-center">
-      <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-marigold-wash text-marigold-deep">
-        <Compass size={26} aria-hidden />
-      </span>
-      <div className="flex-1">
-        <p className="text-lg font-bold">New to CrowdGrid?</p>
-        <p className="text-ink-soft">Book a verified stay, free meals and transport for your family, and keep everything under one QR. Here is how it works.</p>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        <button type="button" className="btn-primary min-h-11 px-4" onClick={openTour}>Take the tour</button>
-        <Link to="/register" className="btn-ghost min-h-11 px-4">Create free account</Link>
+          )}
+        </div>
       </div>
     </section>
-  );
-}
-
-/** Floating "Plan your yatra" button */
-function FloatingCta() {
-  const [show, setShow] = useState(false);
-  useEffect(() => {
-    const onScroll = () => setShow(window.scrollY > 520);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-  if (!show) return null;
-  return (
-    <Link
-      to={flag}
-      className="fixed bottom-5 left-4 z-40 flex items-center gap-2 rounded-full sm:bottom-6 sm:left-1/2 sm:-translate-x-1/2 bg-gradient-to-r from-amber-600 via-[#832014] to-[#7c1d13] px-7 py-3.5 font-bold text-white shadow-xl shadow-amber-950/40 border-2 border-amber-300 hover:scale-105 transition-transform"
-    >
-      <CalendarCheck size={18} aria-hidden /> Plan your yatra
-    </Link>
   );
 }
 
 export default function Landing() {
   const { user } = useAuth();
+  const t = useT();
   const [events, setEvents] = useState(DEFAULT_EVENTS);
   const [error, setError] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('All');
+  const [tab, setTab] = useState('public');
+  const upcomingRef = useRef(null);
 
   const load = () =>
     API.get('/events')
@@ -600,144 +369,45 @@ export default function Landing() {
   // The free server sleeps when idle: keep retrying until the real list arrives
   useEffect(() => {
     if (!error) return undefined;
-    const t = setTimeout(load, 15000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(load, 15000);
+    return () => clearTimeout(timer);
   }, [error]);
 
-  const groups = useMemo(() => {
+  const { yatras, publicEvents } = useMemo(() => {
     const list = Array.isArray(events) ? events : DEFAULT_EVENTS;
     return {
-      flagship: list.find((e) => e.kind === 'YATRA' && e.isFlagship) || DEFAULT_EVENTS[0],
-      yatras: list.filter((e) => e.kind === 'YATRA' && !e.isFlagship),
+      yatras: list.filter((e) => e.kind === 'YATRA'),
       publicEvents: list.filter((e) => e.kind === 'PUBLIC'),
     };
   }, [events]);
 
-  const filteredPublicEvents = useMemo(() => {
-    const list = groups.publicEvents || [];
-    const day = (d) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date(d));
-    if (selectedFilter === 'Free Entry') return list.filter((e) => !e.ticketPrice);
-    if (selectedFilter === 'Aartis & Rituals') return list.filter((e) => e.category === 'SPIRITUAL');
-    if (selectedFilter === 'Today & Weekend') {
-      // today up to and including the coming Sunday (India time)
-      const today = todayIST();
-      const dow = new Date(`${today}T12:00:00+05:30`).getUTCDay(); // 0 = Sunday
-      const sunday = addDaysIST(today, (7 - dow) % 7);
-      return list.filter((e) => day(e.startDate) >= today && day(e.startDate) <= sunday);
-    }
-    if (selectedFilter === 'Flagship Mela') {
-      // events in the flagship's towns (e.g. "Nashik - Trimbakeshwar")
-      const towns = String(groups.flagship?.city || '').toLowerCase().split(/[-&,]/).map((t) => t.trim()).filter(Boolean);
-      return list.filter((e) => towns.some((t) => String(e.city || '').toLowerCase().includes(t)));
-    }
-    return list;
-  }, [groups.publicEvents, groups.flagship, selectedFilter]);
+  // "I have an invite code": open the corporate tab and put the cursor in the code box
+  const openInvite = () => {
+    setTab('corporate');
+    requestAnimationFrame(() => {
+      upcomingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => document.getElementById('invite-code')?.focus({ preventScroll: true }), 450);
+    });
+  };
 
   return (
-    <div className="space-y-8 sm:space-y-12 pb-16">
-      {/* Auspicious Welcome Namaste Entrance Transition */}
-      <NamasteIntro />
-      {/* 1. Full-Width Edge-to-Edge Sacred Running Ticker */}
-      <FullWidthTicker />
-
-      {/* 2. Full-Width Edge-to-Edge Marigold & Mango Leaf Garland */}
-      <FullWidthGarland />
-
-      {/* 3. Main Center Content Container */}
-      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
-        {!canBook(user) && (
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-[#fbf5ee] p-4 text-ink">
-            <p className="text-sm">
-              Signed in as <b>{ROLE_LABELS[user.role]}</b>. Staff accounts manage the mela; booking is for pilgrims.
-            </p>
-            <Link to={homeFor(user.role)} className="btn-ink min-h-10 px-4 text-sm">Open my dashboard</Link>
+    <div className="cg-home relative">
+      {!canBook(user) && (
+        <div className="cg-shell pt-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-blue-wash p-4">
+            <p className="text-sm">{t('home.staffNote', { role: ROLE_LABELS[user.role] })}</p>
+            <Link to={homeFor(user.role)} className="cg-btn cg-btn-blue text-sm">{t('home.openDashboard')}</Link>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Horizontal Jharokha Hero + Floating Travel Search Bar */}
-        {groups.flagship && (
-          <div className="space-y-4">
-            <HorizontalJharokhaHero event={groups.flagship} />
-            {canBook(user) && <HeroSearch event={groups.flagship} />}
-          </div>
-        )}
-
-        {/* First-time visitors: a clear way to learn the site */}
-        {!user && <NewHereStrip />}
-
-        {/* Jharokha Window Service Alcoves */}
-        <JharokhaConcourse flagshipSlug={groups.flagship?.slug} />
-
-        {/* How it Works Stepper: right after the services, so new users see it early */}
-        <HowItWorks />
-
-        {/* Browsing Bar & Quick Filters */}
-        {groups.publicEvents.length > 0 && (
-          <BrowsingFilterBar
-            selectedFilter={selectedFilter}
-            onSelectFilter={setSelectedFilter}
-            place={selectedFilter === 'Flagship Mela' ? 'Nashik & Trimbakeshwar' : 'All yatras'}
-          />
-        )}
-
-        {/* Curated Public Events Grid */}
-        {groups.publicEvents.length > 0 && (
-          <section aria-labelledby="public">
-            <div className="flex items-end justify-between gap-3 mb-6">
-              <div>
-                <span className="font-display text-sm font-bold tracking-wider text-[#832014]">
-                  ॥ दर्शन एवं कार्यक्रम ॥
-                </span>
-                <h2 id="public" className="font-display text-2xl sm:text-4xl font-extrabold text-ink">
-                  Events and entry passes
-                </h2>
-                <p className="mt-1 text-base text-ink-soft">Aartis, kirtans and heritage walks. Up to 5 tickets per account.</p>
-              </div>
-              <Link to="/events?tab=public" className="hidden sm:inline-flex text-sm font-bold text-[#832014] hover:underline">
-                View all public events →
-              </Link>
-            </div>
-            <PublicEventList events={filteredPublicEvents.slice(0, 6)} emptyMessage={`No ${selectedFilter.toLowerCase()} events right now. Try another filter.`} from="/" />
-            {filteredPublicEvents.length > 6 && (
-              <div className="mt-6 text-center">
-                <Link to="/events?tab=public" className="btn-ghost">See all {filteredPublicEvents.length} events <ArrowRight size={16} aria-hidden /></Link>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* More Yatras Section */}
-        {groups.yatras.length > 0 && (
-          <section aria-labelledby="yatras">
-            <div className="flex items-end justify-between gap-3 mb-6">
-              <div>
-                <span className="font-display text-sm font-bold tracking-wider text-[#832014]">
-                  ॥ अन्य तीर्थ यात्राएं ॥
-                </span>
-                <h2 id="yatras" className="font-display text-2xl sm:text-4xl font-extrabold text-ink">
-                  More yatras
-                </h2>
-                <p className="mt-1 text-base text-ink-soft">Camps, meals and shuttles are open for these too.</p>
-              </div>
-              <Link to="/events?tab=yatras" className="font-bold text-sm text-[#832014] hover:underline">All yatras →</Link>
-            </div>
-            <ul className="grid gap-4 sm:grid-cols-2">
-              {groups.yatras.map((e) => <YatraCard key={e._id} event={e} />)}
-            </ul>
-          </section>
-        )}
-
-        {/* Campus & Corporate Invitation Code Box */}
-        <InvitationCodeBox from="/" />
-
-        {/* Grand Eternal Sacred Flame Diya: a small closing blessing, not a full section */}
-        <GrandSacredDiya compact />
-
-        {/* Festive Corner Phataka Sparkler */}
-        <CornerPhataka position="bottom-left" />
-
-        {canBook(user) && <FloatingCta />}
-      </div>
+      <Hero onInvite={openInvite} />
+      <NextUp yatras={yatras} onInvite={openInvite} />
+      <Services />
+      <HowItWorks />
+      <Upcoming yatras={yatras} publicEvents={publicEvents} tab={tab} setTab={setTab} sectionRef={upcomingRef} />
+      <ForEveryone />
+      <HostCta />
     </div>
   );
 }

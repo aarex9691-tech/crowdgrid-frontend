@@ -17,18 +17,18 @@ const CHECKPOINT_LABEL = { STOP: 'Stop', WATER: 'Drinking water', TOILET: 'Bio-t
 
 function Checkpoints({ points }) {
   return (
-    <ol className="relative mt-4 space-y-3 border-l-2 border-dashed border-line pl-5">
+    <ol className="relative mt-4 space-y-1 border-l-2 border-dashed border-line pl-5">
       {points.map((p) => {
         const Icon = CHECKPOINT_ICON[p.type] || MapPin;
         return (
-          <li key={p.name} className="relative">
-            <span className="absolute -left-[31px] top-0.5 flex h-6 w-6 items-center justify-center rounded-full border border-line bg-white">
+          <li key={p.name} className="relative flex min-h-11 flex-wrap items-center gap-x-2">
+            <span className="absolute -left-[31px] top-2.5 flex h-6 w-6 items-center justify-center rounded-full border border-line bg-white">
               <Icon size={14} aria-hidden />
             </span>
             <span className="font-medium">{p.name}</span>
-            <span className="text-sm text-ink-soft"> · {CHECKPOINT_LABEL[p.type]}</span>
+            <span className="text-sm text-ink-soft">{CHECKPOINT_LABEL[p.type]}</span>
             {p.lat && (
-              <a className="ml-2 text-sm font-semibold underline" href={`https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`} target="_blank" rel="noreferrer">
+              <a className="inline-flex min-h-11 items-center px-1 text-sm font-semibold text-blue underline" href={`https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`} target="_blank" rel="noreferrer">
                 Map
               </a>
             )}

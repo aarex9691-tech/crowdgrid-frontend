@@ -11,15 +11,16 @@ import { fmtDateTime, MEAL_LABELS } from '../../lib/format';
 import Notice, { Loading } from '../../components/Notice';
 import VolunteerReview from './VolunteerReview';
 import { LiveBadge, useLive } from '../../lib/realtime';
+import PageTitle from '../../components/PageTitle';
 
 const SOS_STATUS = { OPEN: 'pill-out', ACKNOWLEDGED: 'pill-low', RESOLVED: 'pill-quiet' };
 const SOS_TYPE_LABEL = { MEDICAL: 'Medical', CROWD: 'Crowd crush', LOST: 'Lost / separated', FIRE: 'Fire or danger', GENERAL: 'General help' };
 
 function Stat({ label, value, tone }) {
   return (
-    <div className="panel p-4">
-      <p className="text-ink-soft">{label}</p>
-      <p className={`text-3xl font-extrabold tabular-nums ${tone || ''}`}>{value}</p>
+    <div className="cg-stat">
+      <p className="cg-stat-label">{label}</p>
+      <p className={`cg-stat-value ${tone || ''}`}>{value}</p>
     </div>
   );
 }
@@ -83,13 +84,14 @@ function SosQueue({ eventId }) {
                 {i.closedByUser && <span className="pill-quiet">pilgrim says safe</span>}
                 <span className="text-sm text-ink-soft">{fmtDateTime(i.updatedAt)}</span>
               </div>
-              <p className="mt-1">
-                {i.userId?.name} · <a className="font-semibold underline" href={`tel:+${i.userId?.countryCode || '91'}${i.userId?.phone}`}>{formatPhone(i.userId?.countryCode, i.userId?.phone)}</a>
+              <p className="flex flex-wrap items-center gap-x-3">
+                <span>{i.userId?.name}</span>
+                <a className="inline-flex min-h-11 items-center font-semibold text-blue underline" href={`tel:+${i.userId?.countryCode || '91'}${i.userId?.phone}`}>{formatPhone(i.userId?.countryCode, i.userId?.phone)}</a>
               </p>
               {i.message && <p className="text-ink-soft">"{i.message}"</p>}
               {i.assignedTo?.name && <p className="text-sm font-semibold">Volunteer: {i.assignedTo.name}</p>}
               {i.location?.lat ? (
-                <a className="mt-1 inline-flex items-center gap-1 font-semibold text-dusk underline" target="_blank" rel="noreferrer" href={`https://www.google.com/maps/search/?api=1&query=${i.location.lat},${i.location.lng}`}>
+                <a className="inline-flex min-h-11 items-center gap-1 font-semibold text-blue underline" target="_blank" rel="noreferrer" href={`https://www.google.com/maps/search/?api=1&query=${i.location.lat},${i.location.lng}`}>
                   <MapPin size={16} aria-hidden /> {i.location.lat.toFixed(5)}, {i.location.lng.toFixed(5)} (±{i.location.accuracy || '?'} m)
                 </a>
               ) : (
@@ -280,14 +282,11 @@ export default function ControlRoom() {
 
   return (
     <div className="shell space-y-8 py-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="flex flex-wrap items-center gap-3 text-3xl font-bold">District control room <LiveBadge /></h1>
-          <p className="text-ink-soft">{user.name}</p>
-        </div>
-        <div className="flex items-end gap-2">
+      <div className="cg-pagehead">
+        <PageTitle kicker="Authority" tone="blue" title={<>Control room <LiveBadge /></>} lead={user.name} />
+        <div className="flex flex-wrap items-end gap-2">
           <div>
-            <label htmlFor="ev" className="field-label">Yatra</label>
+            <label htmlFor="ev" className="field-label">Event</label>
             <select id="ev" className="field" value={eventId} onChange={(e) => setEventId(e.target.value)}>
               {events.map((e) => <option key={e._id} value={e._id}>{e.title}</option>)}
             </select>
@@ -307,7 +306,7 @@ export default function ControlRoom() {
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <Stat label="Bed occupancy" value={`${data.beds.occupancyPct}%`} />
             <Stat label="Beds free" value={data.beds.available.toLocaleString('en-IN')} tone="text-tulsi" />
-            <Stat label="Passes scanned today" value={data.scansToday} />
+            <Stat label="Passes scanned today" value={Number(data.scansToday || 0).toLocaleString('en-IN')} />
             <Stat label="Active SOS" value={data.alerts.openSos} tone={data.alerts.openSos ? 'text-kumkum' : ''} />
           </div>
 

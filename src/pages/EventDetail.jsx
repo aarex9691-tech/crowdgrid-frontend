@@ -1,7 +1,7 @@
 import PeopleStepper from '../components/PeopleStepper';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, CalendarDays, ExternalLink, MapPin, Phone, ShieldCheck, Ticket, Users } from 'lucide-react';
+import { CalendarDays, ExternalLink, MapPin, Phone, ShieldCheck, Ticket, Users } from 'lucide-react';
 import API, { errorMessage } from '../lib/api';
 import { canBook, useAuth } from '../lib/auth';
 import { rupees, useCart } from '../lib/cart';
@@ -10,6 +10,7 @@ import Notice, { Loading } from '../components/Notice';
 import { cachePass } from '../lib/passCache';
 import { addTicketToCart, placesLeft } from '../components/EventCards';
 import { MAX_PER_ACCOUNT } from '../lib/limits';
+import PageHero from '../components/PageHero';
 
 /** Everything about one paid public event, with Register (cart) and the map. */
 export default function EventDetail() {
@@ -71,35 +72,31 @@ export default function EventDetail() {
 
   return (
     <div className="pb-6">
-      <section className="bg-ink text-white">
-        <div className="toran" aria-hidden />
-        <div className="shell py-8">
-          <Link to="/events?tab=public" className="inline-flex items-center gap-1 text-sm text-[#c9d6ee] hover:text-white">
-            <ArrowLeft size={16} aria-hidden /> All public events
-          </Link>
-          <p className="mt-3 text-sm font-semibold uppercase tracking-widest text-marigold">{event.category ? categoryLabel(event.category) : 'Public event'}</p>
-          <h1 className="font-display text-3xl sm:text-4xl">{event.title}</h1>
-          <p className="mt-1 text-[#c9d6ee]">Hosted by {event.hostName || 'CrowdGrid'}</p>
-        </div>
-      </section>
+      <PageHero
+        kind="public"
+        back={{ to: '/events?tab=public', label: 'All public events' }}
+        label={event.category ? categoryLabel(event.category) : 'Public event'}
+        title={event.title}
+        lead={`Hosted by ${event.hostName || 'CrowdGrid'}`}
+      />
 
       <div className="shell grid gap-6 py-8 lg:grid-cols-[1fr_22rem]">
         <div className="space-y-6">
-          <section className="panel p-5">
-            <h2 className="text-xl font-bold">About this event</h2>
-            <p className="mt-2 whitespace-pre-line text-ink-soft">{event.description}</p>
+          <section>
+            <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink">About this event</h2>
+            <p className="mt-3 max-w-prose whitespace-pre-line text-base sm:text-lg text-ink-soft leading-relaxed">{event.description}</p>
           </section>
 
-          <section className="panel space-y-3 p-5" aria-label="Details">
+          <section className="panel space-y-4 p-6 sm:p-7 shadow-xs" aria-label="Details">
             <p className="flex items-start gap-3">
-              <CalendarDays size={22} className="mt-0.5 shrink-0 text-kumkum" aria-hidden />
+              <CalendarDays size={22} className="mt-0.5 shrink-0 text-blue" aria-hidden />
               <span>
                 <b>{fmtDate(event.startDate, { weekday: 'long' })}</b>
                 <span className="block text-ink-soft">{fmtTime(event.startDate)} to {fmtTime(event.endDate)} (IST)</span>
               </span>
             </p>
             <p className="flex items-start gap-3">
-              <MapPin size={22} className="mt-0.5 shrink-0 text-kumkum" aria-hidden />
+              <MapPin size={22} className="mt-0.5 shrink-0 text-blue" aria-hidden />
               <span>
                 <b>{event.venue}</b>
                 <span className="block text-ink-soft">{[event.address, (event.address || '').toLowerCase().includes((event.city || '').toLowerCase()) ? null : event.city, event.pincode].filter(Boolean).join(', ')}</span>
@@ -107,12 +104,12 @@ export default function EventDetail() {
             </p>
             {event.minAge > 0 && (
               <p className="flex items-start gap-3">
-                <ShieldCheck size={22} className="mt-0.5 shrink-0 text-kumkum" aria-hidden /> Age {event.minAge}+ only
+                <ShieldCheck size={22} className="mt-0.5 shrink-0 text-blue" aria-hidden /> Age {event.minAge}+ only
               </p>
             )}
             {event.contactPhone && (
               <p className="flex items-start gap-3">
-                <Phone size={22} className="mt-0.5 shrink-0 text-kumkum" aria-hidden />
+                <Phone size={22} className="mt-0.5 shrink-0 text-blue" aria-hidden />
                 <a className="font-semibold underline" href={`tel:+91${event.contactPhone}`}>+91 {event.contactPhone}</a>
               </p>
             )}
@@ -136,11 +133,11 @@ export default function EventDetail() {
         </div>
 
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <div className="panel space-y-4 p-5">
+          <div className="panel space-y-5 border-t-[6px] border-t-marigold p-6 sm:p-8 shadow-md">
             {free ? (
-              <p className="text-3xl font-extrabold text-tulsi">Free entry</p>
+              <p className="font-display text-3xl sm:text-4xl font-bold text-tulsi">Free entry</p>
             ) : (
-              <p className="text-3xl font-extrabold">{rupees(event.ticketPrice)}<span className="text-base font-normal text-ink-soft"> per person</span></p>
+              <p className="font-display text-3xl sm:text-4xl font-bold text-ink">{rupees(event.ticketPrice)}<span className="font-sans text-base font-normal text-ink-soft"> per person</span></p>
             )}
             {freeMsg && <Notice tone={freeMsg.tone}>{freeMsg.text}</Notice>}
             <p className="flex items-center gap-2 text-ink-soft">

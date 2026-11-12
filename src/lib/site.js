@@ -1,7 +1,7 @@
 // Project and contact details shown in the footer and on the About page.
 export const SITE = {
   name: 'CrowdGrid',
-  tagline: 'The total yatra solution',
+  tagline: 'Every crowd, cared for',
   flagshipSlug: 'simhastha-kumbh-2027',
   email: 'crowdgridevents@gmail.com', // official customer care address
   phone: '+91 98923 15795',

@@ -10,6 +10,7 @@ const NgoAnalytics = lazy(() => import('./NgoAnalytics'));
 import { NumberField, TextField } from '../../components/Fields';
 import { firstError, intError, textError } from '../../lib/validate';
 import { LiveBadge, useLive } from '../../lib/realtime';
+import PageTitle from '../../components/PageTitle';
 
 // Small digits-only box for inline controls (no e, +, -, decimals)
 const digitsUpTo = (raw, max) => raw.replace(/\D/g, '').replace(/^0+(?=\d)/, '').slice(0, String(max).length);
@@ -57,8 +58,8 @@ function SlotQuota({ center, slot, meal, date, onSaved }) {
       <p className="font-semibold">{MEAL_LABELS[meal]}</p>
       <p className="text-sm text-ink-soft">{slot ? `${slot.capacity - slot.remaining} issued, ${slot.remaining} left` : 'Not open'}</p>
       <div className="mt-2 flex gap-2">
-        <input type="text" inputMode="numeric" pattern="[0-9]*" className="field min-h-10 w-24 tabular-nums" value={cap} onChange={(e) => setCap(digitsUpTo(e.target.value, 20000))} aria-label={`${MEAL_LABELS[meal]} tokens (0 to 20,000)`} />
-        <button type="button" className="btn-ghost min-h-10 px-3" onClick={save}>Save</button>
+        <input type="text" inputMode="numeric" pattern="[0-9]*" className="field min-h-11 w-24 tabular-nums" value={cap} onChange={(e) => setCap(digitsUpTo(e.target.value, 20000))} aria-label={`${MEAL_LABELS[meal]} tokens (0 to 20,000)`} />
+        <button type="button" className="btn-ghost min-h-11 px-3" onClick={save}>Save</button>
       </div>
       {error && <p className="mt-1 text-sm font-semibold text-kumkum">{error}</p>}
     </div>
@@ -137,11 +138,8 @@ export default function NgoPortal() {
 
   return (
     <div className="shell space-y-8 py-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="flex flex-wrap items-center gap-3 text-3xl font-bold">{provider.name} <LiveBadge /></h1>
-          <p className="text-ink-soft">Camp &amp; kitchen manager</p>
-        </div>
+      <div className="cg-pagehead">
+        <PageTitle kicker="NGO / Seva" tone="green" title={<>{provider.name} <LiveBadge /></>} lead="Camps, beds and kitchens" />
         <Link to="/scan" className="btn-ink">Open scanner</Link>
       </div>
 
@@ -152,9 +150,9 @@ export default function NgoPortal() {
           ['Active bookings', totals.bookings],
           ['Check-ins today', totals.checkInsToday],
         ].map(([k, v]) => (
-          <div key={k} className="panel p-4">
-            <p className="text-ink-soft">{k}</p>
-            <p className="text-3xl font-extrabold tabular-nums">{Number(v).toLocaleString('en-IN')}</p>
+          <div key={k} className="cg-stat">
+            <p className="cg-stat-label">{k}</p>
+            <p className="cg-stat-value">{Number(v).toLocaleString('en-IN')}</p>
           </div>
         ))}
       </div>
@@ -172,7 +170,7 @@ export default function NgoPortal() {
                   <strong>{l.availableBeds}</strong> free tonight of {l.totalBeds} beds
                 </p>
               </div>
-              <Link to={`/camps/${l._id}/map`} className="btn-ink min-h-10 whitespace-nowrap px-4">
+              <Link to={`/camps/${l._id}/map`} className="btn-ink min-h-11 whitespace-nowrap px-4">
                 <Armchair size={18} aria-hidden /> Tent map
               </Link>
               <BedAdjuster lodging={l} onSaved={load} />

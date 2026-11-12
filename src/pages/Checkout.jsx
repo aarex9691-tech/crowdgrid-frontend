@@ -6,6 +6,7 @@ import { rupees, useCart } from '../lib/cart';
 import { cachePass } from '../lib/passCache';
 import Notice from '../components/Notice';
 import PassCard from '../components/PassCard';
+import PageTitle from '../components/PageTitle';
 
 const cardDigits = (v) => v.replace(/\D/g, '').slice(0, 16).replace(/(\d{4})(?=\d)/g, '$1 ');
 const expiryFmt = (v) => {
@@ -163,7 +164,7 @@ function Receipt({ order }) {
     <div className="space-y-5">
       <div className="panel space-y-2 p-6">
         <p className="flex items-center gap-2 text-2xl font-bold text-tulsi">
-          <CheckCircle2 size={28} aria-hidden /> {order.total === 0 ? 'Booking confirmed' : 'Payment successful'}
+          <span className="cg-celebrate"><CheckCircle2 size={28} aria-hidden /></span> {order.total === 0 ? 'Booking confirmed' : 'Payment successful'}
         </p>
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-[15px]">
           <dt className="text-ink-soft">Amount</dt>
@@ -227,12 +228,26 @@ export default function Checkout() {
     setPaid(data);
   };
 
+  const step = paid ? 2 : order ? 1 : 0;
+
   return (
     <div className="shell max-w-2xl space-y-5 py-8">
-      <div>
-        <h1 className="text-3xl font-bold">{paid ? 'Booking complete' : order ? 'Payment' : 'Your cart'}</h1>
-        {!paid && <p className="text-ink-soft">Pay once for all paid camps and bus passes. Your QR passes are issued right after payment.</p>}
+      <div className="cg-pagehead">
+        <PageTitle
+          kicker="Attendee"
+          tone="saffron"
+          title={paid ? 'Booking complete' : order ? 'Payment' : 'Your cart'}
+          lead={paid ? undefined : 'Pay once for everything in your cart. Your passes arrive right after payment.'}
+        />
       </div>
+      {/* Where the visitor is in the three-step flow */}
+      <ol className="cg-progress" aria-label="Checkout steps">
+        {['Cart', 'Payment', 'Passes'].map((label, i) => (
+          <li key={label} data-state={i < step ? 'done' : undefined} aria-current={i === step ? 'step' : undefined}>
+            {i + 1}. {label}
+          </li>
+        ))}
+      </ol>
       <Notice tone="error">{error}</Notice>
       {paid ? <Receipt order={paid} /> : order ? <PayStep order={order} onPaid={onPaid} onBack={() => setOrder(null)} /> : <CartStep onContinue={createOrder} busy={busy} />}
     </div>

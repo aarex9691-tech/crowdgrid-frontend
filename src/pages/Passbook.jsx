@@ -8,6 +8,7 @@ import PassCard, { PASS_META } from '../components/PassCard';
 import MyQrCard from '../components/MyQrCard';
 import CancelPassDialog from '../components/CancelPassDialog';
 import { useAuth } from '../lib/auth';
+import PageTitle from '../components/PageTitle';
 
 /**
  * My Yatra Passbook (FR-11). Loads passes from the API and caches them; with no
@@ -58,29 +59,28 @@ export default function Passbook() {
 
   return (
     <div className="shell space-y-6 py-6">
-      <div>
-        <h1 className="text-3xl font-bold">My Yatra Passbook</h1>
-        <p className="text-ink-soft">All your passes in one place. They stay on this phone, so they open even without network.</p>
+      <div className="cg-pagehead">
+        <PageTitle kicker="Attendee" tone="saffron" title="My passbook" lead="Every pass in one place. Opens without network." />
       </div>
       {user && <MyQrCard name={user.name} photoUrl={user.photoUrl} activeCount={withState.filter((p) => p.state === 'ACTIVE').length} />}
       {done && <Notice tone="success">{done}</Notice>}
       {offlineSince && <Notice>Showing passes saved on {fmtDateTime(offlineSince)}. You're offline, but these QR codes still work at the gate.</Notice>}
 
       {usable.length === 0 ? (
-        <div className="panel p-8 text-center">
+        <div className="rounded-2xl border-[1.5px] border-dashed border-edge p-8 text-center sm:p-12">
           <h2 className="text-xl font-bold">No active passes yet</h2>
-          <p className="mt-1 text-ink-soft">Book a bed, claim a meal token or get a shuttle pass, and it appears here.</p>
-          <Link to="/" className="btn-primary mt-5">Find a yatra</Link>
+          <p className="mx-auto mt-1 max-w-sm text-ink-soft">Book a ticket, a bed, a meal token or a shuttle seat, and the pass appears here.</p>
+          <Link to="/events" className="btn-primary mt-5">Find an event</Link>
         </div>
       ) : (
         <>
           {types.length > 1 && (
             <div className="flex flex-wrap gap-2" role="group" aria-label="Filter passes">
-              <button type="button" aria-pressed={filter === 'ALL'} className={filter === 'ALL' ? 'btn-ink' : 'btn-ghost'} onClick={() => setFilter('ALL')}>
+              <button type="button" aria-pressed={filter === 'ALL'} className={`pill min-h-11 px-4 transition-colors ${filter === 'ALL' ? 'bg-blue text-white' : 'bg-sand text-ink-soft hover:text-ink'}`} onClick={() => setFilter('ALL')}>
                 All ({usable.length})
               </button>
               {types.map((t) => (
-                <button key={t} type="button" aria-pressed={filter === t} className={filter === t ? 'btn-ink' : 'btn-ghost'} onClick={() => setFilter(t)}>
+                <button key={t} type="button" aria-pressed={filter === t} className={`pill min-h-11 px-4 transition-colors ${filter === t ? 'bg-blue text-white' : 'bg-sand text-ink-soft hover:text-ink'}`} onClick={() => setFilter(t)}>
                   {PASS_META[t]?.label}
                 </button>
               ))}
@@ -88,7 +88,7 @@ export default function Passbook() {
           )}
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-xl font-bold">Your passes</h2>
-            <button type="button" className="btn-ghost min-h-10" aria-pressed={showEach} onClick={() => setShowEach(!showEach)}>
+            <button type="button" className="btn-ghost min-h-11 text-sm" aria-pressed={showEach} onClick={() => setShowEach(!showEach)}>
               {showEach ? 'Hide individual QR codes' : 'Show individual QR codes (backup)'}
             </button>
           </div>

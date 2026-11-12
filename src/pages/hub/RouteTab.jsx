@@ -176,7 +176,7 @@ export default function RouteTab({ event }) {
           <span className="field-label" id="rt-to">Ghat</span>
           <div className="flex flex-wrap gap-2" role="group" aria-labelledby="rt-to">
             {ghats.map((g) => (
-              <button key={g.id} type="button" aria-pressed={to === g.id} className={`flex min-h-12 items-center gap-1.5 rounded-xl px-3 font-semibold ${to === g.id ? 'bg-ink text-white' : 'border border-line bg-white text-ink-soft hover:text-ink'}`} onClick={() => setTo(g.id)}>
+              <button key={g.id} type="button" aria-pressed={to === g.id} className={`flex min-h-12 items-center gap-1.5 rounded-xl px-3 font-semibold ${to === g.id ? 'bg-blue text-white' : 'border border-line bg-white text-ink-soft hover:text-ink'}`} onClick={() => setTo(g.id)}>
                 <Waves size={16} aria-hidden /> {g.name.replace(', Tapovan', '')}
               </button>
             ))}

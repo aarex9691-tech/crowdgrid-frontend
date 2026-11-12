@@ -25,7 +25,7 @@ export default function YatraGuide({ event }) {
 
   return (
     <details className="group panel overflow-hidden" data-testid="yatra-guide">
-      <summary className="flex min-h-12 cursor-pointer list-none items-center gap-3 px-5 py-3 font-semibold hover:bg-mist">
+      <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 px-6 py-4 text-base sm:text-lg font-bold hover:bg-mist transition-colors">
         <Lightbulb size={20} className="shrink-0 text-marigold-deep" aria-hidden />
         <span className="flex-1">
           Good to know before you go
@@ -33,16 +33,16 @@ export default function YatraGuide({ event }) {
         </span>
         <ChevronDown size={20} className="shrink-0 transition-transform group-open:rotate-180" aria-hidden />
       </summary>
-      <div className="grid gap-6 border-t border-line p-5 md:grid-cols-2">
+      <div className="grid gap-8 border-t border-line p-6 sm:p-8 md:grid-cols-2">
         <div>
-          <h3 className="font-bold">About this yatra</h3>
-          <p className="mt-1 text-ink-soft">{event.description}</p>
+          <h3 className="font-display text-xl sm:text-2xl font-bold text-ink">About this yatra</h3>
+          <p className="mt-2 text-base sm:text-lg leading-relaxed text-ink-soft">{event.description}</p>
           {event.venue && (
             <p className="mt-2 flex items-center gap-2 text-sm"><MapPin size={16} aria-hidden /> {event.venue}</p>
           )}
           {tips.length > 0 && (
             <>
-              <h3 className="mt-5 font-bold">Tips from our seva teams</h3>
+              <h3 className="font-display mt-6 text-xl sm:text-2xl font-bold text-ink">Tips from our seva teams</h3>
               <ul className="mt-2 space-y-2">
                 {tips.map((t) => (
                   <li key={t} className="flex gap-2 text-ink-soft">
@@ -57,7 +57,7 @@ export default function YatraGuide({ event }) {
         <div>
           {event.keyDates?.length > 0 && (
             <>
-              <h3 className="font-bold">Key dates</h3>
+              <h3 className="font-display text-xl sm:text-2xl font-bold text-ink">Key dates</h3>
               <ol className="mt-2 space-y-2 border-l-2 border-marigold/50 pl-4">
                 {event.keyDates.map((d) => (
                   <li key={d.label}>
@@ -70,7 +70,7 @@ export default function YatraGuide({ event }) {
           )}
           {events.length > 0 && (
             <>
-              <h3 className="mt-5 font-bold">Events at this yatra</h3>
+              <h3 className="font-display mt-6 text-xl sm:text-2xl font-bold text-ink">Events at this yatra</h3>
               <ul className="mt-2 space-y-2">
                 {events.map((e) => (
                   <li key={e._id}>

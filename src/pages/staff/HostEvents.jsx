@@ -10,6 +10,7 @@ import DateTimeRange, { toIsoRange, windowError } from '../../components/DateTim
 import { NumberField, PinField, TextField } from '../../components/Fields';
 import PhoneField from '../../components/PhoneField';
 import { cleanText, firstError, intError, optionalPhoneError, pinError, textError } from '../../lib/validate';
+import PageTitle from '../../components/PageTitle';
 
 // Description length is counted without spaces (same rule as the server)
 const DESC_MIN = 150;
@@ -107,7 +108,7 @@ function HostForm({ onCreated, onCancel }) {
     <form onSubmit={submit} noValidate className="panel space-y-5 p-5">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Host a public event</h2>
-        <button type="button" className="btn-ghost min-h-10 px-3" onClick={onCancel} aria-label="Close form"><X size={18} aria-hidden /></button>
+        <button type="button" className="btn-ghost min-h-11 px-3" onClick={onCancel} aria-label="Close form"><X size={18} aria-hidden /></button>
       </div>
       <Notice tone="error">{error}</Notice>
 
@@ -201,11 +202,8 @@ export default function HostEvents() {
   const now = new Date();
   return (
     <div className="shell space-y-6 py-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-bold">Hosted events</h1>
-          <p className="text-ink-soft">Pilgrims register for your events; paid tickets go through checkout, free ones are confirmed instantly.</p>
-        </div>
+      <div className="cg-pagehead">
+        <PageTitle kicker="Authority" tone="blue" title="Hosted events" lead="Free events confirm at once. Paid ones go through checkout." />
         {!creating && (
           <button type="button" className="btn-primary" onClick={() => setCreating(true)}>
             <CalendarPlus size={20} aria-hidden /> Host an event
@@ -230,7 +228,26 @@ export default function HostEvents() {
       ) : events.length === 0 ? (
         <Notice>You have not hosted any events yet.</Notice>
       ) : (
-        <div className="panel overflow-x-auto">
+        <>
+        <ul className="space-y-3 sm:hidden">
+          {events.map((e) => {
+            const over = new Date(e.endDate) < now;
+            return (
+              <li key={e._id} className={`panel p-4 ${over ? 'text-ink-soft' : ''}`}>
+                <Link to={`/event/${e.slug}`} className="font-semibold underline">{e.title}</Link>
+                <p className="text-sm text-ink-soft">{EVENT_CATEGORIES[e.category]} · {e.venue}</p>
+                <p className="mt-1 text-sm">{fmtDateTime(e.startDate)}{over ? ' (over)' : ''}</p>
+                <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-line pt-3 text-sm">
+                  <div><dt className="text-ink-soft">Price</dt><dd className="font-semibold tabular-nums">{rupees(e.ticketPrice)}</dd></div>
+                  <div><dt className="text-ink-soft">Sold</dt><dd className="font-semibold tabular-nums">{e.ticketsSold} / {e.capacity}</dd></div>
+                  <div><dt className="text-ink-soft">Checked in</dt><dd className="font-semibold tabular-nums">{e.checkedIn}</dd></div>
+                  <div><dt className="text-ink-soft">Revenue</dt><dd className="font-semibold tabular-nums">{rupees(e.revenue)}</dd></div>
+                </dl>
+              </li>
+            );
+          })}
+        </ul>
+        <div className="panel hidden overflow-x-auto sm:block">
           <table className="w-full min-w-[640px] text-left">
             <thead className="bg-mist text-sm text-ink-soft">
               <tr>
@@ -259,6 +276,7 @@ export default function HostEvents() {
             </tbody>
           </table>
         </div>
+        </>
       )}
     </div>
   );

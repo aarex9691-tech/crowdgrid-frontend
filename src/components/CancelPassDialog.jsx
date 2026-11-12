@@ -42,8 +42,8 @@ export default function CancelPassDialog({ pass, onClose, onDone }) {
   const tier = (until) => until && new Date(until).getTime() > now;
 
   return createPortal(
-    <div className="fixed inset-0 z-[1000] flex items-end justify-center bg-ink/50 p-4 sm:items-center" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div role="alertdialog" aria-modal="true" aria-labelledby="cancel-title" className="panel w-full max-w-md p-6 shadow-2xl" data-testid="cancel-dialog">
+    <div className="cg-backdrop fixed inset-0 z-[1000] flex items-end justify-center bg-ink/50 p-4 sm:items-center" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <div role="alertdialog" aria-modal="true" aria-labelledby="cancel-title" className="cg-dialog panel w-full max-w-md p-6 shadow-2xl" data-testid="cancel-dialog">
         <div className="flex items-start gap-4">
           <span className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-kumkum-wash text-kumkum">
             <AlertTriangle size={22} aria-hidden />

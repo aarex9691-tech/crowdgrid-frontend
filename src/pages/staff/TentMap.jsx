@@ -6,6 +6,7 @@ import { CATEGORY_LABELS, fmtDate } from '../../lib/format';
 import { useAuth } from '../../lib/auth';
 import Notice, { Loading } from '../../components/Notice';
 import { LiveBadge, useLive, useWatchLodging } from '../../lib/realtime';
+import PageTitle from '../../components/PageTitle';
 
 const STATUS = {
   FREE: { label: 'Free', cls: 'border-2 border-tulsi bg-white text-tulsi hover:bg-tulsi-wash' },
@@ -68,35 +69,37 @@ export default function TentMap() {
 
   return (
     <div className="shell space-y-5 py-6">
-      <Link to={back} className="inline-flex items-center gap-1 text-sm font-semibold text-ink-soft hover:text-ink">
+      <Link to={back} className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-ink-soft hover:text-ink">
         <ArrowLeft size={16} aria-hidden /> Back
       </Link>
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="text-ink-soft">{lodging.provider} · {CATEGORY_LABELS[lodging.category]} · {lodging.sector}</p>
-          <h1 className="flex flex-wrap items-center gap-3 text-3xl font-bold">{lodging.name}: {data.unit.label.toLowerCase()} map <LiveBadge /></h1>
-        </div>
+      <div className="cg-pagehead">
+        <PageTitle
+          kicker={lodging.provider}
+          tone="green"
+          title={<>{lodging.name}: {data.unit.label.toLowerCase()} map <LiveBadge /></>}
+          lead={`${CATEGORY_LABELS[lodging.category]}, ${lodging.sector}`}
+        />
         <div className="flex flex-wrap items-end gap-3">
           <div>
             <label className="field-label" htmlFor="map-night">Night of</label>
-            <input id="map-night" type="date" className="field min-h-10" value={night || data.date || ''} onChange={(e) => { setSelected(null); setNight(e.target.value); }} />
+            <input id="map-night" type="date" className="field min-h-11" value={night || data.date || ''} onChange={(e) => { setSelected(null); setNight(e.target.value); }} />
           </div>
-          <button type="button" className="btn-ghost min-h-10" onClick={load}>
+          <button type="button" className="btn-ghost min-h-11" onClick={load}>
             <RefreshCw size={16} aria-hidden /> Refresh
           </button>
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
           [`${data.unit.label}s`, summary.units],
           [`Free on ${day(data.date)}`, summary.free, 'text-tulsi'],
           [`Booked online for ${day(data.date)}`, summary.booked],
           ['Occupied', `${pct}%`, pct >= 90 ? 'text-kumkum' : ''],
         ].map(([label, value, tone]) => (
-          <div key={label} className="panel p-4">
-            <p className="text-ink-soft">{label}</p>
-            <p className={`text-3xl font-extrabold tabular-nums ${tone || ''}`}>{value}</p>
+          <div key={label} className="cg-stat">
+            <p className="cg-stat-label">{label}</p>
+            <p className={`cg-stat-value ${tone || ''}`}>{value}</p>
           </div>
         ))}
       </div>
@@ -134,7 +137,7 @@ export default function TentMap() {
       )}
 
       {/* The "screen": where the camp gate is, like the screen in a cinema */}
-      <div className="mx-auto w-2/3 rounded-b-[50%] border-t-4 border-marigold pt-1 text-center text-sm font-semibold uppercase tracking-widest text-ink-soft">
+      <div className="mx-auto w-2/3 rounded-b-[50%] border-t-4 border-marigold pt-1 text-center text-sm font-semibold text-ink-soft">
         Camp gate
       </div>
 

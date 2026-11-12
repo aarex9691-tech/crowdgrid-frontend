@@ -7,7 +7,7 @@ import { useConfirm } from '../lib/confirm';
 import { SITE } from '../lib/site';
 import LiveToasts from './LiveToasts';
 import GuidedTour, { openTour } from './GuidedTour';
-import { LANGUAGES_ENABLED, LanguageSwitch, useT } from '../lib/i18n';
+import { LanguageSwitcherButton, applyBackgroundTranslation, useLang, useT } from '../lib/i18n';
 import Avatar from './Avatar';
 
 /**
@@ -39,7 +39,7 @@ const navFor = (role, t = (k) => k) => {
       return {
         // pilgrim navigation follows the chosen language (Hindi / Marathi / English)
         links: [{ to: '/', label: t('nav.home'), end: true }, { to: '/events', label: t('nav.events') }, { to: '/passbook', label: t('nav.passbook') }, { to: '/help', label: t('nav.help') }, about],
-        cta: { to: `/yatra/${SITE.flagshipSlug}`, label: t('nav.bookNow') },
+        cta: null,
         shopper: true,
       };
   }
@@ -53,16 +53,43 @@ const TITLES = [
 ];
 
 /** New page: start at the top (or at the #section asked for) and name the browser tab. */
-function useRouteChange() {
+function useRouteChange(lang) {
   const { pathname, hash } = useLocation();
   const firstRoute = useRef(true);
   useEffect(() => {
     const t = TITLES.find(([re]) => re.test(pathname));
-    document.title = t && t[1] ? `${t[1]} · CrowdGrid` : 'CrowdGrid · Pilgrimage & mass gathering platform';
-  }, [pathname]);
+    let title = t && t[1] ? `${t[1]} · CrowdGrid` : 'CrowdGrid · Every crowd, cared for';
+    if (lang === 'hi') {
+      const hiMap = {
+        'Log in': 'लॉग इन',
+        'Create account': 'खाता बनाएँ',
+        'Events': 'कार्यक्रम',
+        'Event': 'कार्यक्रम',
+        'About us': 'हमारे बारे में',
+        'Help centre': 'सहायता केंद्र',
+        'Yatra services': 'यात्रा सेवाएँ',
+        'Campus & Corporate event': 'कैंपस और कॉर्पोरेट कार्यक्रम',
+        'My Passbook': 'मेरी पासबुक',
+        'My account': 'मेरा खाता',
+        'Checkout': 'चेकआउट',
+        'Scanner': 'स्कैनर',
+        'Control room': 'नियंत्रण कक्ष',
+        'Analytics': 'विश्लेषण',
+        'Campus & Corporate events': 'कैंपस और कॉर्पोरेट कार्यक्रम',
+        'Tent map': 'टेंट नक्शा',
+        'Hosted events': 'आयोजित कार्यक्रम',
+        'My camps': 'मेरे शिविर',
+      };
+      if (t && t[1] && hiMap[t[1]]) {
+        title = `${hiMap[t[1]]} · CrowdGrid`;
+      } else if (!t || !t[1]) {
+        title = 'CrowdGrid · हर भीड़ की देखभाल';
+      }
+    }
+    document.title = title;
+  }, [pathname, lang]);
   useEffect(() => {
     if (hash) {
-      // Wait a moment for the page to render its sections
       const id = setTimeout(() => document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
       return () => clearTimeout(id);
     }
@@ -95,7 +122,8 @@ export default function Layout() {
   const cart = useCart();
   const navigate = useNavigate();
   const online = useOnline();
-  useRouteChange();
+  const { lang } = useLang();
+  useRouteChange(lang);
   const [menuOpen, setMenuOpen] = useState(false);
   const confirm = useConfirm();
   const headerRef = useRef(null);
@@ -104,6 +132,10 @@ export default function Layout() {
   const close = () => setMenuOpen(false);
   const [navQuery, setNavQuery] = useState('');
   const { pathname } = useLocation();
+
+  useEffect(() => {
+    applyBackgroundTranslation(lang);
+  }, [pathname, lang]);
 
   const handleNavSearch = (e) => {
     e.preventDefault();
@@ -163,20 +195,22 @@ export default function Layout() {
   };
 
   const linkCls = ({ isActive }) =>
-    `flex min-h-11 items-center gap-2 whitespace-nowrap rounded-xl ${wide ? 'px-2' : 'px-3'} font-semibold ${isActive ? 'bg-mist text-ink' : 'text-ink-soft hover:text-ink'}`;
+    `flex h-16 items-center gap-2 whitespace-nowrap border-y-[3px] border-t-transparent ${wide ? 'px-2.5 text-base' : 'px-3.5 text-[1.125rem]'} font-semibold tracking-tight transition-colors ${isActive ? 'border-b-marigold text-ink font-bold' : 'border-b-transparent text-ink-soft hover:text-ink'}`;
   const menuCls = ({ isActive }) =>
-    `flex min-h-12 items-center gap-3 rounded-xl px-4 text-lg font-semibold ${isActive ? 'bg-mist text-ink' : 'text-ink'}`;
+    `flex min-h-14 items-center gap-3.5 rounded-xl px-4 text-xl font-bold ${isActive ? 'bg-blue-wash text-blue' : 'text-ink'}`;
 
   return (
-    <div className="relative z-10 flex min-h-dvh flex-col bg-transparent">
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-xl focus:bg-ink focus:px-4 focus:py-3 focus:font-semibold focus:text-white">
+    <div className="relative z-10 flex min-h-dvh flex-col">
+      {/* First Tab stop: jump past the header straight to the page */}
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-xl focus:bg-blue focus:px-4 focus:py-3 focus:font-bold focus:text-white">
         Skip to main content
       </a>
-      <header ref={headerRef} className="sticky top-0 z-30 border-b border-line bg-[#fbf8f3]/90 backdrop-blur-md">
+      <header ref={headerRef} className="sticky top-0 z-30 border-b border-line bg-white">
+        <div className="toran" aria-hidden />
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-2 px-4">
           <Link
             to="/"
-            className={`group mr-2 flex flex-none items-center gap-2 cursor-pointer transition-transform hover:scale-105 active:scale-95 ${showSearch ? '' : desk === 'xl' ? 'xl:mr-4' : 'lg:mr-4'}`}
+            className={`group mr-2 flex min-h-11 flex-none items-center gap-2.5 ${showSearch ? '' : desk === 'xl' ? 'xl:mr-4' : 'lg:mr-4'}`}
             aria-label="CrowdGrid home"
             onClick={() => {
               close();
@@ -187,31 +221,32 @@ export default function Layout() {
           >
             <img
               src="/assets/crowdgrid-logo.jpg"
-              alt="CrowdGrid Logo"
-              className="h-10 w-10 sm:h-11 sm:w-11 rounded-xl object-contain border border-amber-300/60 shadow-xs bg-[#fdfbf7]"
+              alt=""
+              className="h-10 w-10 rounded-xl border border-line bg-white object-contain"
             />
-            <span className="font-display text-xl leading-none text-ink sm:text-2xl group-hover:text-[#bd5338] transition-colors">
+            <span className="font-display text-2xl leading-none text-ink transition-colors group-hover:text-blue">
               CrowdGrid
             </span>
           </Link>
 
-          {/* Clean Warm Search Pill */}
+          {/* Event search */}
           {showSearch && <form
             onSubmit={handleNavSearch}
-            className="hidden xl:flex flex-1 max-w-sm lg:max-w-md items-center rounded-full border border-line bg-white/85 px-3 py-1.5 text-sm hover:border-ink-faint focus-within:border-[#bd5338] focus-within:bg-white shadow-xs transition-all mx-2"
+            className="hidden xl:flex flex-1 max-w-sm items-center rounded-full border border-line bg-mist py-1 pr-1 pl-3.5 text-sm transition-[border-color,background-color] focus-within:border-blue focus-within:bg-white"
           >
             <Search size={16} className="text-ink-soft shrink-0" />
             <input
               type="text"
-              placeholder="Search events, yatras, stays..."
+              placeholder={t("nav.searchPlaceholder")}
               value={navQuery}
               onChange={(e) => setNavQuery(e.target.value)}
-              className="bg-transparent px-2.5 text-ink placeholder:text-ink-faint outline-none w-full text-sm"
+              aria-label="Search events"
+              className="h-9 w-full bg-transparent px-2.5 text-sm text-ink outline-none placeholder:text-ink-soft"
             />
             <button
               type="submit"
               aria-label="Search"
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-[#bd5338] text-white hover:bg-[#a14129] shrink-0 transition"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue text-white hover:bg-blue-deep"
             >
               <Search size={13} strokeWidth={2.5} />
             </button>
@@ -227,6 +262,8 @@ export default function Layout() {
             ))}
           </nav>
 
+          {/* On phones, push the cart and menu button to the right edge */}
+          <span className={`flex-1 ${hideDesk}`} aria-hidden />
           {nav.shopper && cart.count > 0 && (
             <NavLink to="/checkout" className={linkCls} aria-label={`Cart, ${cart.count} item${cart.count > 1 ? 's' : ''}`} onClick={close}>
               <span className="relative">
@@ -236,27 +273,35 @@ export default function Layout() {
             </NavLink>
           )}
 
-          <div className={`flex-none items-center gap-1 ${showDesk}`}>
+          <div className={`flex-none items-center gap-2 ${showDesk}`}>
             {user ? (
               <>
                 <NavLink to="/account" className={linkCls} title={ROLE_LABELS[user.role]}>
                   {user.photoUrl ? <Avatar name={user.name} photoUrl={user.photoUrl} size={28} /> : <UserRound size={18} aria-hidden />}
                   <span className={`max-w-28 truncate ${wide ? 'sr-only' : ''}`}>{user.name.split(' ')[0]}</span>
                 </NavLink>
-                <button type="button" className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-ink-soft hover:text-ink" onClick={doLogout} aria-label="Log out" title="Log out">
+                <button type="button" className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-ink-soft hover:bg-mist hover:text-ink" onClick={doLogout} aria-label="Log out" title="Log out">
                   <LogOut size={20} aria-hidden />
                 </button>
               </>
             ) : (
-              <Link to="/login" className="btn-ghost min-h-10 px-4">{t('nav.login')}</Link>
+              <Link to="/login" className="btn-ghost min-h-11 px-4">{t('nav.login')}</Link>
             )}
-            {LANGUAGES_ENABLED && (!user || user.role === 'USER') && <LanguageSwitch className="ml-1" />}
           </div>
 
           {/* Call to action */}
-          <Link to={nav.cta.to} className="btn-primary ml-1 hidden min-h-10 flex-none whitespace-nowrap px-4 sm:inline-flex" onClick={close}>
-            {nav.cta.label}
-          </Link>
+          {nav.cta && (
+            <Link to={nav.cta.to} className="btn-primary ml-1 hidden min-h-11 flex-none whitespace-nowrap px-4 sm:inline-flex" onClick={close}>
+              {nav.cta.label}
+            </Link>
+          )}
+
+          {/* Language Switcher in the corner */}
+          {(!user || user.role === 'USER') && (
+            <div className="ml-1 sm:ml-2 flex-none flex items-center">
+              <LanguageSwitcherButton />
+            </div>
+          )}
 
           {/* Mobile menu button */}
           <button
@@ -272,21 +317,20 @@ export default function Layout() {
         </div>
 
         {menuOpen && (
-          <nav id="mobile-menu" aria-label="Main" className={`max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-line bg-[#fbf8f3] ${hideDesk}`}>
+          <nav id="mobile-menu" aria-label="Main" className={`cg-menu max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-line bg-white ${hideDesk}`}>
             <div className="mx-auto w-full max-w-7xl space-y-1 px-4 py-3">
               {/* Mobile Search Bar */}
-              {showSearch && <form onSubmit={handleNavSearch} className="mb-3 flex items-center rounded-xl border border-line bg-white px-3 py-2 text-sm focus-within:border-[#bd5338]">
+              {showSearch && <form onSubmit={handleNavSearch} className="mb-3 flex items-center rounded-xl border-[1.5px] border-edge bg-white py-1.5 pr-1.5 pl-3 text-sm focus-within:border-blue">
                 <Search size={18} className="text-ink-soft mr-2 shrink-0" />
                 <input
                   type="text"
-                  placeholder="Search events, stays, seva..."
+                  placeholder={t("nav.searchPlaceholder")}
+                  aria-label="Search events"
                   value={navQuery}
                   onChange={(e) => setNavQuery(e.target.value)}
                   className="bg-transparent text-ink placeholder:text-ink-faint outline-none w-full text-base"
                 />
-                <button type="submit" className="rounded-lg bg-[#bd5338] px-3.5 py-1 text-xs font-bold text-white shrink-0">
-                  Search
-                </button>
+                <button type="submit" className="flex min-h-11 shrink-0 items-center rounded-lg bg-blue px-3.5 text-sm font-bold text-white">{t("nav.search")}</button>
               </form>}
               {nav.links.map((l) => (
                 <NavLink key={l.to} to={l.to} end={l.end} className={menuCls} onClick={close}>
@@ -297,7 +341,7 @@ export default function Layout() {
               {user ? (
                 <>
                   <NavLink to="/account" className={menuCls} onClick={close}>
-                    {user.photoUrl ? <Avatar name={user.name} photoUrl={user.photoUrl} size={28} /> : <UserRound size={20} aria-hidden />} {user.name} <span className="text-sm font-normal text-ink-soft">· {ROLE_LABELS[user.role]}</span>
+                    {user.photoUrl ? <Avatar name={user.name} photoUrl={user.photoUrl} size={28} /> : <UserRound size={20} aria-hidden />} {user.name} <span className="pill-quiet">{ROLE_LABELS[user.role]}</span>
                   </NavLink>
                   <button type="button" className="flex min-h-12 w-full items-center gap-3 rounded-xl px-4 text-lg font-semibold text-ink" onClick={doLogout}>
                     <LogOut size={20} aria-hidden /> Log out
@@ -306,16 +350,22 @@ export default function Layout() {
               ) : (
                 <NavLink to="/login" className={menuCls} onClick={close}>Log in or create account</NavLink>
               )}
-              {LANGUAGES_ENABLED && (!user || user.role === 'USER') && <LanguageSwitch className="mt-2" />}
-              <Link to={nav.cta.to} className="btn-primary mt-2 w-full sm:hidden" onClick={close}>
-                {nav.cta.label}
-              </Link>
+              {(!user || user.role === 'USER') && (
+                <div className="pt-2">
+                  <LanguageSwitcherButton className="w-full justify-center" />
+                </div>
+              )}
+              {nav.cta && (
+                <Link to={nav.cta.to} className="btn-primary mt-2 w-full sm:hidden" onClick={close}>
+                  {nav.cta.label}
+                </Link>
+              )}
             </div>
           </nav>
         )}
 
         {!online && (
-          <p className="bg-ink py-1 text-center text-sm text-white" role="status">
+          <p className="bg-navy py-1.5 text-center text-sm text-white" role="status">
             You're offline. Your saved passes still work in the passbook.
           </p>
         )}
@@ -325,7 +375,7 @@ export default function Layout() {
       {/* first-visit tour: home page, pilgrims and visitors only */}
       <GuidedTour auto={pathname === '/' && (!user || user.role === 'USER')} />
 
-      <main id="main" tabIndex={-1} className="flex-1 pb-16 outline-none">
+      <main id="main" tabIndex={-1} className="flex-1 pb-16 focus:outline-none">
         {user?.mustChangePassword && pathname !== '/set-password' ? <Navigate to="/set-password" replace state={{ from: pathname }} /> : <Outlet />}
       </main>
 
@@ -340,61 +390,55 @@ export default function Layout() {
         <MessageCircle size={28} aria-hidden />
       </a>
 
-      <footer className="border-t border-line bg-white text-ink-soft">
-        <div className="shell grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-4">
+      <footer className="cg-foot bg-navy text-blue-mist">
+        <div className="shell grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
             <Link
               to="/"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="group inline-flex items-center gap-2 cursor-pointer transition-transform hover:scale-105 active:scale-95"
+              className="inline-flex min-h-11 items-center gap-2.5"
               aria-label="CrowdGrid home"
             >
-              <img src="/assets/crowdgrid-logo.jpg" alt="CrowdGrid Logo" className="h-8 w-8 rounded-lg object-contain border border-amber-300/60 shadow-2xs bg-[#fdfbf7]" />
-              <span className="font-display text-xl text-ink group-hover:text-[#bd5338] transition-colors">CrowdGrid</span>
+              <img src="/assets/crowdgrid-logo.jpg" alt="" className="h-9 w-9 rounded-lg bg-white object-contain" />
+              <span className="font-display text-2xl text-white">CrowdGrid</span>
             </Link>
-            <p className="mt-2 text-sm">
-              {SITE.tagline}. One platform for the Simhastha Kumbh Mela at Nashik–Trimbakeshwar, the Pandharpur Ashadhi Wari and
-              the Jagannath Rath Yatra at Puri, plus aartis, kirtans, heritage walks and campus or corporate events.
+            <p className="mt-3 max-w-xs text-sm">
+              {SITE.tagline}. Passes, stays, food, transport and SOS for pilgrimages, public events and company gatherings.
             </p>
-            <ul className="mt-3 space-y-1 text-sm">
-              <li>✓ Every camp, kitchen and seva group verified</li>
-              <li>✓ Stay, meals, shuttles and tickets under one QR</li>
-              <li>✓ Least crowded walking route to the ghat</li>
-              <li>✓ 24×7 SOS and missing-person help</li>
+            <div className="toran mt-5 w-24 rounded-full" aria-hidden />
+          </div>
+          <div>
+            <p className="font-semibold text-white">Explore</p>
+            <ul className="mt-2 text-sm">
+              <li><Link className="hover:text-white" to="/events">All events</Link></li>
+              <li><Link className="hover:text-white" to={`/yatra/${SITE.flagshipSlug}`}>Book lodging, food &amp; transport</Link></li>
+              <li><Link className="hover:text-white" to="/events?tab=corporate">Campus &amp; corporate events</Link></li>
+              <li><Link className="hover:text-white" to="/passbook">My Passbook</Link></li>
             </ul>
           </div>
           <div>
-            <p className="font-semibold text-ink">Explore</p>
-            <ul className="mt-2 space-y-1.5 text-sm">
-              <li><Link className="hover:text-ink" to={`/yatra/${SITE.flagshipSlug}`}>Book lodging, food &amp; transport</Link></li>
-              <li><Link className="hover:text-ink" to="/events">All events</Link></li>
-              <li><Link className="hover:text-ink" to="/events?tab=corporate">Campus &amp; corporate events</Link></li>
-              <li><Link className="hover:text-ink" to="/passbook">My Passbook</Link></li>
+            <p className="font-semibold text-white">About us</p>
+            <ul className="mt-2 text-sm">
+              <li><Link className="hover:text-white" to="/about">About CrowdGrid</Link></li>
+              <li><Link className="hover:text-white" to="/about#contact">Contact customer care</Link></li>
+              <li><a className="hover:text-white" href={`tel:${SITE.phone.replace(/[^\d+]/g, '')}`}>{SITE.phone}</a></li>
+              <li><a className="hover:text-white" href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
             </ul>
           </div>
           <div>
-            <p className="font-semibold text-ink">About us</p>
-            <ul className="mt-2 space-y-1.5 text-sm">
-              <li><Link className="hover:text-ink" to="/about">About CrowdGrid</Link></li>
-              <li><Link className="hover:text-ink" to="/about#contact">Contact customer care</Link></li>
-              <li><a className="hover:text-ink" href={`tel:${SITE.phone.replace(/[^\d+]/g, '')}`}>{SITE.phone}</a></li>
-              <li><a className="hover:text-ink" href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
-            </ul>
-          </div>
-          <div>
-            <p className="font-semibold text-ink">Help</p>
-            <ul className="mt-2 space-y-1.5 text-sm">
-              <li><Link className="hover:text-ink" to="/help">Help centre &amp; FAQs</Link></li>
-              <li><button type="button" className="hover:text-ink" onClick={openTour}>Take the tour</button></li>
-              <li>Emergency: <a className="font-semibold text-kumkum" href="tel:112">112</a></li>
-              <li>Medical: <a className="font-semibold text-kumkum" href="tel:108">108</a></li>
-              <li>Child helpline: <a className="font-semibold text-kumkum" href="tel:1098">1098</a></li>
-              <li><Link className="hover:text-ink" to={`/yatra/${SITE.flagshipSlug}?tab=sos`}>SOS &amp; lost and found</Link></li>
+            <p className="font-semibold text-white">Help</p>
+            <ul className="mt-2 text-sm">
+              <li><Link className="hover:text-white" to="/help">Help centre &amp; FAQs</Link></li>
+              <li><button type="button" className="hover:text-white" onClick={openTour}>Take the tour</button></li>
+              <li><Link className="hover:text-white" to={`/yatra/${SITE.flagshipSlug}?tab=sos`}>SOS &amp; lost and found</Link></li>
+              <li>Emergency <a className="font-bold text-white underline" href="tel:112">112</a></li>
+              <li>Medical <a className="font-bold text-white underline" href="tel:108">108</a></li>
+              <li>Child helpline <a className="font-bold text-white underline" href="tel:1098">1098</a></li>
             </ul>
           </div>
         </div>
-        <div className="border-t border-line py-4 text-center text-sm">
-          © 2026 CrowdGrid · Capstone project
+        <div className="border-t border-white/15 py-4 text-center text-sm">
+          © 2026 CrowdGrid, a capstone project
         </div>
       </footer>
     </div>

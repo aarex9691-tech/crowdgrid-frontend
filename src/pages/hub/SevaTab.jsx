@@ -62,7 +62,7 @@ export default function SevaTab({ event }) {
   if (existing) {
     const s = STATUS[existing.status];
     return (
-      <div className="panel mx-auto max-w-lg space-y-3 p-6">
+      <div className="panel max-w-lg space-y-3 p-6">
         <h2 className="text-2xl font-bold">Your seva application</h2>
         <span className={s.cls}>{s.text}</span>
         <p>
@@ -85,7 +85,7 @@ export default function SevaTab({ event }) {
   }
 
   return (
-    <form onSubmit={submit} className="mx-auto max-w-2xl space-y-6">
+    <form onSubmit={submit} className="max-w-2xl space-y-6">
       <div>
         <h2 className="text-2xl font-bold">Join field seva</h2>
         <p className="text-ink-soft">Choose how you'd like to help. Once a trust approves you, you get a digital volunteer ID.</p>

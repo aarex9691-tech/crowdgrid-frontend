@@ -63,7 +63,7 @@ export function ConfirmProvider({ children }) {
       {children}
       {dialog && (
         <div
-          className="fixed inset-0 z-[60] flex items-end justify-center bg-ink/50 p-4 sm:items-center"
+          className="cg-backdrop fixed inset-0 z-[60] flex items-end justify-center bg-ink/50 p-4 sm:items-center"
           onMouseDown={(e) => e.target === e.currentTarget && close(false)}
         >
           <div
@@ -71,7 +71,7 @@ export function ConfirmProvider({ children }) {
             aria-modal="true"
             aria-labelledby="confirm-title"
             aria-describedby={dialog.message ? 'confirm-message' : undefined}
-            className="panel w-full max-w-sm p-6 shadow-2xl"
+            className="cg-dialog panel w-full max-w-sm p-6 shadow-2xl"
           >
             <div className="flex items-start gap-4">
               {Icon && (

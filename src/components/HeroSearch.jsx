@@ -13,8 +13,8 @@ const TABS = [
 /** One labelled box in the search bar, like the fields on a travel site. */
 function Field({ id, label, children }) {
   return (
-    <div className="flex min-w-0 flex-1 flex-col rounded-xl border border-line bg-white px-3.5 py-2 transition-all focus-within:border-[#bd5338] focus-within:shadow-xs hover:border-ink-faint">
-      <label htmlFor={id} className="text-[11px] font-bold uppercase tracking-wider text-ink-faint">{label}</label>
+    <div className="flex min-w-0 flex-1 flex-col rounded-xl border border-line bg-white px-3.5 py-2 transition-[border-color,box-shadow] focus-within:border-terracotta focus-within:shadow-xs hover:border-ink-faint">
+      <label htmlFor={id} className="text-sm font-semibold text-ink-soft">{label}</label>
       {children}
     </div>
   );
@@ -62,7 +62,7 @@ export default function HeroSearch({ event = {} }) {
   const days = Array.from({ length: 4 }, (_, i) => addDaysIST(today, i));
 
   return (
-    <form onSubmit={go} className="relative z-10 mx-auto -mt-6 sm:-mt-8 w-[calc(100%-1.5rem)] max-w-4xl rounded-2xl sm:rounded-3xl border border-[#e4d8c8] bg-[#fbf9f5] p-4 sm:p-5 shadow-sm">
+    <form onSubmit={go} className="relative z-10 mx-auto -mt-6 sm:-mt-8 w-[calc(100%-1.5rem)] max-w-4xl rounded-2xl sm:rounded-3xl border border-line bg-mist p-4 sm:p-5 shadow-sm">
       <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3" role="tablist" aria-label="What are you looking for?">
         {TABS.map((t) => (
           <button
@@ -73,7 +73,7 @@ export default function HeroSearch({ event = {} }) {
             onClick={() => setTab(t.id)}
             className={`flex shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-all ${
               tab === t.id
-                ? 'bg-[#bd5338] text-white shadow-xs'
+                ? 'bg-terracotta text-white shadow-xs'
                 : 'border border-line bg-white text-ink-soft hover:bg-mist hover:text-ink'
             }`}
           >
