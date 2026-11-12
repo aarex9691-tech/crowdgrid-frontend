@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BedDouble, BusFront, Search, Ticket, UtensilsCrossed } from 'lucide-react';
-import { addDaysIST, EVENT_CATEGORIES, fmtDate, todayIST } from '../lib/format';
+import { addDaysIST, EVENT_CATEGORIES, fmtDate, nextYatraDays, todayIST, yatraDays } from '../lib/format';
 
 const TABS = [
   { id: 'stay', label: 'Stays', icon: BedDouble },
@@ -28,11 +28,16 @@ const inputCls = 'w-full bg-transparent py-0.5 text-base sm:text-lg font-bold te
 export default function HeroSearch({ event = {} }) {
   const navigate = useNavigate();
   const today = todayIST();
+  // Only days of the yatra (the event can arrive after the first render, so the defaults follow it)
+  const { first, end } = yatraDays(event);
+  const days = nextYatraDays(event, 4);
   const [tab, setTab] = useState('stay');
   const [sector, setSector] = useState('');
-  const [checkIn, setCheckIn] = useState(today);
+  const [pickedIn, setCheckIn] = useState('');
+  const checkIn = pickedIn && pickedIn >= first && pickedIn <= end ? pickedIn : first;
   const [beds, setBeds] = useState(2);
-  const [date, setDate] = useState(today);
+  const [pickedDate, setDate] = useState('');
+  const date = days.includes(pickedDate) ? pickedDate : days[0] || today;
   const [meal, setMeal] = useState('LUNCH');
   const [category, setCategory] = useState('');
   const base = event?.slug ? `/yatra/${event.slug}` : '/events';
@@ -59,7 +64,6 @@ export default function HeroSearch({ event = {} }) {
     }
   };
 
-  const days = Array.from({ length: 4 }, (_, i) => addDaysIST(today, i));
 
   return (
     <form onSubmit={go} className="relative z-10 mx-auto -mt-6 sm:-mt-8 w-[calc(100%-1.5rem)] max-w-4xl rounded-2xl sm:rounded-3xl border border-[#e4d8c8] bg-[#fbf9f5] p-4 sm:p-5 shadow-sm">
@@ -92,7 +96,7 @@ export default function HeroSearch({ event = {} }) {
               </select>
             </Field>
             <Field id="hs-in" label="Check-in">
-              <input id="hs-in" type="date" className={inputCls} min={today} value={checkIn} onChange={(e) => setCheckIn(e.target.value)} />
+              <input id="hs-in" type="date" className={inputCls} min={first} max={end} value={checkIn} onChange={(e) => setCheckIn(e.target.value)} />
             </Field>
             <Field id="hs-beds" label="Beds">
               <select id="hs-beds" className={inputCls} value={beds} onChange={(e) => setBeds(Number(e.target.value))}>
@@ -105,7 +109,7 @@ export default function HeroSearch({ event = {} }) {
           <>
             <Field id="hs-date" label="Day">
               <select id="hs-date" className={inputCls} value={date} onChange={(e) => setDate(e.target.value)}>
-                {days.map((d, i) => <option key={d} value={d}>{i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : fmtDate(d, { weekday: 'short', year: undefined })}</option>)}
+                {days.map((d) => <option key={d} value={d}>{d === today ? 'Today' : d === addDaysIST(today, 1) ? 'Tomorrow' : fmtDate(d, { weekday: 'short', year: undefined })}</option>)}
               </select>
             </Field>
             <Field id="hs-meal" label="Meal">

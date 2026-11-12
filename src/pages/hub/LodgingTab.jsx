@@ -14,7 +14,7 @@ import { MAX_PER_ACCOUNT } from '../../lib/limits';
 import { useT } from '../../lib/i18n';
 
 const MAX_BEDS = MAX_PER_ACCOUNT; // 5 beds per account on any one night
-const MAX_NIGHTS = 7; // same limit as the server
+const MAX_NIGHTS = 5; // same limit as the server: the longest stay
 
 // Bed counts are per night: the number shown is free on EVERY night of the chosen stay
 const availability = (n, t) =>

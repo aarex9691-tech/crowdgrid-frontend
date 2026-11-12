@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import API, { errorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
-import { addDaysIST, DOMAIN_LABELS, fmtDate, todayIST } from '../../lib/format';
+import { DOMAIN_LABELS, fmtDate, nextYatraDays } from '../../lib/format';
 import Notice from '../../components/Notice';
 import useLoginGate from './useLoginGate';
 
@@ -39,7 +39,7 @@ export default function SevaTab({ event }) {
       .catch(() => setExisting(null));
   }, [user, event._id]);
 
-  const days = Array.from({ length: 7 }, (_, i) => addDaysIST(todayIST(), i));
+  const days = nextYatraDays(event, 7); // the next 7 days of the yatra (from day 1 if it has not started)
   const toggleDay = (d) => setForm((f) => ({ ...f, dates: f.dates.includes(d) ? f.dates.filter((x) => x !== d) : [...f.dates, d] }));
 
   const submit = async (e) => {

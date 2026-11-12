@@ -2,7 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Armchair, Minus, Plus } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
-import { CATEGORY_LABELS, MEAL_LABELS } from '../../lib/format';
+import { CATEGORY_LABELS, fmtDate, MEAL_LABELS } from '../../lib/format';
 import Notice, { Loading } from '../../components/Notice';
 import VolunteerReview from './VolunteerReview';
 
@@ -183,7 +183,9 @@ export default function NgoPortal() {
       </section>
 
       <section className="space-y-3" aria-labelledby="kitchens">
-        <h2 id="kitchens" className="text-2xl font-bold">Kitchens: today's token quotas</h2>
+        <h2 id="kitchens" className="text-2xl font-bold">
+          {data.prebooking ? `Kitchens: token quotas for day 1 (${fmtDate(`${data.today}T12:00:00+05:30`)})` : "Kitchens: today's token quotas"}
+        </h2>
         {data.foodCenters.length === 0 && <Notice>Your organisation has no kitchens listed.</Notice>}
         {data.foodCenters.map((c) => (
           <div key={c._id} className="panel p-4">

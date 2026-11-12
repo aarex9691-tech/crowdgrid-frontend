@@ -13,6 +13,23 @@ export const todayIST = () => new Intl.DateTimeFormat('en-CA', { timeZone: IST }
 export const addDaysIST = (dateStr, n) =>
   new Intl.DateTimeFormat('en-CA', { timeZone: IST }).format(new Date(new Date(`${dateStr}T12:00:00+05:30`).getTime() + n * 86400000));
 
+/** Days of a yatra that can be booked: from day 1 (or today, once it has started) to the last day. Same rule as the server. */
+export const yatraDays = (event) => {
+  const today = todayIST();
+  const day = (d) => (d ? new Intl.DateTimeFormat('en-CA', { timeZone: IST }).format(new Date(d)) : today);
+  const start = day(event?.startDate);
+  const end = event?.endDate ? day(event.endDate) : addDaysIST(start, 365);
+  return { today, start, end, first: start > today ? start : today, prebooking: today < start };
+};
+
+/** Up to `n` bookable days from the first one, never past the last day. */
+export const nextYatraDays = (event, n) => {
+  const { first, end } = yatraDays(event);
+  const out = [];
+  for (let d = first; d <= end && out.length < n; d = addDaysIST(d, 1)) out.push(d);
+  return out;
+};
+
 export const compactNumber = (n) => new Intl.NumberFormat('en-IN', { notation: 'compact', maximumFractionDigits: 1 }).format(n);
 
 export const CATEGORY_LABELS = {

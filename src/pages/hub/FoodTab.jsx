@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import API, { errorMessage } from '../../lib/api';
 import { cachePass } from '../../lib/passCache';
-import { addDaysIST, fmtDate, MEAL_LABELS, todayIST } from '../../lib/format';
+import { addDaysIST, fmtDate, MEAL_LABELS, nextYatraDays, todayIST } from '../../lib/format';
 import Notice, { Loading } from '../../components/Notice';
 import PassCard from '../../components/PassCard';
 import useLoginGate from './useLoginGate';
@@ -26,11 +26,11 @@ export default function FoodTab({ event }) {
   const t = useT();
   const { user } = useAuth();
   const staff = !canBook(user);
-  // Tokens open for 4 days from today, or from the first day of a yatra that has not started yet
-  const startDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date(event.startDate));
-  const today = todayIST() > startDay ? todayIST() : startDay;
+  // Tokens for up to 4 days of the yatra: from today, or from day 1 of a yatra that has not started yet
+  const days = nextYatraDays(event, 4);
+  const realToday = todayIST();
   const [params] = useSearchParams();
-  const [date, setDate] = useState(() => (params.get('date') >= today ? params.get('date') : today));
+  const [date, setDate] = useState(() => (days.includes(params.get('date')) ? params.get('date') : days[0] || realToday));
   const [meal, setMeal] = useState(() => (['BREAKFAST', 'LUNCH', 'DINNER'].includes(params.get('meal')) ? params.get('meal') : currentMeal()));
   const [sector, setSector] = useState(() => params.get('sector') || '');
   const [data, setData] = useState(null);
@@ -89,14 +89,13 @@ export default function FoodTab({ event }) {
     );
   }
 
-  const days = Array.from({ length: 4 }, (_, i) => addDaysIST(today, i));
 
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap gap-2" role="group" aria-label="Day">
-        {days.map((d, i) => (
+        {days.map((d) => (
           <button key={d} type="button" aria-pressed={d === date} onClick={() => setDate(d)} className={d === date ? 'btn-ink' : 'btn-ghost'}>
-            {i === 0 ? t('food.today') : i === 1 ? t('food.tomorrow') : fmtDate(d, { year: undefined, weekday: 'short' })}
+            {d === realToday ? t('food.today') : d === addDaysIST(realToday, 1) ? t('food.tomorrow') : fmtDate(d, { year: undefined, weekday: 'short' })}
           </button>
         ))}
       </div>

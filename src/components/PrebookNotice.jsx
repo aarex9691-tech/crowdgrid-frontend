@@ -9,7 +9,7 @@ export default function PrebookNotice({ event }) {
     <div className="panel border-marigold/40 bg-marigold-wash/60 p-4" data-testid="prebook-notice">
       <p className="font-bold">Pre-booking is open. {event.title} starts on {fmtDate(event.startDate)}.</p>
       <ul className="mt-2 list-disc space-y-1 pl-5 text-ink-soft">
-        <li>Stay: choose your check-in and check-out dates, from day 1 to the last day.</li>
+        <li>Stay: choose your check-in and check-out dates within the yatra, up to 5 nights.</li>
         <li>Shuttles: choose the day you will travel. One pass covers up to 5 people for that day.</li>
         <li>Meals: tokens for the first days of the yatra can be taken now.</li>
       </ul>
