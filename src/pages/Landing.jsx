@@ -53,11 +53,11 @@ function Media({ slot, flat = false }) {
 function Hero({ onInvite }) {
   const t = useT();
   return (
-    <section className="cg-shell grid items-center gap-10 pt-8 pb-4 sm:pt-12 lg:grid-cols-[0.85fr_1.45fr] xl:grid-cols-[0.78fr_1.55fr] lg:gap-12 xl:gap-16">
-      <div className="cg-rise">
-        <h1 className="cg-h1">{t('home.title1')}<br />{t('home.title2')}</h1>
-        <p className="mt-5 max-w-md text-lg text-ink-soft">{t('home.lead')}</p>
-        <div className="mt-7 flex flex-wrap gap-3">
+    <section className="cg-shell grid items-center gap-6 py-3 sm:py-5 lg:min-h-[calc(100dvh-4.5rem)] lg:max-h-[820px] lg:grid-cols-[0.85fr_1.45fr] xl:grid-cols-[0.78fr_1.55fr] lg:gap-12 xl:gap-16">
+      <div className="cg-rise py-1">
+        <h1 className="cg-h1 font-bold tracking-tight text-ink">{t('home.title1')}<br />{t('home.title2')}</h1>
+        <p className="mt-3.5 sm:mt-4 max-w-md text-base sm:text-lg text-ink-soft leading-relaxed">{t('home.lead')}</p>
+        <div className="mt-5 sm:mt-6 flex flex-wrap gap-3">
           <Link to="/events" className="cg-btn cg-btn-saffron">
             {t('home.find')} <ArrowRight size={18} aria-hidden />
           </Link>
@@ -65,10 +65,9 @@ function Hero({ onInvite }) {
             <KeyRound size={18} aria-hidden /> {t('home.haveCode')}
           </button>
         </div>
-
       </div>
 
-      <nav aria-label={t('home.chooseKind')} className="cg-tri" data-depth-group>
+      <nav aria-label={t('home.chooseKind')} className="cg-tri my-auto" data-depth-group>
         {KINDS.map((k, i) => (
           <Link key={k.id} to={`/events?tab=${k.tab}`} className={`cg-panel cg-rise cg-rise-${i + 1}`} style={{ background: k.color }}>
             <span className="cg-panel-art"><Media slot={k.id} /></span>
