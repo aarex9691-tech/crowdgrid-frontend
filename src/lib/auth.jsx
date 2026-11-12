@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import API from './api';
 
 const AuthContext = createContext(null);
@@ -46,34 +46,50 @@ export const STAFF_ROLES = ['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'NGO_
 export const canBook = (user) => !user || user.role === 'USER';
 export const HOST_ROLES = ['SUPER_ADMIN', 'AUTHORITY'];
 
+/** Everything stored for the signed-in person (not the language or other device settings). */
+function clearPersonalCache() {
+  for (const k of ['cg_passes', 'cg_cart', 'cg_myqr', 'cg_myqr_live']) localStorage.removeItem(k);
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => (localStorage.getItem('cg_token') ? readCachedUser() : null));
 
+  // Bumped on logout: a profile request that started before it must not log the person back in
+  const session = useRef(0);
+
   const save = useCallback((token, nextUser) => {
+    // A different person on this phone: drop the previous person's passes, QR and cart first
+    const before = readCachedUser();
+    const idOf = (u) => String(u?._id || u?.id || '');
+    if (before && idOf(before) !== idOf(nextUser)) clearPersonalCache();
     if (token) localStorage.setItem('cg_token', token);
     localStorage.setItem('cg_user', JSON.stringify(nextUser));
     setUser(nextUser);
   }, []);
 
   const logout = useCallback(() => {
+    session.current += 1;
     localStorage.removeItem('cg_token');
     localStorage.removeItem('cg_user');
-    localStorage.removeItem('cg_passes');
-    localStorage.removeItem('cg_cart');
-    localStorage.removeItem('cg_myqr');
-    localStorage.removeItem('cg_myqr_live');
+    clearPersonalCache();
     setUser(null);
   }, []);
 
   // Refresh the profile on load: the role may have changed (e.g. NGO verified).
   // Offline, the cached profile keeps the passbook usable.
   const refresh = useCallback(async () => {
-    if (!localStorage.getItem('cg_token')) return;
+    const token = localStorage.getItem('cg_token');
+    if (!token) return false;
+    const started = session.current;
     try {
       const { data } = await API.get('/auth/me');
+      // logged out (or someone else logged in) while this was loading: ignore the old answer
+      if (session.current !== started || localStorage.getItem('cg_token') !== token) return false;
       save(null, data);
+      return true;
     } catch (err) {
-      if (err.response?.status === 401) logout();
+      if (err.response?.status === 401 && session.current === started) logout();
+      return false;
     }
   }, [save, logout]);
 
@@ -95,11 +111,13 @@ export function AuthProvider({ children }) {
       user,
       async login(identifier, password, countryCode = '91') {
         const { data } = await API.post('/auth/login', { identifier, password, countryCode });
+        session.current += 1; // a profile request from before this login must not overwrite it
         save(data.token, data.user);
         return data.user;
       },
       async register(form) {
         const { data } = await API.post('/auth/register', form);
+        session.current += 1;
         save(data.token, data.user);
         return data.user;
       },
