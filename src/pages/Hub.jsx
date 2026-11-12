@@ -3,6 +3,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { BedDouble, BusFront, Footprints, HandHeart, Info, Siren, UtensilsCrossed } from 'lucide-react';
 import API, { errorMessage } from '../lib/api';
 import { fmtDate } from '../lib/format';
+import PrebookNotice from '../components/PrebookNotice';
 import Notice, { Loading } from '../components/Notice';
 import { canBook, homeFor, ROLE_LABELS, useAuth } from '../lib/auth';
 import LodgingTab from './hub/LodgingTab';
@@ -94,6 +95,7 @@ export default function Hub() {
       )}
 
       <div className="shell space-y-4 py-6" role="tabpanel">
+        {canBook(user) && <PrebookNotice event={event} />}
         <YatraGuide event={event} />
         <p className="flex items-start gap-2 text-ink-soft" data-testid="tab-hint">
           <Info size={18} className="mt-1 shrink-0 text-ink-faint" aria-hidden />
