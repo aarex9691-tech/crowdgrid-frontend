@@ -44,7 +44,8 @@ export default function TransitTab({ event }) {
   const t = useT();
   const { user } = useAuth();
   const staff = !canBook(user);
-  const [routes, setRoutes] = useState(null);
+  const [loaded, setLoaded] = useState({ day: null, routes: null }); // routes and the day they were read for
+  const routes = loaded.routes;
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(null);
   const [issued, setIssued] = useState(null);
@@ -58,12 +59,18 @@ export default function TransitTab({ event }) {
   const firstDay = start > today ? start : today;
   const [day, setDay] = useState(firstDay);
   const prebooking = !!routes?.some((r) => r.prebooking);
+  const stale = loaded.day !== day; // seats on screen are for another day until the new answer arrives
 
   useEffect(() => {
+    // Only the answer for the day still chosen is shown (quick day changes can answer out of order)
+    let live = true;
     setError('');
     API.get('/transit', { params: { eventId: event._id, date: day } })
-      .then(({ data }) => setRoutes(data))
-      .catch((e) => setError(errorMessage(e)));
+      .then(({ data }) => live && setLoaded({ day, routes: data }))
+      .catch((e) => live && setError(errorMessage(e)));
+    return () => {
+      live = false;
+    };
   }, [event._id, day]);
 
   const [people, setPeople] = useState({}); // route id -> how many travel on the pass
@@ -154,7 +161,9 @@ export default function TransitTab({ event }) {
                 {r.vehicleType} · every {r.frequencyMins} min · {r.firstDeparture} to {r.lastDeparture}
               </p>
               <p className="text-ink-soft">{t('transit.boardAt', { gate: r.boardingGate })}</p>
-              {typeof r.seatsLeft === 'number' && (
+              {stale ? (
+                <p className="mt-1 text-ink-soft">Checking seats for this day…</p>
+              ) : typeof r.seatsLeft === 'number' && (
                 <p className="mt-1">
                   {r.seatsLeft === 0 ? (
                     <span className="pill-out">{t('transit.full', { day: r.travelDay })}</span>
@@ -169,7 +178,7 @@ export default function TransitTab({ event }) {
               {!staff && (
                 <div className="mt-5 flex flex-wrap items-end gap-4">
                   <PeopleStepper id={`tp-${r._id}`} label={t('transit.travelling')} value={peopleFor(r._id)} onChange={(v) => setPeople((p) => ({ ...p, [r._id]: v }))} hint="One pass for up to 5 people" />
-                  <button type="button" className="btn-primary" disabled={busy === r._id || r.seatsLeft === 0 || (typeof r.seatsLeft === 'number' && peopleFor(r._id) > r.seatsLeft)} onClick={() => getPass(r)}>
+                  <button type="button" className="btn-primary" disabled={stale || busy === r._id || r.seatsLeft === 0 || (typeof r.seatsLeft === 'number' && peopleFor(r._id) > r.seatsLeft)} onClick={() => getPass(r)}>
                     {busy === r._id ? t('transit.preparing') : r.fare > 0 ? t('lodging.addToCart', { amount: rupees(r.fare * peopleFor(r._id)) }) : t('transit.getPass')}
                   </button>
                 </div>
