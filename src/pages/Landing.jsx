@@ -25,7 +25,7 @@ import { DEFAULT_EVENTS } from '../data/defaultEvents';
 import { LANDING_MEDIA } from '../data/landingMedia';
 import { openTour } from '../components/GuidedTour';
 import GatheringGallery from '../components/GatheringGallery';
-import GhatDiorama from '../components/heritage/GhatDiorama';
+import BigDays from '../components/BigDays';
 import YatraRing from '../components/heritage/YatraRing';
 
 /*
@@ -376,7 +376,7 @@ export default function Landing() {
       <NextUp yatras={yatras} onInvite={openInvite} />
       <Services />
       <HowItWorks />
-      <GhatDiorama />
+      <BigDays yatras={yatras} />
       <Upcoming yatras={yatras} publicEvents={publicEvents} tab={tab} setTab={setTab} sectionRef={upcomingRef} />
       <ForEveryone />
       <HostCta />
