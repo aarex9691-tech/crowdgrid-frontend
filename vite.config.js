@@ -12,6 +12,9 @@ export default defineConfig(({ mode }) => ({
   plugins: [react(), ...(mode === 'phone' ? [basicSsl()] : [])],
   server: {
     host: true,
+    // Lets teammates open the dev server through a Cloudflare quick tunnel
+    // (`cloudflared tunnel --url http://localhost:5173`) or ngrok
+    allowedHosts: ['.trycloudflare.com', '.ngrok-free.app'],
     proxy: {
       '/api': { target: API_TARGET, changeOrigin: true },
       '/uploads': { target: API_TARGET, changeOrigin: true },

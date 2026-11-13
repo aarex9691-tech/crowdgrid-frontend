@@ -9,6 +9,7 @@ import Notice, { Loading } from '../components/Notice';
 import PassCard from '../components/PassCard';
 import useLoginGate from './hub/useLoginGate';
 import PageHero from '../components/PageHero';
+import { useCelebrate } from '../components/SuccessSplash';
 
 /** Corporate path: access code -> session checklist -> digital badge. */
 export default function Corporate() {
@@ -22,6 +23,7 @@ export default function Corporate() {
   const [sessions, setSessions] = useState(null);
   const [chosen, setChosen] = useState([]);
   const [badge, setBadge] = useState(null);
+  const celebrate = useCelebrate();
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -66,6 +68,7 @@ export default function Corporate() {
       const { data } = await API.post(`/events/${event._id}/corporate/badge`, { code, sessions: chosen });
       cachePass(data.pass);
       setBadge(data.pass);
+      celebrate({ title: 'Badge issued', line: 'Your badge is in your passbook.' });
     } catch (err) {
       setError(errorMessage(err));
     } finally {

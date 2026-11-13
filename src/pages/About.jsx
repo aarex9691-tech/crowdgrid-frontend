@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 import { SITE } from '../lib/site';
 import PageHero from '../components/PageHero';
+import CraftsOfIndia from '../components/heritage/CraftsOfIndia';
 
 const CHALLENGES = [
   { icon: Users, title: 'Crowds bigger than cities', text: 'One festival day can draw more people than most cities hold. Narrow lanes turn unsafe fast.' },
@@ -119,6 +120,8 @@ export default function About() {
           </p>
         </section>
 
+        <CraftsOfIndia />
+
         <section aria-labelledby="trust-title" className="rounded-2xl bg-mist p-6 sm:p-10">
           <h2 id="trust-title" className="text-2xl font-bold sm:text-3xl">Trust and safety</h2>
           <p className="mt-1 text-ink-soft">How we keep people and their data safe.</p>
@@ -140,7 +143,7 @@ export default function About() {
             <ul className="mt-4 space-y-3">
               <li>
                 <a className="flex min-h-11 items-center gap-3 font-semibold underline" href={`mailto:${SITE.email}`}>
-                  <Mail size={20} aria-hidden /> {SITE.email}
+                  <Mail size={20} className="shrink-0" aria-hidden /> <span className="min-w-0 [overflow-wrap:anywhere]">{SITE.email}</span>
                 </a>
               </li>
               <li>

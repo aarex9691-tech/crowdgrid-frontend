@@ -10,6 +10,7 @@ import PassCard from '../../components/PassCard';
 import useLoginGate from './useLoginGate';
 import { canBook, useAuth } from '../../lib/auth';
 import { useLive } from '../../lib/realtime';
+import { useCelebrate } from '../../components/SuccessSplash';
 
 const MEAL_TIMES = { BREAKFAST: '7 – 9 am', LUNCH: '12 – 3 pm', DINNER: '7 – 10 pm' };
 
@@ -37,6 +38,7 @@ export default function FoodTab({ event }) {
   const [error, setError] = useState('');
   const [busySlot, setBusySlot] = useState(null);
   const [claimed, setClaimed] = useState(null);
+  const celebrate = useCelebrate();
   const [people, setPeople] = useState(1);
   const [names, setNames] = useState('');
 
@@ -68,6 +70,7 @@ export default function FoodTab({ event }) {
       const { data: res } = await API.post(`/food/slots/${slot._id}/claim`, { people, names });
       cachePass(res.pass);
       setClaimed(res);
+      celebrate({ title: 'Meal token ready', line: 'Show the QR at the counter.' });
     } catch (e) {
       setError(errorMessage(e));
       load();

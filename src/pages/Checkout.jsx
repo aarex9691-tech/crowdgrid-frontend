@@ -7,6 +7,7 @@ import { cachePass } from '../lib/passCache';
 import Notice from '../components/Notice';
 import PassCard from '../components/PassCard';
 import PageTitle from '../components/PageTitle';
+import { useCelebrate } from '../components/SuccessSplash';
 
 const cardDigits = (v) => v.replace(/\D/g, '').slice(0, 16).replace(/(\d{4})(?=\d)/g, '$1 ');
 const expiryFmt = (v) => {
@@ -196,6 +197,7 @@ function Receipt({ order }) {
 }
 
 export default function Checkout() {
+  const celebrate = useCelebrate();
   const cart = useCart();
   const [order, setOrder] = useState(null);
   const [paid, setPaid] = useState(null);
@@ -226,6 +228,10 @@ export default function Checkout() {
     data.passes.forEach(cachePass);
     cart.clear();
     setPaid(data);
+    celebrate({
+      title: data.total > 0 ? 'Payment successful' : 'Booking confirmed',
+      line: 'Your passes are in your passbook.',
+    });
   };
 
   const step = paid ? 2 : order ? 1 : 0;

@@ -27,7 +27,7 @@ export const homeFor = (role) =>
 // Which roles may open each restricted page (same lists as the <RequireRole> routes in App.jsx)
 const PAGE_ROLES = [
   [/^\/scan/, ['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'NGO_ADMIN', 'VOLUNTEER']],
-  [/^\/(control|analytics|host|helpdesk)/, ['SUPER_ADMIN', 'AUTHORITY']],
+  [/^\/(control|analytics|host|helpdesk|volunteers)/, ['SUPER_ADMIN', 'AUTHORITY']],
   [/^\/corporate-admin/, ['SUPER_ADMIN', 'CORPORATE_ADMIN']],
   [/^\/camps\/.+\/map/, ['SUPER_ADMIN', 'AUTHORITY', 'NGO_ADMIN']],
   [/^\/ngo/, ['SUPER_ADMIN', 'NGO_ADMIN']],

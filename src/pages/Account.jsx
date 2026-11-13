@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import API, { errorMessage } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { useConfirm } from '../lib/confirm';
+import { useCelebrate } from '../components/SuccessSplash';
 import { CATEGORY_LABELS } from '../lib/format';
 import Notice from '../components/Notice';
 import ProfilePanel from '../components/ProfilePanel';
@@ -112,6 +113,7 @@ function RegisterOrganisation({ onDone }) {
 function SecurityPanel() {
   const { logout } = useAuth();
   const confirm = useConfirm();
+  const celebrate = useCelebrate();
   const [state, setState] = useState({ busy: false, error: '' });
   const logoutAll = async () => {
     const ok = await confirm({ title: 'Log out of every device?', message: 'This signs you out on all phones and computers, including this one.', confirmLabel: 'Log out everywhere', cancelLabel: 'Cancel', icon: 'logout', tone: 'danger' });
@@ -119,8 +121,12 @@ function SecurityPanel() {
     setState({ busy: true, error: '' });
     try {
       await API.post('/auth/logout-all');
-      logout();
-      window.location.assign('/login');
+      celebrate({
+        tone: 'leave',
+        title: 'Logged out everywhere',
+        line: 'Every phone and computer is signed out.',
+        then: () => { logout(); window.location.assign('/login'); },
+      });
     } catch (e) {
       setState({ busy: false, error: errorMessage(e) });
     }

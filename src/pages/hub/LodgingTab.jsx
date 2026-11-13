@@ -12,6 +12,7 @@ import { canBook, useAuth } from '../../lib/auth';
 import { useLive } from '../../lib/realtime';
 import { MAX_PER_ACCOUNT } from '../../lib/limits';
 import { useT } from '../../lib/i18n';
+import { useCelebrate } from '../../components/SuccessSplash';
 
 const MAX_BEDS = MAX_PER_ACCOUNT; // 5 beds per account on any one night
 const MAX_NIGHTS = 7; // same limit as the server
@@ -143,6 +144,7 @@ function BookingSteps({ steps }) {
 }
 
 function BookingForm({ lodging, onDone, onCancel, onAdded, stay, prefill = {} }) {
+  const celebrate = useCelebrate();
   const cart = useCart();
   const t = useT();
   const { checkIn, checkOut } = stay; // chosen once at the top of the tab
@@ -189,6 +191,7 @@ function BookingForm({ lodging, onDone, onCancel, onAdded, stay, prefill = {} })
     try {
       const { data } = await API.post(`/lodgings/${lodging._id}/book`, input);
       cachePass(data.pass);
+      celebrate({ title: 'Stay booked', line: 'Your pass is in your passbook.' });
       onDone(data);
     } catch (err) {
       setError(errorMessage(err));

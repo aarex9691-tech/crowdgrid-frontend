@@ -213,7 +213,7 @@ export default function ProfilePanel() {
             <div className={`h-full rounded-full ${pct === 100 ? 'bg-tulsi' : 'bg-marigold'}`} style={{ width: `${pct}%` }} />
           </div>
           {missing.length > 0 && !group && (
-            <button type="button" className="mt-1 text-sm font-semibold text-ink underline-offset-2 hover:underline" onClick={() => open(missing[0].group)}>
+            <button type="button" className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-ink underline-offset-2 hover:underline" onClick={() => open(missing[0].group)}>
               Next: add your {missing[0].label.toLowerCase()}
             </button>
           )}

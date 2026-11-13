@@ -9,6 +9,7 @@ import MyQrCard from '../components/MyQrCard';
 import CancelPassDialog from '../components/CancelPassDialog';
 import { useAuth } from '../lib/auth';
 import PageTitle from '../components/PageTitle';
+import { useCelebrate } from '../components/SuccessSplash';
 
 /**
  * My Yatra Passbook (FR-11). Loads passes from the API and caches them; with no
@@ -26,6 +27,7 @@ export default function Passbook() {
   const { user } = useAuth();
   const [cancelling, setCancelling] = useState(null); // pass shown in the cancel pop-up
   const [done, setDone] = useState('');
+  const celebrate = useCelebrate();
 
   const load = () =>
     API.get('/passes/mine')
@@ -118,6 +120,7 @@ export default function Passbook() {
           onDone={(res) => {
             setCancelling(null);
             setDone(res.message);
+            celebrate({ tone: 'cancel', title: 'Booking cancelled', line: 'The pass no longer works at the gate.' });
             setShowPast(true);
             load();
           }}

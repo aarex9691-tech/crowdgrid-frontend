@@ -59,9 +59,20 @@ body {
 @layer base {
   button:not(:disabled), [role='button'], [role='tab'], summary, label[for], select { cursor: pointer; }
   html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--header-h, 4rem) + 0.75rem); }
+  /* One content width for every page, header and footer; it grows on big monitors */
+  :root { --page-max: 76rem; }
+  @media (min-width: 1600px) { :root { --page-max: 84rem; } }
+  @media (min-width: 2000px) { :root { --page-max: 92rem; } }
+  /* Big monitors: everything sized in rem grows a little, so text is not tiny on a 27-inch screen */
+  @media (min-width: 1800px) { html { font-size: 106.25%; } }
+  @media (min-width: 2300px) { html { font-size: 112.5%; } }
+  /* Grid columns may shrink below their content (long emails, URLs), and long words wrap,
+     so nothing can push a page sideways on a small phone. Utilities (min-w-*) still win. */
+  .grid > * { min-width: 0; }
+  body { overflow-wrap: break-word; }
   body {
     @apply text-ink font-sans antialiased;
-    font-size: 17px;
+    font-size: 1.0625rem; /* 17px; grows with the root on big monitors */
     line-height: 1.55;
   }
   h1, h2, h3 { line-height: 1.2; text-wrap: balance; }
@@ -74,7 +85,7 @@ body {
   }
 }
 
-@utility shell { @apply mx-auto w-full max-w-6xl px-4 sm:px-6; }
+@utility shell { @apply mx-auto w-full px-4 sm:px-6; max-width: var(--page-max, 76rem); }
 
 /* Controls share a 12px corner; cards 16px; photos 24px; chips are pills. */
 @utility btn {

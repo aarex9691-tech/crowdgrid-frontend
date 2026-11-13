@@ -76,10 +76,12 @@ const dateRange = (e) => {
 };
 const themeFor = (e) => THEMES.find((t) => t.test.test(`${e.title} ${e.city} ${e.slug}`)) || { Emblem: Lamp, tone: 'gerua' };
 
-export default function YatraRing({ yatras = [] }) {
-  const [at, setAt] = useState(0);
+export default function YatraRing({ yatras = [], showHeading = true }) {
+  const [chosen, setAt] = useState(0);
   const n = yatras.length;
   if (!n) return null;
+  // the list can shrink (e.g. after the live list replaces the defaults), so keep the index inside it
+  const at = chosen % n;
   const turn = (d) => setAt((at + d + n) % n);
   // shortest way round the ring from the chosen card to card i
   const offset = (i) => {
@@ -94,13 +96,16 @@ export default function YatraRing({ yatras = [] }) {
   };
 
   return (
-    <section className="hx-ring" aria-labelledby="hx-ring-title">
-      <div className="hx-ring-head">
-        <h2 id="hx-ring-title" className="hx-title">Choose your yatra</h2>
-        <p className="hx-lede">Camps, meals, shuttles and help are open for each of them. One QR pass covers all.</p>
-      </div>
+    <section className="hx-ring" aria-labelledby={showHeading ? 'hx-ring-title' : undefined} aria-label={showHeading ? undefined : 'Yatras'}>
+      {showHeading && (
+        <div className="hx-ring-head">
+          <h2 id="hx-ring-title" className="hx-title">Choose your yatra</h2>
+          <p className="hx-lede">Camps, meals, shuttles and help are open for each of them. One QR pass covers all.</p>
+        </div>
+      )}
 
-      <div className="hx-ring-stage" role="group" aria-roledescription="carousel" aria-label="Yatras" onKeyDown={onKey}>
+      {/* focusable, so the left / right keys turn the ring */}
+      <div className="hx-ring-stage" role="group" aria-roledescription="carousel" aria-label="Yatras, use left and right arrow keys" tabIndex={n > 1 ? 0 : undefined} onKeyDown={onKey}>
         <ul className="hx-ring-track" role="list">
           {yatras.map((e, i) => {
             const d = offset(i);
