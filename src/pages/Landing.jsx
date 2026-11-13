@@ -77,7 +77,7 @@ function NextUp({ yatras, onInvite }) {
 
   const item = 'flex min-h-24 min-w-0 items-center gap-4 px-5 py-5 sm:px-7';
   return (
-    <section aria-labelledby="next-title" className="cg-shell pt-6">
+    <section aria-labelledby="next-title" className="cg-shell pt-6 pb-10 sm:pb-12">
       <div className="grid overflow-hidden rounded-3xl bg-white ring-1 ring-line md:grid-cols-[auto_1fr_1fr]">
         <h2 id="next-title" className="flex items-center gap-2.5 whitespace-nowrap bg-sand px-6 py-4 text-lg font-bold text-ink sm:px-8">
           <CalendarDays size={22} aria-hidden /> {t('next.title')}
@@ -127,7 +127,8 @@ function Services() {
   const t = useT();
   const [open, setOpen] = useState(false);
   return (
-    <section aria-labelledby="services-title" className="cg-shell cg-section">
+    <section aria-labelledby="services-title" className="border-y border-line bg-white/85">
+      <div className="cg-shell cg-section">
       <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
         <div className="max-w-xl">
           <h2 id="services-title" className="cg-h2">{t('svc.title')}</h2>
@@ -168,6 +169,7 @@ function Services() {
         >
           {open ? t('svc.less') : t('svc.more', { n: SERVICES.length })}
         </button>
+      </div>
       </div>
     </section>
   );

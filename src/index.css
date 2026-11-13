@@ -45,7 +45,7 @@
 
 body {
   position: relative;
-  background-color: #f8fafc;
+  background-color: #f7f6f3;
   color: #111c3a;
   min-height: 100dvh;
 }
@@ -58,10 +58,15 @@ body::before {
   inset: 0;
   z-index: -1;
   pointer-events: none;
+  /* colour comes from gradients (nothing to download): saffron light from the left,
+     chakra blue from the right, warm paper fading to a cool mist, over our own texture */
   background-image:
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.88)),
+    radial-gradient(64rem 32rem at 0% 0%, rgba(227, 111, 30, 0.15), transparent 66%),
+    radial-gradient(56rem 30rem at 100% 0%, rgba(31, 63, 143, 0.11), transparent 64%),
+    linear-gradient(to bottom, rgba(251, 248, 243, 0.86), rgba(243, 245, 250, 0.9)),
     url('/media/wave-texture.webp');
-  background-size: cover;
+  background-size: auto, auto, auto, cover;
+  background-repeat: no-repeat;
   background-position: center;
   will-change: transform;
 }

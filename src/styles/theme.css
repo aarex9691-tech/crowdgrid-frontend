@@ -226,6 +226,14 @@ h1 {
 .cg-auth { display: grid; min-height: calc(100dvh - var(--header-h, 4rem)); }
 .cg-auth-form { display: flex; justify-content: center; padding: 2.5rem 1rem 4rem; }
 .cg-auth-art { display: none; }
+/* the form on a white card, so it stands out from the page colour */
+.cg-auth-form > form {
+  background: #fff;
+  border: 1px solid var(--color-line, #dde2ec);
+  border-radius: 1.25rem;
+  padding: clamp(1.25rem, 4vw, 2.25rem);
+  box-shadow: 0 1px 2px rgb(17 28 58 / 0.05), 0 12px 32px -18px rgb(17 28 58 / 0.18);
+}
 @media (min-width: 1024px) {
   /* form and cards sit together as one centred group instead of each floating in its own half */
   .cg-auth {

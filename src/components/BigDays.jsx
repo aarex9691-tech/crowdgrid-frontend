@@ -53,12 +53,12 @@ export default function BigDays({ yatras = [], limit = 6 }) {
           </Link>
         </div>
 
-        <ol className="divide-y divide-line border-y border-line">
+        <ol className="divide-y divide-line rounded-2xl bg-white px-3 ring-1 ring-line sm:px-4">
           {rows.map((r) => (
             <li key={`${r.event.slug}-${r.label}`}>
               <Link
                 to={`/yatra/${r.event.slug}`}
-                className="group grid grid-cols-[3.75rem_minmax(0,1fr)] items-center gap-x-4 py-4 transition-colors hover:bg-white/70 sm:grid-cols-[4.75rem_minmax(0,1fr)_auto] sm:px-3"
+                className="group grid grid-cols-[3.75rem_minmax(0,1fr)] items-center gap-x-4 py-4 transition-colors hover:bg-mist/60 sm:grid-cols-[4.75rem_minmax(0,1fr)_auto] sm:px-3"
               >
                 <time dateTime={r.day} className="row-span-2 text-center leading-none sm:row-span-1">
                   <span className="block font-display text-[2.4rem] text-ink">{fmt(r.date, { day: 'numeric' })}</span>
