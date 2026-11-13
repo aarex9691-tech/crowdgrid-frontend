@@ -8,7 +8,7 @@ export default defineConfig([
   globalIgnores(['dist']),
   // Build tool config runs in Node, not the browser
   {
-    files: ['vite.config.js', 'postcss.config.js', 'tailwind.config.js'],
+    files: ['vite.config.js', 'postcss.config.js', 'tailwind.config.js', 'playwright.config.js', 'e2e/**/*.js'],
     languageOptions: { globals: globals.node },
   },
   {
