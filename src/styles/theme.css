@@ -497,24 +497,22 @@ a.cg-band:hover { background-color: var(--cg-blue-deep); }
 /* ── Yatras (Simhastha Kumbh Mela, Pandharpur Wari, Jagannath Rath Yatra) heritage wallpaper ─────────────── */
 :is(.cg-yatra-theme, .cg-kumbh-theme) {
   position: relative;
-  background-color: #fbf9f5 !important;
-  background-image:
-    linear-gradient(to bottom, rgba(254, 252, 248, 0.88), rgba(254, 252, 248, 0.92)),
-    url('/media/kumbh-pattern.jpg') !important;
-  background-repeat: repeat !important;
-  background-size: 380px auto !important;
-  background-attachment: fixed !important;
+  background: transparent !important; /* the pattern sits on the page layer below */
   min-height: 100dvh;
 }
 
+/* Same fixed page layer as the default texture (index.css), with the heritage pattern instead:
+   no background-attachment: fixed, so scrolling stays smooth on cheap phones */
 body:has(.cg-yatra-theme, .cg-kumbh-theme) {
   background-color: #fbf9f5 !important;
+}
+body:has(.cg-yatra-theme, .cg-kumbh-theme)::before {
   background-image:
     linear-gradient(to bottom, rgba(254, 252, 248, 0.88), rgba(254, 252, 248, 0.92)),
-    url('/media/kumbh-pattern.jpg') !important;
-  background-repeat: repeat !important;
-  background-size: 380px auto !important;
-  background-attachment: fixed !important;
+    url('/media/kumbh-pattern.webp');
+  background-repeat: repeat;
+  background-size: 380px auto;
+  background-position: top left;
 }
 
 :is(.cg-yatra-theme, .cg-kumbh-theme) nav[role="tablist"],

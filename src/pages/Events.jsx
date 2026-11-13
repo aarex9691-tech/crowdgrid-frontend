@@ -14,21 +14,21 @@ import PageTitle from '../components/PageTitle';
 
 const TAB_PREVIEWS = {
   yatras: {
-    src: LANDING_MEDIA.pilgrimage.src,
+    src: LANDING_MEDIA.pilgrimage.small, // a small banner: the 800px copy is plenty
     badge: 'Flagship Pilgrimage',
     title: 'Simhastha Kumbh Mela',
     subtitle: 'Nashik · Trimbakeshwar 2026',
     to: '/yatra/simhastha-kumbh-mela-2026',
   },
   public: {
-    src: LANDING_MEDIA.public.src,
+    src: LANDING_MEDIA.public.small, // a small banner: the 800px copy is plenty
     badge: 'Public Gatherings',
     title: 'Concerts & Cultural Fests',
     subtitle: 'Tickets, Entry Passes & Wristbands',
     to: '/events?tab=public',
   },
   corporate: {
-    src: LANDING_MEDIA.corporate.src,
+    src: LANDING_MEDIA.corporate.small, // a small banner: the 800px copy is plenty
     badge: 'Campus & Summits',
     title: 'Conferences & Keynotes',
     subtitle: 'Digital Badges & Session Passes',

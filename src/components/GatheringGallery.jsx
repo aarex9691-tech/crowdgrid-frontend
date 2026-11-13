@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useT } from '../lib/i18n';
-import { focusPosition, LANDING_MEDIA } from '../data/landingMedia';
+import { focusPosition, LANDING_MEDIA, srcSetOf } from '../data/landingMedia';
 
 /*
  * The three kinds of gathering as photo cards, shared by the home page and log in / sign up.
@@ -27,7 +27,16 @@ function Card({ id, shape, linked, index }) {
   const body = (
     <>
       <span className="cg-gal-photo" style={{ aspectRatio: shape }}>
-        <img src={m.src} alt="" decoding="async" style={{ objectPosition: focusPosition(m) }} />
+        <img
+          src={m.src}
+          srcSet={srcSetOf(m)}
+          sizes="(min-width: 1024px) 45vw, 100vw"
+          alt=""
+          decoding="async"
+          loading={index === 0 ? 'eager' : 'lazy'}
+          fetchPriority={index === 0 ? 'high' : 'auto'}
+          style={{ objectPosition: focusPosition(m) }}
+        />
       </span>
       <span className="cg-gal-cap">
         <span className="cg-dot shrink-0" style={{ background: k.dot }} />
@@ -49,10 +58,11 @@ function Card({ id, shape, linked, index }) {
 
 /** linked: cards open the events list for that kind (home). Otherwise decorative (log in, sign up). */
 export default function GatheringGallery({ linked = false, label }) {
-  let i = 0;
-  const rows = ROWS.map((row) => (
+  // card number across the rows (for the staggered entrance and which photo loads first)
+  const starts = ROWS.map((_, r) => ROWS.slice(0, r).reduce((n, row) => n + row.length, 0));
+  const rows = ROWS.map((row, r) => (
     <div key={row.map(([id]) => id).join()} className="cg-gal-row">
-      {row.map(([id, shape]) => <Card key={id} id={id} shape={shape} linked={linked} index={i++} />)}
+      {row.map(([id, shape], j) => <Card key={id} id={id} shape={shape} linked={linked} index={starts[r] + j} />)}
     </div>
   ));
   return linked

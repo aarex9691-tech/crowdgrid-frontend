@@ -22,9 +22,7 @@ import { useT } from '../lib/i18n';
 import { fmtDate } from '../lib/format';
 import { InvitationCodeBox, PublicEventList } from '../components/EventCards';
 import { DEFAULT_EVENTS } from '../data/defaultEvents';
-import { isVideo, LANDING_MEDIA } from '../data/landingMedia';
-import { CorporateScene, PilgrimageScene, PublicScene } from '../components/landing/Scenes';
-import DepthImage from '../components/landing/DepthImage';
+import { LANDING_MEDIA } from '../data/landingMedia';
 import { openTour } from '../components/GuidedTour';
 import GatheringGallery from '../components/GatheringGallery';
 import GhatDiorama from '../components/heritage/GhatDiorama';
@@ -40,19 +38,6 @@ const KINDS = [
   { id: 'corporate', tab: 'corporate', color: '#138A43', deep: '#0D6331' },
 ];
 const KIND_BY_TAB = Object.fromEntries(KINDS.map((k) => [k.tab, k]));
-const SCENES = { pilgrimage: PilgrimageScene, public: PublicScene, corporate: CorporateScene };
-
-/** A photo or clip when one is set in landingMedia.js, otherwise the drawn scene. */
-function Media({ slot, flat = false }) {
-  const entry = LANDING_MEDIA[slot];
-  const src = typeof entry === 'string' ? entry : entry?.src;
-  const Scene = SCENES[slot];
-  if (src && isVideo(src)) return <video src={src} autoPlay muted loop playsInline aria-hidden="true" />;
-  if (src && entry.depth && !flat) return <DepthImage src={src} depth={entry.depth} focus={entry.focus} strength={entry.strength} />;
-  if (src) return <img src={src} alt="" decoding="async" style={entry.focus ? { objectPosition: `${entry.focus[0] * 100}% 50%` } : undefined} />;
-  return Scene ? <Scene /> : null;
-}
-
 function Hero({ onInvite }) {
   const t = useT();
   return (
@@ -324,15 +309,7 @@ function HostCta() {
           </div>
         </div>
         <div className="relative hidden min-h-64 md:block" aria-hidden>
-          {together ? (
-            isVideo(together)
-              ? <video src={together} autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" />
-              : <img src={together} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
-          ) : (
-            <div className="absolute inset-0 grid grid-cols-3">
-              {KINDS.map((k) => <div key={k.id} className="relative overflow-hidden"><Media slot={k.id} flat /></div>)}
-            </div>
-          )}
+          <img src={together} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
         </div>
       </div>
     </section>

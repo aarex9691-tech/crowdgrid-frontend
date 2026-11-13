@@ -46,14 +46,24 @@
 body {
   position: relative;
   background-color: #f8fafc;
-  background-image:
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.88)),
-    url('/media/white-wave-texture.jpg');
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-attachment: fixed;
   color: #111c3a;
   min-height: 100dvh;
+}
+
+/* Page texture (our own image) on its own fixed layer: unlike background-attachment: fixed,
+   this does not repaint the whole page on every scroll, which made cheap phones stutter. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.88)),
+    url('/media/wave-texture.webp');
+  background-size: cover;
+  background-position: center;
+  will-change: transform;
 }
 
 @layer base {
