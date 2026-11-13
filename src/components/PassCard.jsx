@@ -67,7 +67,7 @@ export default function PassCard({ pass, expanded = true, onCancel }) {
   };
 
   return (
-    <article className="cg-ticket" style={{ '--ticket-tone': SPENT.includes(pass.state) ? '#dde2ec' : TONE[pass.type] || TONE.PUBLIC }}>
+    <article data-no-translate className="cg-ticket" style={{ '--ticket-tone': SPENT.includes(pass.state) ? '#dde2ec' : TONE[pass.type] || TONE.PUBLIC }}>
       <span className="cg-ticket-stub" aria-hidden />
       <div className="cg-ticket-body">
       <div className="flex items-start gap-3 p-4">

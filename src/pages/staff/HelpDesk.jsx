@@ -73,7 +73,7 @@ export default function HelpDesk() {
   };
 
   return (
-    <div className="shell max-w-2xl space-y-6 py-8">
+    <div className="shell max-w-2xl space-y-6 py-8" data-no-translate>
       <div>
         <h1 className="text-3xl font-bold">Help desk</h1>
         <p className="text-ink-soft">Reset a pilgrim's forgotten password. Ask for an ID first and check that the name matches.</p>

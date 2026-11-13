@@ -125,7 +125,7 @@ export default function Scanner() {
   const choosing = result?.result === 'CHOOSE';
 
   return (
-    <div className="shell max-w-xl space-y-5 py-6">
+    <div className="shell max-w-xl space-y-5 py-6" data-no-translate>
       <div className="cg-pagehead">
         <PageTitle kicker="Volunteer" tone="green" title="Pass scanner" lead="Point the camera at a QR. Green means let them in." />
       </div>

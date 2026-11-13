@@ -193,7 +193,7 @@ export default function ProfilePanel() {
   };
 
   return (
-    <section className="panel overflow-hidden" aria-labelledby="profile-title">
+    <section className="panel overflow-hidden" aria-labelledby="profile-title" data-no-translate>
       {/* Header: who you are and how complete the profile is */}
       <div className="flex flex-wrap items-center gap-4 border-b border-line bg-gradient-to-r from-marigold-wash to-white p-5">
         <ProfilePhoto />

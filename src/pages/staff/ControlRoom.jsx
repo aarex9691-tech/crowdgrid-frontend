@@ -68,7 +68,7 @@ function SosQueue({ eventId }) {
 
   const open = items.filter((i) => i.status !== 'RESOLVED');
   return (
-    <section aria-labelledby="sos-q" className="space-y-3">
+    <section aria-labelledby="sos-q" className="space-y-3" data-no-translate>
       <h2 id="sos-q" className="flex items-center gap-2 text-2xl font-bold">
         SOS alerts <span className={open.length ? 'pill-out' : 'pill-quiet'}>{open.length} active</span>
       </h2>

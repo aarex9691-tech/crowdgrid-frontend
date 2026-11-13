@@ -717,6 +717,12 @@ let domObserver = null;
 let currentLanguage = readLang();
 let scanTimer = null;
 
+/**
+ * Text that must never be sent to the translation service: anything that looks like personal data.
+ * (Names, SOS messages and missing-person details are also kept out by the data-no-translate zones.)
+ */
+const looksPersonal = (str) => /@|\d{6,}|\+\d/.test(str);
+
 function shouldTranslateText(str) {
   if (!str || typeof str !== 'string') return false;
   const trimmed = str.trim();
@@ -744,7 +750,8 @@ function scanAndTranslateDOM() {
         if (!parent) return NodeFilter.FILTER_REJECT;
         const tag = parent.tagName.toLowerCase();
         if (['script', 'style', 'code', 'pre', 'noscript', 'svg'].includes(tag)) return NodeFilter.FILTER_REJECT;
-        if (parent.closest('[data-no-translate]')) return NodeFilter.FILTER_REJECT;
+        // Personal content (names, SOS messages, missing-person reports, passes, the scanner) stays as typed
+        if (parent.closest('[data-no-translate], [translate="no"], .notranslate, [contenteditable="true"]')) return NodeFilter.FILTER_REJECT;
         return shouldTranslateText(node.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
       },
     });
@@ -758,18 +765,23 @@ function scanAndTranslateDOM() {
     const needsGoogleFetch = [];
     const nodeMap = new Map();
 
+    // Forget text nodes React has removed (otherwise the set grows for the whole session)
+    for (const node of activeTrackedNodes) if (!node.isConnected) activeTrackedNodes.delete(node);
+
     for (const node of nodesToTranslate) {
       const orig = node.nodeValue;
       const clean = orig.trim();
-      if (!node.__cgOrig) {
-        node.__cgOrig = orig;
-      }
+      // Only English text reaches here, so this is the current React text (it may have changed since)
+      node.__cgOrig = orig;
       activeTrackedNodes.add(node);
 
       // Check instant dictionary or cache
       const instant = COMMON_DICTIONARY_HI[clean] || translationCache.get(clean);
       if (instant) {
         node.nodeValue = orig.replace(clean, instant);
+        node.__cgText = node.nodeValue;
+      } else if (looksPersonal(clean)) {
+        // never sent anywhere
       } else {
         if (!nodeMap.has(clean)) {
           nodeMap.set(clean, []);
@@ -783,7 +795,7 @@ function scanAndTranslateDOM() {
     const inputs = document.querySelectorAll('input[placeholder], textarea[placeholder]');
     inputs.forEach((input) => {
       const ph = input.getAttribute('placeholder');
-      if (ph && shouldTranslateText(ph)) {
+      if (ph && shouldTranslateText(ph) && !looksPersonal(ph) && !input.closest('[data-no-translate], [translate="no"]')) {
         if (!input.__cgOrigPh) input.__cgOrigPh = ph;
         const cleanPh = ph.trim();
         const instantPh = COMMON_DICTIONARY_HI[cleanPh] || translationCache.get(cleanPh);
@@ -808,8 +820,10 @@ function scanAndTranslateDOM() {
               if (target.el.closest('body')) {
                 target.el.setAttribute('placeholder', trans);
               }
-            } else if (target.parentNode && target.__cgOrig) {
+            } else if (target.isConnected && target.__cgOrig !== undefined && target.nodeValue === target.__cgOrig) {
+              // only if React has not changed the text while the translation was on its way
               target.nodeValue = target.nodeValue.replace(orig, trans);
+              target.__cgText = target.nodeValue;
             }
           }
         }
@@ -868,9 +882,11 @@ export function applyBackgroundTranslation(targetLang) {
     // Revert all modified text nodes instantly
     for (const node of activeTrackedNodes) {
       try {
-        if (node.__cgOrig !== undefined && node.nodeValue !== node.__cgOrig) {
+        // Put English back only where our translation is still showing (never over newer React text)
+        if (node.__cgOrig !== undefined && node.__cgText !== undefined && node.nodeValue === node.__cgText) {
           node.nodeValue = node.__cgOrig;
         }
+        delete node.__cgText;
       } catch {
         /* node detached */
       }

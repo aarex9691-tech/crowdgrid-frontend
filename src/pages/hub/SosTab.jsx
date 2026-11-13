@@ -54,7 +54,7 @@ function MySosCard({ incident, onUpdateLocation, onSafe, busy }) {
     { label: incident.closedByUser ? t('sos.step.safe') : t('sos.step.resolved'), done: resolved, at: incident.resolvedAt },
   ];
   return (
-    <div className="rounded-2xl border-2 border-kumkum/30 bg-white p-4 text-left" aria-live="polite">
+    <div className="rounded-2xl border-2 border-kumkum/30 bg-white p-4 text-left" aria-live="polite" data-no-translate>
       <p className="cg-kicker text-kumkum">{t('sos.my')}</p>
       <p className="text-lg font-bold">
         {t(`sos.type.${incident.type}`)} · {t(`sos.status.${incident.status}`)}
