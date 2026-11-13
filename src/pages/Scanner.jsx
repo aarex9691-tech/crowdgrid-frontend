@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Html5Qrcode } from 'html5-qrcode';
 import { Camera, CameraOff, CircleCheck, CircleX } from 'lucide-react';
 import API, { errorMessage } from '../lib/api';
 import { fmtDateTime } from '../lib/format';
@@ -96,6 +95,8 @@ export default function Scanner() {
   const start = async () => {
     setError('');
     try {
+      // the camera library is large: download it only when the camera is started (typed codes need none)
+      const { Html5Qrcode } = await import('html5-qrcode');
       const scanner = new Html5Qrcode(READER_ID, { verbose: false });
       scannerRef.current = scanner;
       await scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 240, height: 240 } }, (text) => check(text), () => {});
@@ -104,7 +105,7 @@ export default function Scanner() {
       setError(
         window.isSecureContext
           ? `Could not open the camera: ${e?.message || e}. Allow camera access, or type the code below.`
-          : 'The camera needs a secure (https) page. On a phone, open the app with "npm run dev:phone", or type the code below.'
+          : 'The camera needs a secure (https) page. Open CrowdGrid over https, or type the code below.'
       );
     }
   };
@@ -201,7 +202,7 @@ export default function Scanner() {
               {result.pass.details?.guests?.length > 0 && <p>Names: {result.pass.details.guests.join(', ')}</p>}
             </div>
           )}
-          <p className="mt-3 text-sm opacity-90">Checked in {result.ms} ms</p>
+          {import.meta.env.DEV && <p className="mt-3 text-sm opacity-90">Checked in {result.ms} ms</p>}
         </div>
       )}
       <Notice tone="error">{error}</Notice>
@@ -230,7 +231,7 @@ export default function Scanner() {
         }}
       >
         <label htmlFor="manual" className="field-label">Camera not working? Paste or type the pass code</label>
-        <input id="manual" className="field font-mono text-sm" placeholder="CG1.…" value={manual} onChange={(e) => setManual(e.target.value)} />
+        <input id="manual" className="field font-mono text-base" placeholder="CG1.…" autoCapitalize="off" autoCorrect="off" autoComplete="off" spellCheck={false} value={manual} onChange={(e) => setManual(e.target.value)} />
         <button type="submit" className="btn-ghost" disabled={!manual.trim()}>Check pass</button>
       </form>
 

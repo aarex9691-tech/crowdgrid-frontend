@@ -69,8 +69,10 @@ export default function Hub() {
       </PageHero>
 
       {/* Service ribbon: switches tabs without a page reload (FR-03) */}
-      <nav aria-label={t('hub.services')} className="sticky top-[var(--header-h,4rem)] z-20 border-b border-line bg-white shadow-2xs">
-        <div className="shell no-scrollbar flex gap-2 overflow-x-auto" role="tablist">
+      {/* Phones: all six services in a 3 x 2 grid, so SOS is never scrolled out of sight; it does not
+          stick, so it does not cover the page. Wider screens: one sticky row. */}
+      <nav aria-label={t('hub.services')} className="z-20 border-b border-line bg-white shadow-2xs sm:sticky sm:top-[var(--header-h,4rem)]">
+        <div className="shell no-scrollbar grid grid-cols-3 gap-x-1 sm:flex sm:gap-2 sm:overflow-x-auto" role="tablist">
           {tabs.map((tab) => {
             const selected = tab.id === active.id;
             const sos = tab.id === 'sos';
@@ -81,7 +83,7 @@ export default function Hub() {
                 role="tab"
                 aria-selected={selected}
                 onClick={() => setParams({ tab: tab.id }, { replace: true })}
-                className={`flex min-h-14 sm:min-h-16 shrink-0 items-center gap-2.5 border-b-[3.5px] px-4 sm:px-6 text-base sm:text-lg font-bold transition-all ${
+                className={`flex min-h-14 sm:min-h-16 shrink-0 flex-col items-center justify-center gap-1 border-b-[3.5px] px-1 text-[15px] sm:flex-row sm:gap-2.5 sm:px-6 sm:text-lg font-bold transition-all ${
                   selected
                     ? (sos ? 'border-kumkum text-kumkum bg-kumkum-wash/40' : 'border-marigold text-ink bg-marigold-wash/30')
                     : (sos ? 'border-transparent text-kumkum hover:border-kumkum/40 hover:bg-kumkum-wash/20' : 'border-transparent text-ink-soft hover:text-ink hover:bg-mist')

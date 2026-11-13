@@ -125,7 +125,7 @@ export default function Login() {
         )}
         <div>
           <PasswordField id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          <button type="button" className="mt-2 min-h-10 text-sm font-semibold text-ink-soft underline hover:text-ink" aria-expanded={forgot} aria-controls="forgot-help" onClick={() => setForgot((f) => !f)}>
+          <button type="button" className="mt-2 min-h-11 text-base font-semibold text-ink-soft underline hover:text-ink" aria-expanded={forgot} aria-controls="forgot-help" onClick={() => setForgot((f) => !f)}>
             Forgot password?
           </button>
           {forgot && (

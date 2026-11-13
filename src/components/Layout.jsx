@@ -399,7 +399,7 @@ export default function Layout() {
         rel="noreferrer"
         aria-label="Chat with us on WhatsApp"
         title="Chat with us on WhatsApp"
-        className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-black/20 hover:brightness-105"
+        className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#128C7E] text-white shadow-lg shadow-black/20 hover:brightness-105"
       >
         <MessageCircle size={28} aria-hidden />
       </a>

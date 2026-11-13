@@ -9,7 +9,7 @@
 @theme {
   --color-ink: #111c3a;
   --color-ink-soft: #454f69;
-  --color-ink-faint: #667089;
+  --color-ink-faint: #5a647d;      /* 4.5:1 or better on sand and mist too */
   --color-paper: #ffffff;
   --color-mist: #f4f6fb;          /* quiet surface: hover, grouped rows, page bands */
   --color-sand: #edf0f7;          /* neutral chips */
@@ -104,7 +104,7 @@ body::before {
 @utility btn-primary { @apply btn bg-terracotta text-white hover:bg-terracotta-dark; }
 @utility btn-brass { @apply btn bg-blue text-white hover:bg-blue-deep; }
 @utility btn-ink { @apply btn bg-blue text-white hover:bg-blue-deep; }
-@utility btn-ghost { @apply btn border-[1.5px] border-line bg-white text-ink hover:border-ink-faint hover:bg-mist disabled:border-edge disabled:bg-white disabled:text-ink-soft; }
+@utility btn-ghost { @apply btn border-[1.5px] border-edge bg-white text-ink hover:border-ink-faint hover:bg-mist disabled:border-edge disabled:bg-white disabled:text-ink-soft; }
 @utility btn-sos { @apply btn bg-kumkum text-white hover:bg-[#9e1f1f]; }
 
 @utility panel { @apply rounded-2xl border border-line bg-white; }

@@ -37,7 +37,7 @@ function CartStep({ onContinue, busy }) {
               <p className="text-ink-soft">{i.detail}</p>
             </div>
             <p className="font-semibold tabular-nums">{rupees(i.estimate)}</p>
-            <button type="button" className="text-ink-soft hover:text-kumkum" aria-label={`Remove ${i.label}`} onClick={() => cart.remove(i.key)}>
+            <button type="button" className="grid size-11 flex-none place-items-center rounded-lg text-ink-soft hover:bg-kumkum-wash hover:text-kumkum" aria-label={`Remove ${i.label}`} onClick={() => cart.remove(i.key)}>
               <Trash2 size={20} />
             </button>
           </li>
