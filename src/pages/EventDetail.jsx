@@ -141,7 +141,11 @@ export default function EventDetail() {
             )}
             {freeMsg && <Notice tone={freeMsg.tone}>{freeMsg.text}</Notice>}
             <p className="flex items-center gap-2 text-ink-soft">
-              <Users size={18} aria-hidden /> {over ? 'This event is over' : placesOpen === 0 ? 'Sold out' : `${placesOpen} of ${event.capacity} places left`}
+              <Users size={18} aria-hidden />
+              <span>
+                {event.attendeesCount > 0 && <><b className="text-ink">{event.attendeesCount.toLocaleString('en-IN')} registered</b> · </>}
+                {over ? 'This event is over' : placesOpen === 0 ? 'Sold out' : `${placesOpen} of ${event.capacity} places left`}
+              </span>
             </p>
             {added && (
               <Notice tone="success">

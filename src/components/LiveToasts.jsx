@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircle2, Siren, X } from 'lucide-react';
+import { CheckCircle2, Megaphone, Siren, X } from 'lucide-react';
+import API from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { useLive } from '../lib/realtime';
 
@@ -26,6 +27,28 @@ export default function LiveToasts() {
     setTimeout(() => setToasts((list) => list.filter((x) => x.id !== id)), t.tone === 'alert' ? 15000 : 9000);
   };
 
+  // Volunteers: a new shift, or a message from the control room (its text is read through the API)
+  const isVolunteer = user?.role === 'VOLUNTEER';
+  useLive(
+    'duty',
+    (p) => {
+      if (isVolunteer && p?.action === 'assigned') push({ tone: 'ok', title: 'New duty assigned', body: 'Open the scanner page to see your post and shift.', to: '/scan', toLabel: 'See my duty' });
+    },
+    { wait: 300, enabled: isVolunteer }
+  );
+  useLive(
+    'volunteer-broadcast',
+    () => {
+      API.get('/volunteer/my-duty')
+        .then(({ data }) => {
+          const b = data.broadcasts?.[0];
+          if (b && Date.now() - new Date(b.createdAt) < 120000) push({ tone: 'info', title: `Control room${b.sector ? ` · ${b.sector}` : ''}`, body: b.message });
+        })
+        .catch(() => {});
+    },
+    { wait: 300, enabled: isVolunteer }
+  );
+
   useLive(
     'sos',
     (p) => {
@@ -42,14 +65,14 @@ export default function LiveToasts() {
   return (
     <div className="pointer-events-none fixed inset-x-4 top-[calc(var(--header-h,4rem)+0.75rem)] z-50 flex flex-col items-end gap-2 sm:left-auto sm:right-5 sm:w-96" aria-live="assertive" role="status">
       {toasts.map((t) => (
-        <div key={t.id} className={`cg-toast pointer-events-auto flex w-full gap-3 rounded-2xl border-2 bg-white p-4 shadow-xl ${t.tone === 'alert' ? 'border-kumkum' : 'border-tulsi'}`}>
-          <span className={`flex h-10 w-10 flex-none items-center justify-center rounded-full ${t.tone === 'alert' ? 'animate-pulse bg-kumkum text-white' : 'bg-tulsi-wash text-tulsi'}`}>
-            {t.tone === 'alert' ? <Siren size={20} aria-hidden /> : <CheckCircle2 size={20} aria-hidden />}
+        <div key={t.id} className={`cg-toast pointer-events-auto flex w-full gap-3 rounded-2xl border-2 bg-white p-4 shadow-xl ${t.tone === 'alert' ? 'border-kumkum' : t.tone === 'info' ? 'border-blue' : 'border-tulsi'}`}>
+          <span className={`flex h-10 w-10 flex-none items-center justify-center rounded-full ${t.tone === 'alert' ? 'animate-pulse bg-kumkum text-white' : t.tone === 'info' ? 'bg-blue-wash text-blue' : 'bg-tulsi-wash text-tulsi'}`}>
+            {t.tone === 'alert' ? <Siren size={20} aria-hidden /> : t.tone === 'info' ? <Megaphone size={20} aria-hidden /> : <CheckCircle2 size={20} aria-hidden />}
           </span>
           <div className="min-w-0 flex-1">
             <p className="font-bold">{t.title}</p>
             <p className="text-sm text-ink-soft">{t.body}</p>
-            {t.to && <Link to={t.to} className="mt-1 inline-block text-sm font-bold text-kumkum underline">Open control room</Link>}
+            {t.to && <Link to={t.to} className={`mt-1 inline-block text-sm font-bold underline ${t.tone === 'alert' ? 'text-kumkum' : 'text-blue'}`}>{t.toLabel || 'Open control room'}</Link>}
           </div>
           <button type="button" className="h-8 w-8 flex-none rounded-lg text-ink-soft hover:bg-mist" onClick={() => setToasts((l) => l.filter((x) => x.id !== t.id))} aria-label="Dismiss">
             <X size={16} className="mx-auto" aria-hidden />

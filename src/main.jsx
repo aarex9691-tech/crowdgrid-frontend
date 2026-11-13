@@ -7,6 +7,7 @@ import { CartProvider } from './lib/cart.jsx';
 import { ConfirmProvider } from './lib/confirm.jsx';
 import { RealtimeProvider } from './lib/realtime.jsx';
 import { LanguageProvider } from './lib/i18n.jsx';
+import { CelebrateProvider } from './components/SuccessSplash.jsx';
 import '@fontsource/mukta/400.css';
 import '@fontsource/mukta/600.css';
 import '@fontsource/mukta/700.css';
@@ -22,7 +23,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <RealtimeProvider>
           <CartProvider>
             <ConfirmProvider>
-              <App />
+              <CelebrateProvider>
+                <App />
+              </CelebrateProvider>
             </ConfirmProvider>
           </CartProvider>
         </RealtimeProvider>

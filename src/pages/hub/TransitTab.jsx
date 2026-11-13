@@ -11,6 +11,7 @@ import PassCard from '../../components/PassCard';
 import PeopleStepper from '../../components/PeopleStepper';
 import useLoginGate from './useLoginGate';
 import { canBook, useAuth } from '../../lib/auth';
+import { useCelebrate } from '../../components/SuccessSplash';
 
 const CHECKPOINT_ICON = { STOP: MapPin, WATER: Droplets, TOILET: Toilet, AMBULANCE: Ambulance, GHAT: Waves };
 const CHECKPOINT_LABEL = { STOP: 'Stop', WATER: 'Drinking water', TOILET: 'Bio-toilets', AMBULANCE: 'Ambulance halt', GHAT: 'Ghat' };
@@ -49,6 +50,7 @@ export default function TransitTab({ event }) {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(null);
   const [issued, setIssued] = useState(null);
+  const celebrate = useCelebrate();
   const [added, setAdded] = useState(null);
   const cart = useCart();
   // Travel day: any day of the yatra from today; before the yatra starts this is a pre-booking
@@ -98,6 +100,7 @@ export default function TransitTab({ event }) {
       const { data } = await API.post(`/transit/${route._id}/pass`, { people: n, date: day });
       cachePass(data.pass);
       setIssued(data.pass);
+      celebrate({ title: 'Shuttle pass ready', line: 'Show the QR when you board.' });
     } catch (e) {
       setError(errorMessage(e));
     } finally {

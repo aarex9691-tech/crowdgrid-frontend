@@ -60,9 +60,10 @@ h1 {
 .cg-shell {
   margin-inline: auto;
   width: 100%;
-  max-width: 76rem;
-  padding-inline: clamp(1rem, 4vw, 2rem);
+  max-width: var(--page-max, 76rem); /* same width as .shell, the header and the footer */
+  padding-inline: 1rem;
 }
+@media (min-width: 640px) { .cg-shell { padding-inline: 1.5rem; } }
 .cg-section { padding-block: clamp(3rem, 7vw, 5.5rem); }
 
 /* ── Buttons used on photo and colour bands ─────────────────────────── */
@@ -220,28 +221,92 @@ h1 {
   .cg-hero-card { max-width: none; margin-inline: -1rem; width: calc(100% + 2rem); border-radius: 0; padding-inline: 1rem; }
 }
 
-/* Log in and sign up: form on the left, the three gatherings on the right */
+/* Log in and sign up: form in the middle of the left half, the gathering cards on the right.
+   No panel colour and no divider: the page background runs straight across. */
 .cg-auth { display: grid; min-height: calc(100dvh - var(--header-h, 4rem)); }
 .cg-auth-form { display: flex; justify-content: center; padding: 2.5rem 1rem 4rem; }
-.cg-auth-art { position: relative; display: none; background: var(--cg-navy); overflow: hidden; }
-.cg-auth-art .cg-hero-strip { grid-template-columns: 1fr; grid-template-rows: repeat(3, 1fr); }
-.cg-auth-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.cg-auth-quote {
-  position: absolute;
-  left: 0;
-  bottom: 2.5rem;
-  z-index: 1;
-  max-width: 24rem;
-  padding: 1.25rem 1.5rem;
-  background: var(--cg-navy);
-  color: #fff;
-  border-left: 5px solid var(--cg-saffron);
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
-}
+.cg-auth-art { display: none; }
 @media (min-width: 1024px) {
-  .cg-auth { grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr); }
-  .cg-auth-form { padding-top: 4rem; }
-  .cg-auth-art { display: block; }
+  /* form and cards sit together as one centred group instead of each floating in its own half */
+  .cg-auth {
+    grid-template-columns: minmax(0, 28rem) minmax(0, 52rem);
+    justify-content: center;
+    column-gap: clamp(2.5rem, 6vw, 7rem);
+    padding-inline: 1.5rem;
+  }
+  .cg-auth-form { align-items: center; padding: 2rem 0; }
+  /* stays in view while a long sign-up form scrolls */
+  .cg-auth-art {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+    position: sticky;
+    top: var(--header-h, 4rem);
+    align-self: start;
+    height: calc(100dvh - var(--header-h, 4rem));
+  }
+  /* cards grow with the screen but always fit its height:
+     height = 0.833 x width + two captions and a gap (about 8.5rem) */
+  .cg-auth-art .cg-gal {
+    max-width: none;
+    width: min(100%, calc((100dvh - var(--header-h, 4rem) - 4rem - 8.5rem) * 1.2));
+  }
+}
+
+/* ── Gathering cards: home hero and log in / sign up ───────────────────
+   One wide card on top, two equal cards below (GatheringGallery.jsx sets each slot's shape). */
+.cg-gal { display: flex; flex-direction: column; gap: 0.875rem; width: 100%; max-width: 34rem; user-select: none; -webkit-user-select: none; }
+.cg-gal img { -webkit-user-drag: none; }
+.cg-gal-row { display: flex; gap: 0.875rem; }
+.cg-gal-card {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--color-line);
+  border-radius: 16px;
+  color: var(--color-ink);
+  text-decoration: none;
+  transition: transform 260ms var(--ease-out), box-shadow 260ms var(--ease-out), border-color 260ms ease;
+}
+.cg-gal-photo { position: relative; display: block; overflow: hidden; background: var(--color-mist); }
+.cg-gal-photo img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 600ms var(--ease-out); }
+.cg-gal-cap { position: relative; display: flex; align-items: center; gap: 0.6rem; min-height: 3.75rem; padding: 0.6rem 0.85rem; }
+.cg-gal-cap b { display: block; font-weight: 700; line-height: 1.25; }
+.cg-gal-cap small { display: block; overflow: hidden; font-size: 0.85rem; line-height: 1.3; color: var(--color-ink-soft); white-space: nowrap; text-overflow: ellipsis; }
+.cg-gal-short { display: none !important; }
+/* the kind's colour slides in under the caption */
+.cg-gal-cap::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 3px;
+  background: var(--tone);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 320ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .cg-gal-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-pop); border-color: transparent; }
+  .cg-gal-card:hover img { transform: scale(1.04); }
+  .cg-gal-card:hover .cg-gal-cap::after { transform: scaleX(1); }
+}
+.cg-gal-card:active { transform: translateY(-1px); }
+.cg-gal-card:focus-visible { outline: 3px solid var(--color-blue); outline-offset: 3px; }
+.cg-gal-card:focus-visible .cg-gal-cap::after { transform: scaleX(1); }
+@media (max-width: 639px) {
+  .cg-gal, .cg-gal-row { gap: 0.6rem; }
+  .cg-gal-cap { min-height: 2.9rem; padding: 0.5rem 0.65rem; }
+  .cg-gal-cap small, .cg-gal-long { display: none !important; }
+  .cg-gal-short { display: block !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cg-gal-card, .cg-gal-photo img, .cg-gal-cap::after { transition: none; }
+  .cg-gal-card:hover, .cg-gal-card:active { transform: none; }
+  .cg-gal-card:hover img { transform: none; }
 }
 
 /* ── Lists and marks ────────────────────────────────────────────────── */
@@ -328,6 +393,40 @@ h1 {
 }
 @keyframes cgShimmer { 50% { opacity: 0.55; } }
 
+@keyframes cgFadeOut { to { opacity: 0; } }
+@keyframes cgRipple { from { opacity: 0.45; transform: scale(1); } to { opacity: 0; transform: scale(1.7); } }
+@keyframes cgTick { to { stroke-dashoffset: 0; } }
+
+/* Page change: a clean fade, no movement, so pages never seem to jump.
+   'backwards' fill, so nothing is left on the page once it has arrived */
+.cg-page { animation: cgFade 220ms ease-out backwards; }
+
+/* Success moment (SuccessSplash.jsx): log in, sign up, log out, bookings, cancellations.
+   Circle pops, icon draws, ring ripples, one line; then it fades out over the next page.
+   --splash-tone: green success, blue cancel, navy log out */
+.cg-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 1100; /* above dialogs (1000) */
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgb(255 255 255 / 0.86);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: cgFade 200ms ease-out both;
+}
+.cg-splash.is-leaving { animation: cgFadeOut 260ms ease-in forwards; pointer-events: none; }
+.cg-splash-card { text-align: center; animation: cgPop 300ms var(--ease-out) both; }
+.cg-splash-mark { position: relative; display: block; width: 5.5rem; height: 5.5rem; margin: 0 auto 1.1rem; }
+.cg-splash-ring { position: absolute; inset: 0; border-radius: 50%; background: var(--splash-tone, var(--color-tulsi)); opacity: 0; animation: cgRipple 900ms 180ms var(--ease-out); }
+.cg-splash-tick { position: relative; width: 100%; height: 100%; }
+.cg-splash-tick circle { fill: var(--splash-tone, var(--color-tulsi)); transform-box: fill-box; transform-origin: center; animation: cgCelebrate 460ms var(--ease-out) both; }
+/* the icon draws itself (pathLength=1): a dash offset on a tiny stroke, too small to cost anything */
+.cg-splash-tick path { fill: none; stroke: #fff; stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; animation: cgTick 360ms 240ms var(--ease-out) forwards; }
+.cg-splash-title { font-family: var(--font-display); font-size: clamp(1.7rem, 3vw, 2.2rem); line-height: 1.15; color: var(--color-ink); }
+.cg-splash-line { margin-top: 0.35rem; color: var(--color-ink-soft); }
+
 /* The one orchestrated moment: the home hero arriving */
 .cg-rise { animation: cgRise 600ms var(--ease-out) both; /* one-time page entrance, marketing budget */ }
 .cg-rise-1 { animation-delay: 0.08s; }
@@ -364,6 +463,9 @@ details[open] > :not(summary) { animation: cgRise4 200ms var(--ease-out); }
 
 @media (prefers-reduced-motion: reduce) {
   .cg-panel-art, .cg-panel-label { transition: none; }
+  .cg-splash-card, .cg-splash-tick circle { animation: cgFade 200ms ease-out both; }
+  .cg-splash-ring { display: none; }
+  .cg-splash-tick path { animation: none; stroke-dashoffset: 0; }
   .cg-dialog { animation: cgFade 200ms ease-out; }
   .cg-toast, .cg-menu { transition: opacity 200ms ease-out; }
   @starting-style { .cg-toast, .cg-menu { transform: none; } }
@@ -389,13 +491,8 @@ a.cg-band:hover { background-color: var(--cg-blue-deep); }
 }
 
 /* ── Home page: content runs the full width of the screen ───────────── */
-.cg-home .cg-shell { max-width: none; padding-inline: clamp(1rem, 4vw, 4.5rem); }
-.cg-home .cg-tri { height: clamp(21rem, min(62vh, calc(100dvh - 8.5rem)), 35rem); max-width: 58rem; margin-inline: auto 0; }
 .cg-h2-sm { font-size: clamp(1.5rem, 2.6vw, 2rem); }
 .cg-dot-lg { width: 0.9rem; height: 0.9rem; }
-/* Header and footer line up with the full-width home page */
-body:has(.cg-home) header > .max-w-7xl,
-body:has(.cg-home) .cg-foot > .shell { max-width: none; padding-inline: clamp(1rem, 4vw, 4.5rem); }
 
 /* ── Yatras (Simhastha Kumbh Mela, Pandharpur Wari, Jagannath Rath Yatra) heritage wallpaper ─────────────── */
 :is(.cg-yatra-theme, .cg-kumbh-theme) {
@@ -464,3 +561,29 @@ body:has(.cg-yatra-theme, .cg-kumbh-theme) {
 .cg-compact-hero .text-blue-mist {
   color: #fde2d0 !important;
 }
+
+/* ── Volunteer dashboard: filter chips and coverage meters ──────────── */
+.cg-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  padding: 0 0.95rem;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1.5px var(--color-line);
+  font-weight: 600;
+  color: var(--color-ink);
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.cg-chip:hover { background: var(--color-mist); }
+.cg-chip.is-on { background: var(--color-blue); color: #fff; box-shadow: none; }
+.cg-chip:focus-visible { outline: 3px solid var(--color-blue); outline-offset: 2px; }
+.cg-meter { height: 0.6rem; overflow: hidden; border-radius: 999px; background: var(--color-mist); }
+.cg-meter > span { display: block; height: 100%; border-radius: inherit; background: var(--color-tulsi); }
+.cg-meter > span.is-short { background: var(--color-marigold); }
+
+/* Home photo cards: full width on tablets, compact beside the headline from 1024px */
+.cg-home .cg-gal { max-width: 46rem; }
+@media (min-width: 1024px) { .cg-home .cg-gal { max-width: 34rem; } }
+@media (min-width: 1600px) { .cg-home .cg-gal { max-width: 42rem; } }

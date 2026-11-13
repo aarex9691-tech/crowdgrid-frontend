@@ -190,7 +190,7 @@ export default function Analytics() {
               <section className="panel p-5" aria-labelledby="cancel-title" data-testid="cancellations">
                 <h2 id="cancel-title" className="text-lg font-bold">Cancellations and refunds</h2>
                 <p className="text-sm text-ink-soft">Passes cancelled from the passbook in the last {days} days. Policy: 100% back 48 h+ before, 50% 24 to 48 h, none after.</p>
-                <div className="mt-4 grid grid-cols-3 gap-3">
+                <div className="mt-4 grid gap-3 sm:grid-cols-3">
                   <Kpi label="Cancelled" value={num(data.cancellations.count)} />
                   <Kpi label="Refunded" value={inr(data.cancellations.refunded)} tone="text-tulsi" />
                   <Kpi label="Kept as charges" value={inr(data.cancellations.kept)} />

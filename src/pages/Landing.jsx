@@ -20,12 +20,15 @@ import { canBook, homeFor, ROLE_LABELS, useAuth } from '../lib/auth';
 import API, { errorMessage } from '../lib/api';
 import { useT } from '../lib/i18n';
 import { fmtDate } from '../lib/format';
-import { InvitationCodeBox, PublicEventList, YatraCard } from '../components/EventCards';
+import { InvitationCodeBox, PublicEventList } from '../components/EventCards';
 import { DEFAULT_EVENTS } from '../data/defaultEvents';
 import { isVideo, LANDING_MEDIA } from '../data/landingMedia';
 import { CorporateScene, PilgrimageScene, PublicScene } from '../components/landing/Scenes';
 import DepthImage from '../components/landing/DepthImage';
 import { openTour } from '../components/GuidedTour';
+import GatheringGallery from '../components/GatheringGallery';
+import GhatDiorama from '../components/heritage/GhatDiorama';
+import YatraRing from '../components/heritage/YatraRing';
 
 /*
  * Each kind of gathering has a bright colour (panels, dots, illustrations) and a deep one
@@ -53,7 +56,7 @@ function Media({ slot, flat = false }) {
 function Hero({ onInvite }) {
   const t = useT();
   return (
-    <section className="cg-shell grid items-center gap-6 py-3 sm:py-5 lg:min-h-[calc(100dvh-4.5rem)] lg:max-h-[820px] lg:grid-cols-[0.95fr_1.35fr] xl:grid-cols-[0.9fr_1.35fr] lg:gap-12 xl:gap-16">
+    <section className="cg-shell grid items-center gap-6 py-3 sm:py-5 lg:min-h-[calc(100dvh-4.5rem)] lg:max-h-[820px] lg:grid-cols-[minmax(0,30rem)_minmax(0,34rem)] min-[1600px]:grid-cols-[minmax(0,32rem)_minmax(0,42rem)] lg:justify-center lg:gap-14 xl:gap-24">
       <div className="cg-rise py-1">
         <h1 className="cg-h1 font-bold tracking-tight text-ink">{t('home.title1')}<br />{t('home.title2')}</h1>
         <p className="mt-3.5 sm:mt-4 max-w-md text-base sm:text-lg text-ink-soft leading-relaxed">{t('home.lead')}</p>
@@ -67,18 +70,9 @@ function Hero({ onInvite }) {
         </div>
       </div>
 
-      <nav aria-label={t('home.chooseKind')} className="cg-tri my-auto" data-depth-group>
-        {KINDS.map((k, i) => (
-          <Link key={k.id} to={`/events?tab=${k.tab}`} className={`cg-panel cg-rise cg-rise-${i + 1}`} style={{ background: k.color }}>
-            <span className="cg-panel-art"><Media slot={k.id} /></span>
-            <span className="cg-panel-label" style={{ background: k.deep }}>
-              <b className="cg-long">{t(`kind.${k.id}`)}</b>
-              <b className="cg-short">{t(`kind.${k.id}.short`)}</b>
-              <small>{t(`kind.${k.id}.line`)}</small>
-            </span>
-          </Link>
-        ))}
-      </nav>
+      <div className="flex justify-start lg:justify-end">
+        <GatheringGallery linked label={t('home.chooseKind')} />
+      </div>
     </section>
   );
 }
@@ -275,7 +269,7 @@ function Upcoming({ yatras, publicEvents, tab, setTab, sectionRef }) {
         {tab === 'public' && <PublicEventList events={publicEvents.slice(0, 6)} emptyMessage={t('up.noPublic')} from="/" large />}
         {tab === 'yatras' && (
           yatras.length > 0
-            ? <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{yatras.slice(0, 6).map((e) => <YatraCard key={e._id} event={e} />)}</ul>
+            ? <YatraRing yatras={yatras.slice(0, 6)} showHeading={false} />
             : <p className="text-ink-soft">{t('up.noYatras')}</p>
         )}
         {tab === 'corporate' && (
@@ -405,6 +399,7 @@ export default function Landing() {
       <NextUp yatras={yatras} onInvite={openInvite} />
       <Services />
       <HowItWorks />
+      <GhatDiorama />
       <Upcoming yatras={yatras} publicEvents={publicEvents} tab={tab} setTab={setTab} sectionRef={upcomingRef} />
       <ForEveryone />
       <HostCta />

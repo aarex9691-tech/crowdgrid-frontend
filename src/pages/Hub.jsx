@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { BedDouble, BusFront, Footprints, HandHeart, Info, Siren, UtensilsCrossed } from 'lucide-react';
+import { BedDouble, BusFront, Footprints, HandHeart, Info, Siren, Users, UtensilsCrossed } from 'lucide-react';
 import API, { errorMessage } from '../lib/api';
 import { fmtDate } from '../lib/format';
 import PrebookNotice from '../components/PrebookNotice';
@@ -60,6 +60,11 @@ export default function Hub() {
         lead={event.tagline}
       >
         <p className="mt-1 text-blue-mist">{fmtDate(event.startDate)} to {fmtDate(event.endDate)}</p>
+        {event.registered > 0 && (
+          <p className="mt-1 flex items-center gap-2 font-semibold text-saffron-light">
+            <Users size={18} aria-hidden /> {event.registered.toLocaleString('en-IN')} {event.registered === 1 ? 'pilgrim' : 'pilgrims'} registered
+          </p>
+        )}
         <SnanDates event={event} all />
       </PageHero>
 

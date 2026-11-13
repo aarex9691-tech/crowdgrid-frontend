@@ -6,6 +6,7 @@ import Notice from '../components/Notice';
 import PasswordField from '../components/PasswordField';
 import { COUNTRIES, countryFor, phoneError } from '../lib/phone';
 import AuthShell from '../components/AuthShell';
+import { useCelebrate } from '../components/SuccessSplash';
 
 export default function Login() {
   const { login } = useAuth();
@@ -17,6 +18,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [forgot, setForgot] = useState(false);
+  const celebrate = useCelebrate();
 
   const submit = async (e) => {
     e.preventDefault();
@@ -29,7 +31,12 @@ export default function Login() {
       // a temporary password from the help desk must be replaced first
       if (user.mustChangePassword) return navigate('/set-password', { replace: true, state: { from: location.state?.from } });
       // a page left over from someone else's session (e.g. /control) must not trap this role
-      navigate(afterLogin(user.role, location.state?.from), { replace: true });
+      const first = (user.name || '').trim().split(/\s+/)[0];
+      celebrate({
+        title: first ? `Welcome back, ${first}` : 'Welcome back',
+        line: 'You are logged in.',
+        then: () => navigate(afterLogin(user.role, location.state?.from), { replace: true }),
+      });
     } catch (err) {
       setError(errorMessage(err));
     } finally {

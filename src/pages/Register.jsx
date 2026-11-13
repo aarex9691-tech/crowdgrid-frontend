@@ -9,6 +9,7 @@ import { phoneError } from '../lib/phone';
 import { TextField } from '../components/Fields';
 import { textError } from '../lib/validate';
 import AuthShell from '../components/AuthShell';
+import { useCelebrate } from '../components/SuccessSplash';
 
 export default function Register() {
   const { register } = useAuth();
@@ -19,6 +20,7 @@ export default function Register() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [tried, setTried] = useState(false);
+  const celebrate = useCelebrate();
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
   const submit = async (e) => {
@@ -41,7 +43,12 @@ export default function Register() {
     try {
       await register({ ...form, phone: form.phone.replace(/\D/g, '') });
       // Return to where the visitor came from (e.g. an invitation link)
-      navigate(location.state?.from || '/', { replace: true });
+      const first = form.name.trim().split(/\s+/)[0];
+      celebrate({
+        title: 'Account created',
+        line: first ? `Welcome to CrowdGrid, ${first}.` : 'Welcome to CrowdGrid.',
+        then: () => navigate(location.state?.from || '/', { replace: true }),
+      });
     } catch (err) {
       setError(errorMessage(err));
     } finally {

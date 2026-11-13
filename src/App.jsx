@@ -29,6 +29,7 @@ const NgoPortal = lazy(() => import('./pages/staff/NgoPortal'));
 const CorporateAdmin = lazy(() => import('./pages/staff/CorporateAdmin'));
 const SetPassword = lazy(() => import('./pages/SetPassword'));
 const HelpDesk = lazy(() => import('./pages/staff/HelpDesk'));
+const Volunteers = lazy(() => import('./pages/staff/Volunteers'));
 
 /** Wraps a lazily loaded page; the header and footer stay on screen while it loads. */
 const page = (Page, label = 'Loading') => (
@@ -85,6 +86,7 @@ export default function App() {
         <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY']} />}>
           <Route path="/host" element={page(HostEvents)} />
           <Route path="/helpdesk" element={page(HelpDesk)} />
+          <Route path="/volunteers" element={page(Volunteers, 'Loading volunteers')} />
         </Route>
         <Route element={<RequireRole roles={['SUPER_ADMIN', 'NGO_ADMIN']} />}>
           <Route path="/ngo" element={page(NgoPortal)} />

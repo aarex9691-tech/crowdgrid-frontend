@@ -7,6 +7,7 @@ import { PASS_META } from '../components/PassCard';
 import Notice from '../components/Notice';
 import PageTitle from '../components/PageTitle';
 import Avatar from '../components/Avatar';
+import MyDutyCard from '../components/MyDutyCard';
 
 const READER_ID = 'qr-reader';
 
@@ -128,6 +129,8 @@ export default function Scanner() {
       <div className="cg-pagehead">
         <PageTitle kicker="Volunteer" tone="green" title="Pass scanner" lead="Point the camera at a QR. Green means let them in." />
       </div>
+
+      <MyDutyCard />
 
       <div className="panel p-4">
         <p id="svc-label" className="field-label">Scanning at</p>

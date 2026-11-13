@@ -1,9 +1,10 @@
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { BarChart3, Briefcase, CalendarPlus, KeyRound, LogOut, Menu, MessageCircle, ScanLine, Search, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
+import { BarChart3, Briefcase, CalendarPlus, HandHeart, KeyRound, LogOut, Menu, MessageCircle, ScanLine, Search, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { ROLE_LABELS, useAuth } from '../lib/auth';
 import { useCart } from '../lib/cart';
 import { useConfirm } from '../lib/confirm';
+import { useCelebrate } from './SuccessSplash';
 import { SITE } from '../lib/site';
 import LiveToasts from './LiveToasts';
 import GuidedTour, { openTour } from './GuidedTour';
@@ -17,16 +18,17 @@ import Avatar from './Avatar';
 const navFor = (role, t = (k) => k) => {
   const scan = { to: '/scan', label: 'Scanner', icon: ScanLine };
   const helpdesk = { to: '/helpdesk', label: 'Help desk', icon: KeyRound };
+  const volunteers = { to: '/volunteers', label: 'Volunteers', icon: HandHeart };
   const about = { to: '/about', label: t('nav.about') };
   switch (role) {
     case 'SUPER_ADMIN':
       return {
-        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, { to: '/analytics', label: 'Analytics', icon: BarChart3 }, { to: '/host', label: 'Hosted events', icon: CalendarPlus }, { to: '/corporate-admin', label: 'Campus & Corporate', icon: Briefcase }, helpdesk, scan],
+        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, volunteers, { to: '/analytics', label: 'Analytics', icon: BarChart3 }, { to: '/host', label: 'Hosted events', icon: CalendarPlus }, { to: '/corporate-admin', label: 'Campus & Corporate', icon: Briefcase }, helpdesk, scan],
         cta: { to: '/host', label: 'Host an event' },
       };
     case 'AUTHORITY':
       return {
-        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, { to: '/analytics', label: 'Analytics', icon: BarChart3 }, { to: '/host', label: 'Hosted events', icon: CalendarPlus }, helpdesk, scan],
+        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, volunteers, { to: '/analytics', label: 'Analytics', icon: BarChart3 }, { to: '/host', label: 'Hosted events', icon: CalendarPlus }, helpdesk, scan],
         cta: { to: '/host', label: 'Host an event' },
       };
     case 'NGO_ADMIN':
@@ -126,6 +128,7 @@ export default function Layout() {
   useRouteChange(lang);
   const [menuOpen, setMenuOpen] = useState(false);
   const confirm = useConfirm();
+  const celebrate = useCelebrate();
   const headerRef = useRef(null);
   const t = useT();
   const nav = navFor(user?.role, t);
@@ -186,12 +189,19 @@ export default function Layout() {
       icon: 'logout',
     });
     if (!ok) return;
-    // Leave the private page first, so we land on Home rather than the login page
-    navigate('/', { replace: true });
-    setTimeout(() => {
-      cart.clear();
-      logout();
-    }, 0);
+    celebrate({
+      tone: 'leave',
+      title: 'Logged out',
+      line: 'See you soon.',
+      then: () => {
+        // Leave the private page first, so we land on Home rather than the login page
+        navigate('/', { replace: true });
+        setTimeout(() => {
+          cart.clear();
+          logout();
+        }, 0);
+      },
+    });
   };
 
   const linkCls = ({ isActive }) =>
@@ -207,7 +217,7 @@ export default function Layout() {
       </a>
       <header ref={headerRef} className="sticky top-0 z-30 border-b border-line bg-white">
         <div className="toran" aria-hidden />
-        <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-2 px-4">
+        <div className="mx-auto flex h-16 w-full max-w-[var(--page-max)] items-center gap-2 px-4 sm:px-6">
           <Link
             to="/"
             className={`group mr-2 flex min-h-11 flex-none items-center gap-2.5 ${showSearch ? '' : desk === 'xl' ? 'xl:mr-4' : 'lg:mr-4'}`}
@@ -296,9 +306,10 @@ export default function Layout() {
             </Link>
           )}
 
-          {/* Language Switcher in the corner */}
+          {/* Language switcher in the corner. Phones have it inside the menu instead,
+              so the logo, the switcher and the menu button never crowd past 360px */}
           {(!user || user.role === 'USER') && (
-            <div className="ml-1 sm:ml-2 flex-none flex items-center">
+            <div className="ml-2 hidden flex-none items-center sm:flex">
               <LanguageSwitcherButton />
             </div>
           )}
@@ -318,7 +329,7 @@ export default function Layout() {
 
         {menuOpen && (
           <nav id="mobile-menu" aria-label="Main" className={`cg-menu max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-line bg-white ${hideDesk}`}>
-            <div className="mx-auto w-full max-w-7xl space-y-1 px-4 py-3">
+            <div className="mx-auto w-full max-w-[var(--page-max)] space-y-1 px-4 py-3 sm:px-6">
               {/* Mobile Search Bar */}
               {showSearch && <form onSubmit={handleNavSearch} className="mb-3 flex items-center rounded-xl border-[1.5px] border-edge bg-white py-1.5 pr-1.5 pl-3 text-sm focus-within:border-blue">
                 <Search size={18} className="text-ink-soft mr-2 shrink-0" />
@@ -376,7 +387,10 @@ export default function Layout() {
       <GuidedTour auto={pathname === '/' && (!user || user.role === 'USER')} />
 
       <main id="main" tabIndex={-1} className="flex-1 pb-16 focus:outline-none">
-        {user?.mustChangePassword && pathname !== '/set-password' ? <Navigate to="/set-password" replace state={{ from: pathname }} /> : <Outlet />}
+        {user?.mustChangePassword && pathname !== '/set-password' ? <Navigate to="/set-password" replace state={{ from: pathname }} /> : (
+          // keyed by path, so each page change plays the short entrance (see .cg-page)
+          <div key={pathname} className="cg-page"><Outlet /></div>
+        )}
       </main>
 
       <a
