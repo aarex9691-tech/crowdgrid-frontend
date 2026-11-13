@@ -286,7 +286,7 @@ export default function ProfilePanel() {
               <div>
                 <p className="field-label">Mobile number</p>
                 <p className="field flex items-center bg-mist text-ink-soft">{formatPhone(user.countryCode, user.phone)}</p>
-                <p className="mt-1 text-sm text-ink-soft">This is your login and can't be changed here.</p>
+                <p className="mt-1 text-sm text-ink-soft">You log in with this number. It can't be changed here.</p>
               </div>
               <div>
                 <label className="field-label" htmlFor="p-email">Email <span className="font-normal text-ink-soft">(optional)</span></label>
@@ -302,7 +302,7 @@ export default function ProfilePanel() {
                   aria-describedby="p-email-help"
                 />
                 <p id="p-email-help" className={`mt-1 text-sm ${tried && emailError(form.email) ? 'font-semibold text-kumkum' : 'text-ink-soft'}`}>
-                  {(tried && emailError(form.email)) || 'For booking receipts. Leave empty to remove.'}
+                  {(tried && emailError(form.email)) || 'You can also log in with this email. Leave empty to remove.'}
                 </p>
               </div>
             </div>

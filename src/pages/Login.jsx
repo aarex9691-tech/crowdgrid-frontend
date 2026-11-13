@@ -5,6 +5,7 @@ import { afterLogin, useAuth } from '../lib/auth';
 import Notice from '../components/Notice';
 import PasswordField from '../components/PasswordField';
 import { COUNTRIES, countryFor, phoneError } from '../lib/phone';
+import { emailError } from '../lib/validate';
 import AuthShell from '../components/AuthShell';
 import { useCelebrate } from '../components/SuccessSplash';
 
@@ -12,7 +13,9 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [by, setBy] = useState('mobile'); // log in with the mobile number, or the email added in the profile
   const [identifier, setIdentifier] = useState('');
+  const [email, setEmail] = useState('');
   const [countryCode, setCountryCode] = useState('91');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -23,11 +26,11 @@ export default function Login() {
   const submit = async (e) => {
     e.preventDefault();
     setError('');
-    const bad = phoneError(countryCode, identifier);
+    const bad = by === 'email' ? (email.trim() ? emailError(email) : 'Enter your email') : phoneError(countryCode, identifier);
     if (bad) return setError(bad);
     setBusy(true);
     try {
-      const user = await login(identifier, password, countryCode);
+      const user = await login(by === 'email' ? email.trim() : identifier, password, countryCode);
       // a temporary password from the help desk must be replaced first
       if (user.mustChangePassword) return navigate('/set-password', { replace: true, state: { from: location.state?.from } });
       // a page left over from someone else's session (e.g. /control) must not trap this role
@@ -49,9 +52,49 @@ export default function Login() {
       <form onSubmit={submit} className="w-full max-w-md space-y-5">
         <div>
           <h1 className="text-4xl sm:text-5xl">Log in</h1>
-          <p className="mt-2 text-ink-soft">Use the mobile number you registered with.</p>
+          <p className="mt-2 text-ink-soft">Use the mobile number you registered with, or the email in your profile.</p>
         </div>
         <Notice tone="error">{error}</Notice>
+        <div role="radiogroup" aria-label="Log in with" className="grid grid-cols-2 gap-1 rounded-xl border border-line bg-sand p-1">
+          {[
+            ['mobile', 'Mobile number'],
+            ['email', 'Email'],
+          ].map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              role="radio"
+              aria-checked={by === key}
+              className={`min-h-11 rounded-lg px-3 font-semibold transition-colors ${by === key ? 'bg-white text-ink shadow-sm' : 'text-ink-soft hover:text-ink'}`}
+              onClick={() => {
+                setBy(key);
+                setError('');
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        {by === 'email' ? (
+          <div>
+            <label htmlFor="login-email" className="field-label">Email</label>
+            <input
+              id="login-email"
+              type="email"
+              className="field"
+              autoComplete="username email"
+              autoCapitalize="none"
+              spellCheck={false}
+              maxLength={120}
+              placeholder="name@gmail.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value.replace(/\s/g, ''))}
+              aria-describedby="login-email-help"
+              required
+            />
+            <p id="login-email-help" className="mt-1 text-sm text-ink-soft">Works once you have added an email in My account. New accounts sign up with a mobile number.</p>
+          </div>
+        ) : (
         <div>
           <label htmlFor="identifier" className="field-label">Mobile number</label>
           <div className="flex gap-2">
@@ -79,6 +122,7 @@ export default function Login() {
             />
           </div>
         </div>
+        )}
         <div>
           <PasswordField id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
           <button type="button" className="mt-2 min-h-10 text-sm font-semibold text-ink-soft underline hover:text-ink" aria-expanded={forgot} aria-controls="forgot-help" onClick={() => setForgot((f) => !f)}>
