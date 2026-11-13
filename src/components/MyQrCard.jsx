@@ -124,7 +124,7 @@ export default function MyQrCard({ name, photoUrl, activeCount }) {
   const isLive = !!code;
 
   return (
-    <section className="cg-band overflow-hidden rounded-2xl border-l-4 border-l-marigold" aria-labelledby="myqr-title">
+    <section className="cg-band overflow-hidden rounded-2xl border-l-4 border-l-marigold" aria-labelledby="myqr-title" data-no-translate>
       <div className="flex flex-col items-center gap-6 p-6 sm:flex-row sm:items-center sm:p-8">
         <div className="flex flex-col items-center gap-2">
           <div className="rounded-2xl bg-white p-3">

@@ -51,7 +51,7 @@ export default function SetPassword() {
             <KeyRound size={24} />
           </span>
           <h1 className="text-3xl font-bold">{forced ? 'Set your own password' : 'Change password'}</h1>
-          <p className="text-ink-soft">
+          <p className="text-ink-soft" data-no-translate>
             {forced
               ? `Welcome back, ${user.name.split(' ')[0]}. You logged in with a temporary password from the help desk. Choose your own to continue.`
               : 'Your other phones and computers will be logged out.'}

@@ -18,7 +18,7 @@ const ICONS = {
 function Splash({ title, line, tone = 'success', icon, leaving }) {
   const d = ICONS[icon || (tone === 'leave' ? 'out' : 'tick')];
   return (
-    <div className={`cg-splash${leaving ? ' is-leaving' : ''}`} role="status" aria-live="polite" style={{ '--splash-tone': TONES[tone] || TONES.success }}>
+    <div className={`cg-splash${leaving ? ' is-leaving' : ''}`} role="status" aria-live="polite" data-no-translate style={{ '--splash-tone': TONES[tone] || TONES.success }}>
       <div className="cg-splash-card">
         <span className="cg-splash-mark" aria-hidden="true">
           <span className="cg-splash-ring" />

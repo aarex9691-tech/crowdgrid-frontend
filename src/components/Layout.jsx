@@ -288,7 +288,7 @@ export default function Layout() {
               <>
                 <NavLink to="/account" className={linkCls} title={ROLE_LABELS[user.role]}>
                   {user.photoUrl ? <Avatar name={user.name} photoUrl={user.photoUrl} size={28} /> : <UserRound size={18} aria-hidden />}
-                  <span className={`max-w-28 truncate ${wide ? 'sr-only' : ''}`}>{user.name.split(' ')[0]}</span>
+                  <span translate="no" className={`max-w-28 truncate ${wide ? 'sr-only' : ''}`}>{user.name.split(' ')[0]}</span>
                 </NavLink>
                 <button type="button" className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-ink-soft hover:bg-mist hover:text-ink" onClick={doLogout} aria-label="Log out" title="Log out">
                   <LogOut size={20} aria-hidden />
@@ -352,7 +352,7 @@ export default function Layout() {
               {user ? (
                 <>
                   <NavLink to="/account" className={menuCls} onClick={close}>
-                    {user.photoUrl ? <Avatar name={user.name} photoUrl={user.photoUrl} size={28} /> : <UserRound size={20} aria-hidden />} {user.name} <span className="pill-quiet">{ROLE_LABELS[user.role]}</span>
+                    {user.photoUrl ? <Avatar name={user.name} photoUrl={user.photoUrl} size={28} /> : <UserRound size={20} aria-hidden />} <span translate="no">{user.name}</span> <span className="pill-quiet">{ROLE_LABELS[user.role]}</span>
                   </NavLink>
                   <button type="button" className="flex min-h-12 w-full items-center gap-3 rounded-xl px-4 text-lg font-semibold text-ink" onClick={doLogout}>
                     <LogOut size={20} aria-hidden /> Log out

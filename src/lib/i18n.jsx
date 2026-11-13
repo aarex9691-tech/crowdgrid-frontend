@@ -721,7 +721,7 @@ let scanTimer = null;
  * Text that must never be sent to the translation service: anything that looks like personal data.
  * (Names, SOS messages and missing-person details are also kept out by the data-no-translate zones.)
  */
-const looksPersonal = (str) => /@|\d{6,}|\+\d/.test(str);
+const looksPersonal = (str) => /@|\d[\d\s-]{7,}|\+\d/.test(str); // emails, phone numbers (spaced too), IDs
 
 function shouldTranslateText(str) {
   if (!str || typeof str !== 'string') return false;
