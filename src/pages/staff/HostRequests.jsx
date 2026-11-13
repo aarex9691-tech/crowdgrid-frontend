@@ -56,12 +56,7 @@ function Request({ a, onDone }) {
     } catch (e) {
       tab?.close();
       // the reply was asked for as a file, so a server message arrives as a Blob of JSON
-      let message = '';
-      try {
-        message = JSON.parse(await e.response?.data?.text?.())?.message || '';
-      } catch {
-        message = '';
-      }
+      const message = await e.response?.data?.text?.().then((t) => JSON.parse(t)?.message).catch(() => '');
       setError(message || errorMessage(e));
     }
   };
