@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { CalendarDays, KeyRound, MapPin } from 'lucide-react';
+import { BadgeCheck, CalendarDays, KeyRound, MapPin } from 'lucide-react';
 import API, { errorMessage } from '../lib/api';
 import { canBook, useAuth } from '../lib/auth';
 import { cachePass } from '../lib/passCache';
@@ -76,6 +76,11 @@ function PublicEventCard({ event, onRegister, showRegister, large = false }) {
             </span>
           </div>
           <h3 className={`mt-1 line-clamp-2 font-bold leading-snug ${large ? 'text-xl sm:text-2xl' : 'text-lg'}`}>{event.title}</h3>
+          {event.organiserVerified && (
+            <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-tulsi">
+              <BadgeCheck size={15} className="shrink-0" aria-hidden /> <span className="truncate">Verified organiser: <span translate="no">{event.organiserName}</span></span>
+            </p>
+          )}
           <p className="mt-1.5 flex items-center gap-1.5 text-sm text-ink-soft">
             <MapPin size={15} className="shrink-0" aria-hidden />
             <span className="truncate">{event.venue}, {event.city}</span>

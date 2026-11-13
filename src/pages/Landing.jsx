@@ -306,7 +306,7 @@ function HostCta() {
           <h2 id="host-title" className="cg-h2">{t('host.title')}</h2>
           <p className="mt-3 max-w-md text-ink-soft">{t('host.text')}</p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link to="/help" className="cg-btn cg-btn-blue">{t('host.talk')} <ArrowRight size={18} aria-hidden /></Link>
+            <Link to="/host-with-us" className="cg-btn cg-btn-blue">{t('host.talk')} <ArrowRight size={18} aria-hidden /></Link>
             <Link to="/about" className="cg-btn cg-btn-line">{t('host.about')}</Link>
           </div>
         </div>

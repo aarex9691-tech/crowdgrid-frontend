@@ -1,7 +1,7 @@
 import PeopleStepper from '../components/PeopleStepper';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { CalendarDays, ExternalLink, MapPin, Phone, ShieldCheck, Ticket, Users } from 'lucide-react';
+import { BadgeCheck, CalendarDays, ExternalLink, MapPin, Phone, ShieldCheck, Ticket, Users } from 'lucide-react';
 import API, { errorMessage } from '../lib/api';
 import { canBook, useAuth } from '../lib/auth';
 import { rupees, useCart } from '../lib/cart';
@@ -88,6 +88,15 @@ export default function EventDetail() {
           </section>
 
           <section className="panel space-y-4 p-6 sm:p-7 shadow-xs" aria-label="Details">
+            {event.organiserVerified && (
+              <p className="flex items-start gap-3">
+                <BadgeCheck size={22} className="mt-0.5 shrink-0 text-tulsi" aria-hidden />
+                <span>
+                  <b translate="no">{event.organiserName}</b>
+                  <span className="block text-ink-soft">Verified organiser: CrowdGrid checked this organisation's registration.</span>
+                </span>
+              </p>
+            )}
             <p className="flex items-start gap-3">
               <CalendarDays size={22} className="mt-0.5 shrink-0 text-blue" aria-hidden />
               <span>

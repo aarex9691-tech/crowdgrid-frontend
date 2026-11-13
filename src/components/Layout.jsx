@@ -1,5 +1,5 @@
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { BarChart3, Briefcase, CalendarPlus, HandHeart, KeyRound, LogOut, Menu, MessageCircle, ScanLine, Search, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
+import { BadgeCheck, BarChart3, Briefcase, CalendarPlus, HandHeart, KeyRound, LogOut, Menu, MessageCircle, ScanLine, Search, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { ROLE_LABELS, useAuth } from '../lib/auth';
 import { useCart } from '../lib/cart';
@@ -23,7 +23,7 @@ const navFor = (role, t = (k) => k) => {
   switch (role) {
     case 'SUPER_ADMIN':
       return {
-        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, volunteers, { to: '/analytics', label: 'Analytics', icon: BarChart3 }, { to: '/host', label: 'Hosted events', icon: CalendarPlus }, { to: '/corporate-admin', label: 'Campus & Corporate', icon: Briefcase }, helpdesk, scan],
+        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, volunteers, { to: '/analytics', label: 'Analytics', icon: BarChart3 }, { to: '/corporate-admin', label: 'Campus events', icon: Briefcase }, { to: '/host-requests', label: 'Host requests', icon: BadgeCheck }, helpdesk, scan],
         cta: { to: '/host', label: 'Host an event' },
       };
     case 'AUTHORITY':
@@ -33,6 +33,13 @@ const navFor = (role, t = (k) => k) => {
       };
     case 'NGO_ADMIN':
       return { links: [{ to: '/ngo', label: 'My camps', icon: Tent }, scan, { to: '/events', label: 'Events' }, about], cta: { to: '/scan', label: 'Open scanner' } };
+    case 'EVENT_HOST':
+      return { links: [{ to: '/host', label: 'My events', icon: CalendarPlus }, scan, about], cta: { to: '/host', label: 'New event' } };
+    case 'ORG_HOST':
+      return {
+        links: [{ to: '/host', label: 'Public events', icon: CalendarPlus }, { to: '/corporate-admin', label: 'Campus events', icon: Briefcase }, scan, about],
+        cta: { to: '/host', label: 'New event' },
+      };
     case 'CORPORATE_ADMIN':
       return { links: [{ to: '/corporate-admin', label: 'My events', icon: Briefcase }, scan, about], cta: { to: '/corporate-admin', label: 'New event' } };
     case 'VOLUNTEER':
@@ -51,7 +58,7 @@ const TITLES = [
   [/^\/$/, ''], [/^\/login/, 'Log in'], [/^\/register/, 'Create account'], [/^\/events/, 'Events'], [/^\/event\//, 'Event'],
   [/^\/about/, 'About us'], [/^\/help/, 'Help centre'], [/^\/yatra\//, 'Yatra services'], [/^\/corporate\//, 'Campus & Corporate event'], [/^\/passbook/, 'My Passbook'],
   [/^\/account/, 'My account'], [/^\/checkout/, 'Checkout'], [/^\/scan/, 'Scanner'], [/^\/control/, 'Control room'], [/^\/analytics/, 'Analytics'],
-  [/^\/corporate-admin/, 'Campus & Corporate events'], [/^\/camps\/.+\/map/, 'Tent map'], [/^\/host/, 'Hosted events'], [/^\/ngo/, 'My camps'], [/^\/helpdesk/, 'Help desk'], [/^\/set-password/, 'Set password'],
+  [/^\/corporate-admin/, 'Campus & Corporate events'], [/^\/camps\/.+\/map/, 'Tent map'], [/^\/host-with-us/, 'Host with CrowdGrid'], [/^\/host-requests/, 'Host requests'], [/^\/host/, 'Hosted events'], [/^\/ngo/, 'My camps'], [/^\/helpdesk/, 'Help desk'], [/^\/set-password/, 'Set password'],
 ];
 
 /** New page: start at the top (or at the #section asked for) and name the browser tab. */
@@ -434,6 +441,7 @@ export default function Layout() {
             <p className="font-semibold text-white">About us</p>
             <ul className="mt-2 text-sm">
               <li><Link className="hover:text-white" to="/about">About CrowdGrid</Link></li>
+              <li><Link className="hover:text-white" to="/host-with-us">Host your events with us</Link></li>
               <li><Link className="hover:text-white" to="/about#contact">Contact customer care</Link></li>
               <li><a className="hover:text-white" href={`tel:${SITE.phone.replace(/[^\d+]/g, '')}`}>{SITE.phone}</a></li>
               <li><a className="hover:text-white" href={`mailto:${SITE.email}`}>{SITE.email}</a></li>

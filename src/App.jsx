@@ -23,6 +23,8 @@ const About = lazy(() => import('./pages/About'));
 const Help = lazy(() => import('./pages/Help'));
 const TentMap = lazy(() => import('./pages/staff/TentMap'));
 const HostEvents = lazy(() => import('./pages/staff/HostEvents'));
+const HostApply = lazy(() => import('./pages/HostApply'));
+const HostRequests = lazy(() => import('./pages/staff/HostRequests'));
 const ControlRoom = lazy(() => import('./pages/staff/ControlRoom'));
 const Analytics = lazy(() => import('./pages/staff/Analytics'));
 const NgoPortal = lazy(() => import('./pages/staff/NgoPortal'));
@@ -63,6 +65,7 @@ export default function App() {
         <Route path="/help" element={page(Help)} />
         <Route path="/yatra/:slug" element={page(Hub)} />
         <Route path="/corporate/:slug" element={page(Corporate)} />
+        <Route path="/host-with-us" element={page(HostApply)} />
 
         <Route element={<RequireRole />}>
           <Route path="/set-password" element={page(SetPassword)} />
@@ -70,21 +73,26 @@ export default function App() {
           <Route path="/account" element={page(Account)} />
           <Route path="/checkout" element={page(Checkout)} />
         </Route>
-        <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'NGO_ADMIN', 'VOLUNTEER']} />}>
+        <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'EVENT_HOST', 'ORG_HOST', 'NGO_ADMIN', 'VOLUNTEER']} />}>
           <Route path="/scan" element={page(Scanner)} />
         </Route>
         <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY']} />}>
           <Route path="/control" element={page(ControlRoom)} />
           <Route path="/analytics" element={page(Analytics, 'Loading analytics')} />
         </Route>
-        <Route element={<RequireRole roles={['SUPER_ADMIN', 'CORPORATE_ADMIN']} />}>
+        <Route element={<RequireRole roles={['SUPER_ADMIN', 'CORPORATE_ADMIN', 'ORG_HOST']} />}>
           <Route path="/corporate-admin" element={page(CorporateAdmin)} />
         </Route>
         <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY', 'NGO_ADMIN']} />}>
           <Route path="/camps/:id/map" element={page(TentMap)} />
         </Route>
-        <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY']} />}>
+        <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY', 'EVENT_HOST', 'ORG_HOST']} />}>
           <Route path="/host" element={page(HostEvents)} />
+        </Route>
+        <Route element={<RequireRole roles={['SUPER_ADMIN']} />}>
+          <Route path="/host-requests" element={page(HostRequests)} />
+        </Route>
+        <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY']} />}>
           <Route path="/helpdesk" element={page(HelpDesk)} />
           <Route path="/volunteers" element={page(Volunteers, 'Loading volunteers')} />
         </Route>

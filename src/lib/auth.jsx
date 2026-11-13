@@ -15,6 +15,8 @@ export const ROLE_LABELS = {
   SUPER_ADMIN: 'Super Admin',
   AUTHORITY: 'District Authority',
   CORPORATE_ADMIN: 'Corporate Admin',
+  EVENT_HOST: 'Event Host',
+  ORG_HOST: 'Organisation Host',
   NGO_ADMIN: 'NGO / Seva Admin',
   VOLUNTEER: 'Ground Volunteer',
   USER: 'Pilgrim',
@@ -22,29 +24,32 @@ export const ROLE_LABELS = {
 
 /** Where each role lands after signing in. */
 export const homeFor = (role) =>
-  ({ SUPER_ADMIN: '/control', AUTHORITY: '/control', NGO_ADMIN: '/ngo', VOLUNTEER: '/scan', CORPORATE_ADMIN: '/corporate-admin' })[role] || '/';
+  ({ SUPER_ADMIN: '/control', AUTHORITY: '/control', NGO_ADMIN: '/ngo', VOLUNTEER: '/scan', CORPORATE_ADMIN: '/corporate-admin', EVENT_HOST: '/host', ORG_HOST: '/host' })[role] || '/';
 
 // Which roles may open each restricted page (same lists as the <RequireRole> routes in App.jsx)
 const PAGE_ROLES = [
-  [/^\/scan/, ['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'NGO_ADMIN', 'VOLUNTEER']],
-  [/^\/(control|analytics|host|helpdesk|volunteers)/, ['SUPER_ADMIN', 'AUTHORITY']],
-  [/^\/corporate-admin/, ['SUPER_ADMIN', 'CORPORATE_ADMIN']],
+  [/^\/scan/, ['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'EVENT_HOST', 'ORG_HOST', 'NGO_ADMIN', 'VOLUNTEER']],
+  [/^\/host-with-us/, null], // open to everyone
+  [/^\/host-requests/, ['SUPER_ADMIN']],
+  [/^\/host(\/|$)/, ['SUPER_ADMIN', 'AUTHORITY', 'EVENT_HOST', 'ORG_HOST']],
+  [/^\/(control|analytics|helpdesk|volunteers)/, ['SUPER_ADMIN', 'AUTHORITY']],
+  [/^\/corporate-admin/, ['SUPER_ADMIN', 'CORPORATE_ADMIN', 'ORG_HOST']],
   [/^\/camps\/.+\/map/, ['SUPER_ADMIN', 'AUTHORITY', 'NGO_ADMIN']],
   [/^\/ngo/, ['SUPER_ADMIN', 'NGO_ADMIN']],
 ];
 /** Can this role open the page at `path`? Pages not listed are open to everyone signed in. */
 export const canOpen = (role, path = '') => {
   const rule = PAGE_ROLES.find(([re]) => re.test(path));
-  return !rule || rule[1].includes(role);
+  return !rule || !rule[1] || rule[1].includes(role);
 };
 /** Where to go after logging in: back to the page they came from only if their role may open it. */
 export const afterLogin = (role, from) => (from && from !== '/login' && canOpen(role, from) ? from : homeFor(role));
 
-export const STAFF_ROLES = ['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'NGO_ADMIN', 'VOLUNTEER'];
+export const STAFF_ROLES = ['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'EVENT_HOST', 'ORG_HOST', 'NGO_ADMIN', 'VOLUNTEER'];
 
 /** Only pilgrims / attendees book. Admins and hosts work from their dashboards. */
 export const canBook = (user) => !user || user.role === 'USER';
-export const HOST_ROLES = ['SUPER_ADMIN', 'AUTHORITY'];
+export const HOST_ROLES = ['SUPER_ADMIN', 'AUTHORITY', 'EVENT_HOST', 'ORG_HOST']; // may host public events
 
 /** Everything stored for the signed-in person (not the language or other device settings). */
 function clearPersonalCache() {
