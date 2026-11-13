@@ -340,7 +340,7 @@ function LostAndFound({ event }) {
         </label>
       </div>
 
-      <ul className="grid gap-4 sm:grid-cols-2">
+      <ul className="grid gap-4 sm:grid-cols-2" data-no-translate>
         {reports.map((r) => (
           <li key={r._id} className="panel flex gap-4 p-4">
             {r.photoUrl ? (
