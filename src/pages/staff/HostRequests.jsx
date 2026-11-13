@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CircleAlert, CircleCheck, CircleX, ExternalLink } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
 import { formatPhone } from '../../lib/phone';
@@ -55,7 +55,14 @@ function Request({ a, onDone }) {
       setTimeout(() => URL.revokeObjectURL(url), 60000);
     } catch (e) {
       tab?.close();
-      setError(errorMessage(e));
+      // the reply was asked for as a file, so a server message arrives as a Blob of JSON
+      let message = '';
+      try {
+        message = JSON.parse(await e.response?.data?.text?.())?.message || '';
+      } catch {
+        message = '';
+      }
+      setError(message || errorMessage(e));
     }
   };
 
@@ -157,11 +164,18 @@ export default function HostRequests() {
   const [list, setList] = useState(null);
   const [error, setError] = useState('');
 
+  // a counter so a slow reply for an earlier tab never replaces the newer one
+  const latest = useRef(0);
   const load = useCallback(() => {
+    const ticket = ++latest.current;
     setError('');
     API.get('/hosts', { params: { status } })
-      .then(({ data }) => setList({ status, items: data }))
-      .catch((e) => setError(errorMessage(e)));
+      .then(({ data }) => {
+        if (ticket === latest.current) setList({ status, items: data });
+      })
+      .catch((e) => {
+        if (ticket === latest.current) setError(errorMessage(e));
+      });
   }, [status]);
   useEffect(() => {
     load();
