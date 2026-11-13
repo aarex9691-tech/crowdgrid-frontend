@@ -7,7 +7,7 @@ export default function QrCode({ value, size = 220, label }) {
   useEffect(() => {
     let alive = true;
     if (value) {
-      QRCode.toDataURL(value, { width: size * 2, margin: 1, errorCorrectionLevel: 'M', color: { dark: '#1b2a4a', light: '#ffffff' } })
+      QRCode.toDataURL(value, { width: size * 2, margin: 1, errorCorrectionLevel: 'M', color: { dark: '#1B1E28', light: '#ffffff' } })
         .then((url) => alive && setSrc(url))
         .catch(() => alive && setSrc(null));
     }

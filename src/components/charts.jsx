@@ -10,11 +10,12 @@ import { BarChart3, Table2 } from 'lucide-react';
  * magnitude, text always in ink colours. Every chart has a legend for 2+ series
  * and a "Table" view with the exact numbers.
  */
-export const SERIES = ['#2a78d6', '#eb6834', '#1baf7a'];
+// Site colours: blue, saffron, green
+export const SERIES = ['#1F3F8F', '#E36F1E', '#138A43'];
 export const BLUE_RAMP = ['#f1f6fd', '#cde2fb', '#9ec5f4', '#6da7ec', '#3987e5', '#2a78d6', '#1c5cab', '#104281'];
-const INK = '#1b2a4a';
-const MUTED = '#4a5878';
-const GRID = '#e6ebf2';
+const INK = '#1B1E28';
+const MUTED = '#4A4F5E';
+const GRID = '#E7E1D7';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 export const shortDay = (iso) => {
@@ -203,10 +204,10 @@ export function HourHeatmap({ heatmap }) {
 /** Big number tile. */
 export function Kpi({ label, value, hint, tone }) {
   return (
-    <div className="panel p-4">
-      <p className="text-sm text-ink-soft">{label}</p>
-      <p className={`mt-0.5 text-2xl font-extrabold tabular-nums sm:text-3xl ${tone || 'text-ink'}`}>{value}</p>
-      {hint && <p className="mt-0.5 text-xs text-ink-soft">{hint}</p>}
+    <div className="cg-stat">
+      <p className="cg-stat-label">{label}</p>
+      <p className={`cg-stat-value ${tone || 'text-ink'}`}>{value}</p>
+      {hint && <p className="mt-0.5 text-sm text-ink-soft">{hint}</p>}
     </div>
   );
 }

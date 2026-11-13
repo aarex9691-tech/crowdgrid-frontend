@@ -8,6 +8,7 @@ import { fmtDateTime } from '../lib/format';
 import Notice, { Loading } from '../components/Notice';
 import PassCard from '../components/PassCard';
 import useLoginGate from './hub/useLoginGate';
+import PageHero from '../components/PageHero';
 
 /** Corporate path: access code -> session checklist -> digital badge. */
 export default function Corporate() {
@@ -75,12 +76,12 @@ export default function Corporate() {
   if (!event) return error ? <div className="shell py-10"><Notice tone="error">{error}</Notice></div> : <Loading />;
 
   return (
-    <div className="shell max-w-xl space-y-5 py-8">
-      <div>
-        <p className="text-ink-soft">{event.companyName}</p>
-        <h1 className="text-3xl font-bold">{event.title}</h1>
-        <p className="text-ink-soft">{event.venue}, {event.city} · {fmtDateTime(event.startDate)}</p>
-      </div>
+    <div>
+      <PageHero kind="corporate" size="sm" label={event.companyName} title={event.title} lead={`${event.venue}, ${event.city}`}>
+        <p className="text-blue-mist">{fmtDateTime(event.startDate)}</p>
+      </PageHero>
+      <div className="shell py-8">
+      <div className="max-w-xl space-y-5">
       <Notice tone="error">{error}</Notice>
 
       {badge ? (
@@ -114,10 +115,10 @@ export default function Corporate() {
           <ul className="space-y-2">
             {sessions.map((s) => (
               <li key={s.code}>
-                <label className="flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border border-line p-3">
+                <label className="flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border border-line p-3 has-[:checked]:border-blue has-[:checked]:bg-blue-wash">
                   <input
                     type="checkbox"
-                    className="h-5 w-5 accent-ink"
+                    className="h-5 w-5 accent-blue"
                     checked={chosen.includes(s.code)}
                     onChange={() => setChosen((c) => (c.includes(s.code) ? c.filter((x) => x !== s.code) : [...c, s.code]))}
                   />
@@ -133,6 +134,8 @@ export default function Corporate() {
           </button>
         </div>
       )}
+      </div>
+      </div>
     </div>
   );
 }

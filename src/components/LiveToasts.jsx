@@ -42,7 +42,7 @@ export default function LiveToasts() {
   return (
     <div className="pointer-events-none fixed inset-x-4 top-[calc(var(--header-h,4rem)+0.75rem)] z-50 flex flex-col items-end gap-2 sm:left-auto sm:right-5 sm:w-96" aria-live="assertive" role="status">
       {toasts.map((t) => (
-        <div key={t.id} className={`pointer-events-auto flex w-full gap-3 rounded-2xl border-2 bg-white p-4 shadow-xl ${t.tone === 'alert' ? 'border-kumkum' : 'border-tulsi'}`}>
+        <div key={t.id} className={`cg-toast pointer-events-auto flex w-full gap-3 rounded-2xl border-2 bg-white p-4 shadow-xl ${t.tone === 'alert' ? 'border-kumkum' : 'border-tulsi'}`}>
           <span className={`flex h-10 w-10 flex-none items-center justify-center rounded-full ${t.tone === 'alert' ? 'animate-pulse bg-kumkum text-white' : 'bg-tulsi-wash text-tulsi'}`}>
             {t.tone === 'alert' ? <Siren size={20} aria-hidden /> : <CheckCircle2 size={20} aria-hidden />}
           </span>

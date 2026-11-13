@@ -9,6 +9,7 @@ import { useConfirm } from '../../lib/confirm';
 import { TextField } from '../../components/Fields';
 import { cleanText, firstError, textError } from '../../lib/validate';
 import QrCode from '../../components/QrCode';
+import PageTitle from '../../components/PageTitle';
 
 const inviteLinkFor = (event) => `${window.location.origin}/corporate/${event.slug}?code=${event.accessCode}`;
 const spacedCode = (code) => (code ? `${code.slice(0, 3)} ${code.slice(3)}` : '');
@@ -54,8 +55,8 @@ function InvitationCard({ event, onClose }) {
           </button>
         </div>
         <article className="print-area overflow-hidden rounded-3xl bg-white text-ink shadow-xl print:shadow-none">
-          <div className="bg-ink px-6 py-5 text-white">
-            <p className="text-[#c9d6ee]">{event.companyName} invites you to</p>
+          <div className="cg-band px-6 py-5">
+            <p className="text-blue-mist">{event.companyName} invites you to</p>
             <h2 className="font-display text-3xl leading-tight">{event.title}</h2>
           </div>
           <div className="space-y-4 p-6">
@@ -212,10 +213,10 @@ function EventCard({ event, onChanged, highlight, ended }) {
           <p className="text-sm text-ink-soft">Access code</p>
           <p className="text-3xl font-extrabold tracking-widest tabular-nums">{spacedCode(event.accessCode)}</p>
           <div className="mt-2 flex gap-2">
-            <button type="button" className="btn-ghost min-h-10 px-3 text-sm" onClick={() => copy('code', event.accessCode)}>
+            <button type="button" className="btn-ghost min-h-11 px-3 text-sm" onClick={() => copy('code', event.accessCode)}>
               <Copy size={16} aria-hidden /> {copied === 'code' ? 'Copied' : 'Copy'}
             </button>
-            <button type="button" className="btn-ghost min-h-10 px-3 text-sm" onClick={regenerate} disabled={busy}>
+            <button type="button" className="btn-ghost min-h-11 px-3 text-sm" onClick={regenerate} disabled={busy}>
               <RefreshCw size={16} aria-hidden /> {busy ? 'Working…' : 'Regenerate'}
             </button>
           </div>
@@ -297,7 +298,7 @@ function CreateEventForm({ onCreated, onCancel }) {
     <form onSubmit={submit} noValidate className="panel space-y-5 p-5">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">New campus or corporate event</h2>
-        <button type="button" className="btn-ghost min-h-10 px-3" onClick={onCancel} aria-label="Close form">
+        <button type="button" className="btn-ghost min-h-11 px-3" onClick={onCancel} aria-label="Close form">
           <X size={18} aria-hidden />
         </button>
       </div>
@@ -365,12 +366,9 @@ export default function CorporateAdmin() {
 
   return (
     <div className="shell space-y-6 py-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-bold">My campus &amp; corporate events</h1>
-          <p className="text-ink-soft">Create invite-only events, send invitations and see who is coming.</p>
-        </div>
-        <div className="flex gap-2">
+      <div className="cg-pagehead">
+        <PageTitle kicker="Corporate" tone="green" title="Campus & corporate events" lead="Invite guests with a code and see who's coming." />
+        <div className="flex flex-wrap gap-2">
           <Link to="/scan" className="btn-ghost">Registration desk scanner</Link>
           {!creating && (
             <button type="button" className="btn-primary" onClick={() => setCreating(true)}>

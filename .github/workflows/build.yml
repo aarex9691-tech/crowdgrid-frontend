@@ -2,7 +2,7 @@ name: Frontend build
 
 on:
   push:
-    branches: [main, notes-round2]
+    branches: [main, notes-round2, ui-3d-heritage]
   pull_request:
 
 jobs:

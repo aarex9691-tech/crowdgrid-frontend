@@ -14,6 +14,11 @@ export const PASS_META = {
   VOLUNTEER: { label: 'Volunteer ID', icon: HandHeart },
 };
 
+// Stub colour follows the kind of gathering: saffron for yatra services, blue for public
+// events, green for corporate badges. Staff IDs are navy. Spent passes turn grey.
+const TONE = { LODGING: '#e36f1e', MEAL: '#e36f1e', TRANSIT: '#e36f1e', PUBLIC: '#1f3f8f', CORPORATE: '#138a43', VOLUNTEER: '#0f1a3c' };
+const SPENT = ['REDEEMED', 'EXPIRED', 'CANCELLED'];
+
 const STATE = {
   ACTIVE: { cls: 'pill-ok', text: 'Ready to scan' },
   UPCOMING: { cls: 'pill-low', text: 'Not open yet' },
@@ -62,8 +67,10 @@ export default function PassCard({ pass, expanded = true, onCancel }) {
   };
 
   return (
-    <article className="panel overflow-hidden">
-      <div className="flex items-start gap-3 border-b border-dashed border-line p-4">
+    <article className="cg-ticket" style={{ '--ticket-tone': SPENT.includes(pass.state) ? '#dde2ec' : TONE[pass.type] || TONE.PUBLIC }}>
+      <span className="cg-ticket-stub" aria-hidden />
+      <div className="cg-ticket-body">
+      <div className="flex items-start gap-3 p-4">
         <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mist text-ink">
           <meta.icon size={22} aria-hidden />
         </span>
@@ -81,16 +88,16 @@ export default function PassCard({ pass, expanded = true, onCancel }) {
       </div>
 
       {showQr && (
-        <div className="flex flex-col items-center gap-2 bg-white p-5">
+        <div className="cg-ticket-tear flex flex-col items-center gap-2 p-5">
           <QrCode value={pass.qr} label={`${meta.label} QR for ${pass.title}`} />
           <p className="text-center text-sm text-ink-soft">Show this at the gate or counter. Turn your screen brightness up.</p>
-          <button type="button" onClick={copy} className="text-sm font-semibold text-dusk underline">
+          <button type="button" onClick={copy} className="min-h-11 text-sm font-semibold text-blue underline underline-offset-4">
             {copied ? 'Pass code copied' : 'Copy pass code'}
           </button>
         </div>
       )}
 
-      <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 px-4 py-3 text-[15px]">
+      <dl className="cg-ticket-tear grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 px-4 py-3 text-[15px]">
         {detailRows(pass).map(([k, v]) => (
           <div key={k} className="contents">
             <dt className="text-ink-soft">{k}</dt>
@@ -110,11 +117,12 @@ export default function PassCard({ pass, expanded = true, onCancel }) {
       </dl>
       {onCancel && CANCELLABLE.includes(pass.type) && pass.state === 'UPCOMING' && (
         <div className="border-t border-line px-4 py-3">
-          <button type="button" className="text-sm font-semibold text-kumkum underline-offset-4 hover:underline" onClick={() => onCancel(pass)}>
+          <button type="button" className="min-h-11 text-sm font-semibold text-kumkum underline-offset-4 hover:underline" onClick={() => onCancel(pass)}>
             Cancel this {pass.type === 'LODGING' ? 'stay' : pass.type === 'MEAL' ? 'meal token' : pass.type === 'TRANSIT' ? 'bus pass' : 'ticket'}
           </button>
         </div>
       )}
+      </div>
     </article>
   );
 }

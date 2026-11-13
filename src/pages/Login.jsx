@@ -5,6 +5,7 @@ import { afterLogin, useAuth } from '../lib/auth';
 import Notice from '../components/Notice';
 import PasswordField from '../components/PasswordField';
 import { COUNTRIES, countryFor, phoneError } from '../lib/phone';
+import AuthShell from '../components/AuthShell';
 
 export default function Login() {
   const { login } = useAuth();
@@ -37,11 +38,11 @@ export default function Login() {
   };
 
   return (
-    <div className="shell flex justify-center py-10">
-      <form onSubmit={submit} className="panel w-full max-w-md space-y-5 p-6 sm:p-8">
+    <AuthShell>
+      <form onSubmit={submit} className="w-full max-w-md space-y-5">
         <div>
-          <h1 className="text-3xl font-bold">Log in</h1>
-          <p className="text-ink-soft">Use the mobile number you registered with.</p>
+          <h1 className="text-4xl sm:text-5xl">Log in</h1>
+          <p className="mt-2 text-ink-soft">Use the mobile number you registered with.</p>
         </div>
         <Notice tone="error">{error}</Notice>
         <div>
@@ -89,9 +90,9 @@ export default function Login() {
           {busy ? 'Logging in…' : 'Log in'}
         </button>
         <p className="text-center text-ink-soft">
-          New here? <Link to="/register" state={location.state} className="font-semibold text-ink underline">Create an account</Link>
+          New here? <Link to="/register" state={location.state} className="font-semibold text-blue underline underline-offset-4">Create an account</Link>
         </p>
       </form>
-    </div>
+    </AuthShell>
   );
 }

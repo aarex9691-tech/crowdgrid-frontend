@@ -14,6 +14,7 @@ import SosTab from './hub/SosTab';
 import SnanDates from '../components/SnanDates';
 import YatraGuide from '../components/YatraGuide';
 import { useT } from '../lib/i18n';
+import PageHero from '../components/PageHero';
 
 // The walking map (Leaflet) only loads when the tab is opened
 const RouteTab = lazy(() => import('./hub/RouteTab'));
@@ -48,22 +49,23 @@ export default function Hub() {
   const tabs = TABS.filter((x) => !x.only || x.only === event.slug);
   const active = tabs.find((x) => x.id === params.get('tab')) || tabs[0];
 
+  const isYatra = event.kind === 'YATRA' || event.slug?.includes('kumbh') || event.slug?.includes('wari') || event.slug?.includes('rath');
+
   return (
-    <div>
-      <div className="bg-ink text-white">
-        <div className="shell py-5">
-          <Link to="/" className="text-sm text-[#c9d6ee] hover:text-white">{t('hub.allYatras')}</Link>
-          <h1 className="font-display text-3xl">{event.title}</h1>
-          <p className="text-[#c9d6ee]">
-            {event.tagline} · {fmtDate(event.startDate)} to {fmtDate(event.endDate)}
-          </p>
-          <SnanDates event={event} all />
-        </div>
-      </div>
+    <div className={isYatra ? 'cg-yatra-theme' : ''}>
+      <PageHero
+        kind="pilgrimage"
+        back={{ to: '/events?tab=yatras', label: t('hub.allYatras') }}
+        title={event.title}
+        lead={event.tagline}
+      >
+        <p className="mt-1 text-blue-mist">{fmtDate(event.startDate)} to {fmtDate(event.endDate)}</p>
+        <SnanDates event={event} all />
+      </PageHero>
 
       {/* Service ribbon: switches tabs without a page reload (FR-03) */}
-      <nav aria-label={t('hub.services')} className="sticky top-[var(--header-h,4rem)] z-20 border-b border-line bg-white">
-        <div className="shell flex gap-1 overflow-x-auto py-2" role="tablist">
+      <nav aria-label={t('hub.services')} className="sticky top-[var(--header-h,4rem)] z-20 border-b border-line bg-white shadow-2xs">
+        <div className="shell no-scrollbar flex gap-2 overflow-x-auto" role="tablist">
           {tabs.map((tab) => {
             const selected = tab.id === active.id;
             const sos = tab.id === 'sos';
@@ -74,11 +76,13 @@ export default function Hub() {
                 role="tab"
                 aria-selected={selected}
                 onClick={() => setParams({ tab: tab.id }, { replace: true })}
-                className={`flex min-h-12 shrink-0 items-center gap-2 rounded-xl px-4 font-semibold transition-colors ${
-                  selected ? (sos ? 'bg-kumkum text-white' : 'bg-ink text-white') : sos ? 'text-kumkum hover:bg-kumkum-wash' : 'text-ink-soft hover:bg-mist hover:text-ink'
+                className={`flex min-h-14 sm:min-h-16 shrink-0 items-center gap-2.5 border-b-[3.5px] px-4 sm:px-6 text-base sm:text-lg font-bold transition-all ${
+                  selected
+                    ? (sos ? 'border-kumkum text-kumkum bg-kumkum-wash/40' : 'border-marigold text-ink bg-marigold-wash/30')
+                    : (sos ? 'border-transparent text-kumkum hover:border-kumkum/40 hover:bg-kumkum-wash/20' : 'border-transparent text-ink-soft hover:text-ink hover:bg-mist')
                 }`}
               >
-                <tab.icon size={20} aria-hidden />
+                <tab.icon size={22} aria-hidden />
                 {t(`tab.${tab.id}`)}
               </button>
             );
@@ -94,16 +98,18 @@ export default function Hub() {
         </div>
       )}
 
-      <div className="shell space-y-4 py-6" role="tabpanel">
+      <div className="shell space-y-6 py-8" role="tabpanel">
         {canBook(user) && <PrebookNotice event={event} />}
         <YatraGuide event={event} />
-        <p className="flex items-start gap-2 text-ink-soft" data-testid="tab-hint">
-          <Info size={18} className="mt-1 shrink-0 text-ink-faint" aria-hidden />
-          {t(`hint.${active.id}`)}
+        <p className="flex items-start gap-3 rounded-2xl border border-line bg-mist/70 p-4 sm:p-5 text-base sm:text-lg text-ink-soft" data-testid="tab-hint">
+          <Info size={22} className="mt-0.5 shrink-0 text-blue" aria-hidden />
+          <span>{t(`hint.${active.id}`)}</span>
         </p>
-        <Suspense fallback={<Loading label="Loading" />}>
-          <active.Component event={event} />
-        </Suspense>
+        <div className="pt-2">
+          <Suspense fallback={<Loading label="Loading" />}>
+            <active.Component event={event} />
+          </Suspense>
+        </div>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import API, { errorMessage } from '../../lib/api';
 import { LiveBadge, useLive } from '../../lib/realtime';
 import Notice, { Loading } from '../../components/Notice';
 import { ChartCard, DailyBars, DailyLine, HourHeatmap, inr, Kpi, num, PercentBars, shortDay } from '../../components/charts';
+import PageTitle from '../../components/PageTitle';
 
 const RANGES = [7, 14, 30];
 const SOS_TYPE = { MEDICAL: 'Medical', LOST: 'Lost person', CROWD: 'Crowd', FIRE: 'Fire', GENERAL: 'General' };
@@ -93,37 +94,39 @@ export default function Analytics() {
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-5 px-4 py-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="flex flex-wrap items-center gap-3 text-3xl font-bold">Analytics {paused ? <span className="rounded-full bg-mist px-2.5 py-0.5 text-xs font-bold text-ink-soft">Paused</span> : <LiveBadge />}</h1>
-          <p className="text-ink-soft">{data ? `${data.event.title} · ${shortDay(data.days[0])} to ${shortDay(data.days[data.days.length - 1])}` : 'Loading…'}</p>
-        </div>
+      <div className="cg-pagehead">
+        <PageTitle
+          kicker="Authority"
+          tone="blue"
+          title={<>Analytics {paused ? <span className="pill-quiet">Paused</span> : <LiveBadge />}</>}
+          lead={data ? `${data.event.title} · ${shortDay(data.days[0])} to ${shortDay(data.days[data.days.length - 1])}` : 'Loading…'}
+        />
         <div className="flex flex-wrap items-end gap-2">
           {events.length > 1 && (
             <div>
-              <label htmlFor="an-ev" className="field-label">Yatra</label>
-              <select id="an-ev" className="field min-h-10" value={eventId} onChange={(e) => setEventId(e.target.value)}>
+              <label htmlFor="an-ev" className="field-label">Event</label>
+              <select id="an-ev" className="field min-h-11" value={eventId} onChange={(e) => setEventId(e.target.value)}>
                 {events.map((e) => <option key={e._id} value={e._id}>{e.title}</option>)}
               </select>
             </div>
           )}
           <div className="flex rounded-xl bg-white p-1 ring-1 ring-line" role="group" aria-label="Time range">
             {RANGES.map((r) => (
-              <button key={r} type="button" aria-pressed={days === r} className={`min-h-9 rounded-lg px-3 text-sm font-bold ${days === r ? 'bg-ink text-white' : 'text-ink-soft hover:text-ink'}`} onClick={() => setDays(r)}>
+              <button key={r} type="button" aria-pressed={days === r} className={`min-h-11 rounded-lg px-3 text-sm font-bold ${days === r ? 'bg-blue text-white' : 'text-ink-soft hover:text-ink'}`} onClick={() => setDays(r)}>
                 {r} days
               </button>
             ))}
           </div>
           <div className="flex items-center gap-1 rounded-xl bg-white p-1 ring-1 ring-line">
             <span className="px-2 text-xs text-ink-soft" aria-live="polite">{updatedAt ? `Updated ${updatedAt.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}` : ''}</span>
-            <button type="button" className="flex min-h-8 items-center gap-1 rounded-lg px-2 text-sm font-bold text-ink-soft hover:bg-mist hover:text-ink" onClick={load} title="Refresh now">
+            <button type="button" className="flex min-h-11 items-center gap-1 rounded-lg px-2 text-sm font-bold text-ink-soft hover:bg-mist hover:text-ink" onClick={load} title="Refresh now">
               <RefreshCw size={15} aria-hidden /> <span className="sr-only sm:not-sr-only">Refresh</span>
             </button>
-            <button type="button" aria-pressed={paused} className="flex min-h-8 items-center gap-1 rounded-lg px-2 text-sm font-bold text-ink-soft hover:bg-mist hover:text-ink" onClick={() => { setPaused((v) => !v); if (paused) load(); }} title={paused ? 'Resume live updates' : 'Pause live updates while you read'}>
+            <button type="button" aria-pressed={paused} className="flex min-h-11 items-center gap-1 rounded-lg px-2 text-sm font-bold text-ink-soft hover:bg-mist hover:text-ink" onClick={() => { setPaused((v) => !v); if (paused) load(); }} title={paused ? 'Resume live updates' : 'Pause live updates while you read'}>
               {paused ? <Play size={15} aria-hidden /> : <Pause size={15} aria-hidden />} <span className="sr-only sm:not-sr-only">{paused ? 'Resume' : 'Pause'}</span>
             </button>
           </div>
-          <Link to="/control" className="btn-ghost min-h-10">Control room</Link>
+          <Link to="/control" className="btn-ghost min-h-11">Control room</Link>
         </div>
       </div>
 
@@ -137,7 +140,7 @@ export default function Analytics() {
         error ? null : <Loading label="Crunching the numbers" />
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <Kpi label="Bed occupancy" value={`${k.occupancyPct}%`} hint={`${num(k.bedsTotal - k.bedsFree)} of ${num(k.bedsTotal)} beds`} />
             <Kpi label="Beds free" value={num(k.bedsFree)} tone="text-tulsi" />
             <Kpi label="Bed bookings today" value={num(k.bookingsToday)} />
@@ -218,13 +221,13 @@ export default function Analytics() {
               table={{ columns: [{ key: 'type', label: 'Type', format: (t) => SOS_TYPE[t] || t }, { key: 'count', label: 'Alerts', num: true }], rows: data.sos.byType }}
             >
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl bg-mist p-3">
-                  <p className="text-sm text-ink-soft">Average first response</p>
-                  <p className="text-2xl font-extrabold tabular-nums">{data.sos.avgResponseMin === null ? '–' : `${data.sos.avgResponseMin} min`}</p>
+                <div className="cg-stat">
+                  <p className="cg-stat-label">Average first response</p>
+                  <p className="cg-stat-value">{data.sos.avgResponseMin === null ? '–' : `${data.sos.avgResponseMin} min`}</p>
                 </div>
-                <div className="rounded-xl bg-mist p-3">
-                  <p className="text-sm text-ink-soft">Average time to resolve</p>
-                  <p className="text-2xl font-extrabold tabular-nums">{data.sos.avgResolveMin === null ? '–' : `${data.sos.avgResolveMin} min`}</p>
+                <div className="cg-stat">
+                  <p className="cg-stat-label">Average time to resolve</p>
+                  <p className="cg-stat-value">{data.sos.avgResolveMin === null ? '–' : `${data.sos.avgResolveMin} min`}</p>
                 </div>
               </div>
               <div className="mt-4">

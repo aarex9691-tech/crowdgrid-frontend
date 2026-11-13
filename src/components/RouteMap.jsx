@@ -11,10 +11,10 @@ export const LANE_STYLE = {
   NORMAL: { color: '#8f9bb3', weight: 3, label: 'Normal' },
   BUSY: { color: '#e39b00', weight: 5, label: 'Busy' },
   CROWDED: { color: '#c8102e', weight: 6, label: 'Crowded' },
-  CLOSED: { color: '#1b2a4a', weight: 4, dashArray: '2 8', label: 'Closed' },
+  CLOSED: { color: '#1B1E28', weight: 4, dashArray: '2 8', label: 'Closed' },
 };
-const SAFEST = '#1e7f4f';
-const SHORTEST = '#2a78d6';
+const SAFEST = '#138A43';
+const SHORTEST = '#1F3F8F';
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
@@ -94,10 +94,10 @@ export default function RouteMap({ nodes, lanes, safest, shortest, fromId, toId,
     for (const n of nodes) {
       const isEnd = n.id === fromId || n.id === toId;
       if (n.type !== 'GHAT' && !isEnd) {
-        L.circleMarker([n.lat, n.lng], { radius: 3, color: '#4a5878', weight: 1, fillColor: '#ffffff', fillOpacity: 1 }).bindTooltip(esc(n.name)).addTo(layer);
+        L.circleMarker([n.lat, n.lng], { radius: 3, color: '#4A4F5E', weight: 1, fillColor: '#ffffff', fillOpacity: 1 }).bindTooltip(esc(n.name)).addTo(layer);
         continue;
       }
-      const color = n.id === fromId ? '#1b2a4a' : n.id === toId ? SAFEST : '#2e4a7d';
+      const color = n.id === fromId ? '#1B1E28' : n.id === toId ? SAFEST : '#2e4a7d';
       L.circleMarker([n.lat, n.lng], { radius: isEnd ? 9 : 6, color: '#ffffff', weight: 3, fillColor: color, fillOpacity: 1 })
         .bindTooltip(`${n.id === fromId ? 'Start: ' : n.id === toId ? 'Ghat: ' : ''}${esc(n.name)}`, { permanent: isEnd, direction: 'top', offset: [0, -8] })
         .addTo(layer);
