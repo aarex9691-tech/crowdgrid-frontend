@@ -28,7 +28,12 @@ export default function MyDutyCard() {
 
   const load = useCallback(() => {
     if (!isVolunteer) return;
-    API.get('/volunteer/my-duty').then(({ data: d }) => setData(d)).catch((e) => setError(errorMessage(e)));
+    API.get('/volunteer/my-duty')
+      .then(({ data: d }) => {
+        setData(d);
+        setError('');
+      })
+      .catch((e) => setError(errorMessage(e)));
   }, [isVolunteer]);
   useEffect(() => {
     load();
@@ -37,8 +42,11 @@ export default function MyDutyCard() {
   }, [load]);
   useLive(['duty', 'volunteer-broadcast'], load, { wait: 400, enabled: isVolunteer });
 
-  if (!isVolunteer || !data) return null;
-  const [duty, ...later] = data.duties;
+  if (!isVolunteer) return null;
+  // first load failed (weak signal): say so instead of showing nothing
+  if (!data) return error ? <Notice tone="error">Could not load your duty: {error}</Notice> : null;
+  const [duty, ...later] = data.duties || [];
+  const broadcasts = data.broadcasts || [];
 
   const act = async (kind) => {
     setBusy(true);
@@ -81,11 +89,11 @@ export default function MyDutyCard() {
           <p className="mt-1 text-ink-soft">No shift assigned yet. The control room will put you on a post.</p>
         )}
       </div>
-      {data.broadcasts.length > 0 && (
+      {broadcasts.length > 0 && (
         <div className="border-t border-line bg-mist/60 p-4">
           <h3 className="flex items-center gap-2 font-bold"><Megaphone size={17} aria-hidden /> From the control room</h3>
           <ul className="mt-1.5 space-y-2">
-            {data.broadcasts.map((b, i) => (
+            {broadcasts.map((b, i) => (
               <li key={b._id} className={i === 0 ? 'font-semibold' : 'text-ink-soft'}>
                 {b.message} <span className="text-sm font-normal text-ink-soft">· {b.sector || 'everyone'} · {ago(b.createdAt)}</span>
               </li>

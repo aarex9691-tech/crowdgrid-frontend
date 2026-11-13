@@ -77,6 +77,13 @@ function Stat({ label, value, tone }) {
 function DutyDialog({ data, initial, onClose, onSaved }) {
   const editing = !!initial.duty;
   const firstField = useRef(null);
+  const formRef = useRef(null);
+  // the parent passes a new onClose on every render (polls, live updates): keep the latest in a ref,
+  // so focus is set once when the dialog opens and not again while someone is typing
+  const closeRef = useRef(onClose);
+  useEffect(() => {
+    closeRef.current = onClose;
+  });
   const [form, setForm] = useState(() => {
     const d = initial.duty;
     const start = d ? new Date(d.start) : nextQuarter();
@@ -94,11 +101,30 @@ function DutyDialog({ data, initial, onClose, onSaved }) {
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
   useEffect(() => {
+    const opener = document.activeElement;
     firstField.current?.focus();
-    const onKey = (e) => e.key === 'Escape' && onClose();
+    const onKey = (e) => {
+      if (e.key === 'Escape') return closeRef.current();
+      if (e.key !== 'Tab' || !formRef.current) return;
+      // keep Tab inside the dialog (it is modal)
+      const items = [...formRef.current.querySelectorAll('button, select, input, textarea, [href]')].filter((el) => !el.disabled);
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      opener?.focus?.(); // back to the button that opened it
+    };
+  }, []);
 
   // Volunteers free right now come first in the list
   const choices = useMemo(() => {
@@ -133,13 +159,13 @@ function DutyDialog({ data, initial, onClose, onSaved }) {
 
   return createPortal(
     <div className="cg-backdrop fixed inset-0 z-[1000] flex items-end justify-center bg-ink/50 p-4 sm:items-center" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <form onSubmit={submit} className="cg-dialog w-full max-w-lg space-y-4 rounded-2xl bg-white p-6" role="dialog" aria-modal="true" aria-labelledby="duty-title">
+      <form ref={formRef} onSubmit={submit} className="cg-dialog max-h-[90dvh] w-full max-w-lg space-y-4 overflow-y-auto rounded-2xl bg-white p-6" role="dialog" aria-modal="true" aria-labelledby="duty-title">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 id="duty-title" className="text-2xl font-bold">{editing ? 'Move duty' : 'Assign a duty'}</h2>
             <p className="text-ink-soft">{editing ? person?.name : 'Put a volunteer on a sector post for a shift.'}</p>
           </div>
-          <button type="button" className="grid h-10 w-10 place-items-center rounded-lg text-ink-soft hover:bg-mist" onClick={onClose} aria-label="Close"><X size={20} /></button>
+          <button type="button" className="grid h-11 w-11 place-items-center rounded-lg text-ink-soft hover:bg-mist" onClick={onClose} aria-label="Close"><X size={20} /></button>
         </div>
         <Notice tone="error">{error}</Notice>
 
@@ -381,10 +407,10 @@ function Roster({ data, onAssign, onMove, onCancel, onEnd }) {
                       <Phone size={15} aria-hidden /> Call
                     </a>
                   )}
-                  {!r.duty && <button type="button" className="btn-ink min-h-10 px-3 text-sm" onClick={() => onAssign({ volunteerId: r.id, sector: r.homeSector })}>Assign</button>}
-                  {r.duty && <button type="button" className="btn-ghost min-h-10 px-3 text-sm" onClick={() => onMove(r)}>Move</button>}
-                  {r.duty?.status === 'ON_DUTY' && <button type="button" className="btn-ghost min-h-10 px-3 text-sm" onClick={() => onEnd(r)}>End shift</button>}
-                  {r.duty?.status === 'SCHEDULED' && <button type="button" className="btn-ghost min-h-10 px-3 text-sm" onClick={() => onCancel(r)}>Cancel</button>}
+                  {!r.duty && <button type="button" className="btn-ink min-h-10 px-3 text-sm" onClick={() => onAssign({ volunteerId: r.id, sector: r.homeSector })} aria-label={`Assign a duty to ${r.name}`}>Assign</button>}
+                  {r.duty && <button type="button" className="btn-ghost min-h-10 px-3 text-sm" onClick={() => onMove(r)} aria-label={`Move ${r.name}'s duty`}>Move</button>}
+                  {r.duty?.status === 'ON_DUTY' && <button type="button" className="btn-ghost min-h-10 px-3 text-sm" onClick={() => onEnd(r)} aria-label={`End ${r.name}'s shift`}>End shift</button>}
+                  {r.duty?.status === 'SCHEDULED' && <button type="button" className="btn-ghost min-h-10 px-3 text-sm" onClick={() => onCancel(r)} aria-label={`Cancel ${r.name}'s duty`}>Cancel</button>}
                 </div>
               </li>
             );
@@ -414,11 +440,20 @@ export default function Volunteers() {
       .catch((e) => setError(errorMessage(e)));
   }, []);
 
+  // the yatra chosen now: an answer for a yatra chosen earlier (slow network) is dropped
+  const wanted = useRef(eventId);
+  useEffect(() => {
+    wanted.current = eventId;
+  }, [eventId]);
   const load = useCallback(() => {
     if (!eventId) return;
     API.get('/volunteer/control', { params: { eventId } })
-      .then(({ data: d }) => { setData({ ...d, eventId }); setError(''); })
-      .catch((e) => setError(errorMessage(e)));
+      .then(({ data: d }) => {
+        if (wanted.current !== eventId) return;
+        setData({ ...d, eventId });
+        setError('');
+      })
+      .catch((e) => wanted.current === eventId && setError(errorMessage(e)));
   }, [eventId]);
   useEffect(() => {
     setData(null);

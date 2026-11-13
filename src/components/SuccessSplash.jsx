@@ -43,12 +43,27 @@ export function CelebrateProvider({ children }) {
   useEffect(() => clear, []);
 
   /** celebrate({ title, line, tone: 'success' | 'cancel' | 'leave', icon, then }) */
+  const pending = useRef(null); // the previous card's follow-up (e.g. the redirect after log in)
   const celebrate = useCallback(({ then, ...m }) => {
     clear();
+    // a second card within a second must not swallow the first one's follow-up: run it now
+    if (pending.current) {
+      const run = pending.current;
+      pending.current = null;
+      run();
+    }
     const calm = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     const hold = calm ? 700 : 1000;
     setMsg({ ...m, id: Date.now(), leaving: false });
-    if (then) timers.current.push(setTimeout(then, hold - 250)); // next page arrives under the card
+    if (then) {
+      pending.current = then;
+      timers.current.push(
+        setTimeout(() => {
+          pending.current = null;
+          then();
+        }, hold - 250)
+      ); // next page arrives under the card
+    }
     timers.current.push(setTimeout(() => setMsg((x) => x && { ...x, leaving: true }), hold));
     timers.current.push(setTimeout(() => setMsg(null), hold + 280));
   }, []);
