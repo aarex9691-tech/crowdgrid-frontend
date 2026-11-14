@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Camera, CameraOff, CircleCheck, CircleX } from 'lucide-react';
 import API, { errorMessage } from '../lib/api';
 import { fmtDateTime } from '../lib/format';
@@ -121,8 +121,7 @@ export default function Scanner() {
     }
   };
 
-  // only refs and state setters inside: the React Compiler memoises it, no useCallback needed
-  const check = async (qr, passId) => {
+  const check = useCallback(async (qr, passId) => {
     if (busyRef.current) return;
     // Ignore the same code read repeatedly while it is still in front of the camera
     if (!passId && lastRef.current.text === qr && Date.now() - lastRef.current.at < 4000) return;
@@ -143,7 +142,7 @@ export default function Scanner() {
     } finally {
       busyRef.current = false;
     }
-  };
+  }, [setResult]); // the compiler counts the state setter as a dependency (stable, so never re-created)
 
   const start = async () => {
     // one camera at a time: a second tap while the library downloads does nothing
