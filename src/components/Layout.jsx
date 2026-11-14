@@ -1,5 +1,5 @@
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { BarChart3, Briefcase, CalendarPlus, Globe, HandHeart, Inbox, KeyRound, LogOut, Menu, MessageCircle, ScanLine, Search, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
+import { BarChart3, Briefcase, PanelLeftClose, PanelLeftOpen, CalendarPlus, Globe, HandHeart, Inbox, KeyRound, LogOut, Menu, MessageCircle, ScanLine, Search, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { ROLE_LABELS, useAuth } from '../lib/auth';
 import { useCart } from '../lib/cart';
@@ -69,16 +69,18 @@ const navFor = (role, t = (k) => k) => {
 };
 
 /** One labelled group of the sidebar (the label names the list for screen readers). */
-function NavGroup({ group, cls, onPick, large }) {
+function NavGroup({ group, cls, onPick, large, collapsed }) {
   const id = useId();
   return (
     <div>
-      <p id={id} className="px-3 pb-1 text-sm font-semibold text-ink-faint">{group.label}</p>
+      {/* the group's name stays for screen readers when the sidebar is folded to icons */}
+      <p id={id} className={collapsed ? 'sr-only' : 'px-3 pb-1 text-sm font-semibold text-ink-faint'}>{group.label}</p>
       <ul aria-labelledby={id} className="space-y-0.5">
         {group.links.map((l) => (
           <li key={l.to}>
-            <NavLink to={l.to} end={l.end} className={cls} onClick={onPick}>
-              {l.icon && <l.icon size={large ? 22 : 19} aria-hidden className="shrink-0" />} {l.label}
+            <NavLink to={l.to} end={l.end} className={cls} onClick={onPick} title={collapsed ? l.label : undefined}>
+              {l.icon && <l.icon size={large ? 22 : 19} aria-hidden className="shrink-0" />}
+              <span className={collapsed ? 'sr-only' : ''}>{l.label}</span>
             </NavLink>
           </li>
         ))}
@@ -87,18 +89,44 @@ function NavGroup({ group, cls, onPick, large }) {
   );
 }
 
-/** The workspace sidebar (desktop) and the same groups in the phone menu. */
-function SideNav({ groups, onPick, large = false }) {
+/** The workspace sidebar (desktop, open or folded to icons) and the same groups in the phone menu. */
+function SideNav({ groups, onPick, large = false, collapsed = false }) {
   // active page: blue text, bold, and a blue bar (not colour alone, and the bar contrasts at 3:1+)
   const cls = ({ isActive }) =>
-    `relative flex items-center gap-3 rounded-xl px-3 transition-colors ${large ? 'min-h-14 text-xl' : 'min-h-11 text-[15px]'} ${
+    `relative flex items-center gap-3 rounded-xl transition-colors ${collapsed ? 'min-h-11 justify-center px-0' : 'px-3'} ${large ? 'min-h-14 text-xl' : 'min-h-11 text-[15px]'} ${
       isActive ? 'bg-blue-wash font-bold text-blue before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-full before:bg-blue' : 'font-semibold text-ink-soft hover:bg-mist hover:text-ink'
     }`;
   return (
-    <div className="space-y-5">
-      {groups.map((g) => <NavGroup key={g.label} group={g} cls={cls} onPick={onPick} large={large} />)}
+    <div className={collapsed ? 'space-y-3' : 'space-y-5'}>
+      {groups.map((g, i) => (
+        <div key={g.label} className={collapsed && i > 0 ? 'border-t border-line pt-3' : ''}>
+          <NavGroup group={g} cls={cls} onPick={onPick} large={large} collapsed={collapsed} />
+        </div>
+      ))}
     </div>
   );
+}
+
+const SIDEBAR_KEY = 'cg_sidebar';
+/** Open or folded sidebar, remembered on this device (browser storage can be unavailable: then it starts open). */
+function useSidebar() {
+  const [open, setOpen] = useState(() => {
+    try {
+      return localStorage.getItem(SIDEBAR_KEY) !== 'closed';
+    } catch {
+      return true;
+    }
+  });
+  const toggle = () =>
+    setOpen((o) => {
+      try {
+        localStorage.setItem(SIDEBAR_KEY, o ? 'closed' : 'open');
+      } catch {
+        /* not remembered, still works */
+      }
+      return !o;
+    });
+  return [open, toggle];
 }
 
 const TITLES = [
@@ -205,6 +233,7 @@ export default function Layout() {
 
   // Staff and hosts work from the sidebar; the top bar keeps only the logo and the account
   const workspace = Boolean(nav.workspace);
+  const [sideOpen, toggleSide] = useSidebar();
   // Roles with many links switch to the full desktop bar only on wide screens,
   // so labels never squeeze onto two lines or run into each other.
   const wide = !workspace && nav.links.reduce((n, l) => n + l.label.length, 0) > 36;
@@ -274,6 +303,19 @@ export default function Layout() {
       <header ref={headerRef} className="sticky top-0 z-30 border-b border-line bg-white">
         <div className="toran" aria-hidden />
         <div className={`mx-auto flex h-16 w-full items-center gap-2 px-4 sm:px-6 ${workspace ? '' : 'max-w-[var(--page-max)]'}`}>
+          {workspace && (
+            <button
+              type="button"
+              className="hidden min-h-11 min-w-11 flex-none items-center justify-center rounded-xl text-ink-soft hover:bg-mist hover:text-ink lg:flex"
+              aria-expanded={sideOpen}
+              aria-controls="workspace-nav"
+              aria-label={sideOpen ? 'Fold the side menu' : 'Open the side menu'}
+              title={sideOpen ? 'Fold the side menu' : 'Open the side menu'}
+              onClick={toggleSide}
+            >
+              {sideOpen ? <PanelLeftClose size={22} aria-hidden /> : <PanelLeftOpen size={22} aria-hidden />}
+            </button>
+          )}
           <Link
             to="/"
             className={`group mr-2 flex min-h-11 flex-none items-center gap-2.5 ${showSearch ? '' : desk === 'xl' ? 'xl:mr-4' : 'lg:mr-4'}`}
@@ -440,11 +482,11 @@ export default function Layout() {
       {/* first-visit tour: home page, pilgrims and visitors only */}
       <GuidedTour auto={pathname === '/' && (!user || user.role === 'USER')} />
 
-      <div className={`flex-1 ${workspace ? 'lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]' : 'flex flex-col'}`}>
+      <div className={`flex-1 ${workspace ? `lg:grid ${sideOpen ? 'lg:grid-cols-[16rem_minmax(0,1fr)]' : 'lg:grid-cols-[4.5rem_minmax(0,1fr)]'}` : 'flex flex-col'}`}>
         {workspace && (
           <div className="cg-sidebar hidden border-r border-line bg-white/85 lg:block">
-            <nav aria-label="Workspace" className="sticky top-[var(--header-h,4.25rem)] max-h-[calc(100dvh-var(--header-h,4.25rem))] overflow-y-auto px-3 py-6">
-              <SideNav groups={nav.groups} />
+            <nav id="workspace-nav" aria-label="Workspace" className={`sticky top-[var(--header-h,4.25rem)] max-h-[calc(100dvh-var(--header-h,4.25rem))] overflow-y-auto py-6 ${sideOpen ? 'px-3' : 'px-2'}`}>
+              <SideNav groups={nav.groups} collapsed={!sideOpen} />
             </nav>
           </div>
         )}
