@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
 import RequireRole from './components/RequireRole';
 import { Loading } from './components/Notice';
@@ -24,7 +24,8 @@ const Help = lazy(() => import('./pages/Help'));
 const TentMap = lazy(() => import('./pages/staff/TentMap'));
 const HostEvents = lazy(() => import('./pages/staff/HostEvents'));
 const HostApply = lazy(() => import('./pages/HostApply'));
-const HostRequests = lazy(() => import('./pages/staff/HostRequests'));
+const Requests = lazy(() => import('./pages/staff/Requests'));
+const RegisterOrganisation = lazy(() => import('./pages/RegisterOrganisation'));
 const ControlRoom = lazy(() => import('./pages/staff/ControlRoom'));
 const Analytics = lazy(() => import('./pages/staff/Analytics'));
 const NgoPortal = lazy(() => import('./pages/staff/NgoPortal'));
@@ -66,6 +67,7 @@ export default function App() {
         <Route path="/yatra/:slug" element={page(Hub)} />
         <Route path="/corporate/:slug" element={page(Corporate)} />
         <Route path="/host-with-us" element={page(HostApply)} />
+        <Route path="/register-organisation" element={page(RegisterOrganisation)} />
 
         <Route element={<RequireRole />}>
           <Route path="/set-password" element={page(SetPassword)} />
@@ -89,8 +91,10 @@ export default function App() {
         <Route element={<RequireRole roles={['SUPER_ADMIN', 'EVENT_HOST', 'ORG_HOST']} />}>
           <Route path="/host" element={page(HostEvents)} />
         </Route>
-        <Route element={<RequireRole roles={['SUPER_ADMIN']} />}>
-          <Route path="/host-requests" element={page(HostRequests)} />
+        {/* host requests are a tab of the Requests page now */}
+        <Route path="/host-requests" element={<Navigate to="/requests?tab=hosts" replace />} />
+        <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY']} />}>
+          <Route path="/requests" element={page(Requests)} />
         </Route>
         <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY']} />}>
           <Route path="/helpdesk" element={page(HelpDesk)} />

@@ -4,12 +4,11 @@ import { Link } from 'react-router-dom';
 
 // Walking-lane map loads Leaflet, so it is split into its own chunk
 const LanePanel = lazy(() => import('./LanePanel'));
-import { Armchair, BarChart3, MapPin, RefreshCw } from 'lucide-react';
+import { Armchair, MapPin, RefreshCw } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { fmtDateTime, MEAL_LABELS } from '../../lib/format';
 import Notice, { Loading } from '../../components/Notice';
-import VolunteerReview from './VolunteerReview';
 import { LiveBadge, useLive } from '../../lib/realtime';
 import PageTitle from '../../components/PageTitle';
 
@@ -123,54 +122,42 @@ function SosQueue({ eventId }) {
   );
 }
 
-function ProviderQueue({ onChange }) {
-  const [items, setItems] = useState([]);
-  const [error, setError] = useState('');
-  const load = useCallback(() => {
-    API.get('/providers', { params: { status: 'PENDING' } })
-      .then(({ data }) => setItems(data))
-      .catch((e) => setError(errorMessage(e)));
-  }, []);
+/** What is waiting for a decision, with a link straight to it (the queues live on the Requests page). */
+function WaitingRequests() {
+  const { user } = useAuth();
+  const [counts, setCounts] = useState(null);
   useEffect(() => {
-    load();
-  }, [load]);
-
-  const decide = async (id, decision) => {
-    try {
-      await API.post(`/providers/${id}/decision`, { decision, reason: decision === 'REJECTED' ? 'Documents could not be verified' : undefined });
-      load();
-      onChange();
-    } catch (e) {
-      setError(errorMessage(e));
-    }
-  };
-
+    const asks = [
+      API.get('/volunteer/applications', { params: { status: 'PENDING' } }).then(({ data }) => data.length),
+      API.get('/volunteer/applications', { params: { status: 'APPROVED' } }).then(({ data }) => data.filter((a) => !a.checks?.idVerified).length),
+      API.get('/providers', { params: { status: 'PENDING' } }).then(({ data }) => data.length),
+      user.role === 'SUPER_ADMIN' ? API.get('/hosts', { params: { status: 'PENDING' } }).then(({ data }) => data.length) : Promise.resolve(null),
+    ];
+    Promise.all(asks.map((p) => p.catch(() => null))).then(([volunteers, idChecks, organisations, hosts]) => setCounts({ volunteers, idChecks, organisations, hosts }));
+  }, [user.role]);
+  if (!counts) return null;
+  const rows = [
+    ['volunteers', 'Volunteer applications', counts.volunteers],
+    ['volunteers', 'ID cards to check in person', counts.idChecks],
+    ['organisations', 'NGOs and trusts to verify', counts.organisations],
+    ...(counts.hosts != null ? [['hosts', 'Event hosts to verify', counts.hosts]] : []),
+  ];
   return (
-    <section aria-labelledby="ngo-q" className="space-y-3">
-      <h2 id="ngo-q" className="text-2xl font-bold">NGO &amp; camp verification</h2>
-      <Notice tone="error">{error}</Notice>
-      {items.length === 0 ? (
-        <Notice>No organisations waiting for verification.</Notice>
-      ) : (
-        <ul className="space-y-3">
-          {items.map((p) => (
-            <li key={p._id} className="panel flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
-              <div className="flex-1">
-                <p className="text-lg font-bold">{p.name}</p>
-                <p className="text-ink-soft">
-                  {p.type} · Reg. no. {p.registrationNumber || 'not given'} · {p.eventId?.title}
-                </p>
-                <p className="text-[15px]">Applicant: {p.adminUserId?.name} ({formatPhone(p.adminUserId?.countryCode, p.adminUserId?.phone)})</p>
-                {p.description && <p className="text-[15px] text-ink-soft">{p.description}</p>}
-              </div>
-              <div className="flex gap-2">
-                <button type="button" className="btn-ink" onClick={() => decide(p._id, 'VERIFIED')}>Verify</button>
-                <button type="button" className="btn-ghost" onClick={() => decide(p._id, 'REJECTED')}>Reject</button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+    <section aria-labelledby="waiting" className="panel p-5">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 id="waiting" className="text-2xl font-bold">Waiting for you</h2>
+        <Link to="/requests" className="font-semibold text-blue underline-offset-4 hover:underline">Open requests</Link>
+      </div>
+      <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        {rows.map(([tab, label, n]) => (
+          <li key={label}>
+            <Link to={`/requests?tab=${tab}`} className={`block rounded-xl p-3 ring-1 transition-colors hover:bg-mist ${n ? 'bg-marigold-wash ring-marigold' : 'bg-white ring-line'}`}>
+              <span className="block text-3xl font-extrabold tabular-nums">{n ?? '-'}</span>
+              <span className="text-[15px] text-ink-soft">{label}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
@@ -283,7 +270,7 @@ export default function ControlRoom() {
   return (
     <div className="shell space-y-8 py-6">
       <div className="cg-pagehead">
-        <PageTitle kicker="Authority" tone="blue" title={<>Control room <LiveBadge /></>} lead={user.name} />
+        <PageTitle kicker={user.role === 'SUPER_ADMIN' ? 'Super Admin' : 'District Control Room'} tone="blue" title={<>Control room <LiveBadge /></>} lead={user.name} />
         <div className="flex flex-wrap items-end gap-2">
           <div>
             <label htmlFor="ev" className="field-label">Event</label>
@@ -292,13 +279,10 @@ export default function ControlRoom() {
             </select>
           </div>
           <button type="button" className="btn-ghost" onClick={load} aria-label="Refresh"><RefreshCw size={18} /></button>
-          <Link to="/volunteers" className="btn-ghost">Volunteers</Link>
-          <Link to="/analytics" className="btn-ghost"><BarChart3 size={18} aria-hidden /> Analytics</Link>
-          {user.role === 'SUPER_ADMIN' && <Link to="/corporate-admin" className="btn-ghost">Campus & corporate events</Link>}
-          <Link to="/scan" className="btn-ink">Scanner</Link>
         </div>
       </div>
       <Notice tone="error">{error}</Notice>
+      <WaitingRequests />
 
       {!data ? (
         <Loading label="Loading city-wide figures" />
@@ -345,8 +329,6 @@ export default function ControlRoom() {
       {eventId && <CampMaps eventId={eventId} />}
       {eventId && <Suspense fallback={null}><LanePanel eventId={eventId} /></Suspense>}
       {eventId && <SosQueue eventId={eventId} />}
-      <ProviderQueue onChange={load} />
-      <VolunteerReview />
       <RecentActivity />
     </div>
   );

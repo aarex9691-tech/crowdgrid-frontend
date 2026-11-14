@@ -31,6 +31,8 @@ const PAGE_ROLES = [
   [/^\/scan/, ['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'EVENT_HOST', 'ORG_HOST', 'NGO_ADMIN', 'VOLUNTEER']],
   [/^\/host-with-us/, null], // open to everyone
   [/^\/host-requests/, ['SUPER_ADMIN']],
+  [/^\/requests/, ['SUPER_ADMIN', 'AUTHORITY']],
+  [/^\/register-organisation/, null], // open to everyone
   [/^\/host(\/|$)/, ['SUPER_ADMIN', 'EVENT_HOST', 'ORG_HOST']],
   [/^\/(control|analytics|helpdesk|volunteers)/, ['SUPER_ADMIN', 'AUTHORITY']],
   [/^\/corporate-admin/, ['SUPER_ADMIN', 'CORPORATE_ADMIN', 'ORG_HOST']],

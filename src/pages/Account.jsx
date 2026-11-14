@@ -7,10 +7,8 @@ import { useCelebrate } from '../components/SuccessSplash';
 import { CATEGORY_LABELS } from '../lib/format';
 import Notice from '../components/Notice';
 import ProfilePanel from '../components/ProfilePanel';
-import { TextField } from '../components/Fields';
-import { firstError, textError } from '../lib/validate';
 
-const PROVIDER_STATUS = { PENDING: 'pill-low', VERIFIED: 'pill-ok', REJECTED: 'pill-out' };
+import { PROVIDER_STATUS } from '../components/RegisterOrganisationForm';
 
 function MyBookings() {
   const [bookings, setBookings] = useState([]);
@@ -44,69 +42,6 @@ function MyBookings() {
         ))}
       </ul>
     </section>
-  );
-}
-
-function RegisterOrganisation({ onDone }) {
-  const [events, setEvents] = useState([]);
-  const [form, setForm] = useState({ name: '', type: 'NGO', eventId: '', registrationNumber: '', description: '' });
-  const [error, setError] = useState('');
-  const [tried, setTried] = useState(false);
-  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
-  const put = (k) => (v) => setForm((f) => ({ ...f, [k]: v }));
-
-  useEffect(() => {
-    API.get('/events', { params: { kind: 'YATRA' } }).then(({ data }) => {
-      setEvents(data);
-      setForm((f) => ({ ...f, eventId: data[0]?._id || '' }));
-    });
-  }, []);
-
-  const submit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setTried(true);
-    const problem = firstError(
-      textError(form.name, 'Organisation name', 'orgName', { required: true }),
-      form.eventId ? '' : 'Choose the yatra you will serve at',
-      textError(form.registrationNumber, 'Registration number', 'regNumber'),
-      textError(form.description, "What you'll provide", 'longText'),
-    );
-    if (problem) return setError(problem);
-    try {
-      await API.post('/providers/apply', form);
-      onDone();
-    } catch (err) {
-      setError(errorMessage(err));
-    }
-  };
-
-  return (
-    <form onSubmit={submit} noValidate className="panel space-y-4 p-5">
-      <h2 className="text-2xl font-bold">Register your NGO or seva trust</h2>
-      <p className="text-ink-soft">The district authority verifies your organisation. Once verified, you can list camps and kitchens.</p>
-      <Notice tone="error">{error}</Notice>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <TextField id="o-name" label="Organisation name" rule="orgName" required value={form.name} onChange={put('name')} showErrors={tried} placeholder="e.g. Shri Ram Seva Trust" />
-        <div>
-          <label className="field-label" htmlFor="o-type">Type</label>
-          <select id="o-type" className="field" value={form.type} onChange={set('type')}>
-            <option value="NGO">NGO</option>
-            <option value="TRUST">Seva trust</option>
-            <option value="ASHRAM">Ashram</option>
-          </select>
-        </div>
-        <div>
-          <label className="field-label" htmlFor="o-event">Yatra you will serve at</label>
-          <select id="o-event" className="field" value={form.eventId} onChange={set('eventId')}>
-            {events.map((e) => <option key={e._id} value={e._id}>{e.title}</option>)}
-          </select>
-        </div>
-        <TextField id="o-reg" label="Registration number" rule="regNumber" value={form.registrationNumber} onChange={(x) => put('registrationNumber')(x.toUpperCase())} showErrors={tried} placeholder="e.g. MH/2019/0012345" />
-      </div>
-      <TextField id="o-desc" label="What you'll provide" rule="longText" multiline rows={2} value={form.description} onChange={put('description')} showErrors={tried} placeholder="e.g. 200 beds in family tents and two langar kitchens" />
-      <button type="submit" className="btn-primary">Send for verification</button>
-    </form>
   );
 }
 
@@ -150,7 +85,6 @@ export default function Account() {
   const { user } = useAuth();
   const saved = useLocation().state?.saved;
   const [orgs, setOrgs] = useState([]);
-  const [showForm, setShowForm] = useState(false);
   const loadOrgs = () => API.get('/providers/mine').then(({ data }) => setOrgs(data)).catch(() => {});
   useEffect(() => {
     loadOrgs();
@@ -173,7 +107,7 @@ export default function Account() {
                 <p className="text-ink-soft">{o.eventId?.title}</p>
                 {o.rejectionReason && <p className="text-sm text-kumkum">{o.rejectionReason}</p>}
               </div>
-              <span className={PROVIDER_STATUS[o.verificationStatus]}>{o.verificationStatus.toLowerCase()}</span>
+              <span className={PROVIDER_STATUS[o.verificationStatus]?.[0]}>{PROVIDER_STATUS[o.verificationStatus]?.[1]}</span>
             </div>
           ))}
           {orgs.some((o) => o.verificationStatus === 'VERIFIED') && user.role === 'USER' && <Notice>Verified. Log out and back in to open your camp manager.</Notice>}
@@ -181,9 +115,7 @@ export default function Account() {
       )}
 
       {user.role === 'USER' && !orgs.some((o) => o.verificationStatus !== 'REJECTED') && (
-        showForm ? <RegisterOrganisation onDone={() => { setShowForm(false); loadOrgs(); }} /> : (
-          <button type="button" className="btn-ghost" onClick={() => setShowForm(true)}>Register an NGO or seva trust</button>
-        )
+        <Link to="/register-organisation" className="btn-ghost">Register your organisation</Link>
       )}
 
       <SecurityPanel />

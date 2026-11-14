@@ -159,7 +159,8 @@ function Request({ a, onDone }) {
   );
 }
 
-export default function HostRequests() {
+/** embedded: shown as a tab of the Requests page (no page title of its own). */
+export default function HostRequests({ embedded = false }) {
   const [status, setStatus] = useState('PENDING');
   const [list, setList] = useState(null);
   const [error, setError] = useState('');
@@ -183,8 +184,12 @@ export default function HostRequests() {
 
   const items = list?.status === status ? list.items : null;
   return (
-    <div className="shell space-y-6 py-8">
-      <PageTitle kicker="Super Admin" tone="blue" title="Host requests" lead="Organisations asking to run their own events. Check the number and the certificate before approving." />
+    <div className={embedded ? 'space-y-4' : 'shell space-y-6 py-8'}>
+      {embedded ? (
+        <p className="text-ink-soft">Organisations asking to run their own public or campus events. Check the number and the certificate before approving.</p>
+      ) : (
+        <PageTitle kicker="Super Admin" tone="blue" title="Host requests" lead="Organisations asking to run their own events. Check the number and the certificate before approving." />
+      )}
       <div role="group" aria-label="Show requests" className="flex flex-wrap gap-2">
         {TABS.map(([id, label]) => (
           <button key={id} type="button" aria-pressed={status === id} className={status === id ? 'btn-ink' : 'btn-ghost'} onClick={() => setStatus(id)}>{label}</button>
