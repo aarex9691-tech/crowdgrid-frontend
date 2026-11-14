@@ -140,7 +140,6 @@ export default function NgoPortal() {
     <div className="shell space-y-8 py-6">
       <div className="cg-pagehead">
         <PageTitle kicker="NGO / Seva" tone="green" title={<>{provider.name} <LiveBadge /></>} lead="Camps, beds and kitchens" />
-        <Link to="/scan" className="btn-ink">Open scanner</Link>
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">

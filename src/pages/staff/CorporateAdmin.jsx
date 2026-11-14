@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Coffee, Copy, Mail, MessageCircle, Plus, Presentation, Printer, RefreshCw, Trash2, Users, X } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
 import { addDaysIST, fmtDate, fmtDateTime, fmtTime, todayIST } from '../../lib/format';
@@ -442,9 +441,8 @@ export default function CorporateAdmin() {
   return (
     <div className="shell space-y-6 py-6">
       <div className="cg-pagehead">
-        <PageTitle kicker="Corporate" tone="green" title="Campus & corporate events" lead="Invite guests with a code and see who's coming." />
+        <PageTitle kicker="Campus and corporate" tone="green" title="Invite-only events" lead="Only the people on your invite list can claim a badge. See who is invited, who claimed and who arrived." />
         <div className="flex flex-wrap gap-2">
-          <Link to="/scan" className="btn-ghost">Registration desk scanner</Link>
           {!creating && (
             <button type="button" className="btn-primary" onClick={() => setCreating(true)}>
               <Plus size={18} aria-hidden /> New event

@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import { Download, Info, Pause, Play, RefreshCw } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
 import { LiveBadge, useLive } from '../../lib/realtime';
@@ -126,7 +125,6 @@ export default function Analytics() {
               {paused ? <Play size={15} aria-hidden /> : <Pause size={15} aria-hidden />} <span className="sr-only sm:not-sr-only">{paused ? 'Resume' : 'Pause'}</span>
             </button>
           </div>
-          <Link to="/control" className="btn-ghost min-h-11">Control room</Link>
         </div>
       </div>
 
