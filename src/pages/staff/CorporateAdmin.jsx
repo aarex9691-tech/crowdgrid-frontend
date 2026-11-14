@@ -24,7 +24,7 @@ const invitationText = (event) =>
     `Access code: ${event.accessCode}`,
     `Claim your digital badge: ${inviteLinkFor(event)}`,
     '',
-    'Log in or create a free CrowdGrid account, then confirm the code and pick your sessions. Show the badge QR at the registration desk.',
+    'Log in or create a free CrowdGrid account with the mobile number or email this was sent to, then confirm the code and pick your sessions. Show the badge QR at the registration desk.',
   ].join('\n');
 
 function useCopy() {
@@ -90,6 +90,46 @@ function InvitationCard({ event, onClose }) {
   );
 }
 
+/** Who may claim a badge: only mobile numbers and emails on this list (the code alone is not enough). */
+function InviteList({ event, onChanged }) {
+  const [entries, setEntries] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState('');
+  const add = async (e) => {
+    e.preventDefault();
+    if (!entries.trim()) return setError('Type at least one mobile number or email');
+    setBusy(true);
+    setError('');
+    setResult(null);
+    try {
+      const { data } = await API.post(`/events/${event._id}/corporate/invitees`, { entries });
+      setResult(data);
+      setEntries('');
+      onChanged?.();
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <form onSubmit={add} className="space-y-2" data-no-translate>
+      <label htmlFor={`inv-${event._id}`} className="font-bold">1. Add the people you are inviting</label>
+      <p className="text-sm text-ink-soft">Only these people can claim a badge, even if the code is shared. One mobile number or email per line.</p>
+      <textarea id={`inv-${event._id}`} rows={4} className="field py-3 font-mono text-[15px]" value={entries} onChange={(e) => setEntries(e.target.value)} placeholder={'9876543210\nprincipal@college.edu.in'} />
+      <button type="submit" className="btn-ink" disabled={busy}>{busy ? 'Adding…' : 'Add to the invite list'}</button>
+      {result && (
+        <Notice tone="success">
+          {result.added} added; {result.invitees} invited in all.
+          {result.skipped?.length > 0 && ` Not recognised (fix and add again): ${result.skipped.join(', ')}`}
+        </Notice>
+      )}
+      <Notice tone="error">{error}</Notice>
+    </form>
+  );
+}
+
 function InvitePanel({ event }) {
   const [copied, copy] = useCopy();
   const [showCard, setShowCard] = useState(false);
@@ -97,8 +137,9 @@ function InvitePanel({ event }) {
   const subject = `Invitation: ${event.title}`;
 
   return (
-    <div className="space-y-3 rounded-2xl border border-line bg-mist p-4">
-      <h4 className="font-bold">Invite attendees</h4>
+    <div className="space-y-4 rounded-2xl border border-line bg-mist p-4">
+      <InviteList event={event} />
+      <h4 className="font-bold">2. Send them the invitation</h4>
       <pre className="whitespace-pre-wrap rounded-xl border border-line bg-white p-3 font-sans text-[15px]">{text}</pre>
       <div className="flex flex-wrap gap-2">
         <a className="btn-ink" href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noreferrer">
@@ -128,41 +169,75 @@ function InvitePanel({ event }) {
 function AttendeeList({ event }) {
   const [rows, setRows] = useState(null);
   const [error, setError] = useState('');
-  useEffect(() => {
+  const [busy, setBusy] = useState('');
+  const confirm = useConfirm();
+  const load = useCallback(() => {
     API.get(`/events/${event._id}/corporate/attendees`)
       .then(({ data }) => setRows(data))
       .catch((e) => setError(errorMessage(e)));
   }, [event._id]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  if (error) return <Notice tone="error">{error}</Notice>;
+  const withdraw = async (contact) => {
+    const ok = await confirm({ title: 'Withdraw this invitation?', message: `${contact} will no longer be able to claim a badge.`, confirmLabel: 'Withdraw', tone: 'danger' });
+    if (!ok) return;
+    setBusy(contact);
+    setError('');
+    try {
+      await API.post(`/events/${event._id}/corporate/invitees/remove`, { contact });
+      load();
+    } catch (e) {
+      setError(errorMessage(e));
+    } finally {
+      setBusy('');
+    }
+  };
+
+  if (!rows && error) return <Notice tone="error">{error}</Notice>;
   if (!rows) return <Loading label="Loading attendees" />;
-  if (!rows.length) return <Notice>No one has claimed a badge yet. Send the invitation to get started.</Notice>;
+  if (!rows.length) return <Notice>No one is invited yet. Use “Invite attendees” to add mobile numbers or emails.</Notice>;
+  const claimed = rows.filter((r) => r.claimed).length;
   return (
-    <div className="overflow-x-auto rounded-2xl border border-line bg-white">
-      <table className="w-full min-w-[560px] text-left text-[15px]">
-        <thead className="bg-mist text-ink-soft">
-          <tr>
-            <th className="px-4 py-2 font-semibold">Name</th>
-            <th className="px-4 py-2 font-semibold">Mobile</th>
-            <th className="px-4 py-2 font-semibold">Sessions</th>
-            <th className="px-4 py-2 font-semibold">Badge claimed</th>
-            <th className="px-4 py-2 font-semibold">At venue</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-line">
-          {rows.map((r) => (
-            <tr key={r._id}>
-              <td className="px-4 py-2 font-medium">{r.name}</td>
-              <td className="px-4 py-2">{r.phone}</td>
-              <td className="px-4 py-2 text-ink-soft">{r.sessions.join(', ')}</td>
-              <td className="px-4 py-2 text-ink-soft">{fmtDateTime(r.claimedAt)}</td>
-              <td className="px-4 py-2">
-                {r.checkedIn ? <span className="pill-ok">Checked in {fmtTime(r.checkedInAt)}</span> : <span className="pill-quiet">Not yet</span>}
-              </td>
+    <div className="space-y-2" data-no-translate>
+      <p className="text-sm text-ink-soft">{rows.length} invited or attending, {claimed} badge{claimed === 1 ? '' : 's'} claimed.</p>
+      <Notice tone="error">{error}</Notice>
+      <div className="overflow-x-auto rounded-2xl border border-line bg-white">
+        <table className="w-full min-w-[620px] text-left text-[15px]">
+          <thead className="bg-mist text-ink-soft">
+            <tr>
+              <th className="px-4 py-2 font-semibold">Person</th>
+              <th className="px-4 py-2 font-semibold">Sessions</th>
+              <th className="px-4 py-2 font-semibold">Badge</th>
+              <th className="px-4 py-2 font-semibold">At venue</th>
+              <th className="px-4 py-2"><span className="sr-only">Actions</span></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-line">
+            {rows.map((r) => (
+              <tr key={r._id}>
+                <td className="px-4 py-2">
+                  <span className="font-medium">{r.name || 'Not signed up yet'}</span>
+                  <span className="block text-sm text-ink-soft">{r.phone || r.contact}</span>
+                </td>
+                <td className="px-4 py-2 text-ink-soft">{r.sessions.join(', ') || '-'}</td>
+                <td className="px-4 py-2">{r.claimed ? <span className="text-ink-soft">Claimed {fmtDateTime(r.claimedAt)}</span> : <span className="pill-low">Invited, not claimed</span>}</td>
+                <td className="px-4 py-2">
+                  {r.checkedIn ? <span className="pill-ok">Checked in {fmtTime(r.checkedInAt)}</span> : <span className="pill-quiet">Not yet</span>}
+                </td>
+                <td className="px-4 py-2 text-right">
+                  {r.invited && !r.claimed && (
+                    <button type="button" className="btn-ghost min-h-11 px-3 text-sm" disabled={busy === r.invited} onClick={() => withdraw(r.invited)}>
+                      <Trash2 size={16} aria-hidden /> Withdraw
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -231,7 +306,7 @@ function EventCard({ event, onChanged, highlight, ended }) {
           </button>
         )}
         <button type="button" className={open === 'people' ? 'btn-ink' : 'btn-ghost'} aria-expanded={open === 'people'} onClick={() => toggle('people')}>
-          Attendees ({event.badgesClaimed})
+          Invited and attendees
         </button>
       </div>
       {open === 'invite' && <InvitePanel event={event} />}

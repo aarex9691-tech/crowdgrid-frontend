@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CalendarPlus, X } from 'lucide-react';
+import { CalendarPlus, Users, X } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
 import { rupees } from '../../lib/cart';
 import { addDaysIST, categoryLabel, EVENT_CATEGORIES, fmtDateTime, todayIST } from '../../lib/format';
@@ -11,6 +11,7 @@ import { NumberField, PinField, TextField } from '../../components/Fields';
 import PhoneField from '../../components/PhoneField';
 import { cleanText, firstError, intError, optionalPhoneError, pinError, textError } from '../../lib/validate';
 import PageTitle from '../../components/PageTitle';
+import { ROLE_LABELS, useAuth } from '../../lib/auth';
 
 // Description length is counted without spaces (same rule as the server)
 const DESC_MIN = 150;
@@ -184,7 +185,84 @@ function HostForm({ onCreated, onCancel }) {
 }
 
 /** Authority / Super Admin: host paid public events and see ticket sales. */
+const STATUS_PILL = {
+  BOOKED: ['pill-quiet', 'Booked'],
+  CHECKED_IN: ['pill-ok', 'Checked in'],
+  CANCELLED: ['pill-out', 'Cancelled'],
+};
+
+/** Who booked this event online: names, group size, status. Phone numbers are masked by the server. */
+function Bookers({ event }) {
+  const [rows, setRows] = useState(null);
+  const [error, setError] = useState('');
+  useEffect(() => {
+    API.get(`/events/${event._id}/attendees`)
+      .then(({ data }) => setRows(data))
+      .catch((e) => setError(errorMessage(e)));
+  }, [event._id]);
+  if (error) return <Notice tone="error">{error}</Notice>;
+  if (!rows) return <Loading label="Loading bookings" />;
+  if (!rows.length) return <Notice>No bookings yet. Tickets are booked online from the event page.</Notice>;
+  const people = rows.filter((r) => r.status !== 'CANCELLED').reduce((n, r) => n + r.people, 0);
+  return (
+    <div className="space-y-2" data-no-translate>
+      <p className="text-sm text-ink-soft">{rows.length} booking{rows.length === 1 ? '' : 's'}, {people} {people === 1 ? 'person' : 'people'}. Phone numbers are partly hidden to protect attendees.</p>
+      <div className="overflow-x-auto rounded-2xl border border-line bg-white">
+        <table className="w-full min-w-[520px] text-left text-[15px]">
+          <thead className="bg-mist text-ink-soft">
+            <tr>
+              <th className="px-4 py-2 font-semibold">Name</th>
+              <th className="px-4 py-2 font-semibold">Mobile</th>
+              <th className="px-4 py-2 text-right font-semibold">People</th>
+              <th className="px-4 py-2 font-semibold">Booked</th>
+              <th className="px-4 py-2 font-semibold">Status</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-line">
+            {rows.map((r) => (
+              <tr key={r._id} className={r.status === 'CANCELLED' ? 'text-ink-soft' : ''}>
+                <td className="px-4 py-2 font-medium">{r.name}</td>
+                <td className="px-4 py-2 tabular-nums">{r.phone}</td>
+                <td className="px-4 py-2 text-right tabular-nums">{r.people}</td>
+                <td className="px-4 py-2 text-ink-soft">{fmtDateTime(r.bookedAt)}</td>
+                <td className="px-4 py-2"><span className={STATUS_PILL[r.status][0]}>{STATUS_PILL[r.status][1]}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function HostedEvent({ e, over }) {
+  const [open, setOpen] = useState(false);
+  const full = e.capacity > 0 && e.ticketsSold >= e.capacity;
+  return (
+    <li className={`panel space-y-3 p-4 sm:p-5 ${over ? 'opacity-80' : ''}`}>
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <div className="min-w-0">
+          <Link to={`/event/${e.slug}`} className="text-lg font-bold underline-offset-4 hover:underline">{e.title}</Link>
+          <p className="text-sm text-ink-soft">{categoryLabel(e.category)} · {e.venue}</p>
+          <p className="text-sm">{fmtDateTime(e.startDate)}{over ? ' (over)' : ''}</p>
+        </div>
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm sm:grid-cols-4 md:text-right">
+          <div><dt className="text-ink-soft">Price</dt><dd className="font-semibold tabular-nums">{e.ticketPrice ? rupees(e.ticketPrice) : 'Free'}</dd></div>
+          <div><dt className="text-ink-soft">Booked</dt><dd className="font-semibold tabular-nums">{e.ticketsSold} / {e.capacity}{full ? ' (full)' : ''}</dd></div>
+          <div><dt className="text-ink-soft">Checked in</dt><dd className="font-semibold tabular-nums">{e.checkedIn}</dd></div>
+          <div><dt className="text-ink-soft">Revenue</dt><dd className="font-semibold tabular-nums">{rupees(e.revenue)}</dd></div>
+        </dl>
+      </div>
+      <button type="button" className={open ? 'btn-ink' : 'btn-ghost'} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+        <Users size={18} aria-hidden /> Who booked ({e.ticketsSold})
+      </button>
+      {open && <Bookers event={e} />}
+    </li>
+  );
+}
+
 export default function HostEvents() {
+  const { user } = useAuth();
   const [events, setEvents] = useState(null);
   const [error, setError] = useState('');
   const [creating, setCreating] = useState(false);
@@ -199,14 +277,22 @@ export default function HostEvents() {
     load();
   }, [load]);
 
-  const now = new Date();
+  const [now] = useState(() => Date.now());
+  const upcoming = (events || []).filter((e) => new Date(e.endDate).getTime() >= now);
+  const past = (events || []).filter((e) => new Date(e.endDate).getTime() < now);
+  const totals = upcoming.reduce((t, e) => ({ booked: t.booked + e.ticketsSold, checkedIn: t.checkedIn + e.checkedIn, revenue: t.revenue + e.revenue }), { booked: 0, checkedIn: 0, revenue: 0 });
   return (
     <div className="shell space-y-6 py-6">
       <div className="cg-pagehead">
-        <PageTitle kicker="Authority" tone="blue" title="Hosted events" lead="Free events confirm at once. Paid ones go through checkout." />
+        <PageTitle
+          kicker={user?.organisationName || ROLE_LABELS[user?.role] || 'Host'}
+          tone="blue"
+          title="Public events"
+          lead="Tickets are booked online only. Free events confirm at once; paid ones go through checkout."
+        />
         {!creating && (
           <button type="button" className="btn-primary" onClick={() => setCreating(true)}>
-            <CalendarPlus size={20} aria-hidden /> Host an event
+            <CalendarPlus size={20} aria-hidden /> New event
           </button>
         )}
       </div>
@@ -223,59 +309,38 @@ export default function HostEvents() {
         />
       )}
 
+      {events && events.length > 0 && (
+        <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {[
+            ['Upcoming events', upcoming.length],
+            ['People booked', totals.booked],
+            ['Checked in', totals.checkedIn],
+            ['Revenue (upcoming)', rupees(totals.revenue)],
+          ].map(([label, value]) => (
+            <div key={label} className="panel p-4">
+              <dt className="text-sm text-ink-soft">{label}</dt>
+              <dd className="mt-1 text-2xl font-extrabold tabular-nums">{value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+
       {!events ? (
         <Loading label="Loading your events" />
       ) : events.length === 0 ? (
-        <Notice>You have not hosted any events yet.</Notice>
+        <Notice>You have not hosted any events yet. Use “New event” to publish your first one.</Notice>
       ) : (
         <>
-        <ul className="space-y-3 sm:hidden">
-          {events.map((e) => {
-            const over = new Date(e.endDate) < now;
-            return (
-              <li key={e._id} className={`panel p-4 ${over ? 'text-ink-soft' : ''}`}>
-                <Link to={`/event/${e.slug}`} className="font-semibold underline">{e.title}</Link>
-                <p className="text-sm text-ink-soft">{EVENT_CATEGORIES[e.category]} · {e.venue}</p>
-                <p className="mt-1 text-sm">{fmtDateTime(e.startDate)}{over ? ' (over)' : ''}</p>
-                <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-line pt-3 text-sm">
-                  <div><dt className="text-ink-soft">Price</dt><dd className="font-semibold tabular-nums">{rupees(e.ticketPrice)}</dd></div>
-                  <div><dt className="text-ink-soft">Sold</dt><dd className="font-semibold tabular-nums">{e.ticketsSold} / {e.capacity}</dd></div>
-                  <div><dt className="text-ink-soft">Checked in</dt><dd className="font-semibold tabular-nums">{e.checkedIn}</dd></div>
-                  <div><dt className="text-ink-soft">Revenue</dt><dd className="font-semibold tabular-nums">{rupees(e.revenue)}</dd></div>
-                </dl>
-              </li>
-            );
-          })}
-        </ul>
-        <div className="panel hidden overflow-x-auto sm:block">
-          <table className="w-full min-w-[640px] text-left">
-            <thead className="bg-mist text-sm text-ink-soft">
-              <tr>
-                <th className="px-4 py-3">Event</th>
-                <th className="px-4 py-3">When</th>
-                <th className="px-4 py-3 text-right">Price</th>
-                <th className="px-4 py-3 text-right">Sold</th>
-                <th className="px-4 py-3 text-right">Checked in</th>
-                <th className="px-4 py-3 text-right">Revenue</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-line">
-              {events.map((e) => (
-                <tr key={e._id} className={new Date(e.endDate) < now ? 'text-ink-soft' : ''}>
-                  <td className="px-4 py-3">
-                    <Link to={`/event/${e.slug}`} className="font-semibold underline">{e.title}</Link>
-                    <span className="block text-sm text-ink-soft">{categoryLabel(e.category)} · {e.venue}</span>
-                  </td>
-                  <td className="px-4 py-3 text-sm">{fmtDateTime(e.startDate)}{new Date(e.endDate) < now ? ' (over)' : ''}</td>
-                  <td className="px-4 py-3 text-right tabular-nums">{rupees(e.ticketPrice)}</td>
-                  <td className="px-4 py-3 text-right tabular-nums">{e.ticketsSold} / {e.capacity}</td>
-                  <td className="px-4 py-3 text-right tabular-nums">{e.checkedIn}</td>
-                  <td className="px-4 py-3 text-right font-semibold tabular-nums">{rupees(e.revenue)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+          <section aria-labelledby="upcoming-title" className="space-y-3">
+            <h2 id="upcoming-title" className="text-xl font-bold">Upcoming</h2>
+            {upcoming.length ? <ul className="space-y-3">{upcoming.map((e) => <HostedEvent key={e._id} e={e} />)}</ul> : <p className="text-ink-soft">Nothing coming up.</p>}
+          </section>
+          {past.length > 0 && (
+            <section aria-labelledby="past-title" className="space-y-3">
+              <h2 id="past-title" className="text-xl font-bold">Past events</h2>
+              <ul className="space-y-3">{past.map((e) => <HostedEvent key={e._id} e={e} over />)}</ul>
+            </section>
+          )}
         </>
       )}
     </div>
