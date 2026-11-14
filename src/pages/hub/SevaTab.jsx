@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import API, { errorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
@@ -37,6 +37,14 @@ export default function SevaTab({ event }) {
   const [existing, setExisting] = useState(undefined);
   const [form, setForm] = useState({ domain: 'CROWD_CONTROL', providerId: '', sector: '', dates: [], note: '', idType: '', idLast4: '' });
   const [idCard, setIdCard] = useState(null);
+  // keyboard and screen-reader users are taken to an error (shown at the top of a long form)
+  // and, after sending, to the application summary that replaces the form
+  const errorRef = useRef(null);
+  const summaryRef = useRef(null);
+  const justSent = useRef(false);
+  useEffect(() => {
+    if (error) errorRef.current?.focus();
+  }, [error]);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -77,6 +85,7 @@ export default function SevaTab({ event }) {
       body.append('idLast4', form.idLast4.trim());
       body.append('idCard', idCard);
       const { data } = await API.post('/volunteer/apply', body);
+      justSent.current = true;
       setExisting({ ...data, providerId: providers.find((p) => p._id === data.providerId) });
       refresh();
     } catch (err) {
@@ -90,7 +99,19 @@ export default function SevaTab({ event }) {
     const s = STATUS[existing.status];
     return (
       <div className="panel max-w-lg space-y-3 p-6">
-        <h2 className="text-2xl font-bold">Your seva application</h2>
+        <h2
+          ref={(el) => {
+            summaryRef.current = el;
+            if (el && justSent.current) {
+              justSent.current = false;
+              el.focus();
+            }
+          }}
+          tabIndex={-1}
+          className="text-2xl font-bold focus:outline-none"
+        >
+          Your seva application
+        </h2>
         <span className={s.cls}>{s.text}</span>
         <p>
           {DOMAIN_LABELS[existing.domain]}
@@ -125,7 +146,9 @@ export default function SevaTab({ event }) {
         <h2 className="text-2xl font-bold">Join field seva</h2>
         <p className="text-ink-soft">Choose how you'd like to help. The District Control Room checks your ID and approves you; then you get a digital volunteer ID.</p>
       </div>
-      <Notice tone="error">{error}</Notice>
+      <div ref={errorRef} tabIndex={-1} className="focus:outline-none">
+        <Notice tone="error">{error}</Notice>
+      </div>
 
       <fieldset>
         <legend className="field-label">Seva domain</legend>

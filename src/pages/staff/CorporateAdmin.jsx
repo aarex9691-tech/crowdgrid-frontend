@@ -104,7 +104,8 @@ function InviteList({ event, onChanged }) {
     try {
       const { data } = await API.post(`/events/${event._id}/corporate/invitees`, { entries });
       setResult(data);
-      setEntries('');
+      // keep anything not recognised in the box, so it can be fixed instead of typed again
+      setEntries((data.skipped || []).join('\n'));
       onChanged?.();
     } catch (err) {
       setError(errorMessage(err));
@@ -118,12 +119,8 @@ function InviteList({ event, onChanged }) {
       <p className="text-sm text-ink-soft">Only these people can claim a badge, even if the code is shared. One mobile number or email per line.</p>
       <textarea id={`inv-${event._id}`} rows={4} className="field py-3 font-mono text-[15px]" value={entries} onChange={(e) => setEntries(e.target.value)} placeholder={'9876543210\nprincipal@college.edu.in'} />
       <button type="submit" className="btn-ink" disabled={busy}>{busy ? 'Adding…' : 'Add to the invite list'}</button>
-      {result && (
-        <Notice tone="success">
-          {result.added} added; {result.invitees} invited in all.
-          {result.skipped?.length > 0 && ` Not recognised (fix and add again): ${result.skipped.join(', ')}`}
-        </Notice>
-      )}
+      {result && <Notice tone="success">{result.added} added; {result.invitees} invited in all.</Notice>}
+      {result?.skipped?.length > 0 && <Notice tone="error">Not recognised, left in the box to fix: {result.skipped.join(', ')}</Notice>}
       <Notice tone="error">{error}</Notice>
     </form>
   );
@@ -204,6 +201,7 @@ function AttendeeList({ event }) {
       <Notice tone="error">{error}</Notice>
       <div className="overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full min-w-[620px] text-left text-[15px]">
+          <caption className="sr-only">Invited people and attendees of {event.title}</caption>
           <thead className="bg-mist text-ink-soft">
             <tr>
               <th className="px-4 py-2 font-semibold">Person</th>
@@ -227,7 +225,7 @@ function AttendeeList({ event }) {
                 </td>
                 <td className="px-4 py-2 text-right">
                   {r.invited && !r.claimed && (
-                    <button type="button" className="btn-ghost min-h-11 px-3 text-sm" disabled={busy === r.invited} onClick={() => withdraw(r.invited)}>
+                    <button type="button" className="btn-ghost min-h-11 px-3 text-sm" disabled={busy === r.invited} aria-label={`Withdraw the invitation for ${r.invited}`} onClick={() => withdraw(r.invited)}>
                       <Trash2 size={16} aria-hidden /> Withdraw
                     </button>
                   )}

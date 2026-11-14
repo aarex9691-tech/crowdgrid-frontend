@@ -71,7 +71,7 @@ function Application({ a, canDecide, view, onDone }) {
     <li className="panel p-4 sm:p-5" data-no-translate>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-lg font-bold">{u.name}</p>
+          <h3 className="text-lg font-bold">{u.name}</h3>
           <p className="text-ink-soft">
             {DOMAIN_LABELS[a.domain]}
             {a.sector ? `, ${a.sector}` : ''}
@@ -93,7 +93,7 @@ function Application({ a, canDecide, view, onDone }) {
           {a.status === 'APPROVED' && <Check state={c.idVerified ? true : null}>{c.idVerified ? 'ID card checked in person' : 'ID card not yet checked in person'}</Check>}
         </ul>
         {canDecide && c.idDocument && (
-          <button type="button" className="btn-ghost" onClick={() => openIdCard(a._id, setError)}>
+          <button type="button" className="btn-ghost" aria-label={`Open the ID card of ${u.name} (opens in a new tab)`} onClick={() => openIdCard(a._id, setError)}>
             <ExternalLink size={18} aria-hidden /> Open the ID card
           </button>
         )}
@@ -103,14 +103,15 @@ function Application({ a, canDecide, view, onDone }) {
         <div className="mt-4 border-t border-line pt-3">
           {!rejecting ? (
             <div className="flex flex-wrap gap-2">
-              <button type="button" className="btn-primary" disabled={busy} onClick={() => act('review', { decision: 'APPROVED' })}>Approve volunteer</button>
-              <button type="button" className="btn-ghost" disabled={busy} onClick={() => setRejecting(true)}>Reject…</button>
+              <button type="button" className="btn-primary" disabled={busy} aria-label={`Approve volunteer ${u.name}`} onClick={() => act('review', { decision: 'APPROVED' })}>Approve volunteer</button>
+              <button type="button" className="btn-ghost" disabled={busy} aria-label={`Reject ${u.name}…`} onClick={() => setRejecting(true)}>Reject…</button>
             </div>
           ) : (
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
               <div className="flex-1">
                 <label className="field-label" htmlFor={`vr-${a._id}`}>Reason (the volunteer sees this)</label>
-                <input id={`vr-${a._id}`} className="field" maxLength={120} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. The ID photo is not readable" />
+                <input id={`vr-${a._id}`} className="field" autoFocus maxLength={120} aria-describedby={`vr-${a._id}-hint`} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. The ID photo is not readable" />
+                <p id={`vr-${a._id}-hint`} className="mt-1 text-sm text-ink-soft">At least 5 characters.</p>
               </div>
               <button type="button" className="btn-primary bg-kumkum" disabled={busy || reason.trim().length < 5} onClick={() => act('review', { decision: 'REJECTED', reason: reason.trim() })}>Reject</button>
               <button type="button" className="btn-ghost" disabled={busy} onClick={() => setRejecting(false)}>Back</button>
@@ -121,7 +122,7 @@ function Application({ a, canDecide, view, onDone }) {
       {canDecide && view === 'IDCHECK' && (
         <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-line pt-3">
           <p className="flex-1 text-[15px]">Look at the card in person: same name, same last 4 characters, same face.</p>
-          <button type="button" className="btn-primary" disabled={busy} onClick={() => act('verify-id')}>ID card checked</button>
+          <button type="button" className="btn-primary" disabled={busy} aria-label={`ID card of ${u.name} checked`} onClick={() => act('verify-id')}>ID card checked</button>
         </div>
       )}
       <Notice tone="error" className="mt-3">{error}</Notice>
@@ -171,6 +172,7 @@ export default function VolunteerReview({ canDecide = true }) {
       </div>
       <Notice tone="error">{error}</Notice>
       {!items && !error && <Loading />}
+      <p role="status" className="sr-only">{items ? `${items.length} shown` : ''}</p>
       {items && !items.length && <p className="text-ink-soft">{view === 'PENDING' ? 'No applications waiting.' : view === 'IDCHECK' ? 'Every approved volunteer has shown their ID.' : 'No approved volunteers yet.'}</p>}
       {items?.length > 0 && (
         <ul className="space-y-3">

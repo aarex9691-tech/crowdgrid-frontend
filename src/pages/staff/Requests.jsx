@@ -39,7 +39,7 @@ function Organisation({ p, onDone }) {
     <li className="panel p-4 sm:p-5" data-no-translate>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-lg font-bold">{p.name}</p>
+          <h3 className="text-lg font-bold">{p.name}</h3>
           <p className="text-ink-soft">{TYPE[p.type] || p.type} at {p.eventId?.title}</p>
         </div>
         <p className="text-sm text-ink-soft">Sent {fmtDate(p.createdAt)}</p>
@@ -54,14 +54,15 @@ function Organisation({ p, onDone }) {
       <div className="mt-4 border-t border-line pt-3">
         {!rejecting ? (
           <div className="flex flex-wrap gap-2">
-            <button type="button" className="btn-primary" disabled={busy} onClick={() => decide('VERIFIED')}>Verify organisation</button>
-            <button type="button" className="btn-ghost" disabled={busy} onClick={() => setRejecting(true)}>Reject…</button>
+            <button type="button" className="btn-primary" disabled={busy} aria-label={`Verify organisation ${p.name}`} onClick={() => decide('VERIFIED')}>Verify organisation</button>
+            <button type="button" className="btn-ghost" disabled={busy} aria-label={`Reject ${p.name}…`} onClick={() => setRejecting(true)}>Reject…</button>
           </div>
         ) : (
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
             <div className="flex-1">
               <label className="field-label" htmlFor={`pr-${p._id}`}>Reason (the organisation sees this)</label>
-              <input id={`pr-${p._id}`} className="field" maxLength={120} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. The registration number does not match the trust's name" />
+              <input id={`pr-${p._id}`} className="field" autoFocus maxLength={120} aria-describedby={`pr-${p._id}-hint`} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. The registration number does not match the trust's name" />
+              <p id={`pr-${p._id}-hint`} className="mt-1 text-sm text-ink-soft">At least 5 characters.</p>
             </div>
             <button type="button" className="btn-primary bg-kumkum" disabled={busy || reason.trim().length < 5} onClick={() => decide('REJECTED')}>Reject</button>
             <button type="button" className="btn-ghost" disabled={busy} onClick={() => setRejecting(false)}>Back</button>

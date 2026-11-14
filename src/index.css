@@ -73,7 +73,7 @@ body::before {
 
 @layer base {
   button:not(:disabled), [role='button'], [role='tab'], summary, label[for], select { cursor: pointer; }
-  html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--header-h, 4rem) + 0.75rem); }
+  html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--header-h, 4rem) + 0.75rem); scroll-padding-bottom: 5.5rem; } /* the WhatsApp button never hides the focused control */
   /* One content width for every page, header and footer; it grows on big monitors */
   :root { --page-max: 76rem; }
   @media (min-width: 1600px) { :root { --page-max: 84rem; } }

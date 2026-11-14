@@ -209,6 +209,7 @@ function Bookers({ event }) {
       <p className="text-sm text-ink-soft">{rows.length} booking{rows.length === 1 ? '' : 's'}, {people} {people === 1 ? 'person' : 'people'}. Phone numbers are partly hidden to protect attendees.</p>
       <div className="overflow-x-auto rounded-2xl border border-line bg-white">
         <table className="w-full min-w-[520px] text-left text-[15px]">
+          <caption className="sr-only">People who booked {event.title}</caption>
           <thead className="bg-mist text-ink-soft">
             <tr>
               <th className="px-4 py-2 font-semibold">Name</th>
@@ -239,10 +240,10 @@ function HostedEvent({ e, over }) {
   const [open, setOpen] = useState(false);
   const full = e.capacity > 0 && e.ticketsSold >= e.capacity;
   return (
-    <li className={`panel space-y-3 p-4 sm:p-5 ${over ? 'opacity-80' : ''}`}>
+    <li className="panel space-y-3 p-4 sm:p-5">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0">
-          <Link to={`/event/${e.slug}`} className="text-lg font-bold underline-offset-4 hover:underline">{e.title}</Link>
+          <h3 className="text-lg font-bold"><Link to={`/event/${e.slug}`} className="underline-offset-4 hover:underline">{e.title}</Link></h3>
           <p className="text-sm text-ink-soft">{categoryLabel(e.category)} · {e.venue}</p>
           <p className="text-sm">{fmtDateTime(e.startDate)}{over ? ' (over)' : ''}</p>
         </div>
@@ -254,7 +255,7 @@ function HostedEvent({ e, over }) {
         </dl>
       </div>
       <button type="button" className={open ? 'btn-ink' : 'btn-ghost'} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-        <Users size={18} aria-hidden /> Who booked ({e.ticketsSold})
+        <Users size={18} aria-hidden /> Who booked ({e.ticketsSold})<span className="sr-only"> for {e.title}</span>
       </button>
       {open && <Bookers event={e} />}
     </li>

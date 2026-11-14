@@ -1,6 +1,6 @@
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { BarChart3, Briefcase, CalendarPlus, Globe, HandHeart, Inbox, KeyRound, LogOut, Menu, MessageCircle, ScanLine, Search, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { ROLE_LABELS, useAuth } from '../lib/auth';
 import { useCart } from '../lib/cart';
 import { useConfirm } from '../lib/confirm';
@@ -68,28 +68,35 @@ const navFor = (role, t = (k) => k) => {
   return { groups, links: groups.flatMap((g) => g.links), workspace: true };
 };
 
+/** One labelled group of the sidebar (the label names the list for screen readers). */
+function NavGroup({ group, cls, onPick, large }) {
+  const id = useId();
+  return (
+    <div>
+      <p id={id} className="px-3 pb-1 text-sm font-semibold text-ink-faint">{group.label}</p>
+      <ul aria-labelledby={id} className="space-y-0.5">
+        {group.links.map((l) => (
+          <li key={l.to}>
+            <NavLink to={l.to} end={l.end} className={cls} onClick={onPick}>
+              {l.icon && <l.icon size={large ? 22 : 19} aria-hidden className="shrink-0" />} {l.label}
+            </NavLink>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 /** The workspace sidebar (desktop) and the same groups in the phone menu. */
 function SideNav({ groups, onPick, large = false }) {
+  // active page: blue text, bold, and a blue bar (not colour alone, and the bar contrasts at 3:1+)
   const cls = ({ isActive }) =>
-    `relative flex items-center gap-3 rounded-xl px-3 font-semibold transition-colors ${large ? 'min-h-14 text-xl font-bold' : 'min-h-11 text-[15px]'} ${
-      isActive ? 'bg-blue-wash text-blue before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-full before:bg-marigold' : 'text-ink-soft hover:bg-mist hover:text-ink'
+    `relative flex items-center gap-3 rounded-xl px-3 transition-colors ${large ? 'min-h-14 text-xl' : 'min-h-11 text-[15px]'} ${
+      isActive ? 'bg-blue-wash font-bold text-blue before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-full before:bg-blue' : 'font-semibold text-ink-soft hover:bg-mist hover:text-ink'
     }`;
   return (
     <div className="space-y-5">
-      {groups.map((g) => (
-        <div key={g.label}>
-          <p className="px-3 pb-1 text-sm font-semibold text-ink-faint">{g.label}</p>
-          <ul className="space-y-0.5">
-            {g.links.map((l) => (
-              <li key={l.to}>
-                <NavLink to={l.to} end={l.end} className={cls} onClick={onPick}>
-                  {l.icon && <l.icon size={large ? 22 : 19} aria-hidden className="shrink-0" />} {l.label}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+      {groups.map((g) => <NavGroup key={g.label} group={g} cls={cls} onPick={onPick} large={large} />)}
     </div>
   );
 }
@@ -435,11 +442,11 @@ export default function Layout() {
 
       <div className={`flex-1 ${workspace ? 'lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]' : 'flex flex-col'}`}>
         {workspace && (
-          <aside className="cg-sidebar hidden border-r border-line bg-white/85 lg:block">
-            <nav aria-label="Main" className="sticky top-[var(--header-h,4.25rem)] max-h-[calc(100dvh-var(--header-h,4.25rem))] overflow-y-auto px-3 py-6">
+          <div className="cg-sidebar hidden border-r border-line bg-white/85 lg:block">
+            <nav aria-label="Workspace" className="sticky top-[var(--header-h,4.25rem)] max-h-[calc(100dvh-var(--header-h,4.25rem))] overflow-y-auto px-3 py-6">
               <SideNav groups={nav.groups} />
             </nav>
-          </aside>
+          </div>
         )}
         <main id="main" tabIndex={-1} className="min-w-0 flex-1 pb-16 focus:outline-none">
           {user?.mustChangePassword && pathname !== '/set-password' ? <Navigate to="/set-password" replace state={{ from: pathname }} /> : (
