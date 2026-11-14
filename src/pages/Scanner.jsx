@@ -52,8 +52,49 @@ function HolderId({ holder, light = false }) {
   );
 }
 
+/**
+ * A volunteer badge whose ID card has not been seen in person yet. A control-room officer compares
+ * the card with the badge photo and the last 4 characters, then marks it checked; until then the
+ * volunteer cannot check in to a duty.
+ */
+function VolunteerIdCheck({ volunteer, officer, onChecked }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const confirm = async () => {
+    setBusy(true);
+    setError('');
+    try {
+      await API.post(`/volunteer/applications/${volunteer.applicationId}/verify-id`);
+      onChecked();
+    } catch (e) {
+      setError(errorMessage(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="mt-4 rounded-2xl bg-white p-4 text-ink">
+      <p className="font-bold">ID card not checked yet</p>
+      {officer ? (
+        <>
+          <p className="mt-1">
+            Ask for their {volunteer.idType ? <b>{ID_WORDS[volunteer.idType] || 'ID card'}</b> : 'ID card'}
+            {volunteer.idLast4 ? <> ending in <b className="font-mono">{volunteer.idLast4}</b></> : ''}. Check the name and the face, then confirm.
+          </p>
+          <button type="button" className="btn-primary mt-3" disabled={busy} onClick={confirm}>ID card checked</button>
+          <Notice tone="error" className="mt-2">{error}</Notice>
+        </>
+      ) : (
+        <p className="mt-1">Send them to the District Control Room desk with their ID card before their first duty.</p>
+      )}
+    </div>
+  );
+}
+const ID_WORDS = { AADHAAR: 'Aadhaar (masked)', VOTER: 'voter ID', DL: 'driving licence', PAN: 'PAN card', PASSPORT: 'passport', COLLEGE: 'college ID' };
+
 export default function Scanner() {
   const { user } = useAuth();
+  const isOfficer = ['SUPER_ADMIN', 'AUTHORITY'].includes(user?.role);
   const isHost = HOST_SCANNERS.includes(user?.role);
   const services = isHost ? SERVICES.filter((x) => HOST_SERVICES.includes(x.id)) : SERVICES;
   const scannerRef = useRef(null);
@@ -218,6 +259,9 @@ export default function Scanner() {
               {result.pass.details?.location && <p className="mt-2 text-2xl font-extrabold">{result.pass.details.location}</p>}
               {result.pass.details?.guests?.length > 0 && <p>Names: {result.pass.details.guests.join(', ')}</p>}
             </div>
+          )}
+          {result.volunteer && !result.volunteer.idVerified && (
+            <VolunteerIdCheck volunteer={result.volunteer} officer={isOfficer} onChecked={() => setResult((r) => ({ ...r, volunteer: { ...r.volunteer, idVerified: true }, message: 'VALID - ID VERIFIED' }))} />
           )}
           {import.meta.env.DEV && <p className="mt-3 text-sm opacity-90">Checked in {result.ms} ms</p>}
         </div>

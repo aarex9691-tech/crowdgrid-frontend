@@ -201,7 +201,7 @@ export default function NgoPortal() {
       <Suspense fallback={null}>
         <NgoAnalytics />
       </Suspense>
-      <VolunteerReview />
+      <VolunteerReview canDecide={false} />
     </div>
   );
 }

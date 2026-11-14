@@ -13,8 +13,19 @@ const DOMAIN_HELP = {
   FIRST_AID: 'Support medical tents (training needed)',
 };
 
+// The photo ID a volunteer will show; only the last 4 characters are sent
+const ID_TYPES = [
+  ['AADHAAR', 'Aadhaar (masked copy)'],
+  ['VOTER', 'Voter ID'],
+  ['DL', 'Driving licence'],
+  ['PAN', 'PAN card'],
+  ['PASSPORT', 'Passport'],
+  ['COLLEGE', 'College ID'],
+];
+const MAX_ID_BYTES = 2 * 1024 * 1024;
+
 const STATUS = {
-  PENDING: { cls: 'pill-low', text: 'Waiting for the trust to approve' },
+  PENDING: { cls: 'pill-low', text: 'Waiting for the District Control Room' },
   APPROVED: { cls: 'pill-ok', text: 'Approved' },
   REJECTED: { cls: 'pill-out', text: 'Not approved' },
 };
@@ -24,7 +35,8 @@ export default function SevaTab({ event }) {
   const gate = useLoginGate();
   const [providers, setProviders] = useState([]);
   const [existing, setExisting] = useState(undefined);
-  const [form, setForm] = useState({ domain: 'CROWD_CONTROL', providerId: '', sector: '', dates: [], note: '' });
+  const [form, setForm] = useState({ domain: 'CROWD_CONTROL', providerId: '', sector: '', dates: [], note: '', idType: '', idLast4: '' });
+  const [idCard, setIdCard] = useState(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -47,9 +59,24 @@ export default function SevaTab({ event }) {
     if (!gate()) return;
     setError('');
     if (!form.dates.length) return setError('Pick at least one day you can serve');
+    if (!form.idType) return setError('Choose the ID you will show');
+    if (!/^[A-Za-z0-9]{4}$/.test(form.idLast4.trim())) return setError('Enter only the last 4 characters of your ID number');
+    if (!idCard) return setError('Add a photo of your ID card');
+    if (idCard.size > MAX_ID_BYTES) return setError('The ID photo is too large. Use a file under 2 MB.');
     setBusy(true);
     try {
-      const { data } = await API.post('/volunteer/apply', { ...form, eventId: event._id, providerId: form.providerId || undefined });
+      const body = new FormData();
+      body.append('eventId', event._id);
+      body.append('eventSlug', event.slug || ''); // finds the yatra even if this page has an old id
+      body.append('domain', form.domain);
+      if (form.providerId) body.append('providerId', form.providerId);
+      if (form.sector) body.append('sector', form.sector);
+      body.append('dates', form.dates.join(','));
+      if (form.note.trim()) body.append('note', form.note.trim());
+      body.append('idType', form.idType);
+      body.append('idLast4', form.idLast4.trim());
+      body.append('idCard', idCard);
+      const { data } = await API.post('/volunteer/apply', body);
       setExisting({ ...data, providerId: providers.find((p) => p._id === data.providerId) });
       refresh();
     } catch (err) {
@@ -71,11 +98,19 @@ export default function SevaTab({ event }) {
           {existing.sector ? `, ${existing.sector}` : ''}
         </p>
         {existing.status === 'APPROVED' && (
-          <p>
-            Your Volunteer Digital ID is in your <Link to="/passbook" className="font-semibold underline">passbook</Link>. Log out and back in to open the scanner.
-          </p>
+          <>
+            <p>
+              Your Volunteer Digital ID is in your <Link to="/passbook" className="font-semibold underline">passbook</Link>. Log out and back in to open your duties.
+            </p>
+            {existing.idVerifiedAt ? (
+              <p className="pill-ok">ID card checked: you can start your duties</p>
+            ) : (
+              <Notice>Before your first duty, take the ID card you registered with to the District Control Room desk. An officer scans your volunteer ID and checks the card; then you can check in.</Notice>
+            )}
+          </>
         )}
-        {existing.status === 'PENDING' && <p className="text-ink-soft">The trust will review it. Check back here for your volunteer ID.</p>}
+        {existing.status === 'PENDING' && <p className="text-ink-soft">The District Control Room checks your ID and approves volunteers. Check back here for your volunteer ID.</p>}
+        {existing.status === 'REJECTED' && existing.rejectionReason && <p><b>Reason:</b> {existing.rejectionReason}</p>}
       </div>
     );
   }
@@ -88,7 +123,7 @@ export default function SevaTab({ event }) {
     <form onSubmit={submit} className="max-w-2xl space-y-6">
       <div>
         <h2 className="text-2xl font-bold">Join field seva</h2>
-        <p className="text-ink-soft">Choose how you'd like to help. Once a trust approves you, you get a digital volunteer ID.</p>
+        <p className="text-ink-soft">Choose how you'd like to help. The District Control Room checks your ID and approves you; then you get a digital volunteer ID.</p>
       </div>
       <Notice tone="error">{error}</Notice>
 
@@ -135,8 +170,32 @@ export default function SevaTab({ event }) {
         </div>
       </fieldset>
 
+      <fieldset className="panel space-y-3 p-4" data-no-translate>
+        <legend className="px-1 font-bold">Your photo ID</legend>
+        <p className="text-[15px] text-ink-soft">
+          Every volunteer is verified. We keep only the last 4 characters of the number. For Aadhaar, upload the masked Aadhaar from the UIDAI website. Bring the same card to the control room before your first duty.
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label htmlFor="id-type" className="field-label">ID you will show</label>
+            <select id="id-type" className="field" value={form.idType} onChange={(e) => setForm({ ...form, idType: e.target.value })}>
+              <option value="">Choose…</option>
+              {ID_TYPES.map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="id-last4" className="field-label">Last 4 characters of the number</label>
+            <input id="id-last4" className="field font-mono uppercase tracking-widest" inputMode="text" autoComplete="off" maxLength={4} value={form.idLast4} onChange={(e) => setForm({ ...form, idLast4: e.target.value.replace(/[^A-Za-z0-9]/g, '') })} placeholder="e.g. 4821" />
+          </div>
+        </div>
+        <div>
+          <label htmlFor="id-card" className="field-label">Photo of the ID card <span className="font-normal text-ink-soft">(photo or PDF, under 2 MB)</span></label>
+          <input id="id-card" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="field py-2" onChange={(e) => setIdCard(e.target.files?.[0] || null)} />
+        </div>
+      </fieldset>
+
       <div>
-        <label htmlFor="note" className="field-label">Anything the trust should know (optional)</label>
+        <label htmlFor="note" className="field-label">Anything the control room should know (optional)</label>
         <textarea id="note" rows={3} className="field py-3" maxLength={500} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
       </div>
 
