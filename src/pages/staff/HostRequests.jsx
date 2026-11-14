@@ -47,11 +47,12 @@ function Request({ a, onDone }) {
     setError('');
     // fetched with the login token, then shown from memory (the file is never cached or linked)
     const tab = window.open('', '_blank');
+    // a blocked pop-up must not replace this page (the queue would be lost)
+    if (!tab) return setError('Allow pop-ups for this site to open the certificate in a new tab.');
     try {
       const { data } = await API.get(`/hosts/${a._id}/document`, { responseType: 'blob' });
       const url = URL.createObjectURL(data);
-      if (tab) tab.location.href = url;
-      else window.location.assign(url);
+      tab.location.href = url;
       setTimeout(() => URL.revokeObjectURL(url), 60000);
     } catch (e) {
       tab?.close();

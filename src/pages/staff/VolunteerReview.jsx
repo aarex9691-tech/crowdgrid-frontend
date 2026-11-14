@@ -32,11 +32,12 @@ function Check({ state, children }) {
 async function openIdCard(id, setError) {
   setError('');
   const tab = window.open('', '_blank');
+  // a blocked pop-up must not replace this page (the queue would be lost)
+  if (!tab) return setError('Allow pop-ups for this site to open the ID card in a new tab.');
   try {
     const { data } = await API.get(`/volunteer/applications/${id}/id-card`, { responseType: 'blob' });
     const url = URL.createObjectURL(data);
-    if (tab) tab.location.href = url;
-    else window.location.assign(url);
+    tab.location.href = url;
     setTimeout(() => URL.revokeObjectURL(url), 60000);
   } catch (e) {
     tab?.close();
@@ -138,11 +139,10 @@ export default function VolunteerReview({ canDecide = true }) {
   const load = useCallback(() => {
     const ticket = ++latest.current;
     setError('');
-    API.get('/volunteer/applications', { params: { status: view === 'PENDING' ? 'PENDING' : 'APPROVED' } })
+    const params = view === 'PENDING' ? { status: 'PENDING' } : view === 'IDCHECK' ? { status: 'APPROVED', idVerified: 'false' } : { status: 'APPROVED' };
+    API.get('/volunteer/applications', { params })
       .then(({ data }) => {
-        if (ticket !== latest.current) return;
-        const items = view === 'IDCHECK' ? data.filter((a) => !a.checks?.idVerified) : data;
-        setList({ view, items });
+        if (ticket === latest.current) setList({ view, items: data });
       })
       .catch((e) => {
         if (ticket === latest.current) setError(errorMessage(e));

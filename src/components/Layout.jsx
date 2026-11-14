@@ -95,8 +95,8 @@ function SideNav({ groups, onPick, large = false }) {
 }
 
 const TITLES = [
-  [/^\/$/, ''], [/^\/login/, 'Log in'], [/^\/register/, 'Create account'], [/^\/events/, 'Events'], [/^\/event\//, 'Event'],
-  [/^\/about/, 'About us'], [/^\/help/, 'Help centre'], [/^\/yatra\//, 'Yatra services'], [/^\/corporate\//, 'Campus & Corporate event'], [/^\/passbook/, 'My Passbook'],
+  [/^\/$/, ''], [/^\/login/, 'Log in'], [/^\/register(\/|$)/, 'Create account'], [/^\/events/, 'Events'], [/^\/event\//, 'Event'],
+  [/^\/about/, 'About us'], [/^\/help(\/|$)/, 'Help centre'], [/^\/yatra\//, 'Yatra services'], [/^\/corporate\//, 'Campus & Corporate event'], [/^\/passbook/, 'My Passbook'],
   [/^\/account/, 'My account'], [/^\/checkout/, 'Checkout'], [/^\/scan/, 'Scanner'], [/^\/control/, 'Control room'], [/^\/analytics/, 'Analytics'],
   [/^\/corporate-admin/, 'Campus & Corporate events'], [/^\/camps\/.+\/map/, 'Tent map'], [/^\/host-with-us/, 'Host with CrowdGrid'], [/^\/host-requests/, 'Requests'], [/^\/requests/, 'Requests'], [/^\/register-organisation/, 'Register your organisation'], [/^\/volunteers/, 'Volunteer duties'], [/^\/host/, 'Public events'], [/^\/ngo/, 'My camps'], [/^\/helpdesk/, 'Help desk'], [/^\/set-password/, 'Set password'],
 ];

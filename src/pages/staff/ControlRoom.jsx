@@ -129,7 +129,7 @@ function WaitingRequests() {
   useEffect(() => {
     const asks = [
       API.get('/volunteer/applications', { params: { status: 'PENDING' } }).then(({ data }) => data.length),
-      API.get('/volunteer/applications', { params: { status: 'APPROVED' } }).then(({ data }) => data.filter((a) => !a.checks?.idVerified).length),
+      API.get('/volunteer/applications', { params: { status: 'APPROVED', idVerified: 'false' } }).then(({ data }) => data.length),
       API.get('/providers', { params: { status: 'PENDING' } }).then(({ data }) => data.length),
       user.role === 'SUPER_ADMIN' ? API.get('/hosts', { params: { status: 'PENDING' } }).then(({ data }) => data.length) : Promise.resolve(null),
     ];

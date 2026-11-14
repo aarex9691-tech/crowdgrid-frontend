@@ -119,23 +119,14 @@ export default function Requests() {
   return (
     <div className="shell space-y-6 py-6">
       <PageTitle kicker={user?.role === 'SUPER_ADMIN' ? 'Super Admin' : 'District Control Room'} tone="blue" title="Requests" lead="Volunteers and organisations waiting for a decision. Nothing goes live until it is checked here." />
-      <div role="tablist" aria-label="Requests" className="flex flex-wrap gap-2 border-b border-line pb-3">
+      <div role="group" aria-label="Show requests for" className="flex flex-wrap gap-2 border-b border-line pb-3">
         {tabs.map(([id, label]) => (
-          <button
-            key={id}
-            id={`tab-${id}`}
-            type="button"
-            role="tab"
-            aria-selected={tab === id}
-            aria-controls="requests-panel"
-            className={tab === id ? 'btn-ink' : 'btn-ghost'}
-            onClick={() => setParams({ tab: id }, { replace: true })}
-          >
+          <button key={id} type="button" aria-pressed={tab === id} className={tab === id ? 'btn-ink' : 'btn-ghost'} onClick={() => setParams({ tab: id }, { replace: true })}>
             {label}
           </button>
         ))}
       </div>
-      <div id="requests-panel" role="tabpanel" aria-labelledby={`tab-${tab}`}>
+      <div>
         {tab === 'volunteers' && <VolunteerReview />}
         {tab === 'organisations' && <OrganisationQueue />}
         {tab === 'hosts' && <HostRequests embedded />}
