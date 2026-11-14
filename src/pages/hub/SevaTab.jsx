@@ -42,11 +42,11 @@ export default function SevaTab({ event }) {
   const errorRef = useRef(null);
   const summaryRef = useRef(null);
   const justSent = useRef(false);
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
   useEffect(() => {
     if (error) errorRef.current?.focus();
   }, [error]);
-  const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     API.get('/providers/verified', { params: { eventId: event._id } }).then(({ data }) => setProviders(data)).catch(() => {});
