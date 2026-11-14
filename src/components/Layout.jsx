@@ -28,8 +28,8 @@ const navFor = (role, t = (k) => k) => {
       };
     case 'AUTHORITY':
       return {
-        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, volunteers, { to: '/analytics', label: 'Analytics', icon: BarChart3 }, { to: '/host', label: 'Hosted events', icon: CalendarPlus }, helpdesk, scan],
-        cta: { to: '/host', label: 'Host an event' },
+        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, volunteers, { to: '/analytics', label: 'Analytics', icon: BarChart3 }, helpdesk, scan],
+        cta: { to: '/control', label: 'Control room' },
       };
     case 'NGO_ADMIN':
       return { links: [{ to: '/ngo', label: 'My camps', icon: Tent }, scan, { to: '/events', label: 'Events' }, about], cta: { to: '/scan', label: 'Open scanner' } };

@@ -86,7 +86,7 @@ export default function App() {
         <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY', 'NGO_ADMIN']} />}>
           <Route path="/camps/:id/map" element={page(TentMap)} />
         </Route>
-        <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY', 'EVENT_HOST', 'ORG_HOST']} />}>
+        <Route element={<RequireRole roles={['SUPER_ADMIN', 'EVENT_HOST', 'ORG_HOST']} />}>
           <Route path="/host" element={page(HostEvents)} />
         </Route>
         <Route element={<RequireRole roles={['SUPER_ADMIN']} />}>

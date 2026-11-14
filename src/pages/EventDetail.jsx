@@ -77,7 +77,7 @@ export default function EventDetail() {
         back={{ to: '/events?tab=public', label: 'All public events' }}
         label={event.category ? categoryLabel(event.category) : 'Public event'}
         title={event.title}
-        lead={`Hosted by ${event.hostName || 'CrowdGrid'}`}
+        lead={`Organised by ${event.organiserName || event.hostName || 'CrowdGrid'}`}
       />
 
       <div className="shell grid gap-6 py-8 lg:grid-cols-[1fr_22rem]">

@@ -31,7 +31,7 @@ const PAGE_ROLES = [
   [/^\/scan/, ['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'EVENT_HOST', 'ORG_HOST', 'NGO_ADMIN', 'VOLUNTEER']],
   [/^\/host-with-us/, null], // open to everyone
   [/^\/host-requests/, ['SUPER_ADMIN']],
-  [/^\/host(\/|$)/, ['SUPER_ADMIN', 'AUTHORITY', 'EVENT_HOST', 'ORG_HOST']],
+  [/^\/host(\/|$)/, ['SUPER_ADMIN', 'EVENT_HOST', 'ORG_HOST']],
   [/^\/(control|analytics|helpdesk|volunteers)/, ['SUPER_ADMIN', 'AUTHORITY']],
   [/^\/corporate-admin/, ['SUPER_ADMIN', 'CORPORATE_ADMIN', 'ORG_HOST']],
   [/^\/camps\/.+\/map/, ['SUPER_ADMIN', 'AUTHORITY', 'NGO_ADMIN']],
@@ -50,7 +50,7 @@ export const STAFF_ROLES = ['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'EVEN
 
 /** Only pilgrims / attendees book. Admins and hosts work from their dashboards. */
 export const canBook = (user) => !user || user.role === 'USER';
-export const HOST_ROLES = ['SUPER_ADMIN', 'AUTHORITY', 'EVENT_HOST', 'ORG_HOST']; // may host public events
+export const HOST_ROLES = ['SUPER_ADMIN', 'EVENT_HOST', 'ORG_HOST']; // may host public events (never the control room)
 
 /** Everything stored for the signed-in person (not the language or other device settings). */
 function clearPersonalCache() {
