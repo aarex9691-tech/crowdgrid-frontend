@@ -79,7 +79,8 @@ function Request({ a, onDone }) {
   };
 
   return (
-    <li className="panel p-5">
+    // organisation names, people and registration numbers are never sent to the translation service
+    <li className="panel p-5" data-no-translate>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-xl font-bold">{a.orgName}</h2>
@@ -111,7 +112,11 @@ function Request({ a, onDone }) {
             <Check state={c.websiteMatchesEmail}>
               {c.websiteMatchesEmail === true ? 'The email belongs to the website\'s domain' : c.websiteMatchesEmail === false ? 'The email is not on the website\'s domain: call the contact number' : 'No website or no email to compare: call the contact number'}
             </Check>
-            <Check state={c.accountAgeDays >= 7 ? true : null}>Account made {c.accountAgeDays === 0 ? 'today' : `${c.accountAgeDays} day${c.accountAgeDays === 1 ? '' : 's'} ago`}</Check>
+            {c.accountAgeDays == null ? (
+              <Check state={false}>The applicant's account no longer exists: reject this request</Check>
+            ) : (
+              <Check state={c.accountAgeDays >= 7 ? true : null}>Account made {c.accountAgeDays === 0 ? 'today' : `${c.accountAgeDays} day${c.accountAgeDays === 1 ? '' : 's'} ago`}</Check>
+            )}
             {c.previouslyRejected > 0 && <Check state={false}>This number was rejected {c.previouslyRejected} time{c.previouslyRejected > 1 ? 's' : ''} before</Check>}
           </ul>
           <button type="button" className="btn-ghost mt-3" onClick={openCertificate}>
@@ -128,7 +133,7 @@ function Request({ a, onDone }) {
                 <label className="field-label" htmlFor={`note-${a._id}`}>Note for the record <span className="font-normal text-ink-soft">(optional)</span></label>
                 <input id={`note-${a._id}`} className="field" value={note} maxLength={120} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Called the principal's office, certificate matches" />
               </div>
-              <button type="button" className="btn-primary" disabled={busy} onClick={() => decide('APPROVED')}>Approve as {ROLE_AFTER[a.kind]}</button>
+              {c.accountAgeDays != null && <button type="button" className="btn-primary" disabled={busy} onClick={() => decide('APPROVED')}>Approve as {ROLE_AFTER[a.kind]}</button>}
               <button type="button" className="btn-ghost" disabled={busy} onClick={() => setRejecting(true)}>Reject…</button>
             </div>
           ) : (

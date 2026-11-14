@@ -96,7 +96,7 @@ function MyRequests({ list }) {
       <h2 id="mine-title" className="text-xl font-bold">Your requests</h2>
       <ul className="mt-3 divide-y divide-line">
         {list.map((a) => (
-          <li key={a._id} className="py-3">
+          <li key={a._id} className="py-3" data-no-translate>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-bold">{a.orgName}</span>
               <span className={STATUS[a.status]?.cls}>{STATUS[a.status]?.text}</span>
@@ -236,15 +236,24 @@ export default function HostApply() {
   const [error, setError] = useState('');
   const isPilgrim = user?.role === 'USER';
 
-  const load = () =>
-    API.get('/hosts/mine')
+  const load = () => {
+    setError('');
+    return API.get('/hosts/mine')
       .then(({ data }) => setMine(data))
       .catch((e) => setError(errorMessage(e)));
+  };
   useEffect(() => {
     if (isPilgrim) load();
   }, [isPilgrim]);
 
   const waiting = mine?.some((a) => a.status === 'PENDING');
+  const approved = mine?.some((a) => a.status === 'APPROVED');
+  const loadFailed = (
+    <div className="space-y-3">
+      <Notice tone="error">{error}</Notice>
+      <button type="button" className="btn-ghost" onClick={load}>Try again</button>
+    </div>
+  );
 
   let side;
   if (!user) {
@@ -269,12 +278,13 @@ export default function HostApply() {
       </div>
     );
   } else if (!mine) {
-    side = error ? <Notice tone="error">{error}</Notice> : <Loading />;
+    side = error ? loadFailed : <Loading />;
   } else {
     side = (
       <div className="space-y-4">
+        {error && loadFailed}
         <MyRequests list={mine} />
-        {waiting ? <Notice>Your request is with the CrowdGrid team. You can send another once it has been reviewed.</Notice> : <ApplyForm onSent={load} />}
+        {approved ? null : waiting ? <Notice>Your request is with the CrowdGrid team. You can send another once it has been reviewed.</Notice> : <ApplyForm onSent={load} />}
       </div>
     );
   }

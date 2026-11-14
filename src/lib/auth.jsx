@@ -39,7 +39,8 @@ const PAGE_ROLES = [
 ];
 /** Can this role open the page at `path`? Pages not listed are open to everyone signed in. */
 export const canOpen = (role, path = '') => {
-  const rule = PAGE_ROLES.find(([re]) => re.test(path));
+  const page = String(path).split(/[?#]/)[0]; // "/host?tab=x" is the /host page
+  const rule = PAGE_ROLES.find(([re]) => re.test(page));
   return !rule || !rule[1] || rule[1].includes(role);
 };
 /** Where to go after logging in: back to the page they came from only if their role may open it. */

@@ -55,7 +55,7 @@ export default function Login() {
           <p className="mt-2 text-ink-soft">Use the mobile number you registered with, or the email in your profile.</p>
         </div>
         <Notice tone="error">{error}</Notice>
-        <div role="radiogroup" aria-label="Log in with" className="grid grid-cols-2 gap-1 rounded-xl border border-line bg-sand p-1">
+        <div role="group" aria-label="Log in with" className="grid grid-cols-2 gap-1 rounded-xl border border-line bg-sand p-1">
           {[
             ['mobile', 'Mobile number'],
             ['email', 'Email'],
@@ -63,8 +63,7 @@ export default function Login() {
             <button
               key={key}
               type="button"
-              role="radio"
-              aria-checked={by === key}
+              aria-pressed={by === key}
               className={`min-h-11 rounded-lg px-3 font-semibold transition-colors ${by === key ? 'bg-white text-ink shadow-sm' : 'text-ink-soft hover:text-ink'}`}
               onClick={() => {
                 setBy(key);
