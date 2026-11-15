@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Link } from 'react-router-dom';
 import { Megaphone, Phone, RefreshCw, Search, Siren, UserPlus, X } from 'lucide-react';
 import API, { errorMessage } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
@@ -501,7 +500,6 @@ export default function Volunteers() {
             </select>
           </div>
           <button type="button" className="btn-ghost" onClick={load} aria-label="Refresh"><RefreshCw size={18} /></button>
-          <Link to="/control" className="btn-ghost">Control room</Link>
           <button type="button" className="btn-primary" onClick={() => setDialog({})} disabled={!data?.roster.length}>
             <UserPlus size={18} aria-hidden /> Assign duty
           </button>

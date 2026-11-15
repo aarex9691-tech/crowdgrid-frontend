@@ -7,6 +7,7 @@ import Notice from '../components/Notice';
 import PageTitle from '../components/PageTitle';
 import Avatar from '../components/Avatar';
 import MyDutyCard from '../components/MyDutyCard';
+import { useAuth } from '../lib/auth';
 
 const READER_ID = 'qr-reader';
 
@@ -19,6 +20,9 @@ const SERVICES = [
   { id: 'ENTRY', label: 'Event entry' },
   { id: 'VOLUNTEER', label: 'Volunteer ID' },
 ];
+// Organisation hosts only check tickets for their own events
+const HOST_SCANNERS = ['CORPORATE_ADMIN', 'EVENT_HOST', 'ORG_HOST'];
+const HOST_SERVICES = ['ANY', 'ENTRY'];
 const SERVICE_KEY = 'cg_scan_service';
 const savedService = () => {
   try {
@@ -48,8 +52,53 @@ function HolderId({ holder, light = false }) {
   );
 }
 
+/**
+ * A volunteer badge whose ID card has not been seen in person yet. A control-room officer compares
+ * the card with the badge photo and the last 4 characters, then marks it checked; until then the
+ * volunteer cannot check in to a duty.
+ */
+function VolunteerIdCheck({ volunteer, officer, onChecked }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const confirm = async () => {
+    setBusy(true);
+    setError('');
+    try {
+      await API.post(`/volunteer/applications/${volunteer.applicationId}/verify-id`);
+      onChecked();
+    } catch (e) {
+      setError(errorMessage(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="mt-4 rounded-2xl bg-white p-4 text-ink">
+      <p className="font-bold">ID card not checked yet</p>
+      {officer ? (
+        <>
+          <p className="mt-1">
+            Ask for their {volunteer.idType ? <b>{ID_WORDS[volunteer.idType] || 'ID card'}</b> : 'ID card'}
+            {volunteer.idLast4 ? <> ending in <b className="font-mono">{volunteer.idLast4}</b></> : ''}. Check the name and the face, then confirm.
+          </p>
+          <button type="button" className="btn-primary mt-3" disabled={busy} onClick={confirm}>ID card checked</button>
+          <Notice tone="error" className="mt-2">{error}</Notice>
+        </>
+      ) : (
+        <p className="mt-1">Send them to the District Control Room desk with their ID card before their first duty.</p>
+      )}
+    </div>
+  );
+}
+const ID_WORDS = { AADHAAR: 'Aadhaar (masked)', VOTER: 'voter ID', DL: 'driving licence', PAN: 'PAN card', PASSPORT: 'passport', COLLEGE: 'college ID' };
+
 export default function Scanner() {
+  const { user } = useAuth();
+  const isOfficer = ['SUPER_ADMIN', 'AUTHORITY'].includes(user?.role);
+  const isHost = HOST_SCANNERS.includes(user?.role);
+  const services = isHost ? SERVICES.filter((x) => HOST_SERVICES.includes(x.id)) : SERVICES;
   const scannerRef = useRef(null);
+  const [starting, setStarting] = useState(false);
   const busyRef = useRef(false);
   const lastRef = useRef({ text: '', at: 0 });
   const [running, setRunning] = useState(false);
@@ -57,7 +106,10 @@ export default function Scanner() {
   const [error, setError] = useState('');
   const [manual, setManual] = useState('');
   const [log, setLog] = useState([]);
-  const [service, setService] = useState(savedService);
+  const [service, setService] = useState(() => {
+    const saved = savedService();
+    return isHost && !HOST_SERVICES.includes(saved) ? 'ANY' : saved;
+  });
   const serviceRef = useRef(service);
   const chooseService = (id) => {
     setService(id);
@@ -90,9 +142,12 @@ export default function Scanner() {
     } finally {
       busyRef.current = false;
     }
-  }, []);
+  }, [setResult]); // the compiler counts the state setter as a dependency (stable, so never re-created)
 
   const start = async () => {
+    // one camera at a time: a second tap while the library downloads does nothing
+    if (starting || scannerRef.current) return;
+    setStarting(true);
     setError('');
     try {
       // the camera library is large: download it only when the camera is started (typed codes need none)
@@ -102,11 +157,14 @@ export default function Scanner() {
       await scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 240, height: 240 } }, (text) => check(text), () => {});
       setRunning(true);
     } catch (e) {
+      scannerRef.current = null; // so the camera can be tried again
       setError(
         window.isSecureContext
           ? `Could not open the camera: ${e?.message || e}. Allow camera access, or type the code below.`
           : 'The camera needs a secure (https) page. Open CrowdGrid over https, or type the code below.'
       );
+    } finally {
+      setStarting(false);
     }
   };
 
@@ -117,6 +175,7 @@ export default function Scanner() {
     } catch {
       /* already stopped */
     }
+    scannerRef.current = null;
     setRunning(false);
   };
 
@@ -135,13 +194,12 @@ export default function Scanner() {
 
       <div className="panel p-4">
         <p id="svc-label" className="field-label">Scanning at</p>
-        <div className="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="svc-label">
-          {SERVICES.map((x) => (
+        <div className="flex flex-wrap gap-2" role="group" aria-labelledby="svc-label">
+          {services.map((x) => (
             <button
               key={x.id}
               type="button"
-              role="radio"
-              aria-checked={service === x.id}
+              aria-pressed={service === x.id}
               onClick={() => chooseService(x.id)}
               className={service === x.id ? 'btn-ink min-h-11 px-3' : 'btn-ghost min-h-11 px-3'}
             >
@@ -202,6 +260,9 @@ export default function Scanner() {
               {result.pass.details?.guests?.length > 0 && <p>Names: {result.pass.details.guests.join(', ')}</p>}
             </div>
           )}
+          {result.volunteer && !result.volunteer.idVerified && (
+            <VolunteerIdCheck volunteer={result.volunteer} officer={isOfficer} onChecked={() => setResult((r) => ({ ...r, volunteer: { ...r.volunteer, idVerified: true }, message: 'VALID - ID VERIFIED' }))} />
+          )}
           {import.meta.env.DEV && <p className="mt-3 text-sm opacity-90">Checked in {result.ms} ms</p>}
         </div>
       )}
@@ -215,8 +276,8 @@ export default function Scanner() {
               <CameraOff size={20} aria-hidden /> Stop camera
             </button>
           ) : (
-            <button type="button" className="btn-ink flex-1 text-lg" onClick={start}>
-              <Camera size={20} aria-hidden /> Start camera
+            <button type="button" className="btn-ink flex-1 text-lg" onClick={start} disabled={starting}>
+              <Camera size={20} aria-hidden /> {starting ? 'Starting…' : 'Start camera'}
             </button>
           )}
         </div>

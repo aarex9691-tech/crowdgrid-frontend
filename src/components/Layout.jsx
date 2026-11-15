@@ -1,6 +1,6 @@
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { BadgeCheck, BarChart3, Briefcase, CalendarPlus, HandHeart, KeyRound, LogOut, Menu, MessageCircle, ScanLine, Search, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { BarChart3, Briefcase, PanelLeftClose, PanelLeftOpen, CalendarPlus, Globe, HandHeart, Inbox, KeyRound, LogOut, Menu, MessageCircle, ScanLine, Search, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { ROLE_LABELS, useAuth } from '../lib/auth';
 import { useCart } from '../lib/cart';
 import { useConfirm } from '../lib/confirm';
@@ -12,53 +12,128 @@ import { LanguageSwitcherButton, applyBackgroundTranslation, useLang, useT } fro
 import Avatar from './Avatar';
 
 /**
- * Each role gets its own navigation. Pilgrims see booking (passbook, cart,
- * "Book now"); admins and hosts see their dashboards instead and never book.
+ * Each role gets its own navigation. Pilgrims and visitors get the top bar (booking, passbook, cart).
+ * Staff and organisation hosts get a workspace: a left sidebar grouped by task, every page listed once,
+ * and nothing in the top bar but the logo and their account.
  */
 const navFor = (role, t = (k) => k) => {
   const scan = { to: '/scan', label: 'Scanner', icon: ScanLine };
-  const helpdesk = { to: '/helpdesk', label: 'Help desk', icon: KeyRound };
-  const volunteers = { to: '/volunteers', label: 'Volunteers', icon: HandHeart };
+  const control = [
+    { to: '/control', label: 'Control room', icon: ShieldCheck },
+    { to: '/analytics', label: 'Analytics', icon: BarChart3 },
+    { to: '/helpdesk', label: 'Help desk', icon: KeyRound },
+    scan,
+  ];
+  const people = [
+    { to: '/requests', label: 'Requests', icon: Inbox },
+    { to: '/volunteers', label: 'Volunteer duties', icon: HandHeart },
+  ];
+  const site = { label: 'Public site', links: [{ to: '/events', label: 'Events on CrowdGrid', icon: Globe }] };
   const about = { to: '/about', label: t('nav.about') };
+  let groups;
   switch (role) {
     case 'SUPER_ADMIN':
-      return {
-        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, volunteers, { to: '/analytics', label: 'Analytics', icon: BarChart3 }, { to: '/corporate-admin', label: 'Campus events', icon: Briefcase }, { to: '/host-requests', label: 'Host requests', icon: BadgeCheck }, helpdesk, scan],
-        cta: { to: '/host', label: 'Host an event' },
-      };
+      groups = [
+        { label: 'Operations', links: control },
+        { label: 'People and organisations', links: people },
+        { label: 'Hosted events', links: [{ to: '/host', label: 'Public events', icon: CalendarPlus }, { to: '/corporate-admin', label: 'Campus and corporate', icon: Briefcase }] },
+        site,
+      ];
+      break;
     case 'AUTHORITY':
-      return {
-        links: [{ to: '/control', label: 'Control room', icon: ShieldCheck }, volunteers, { to: '/analytics', label: 'Analytics', icon: BarChart3 }, { to: '/host', label: 'Hosted events', icon: CalendarPlus }, helpdesk, scan],
-        cta: { to: '/host', label: 'Host an event' },
-      };
+      groups = [{ label: 'Operations', links: control }, { label: 'People and organisations', links: people }, site];
+      break;
     case 'NGO_ADMIN':
-      return { links: [{ to: '/ngo', label: 'My camps', icon: Tent }, scan, { to: '/events', label: 'Events' }, about], cta: { to: '/scan', label: 'Open scanner' } };
+      groups = [{ label: 'Your trust', links: [{ to: '/ngo', label: 'Camps and kitchens', icon: Tent }, scan] }, site];
+      break;
     case 'EVENT_HOST':
-      return { links: [{ to: '/host', label: 'My events', icon: CalendarPlus }, scan, about], cta: { to: '/host', label: 'New event' } };
+      groups = [{ label: 'Your organisation', links: [{ to: '/host', label: 'Public events', icon: CalendarPlus }, scan] }, site];
+      break;
     case 'ORG_HOST':
-      return {
-        links: [{ to: '/host', label: 'Public events', icon: CalendarPlus }, { to: '/corporate-admin', label: 'Campus events', icon: Briefcase }, scan, about],
-        cta: { to: '/host', label: 'New event' },
-      };
+      groups = [{ label: 'Your organisation', links: [{ to: '/host', label: 'Public events', icon: CalendarPlus }, { to: '/corporate-admin', label: 'Campus events', icon: Briefcase }, scan] }, site];
+      break;
     case 'CORPORATE_ADMIN':
-      return { links: [{ to: '/corporate-admin', label: 'My events', icon: Briefcase }, scan, about], cta: { to: '/corporate-admin', label: 'New event' } };
+      groups = [{ label: 'Your organisation', links: [{ to: '/corporate-admin', label: 'Campus and corporate', icon: Briefcase }, scan] }, site];
+      break;
     case 'VOLUNTEER':
-      return { links: [scan, { to: '/passbook', label: 'My ID badge', icon: Ticket }, about], cta: { to: '/scan', label: 'Open scanner' } };
+      groups = [{ label: 'Your seva', links: [{ to: '/scan', label: 'Duties and scanner', icon: ScanLine }, { to: '/passbook', label: 'My ID badge', icon: Ticket }] }, site];
+      break;
     default:
       return {
         // pilgrim navigation follows the chosen language (Hindi / Marathi / English)
         links: [{ to: '/', label: t('nav.home'), end: true }, { to: '/events', label: t('nav.events') }, { to: '/passbook', label: t('nav.passbook') }, { to: '/help', label: t('nav.help') }, about],
-        cta: null,
         shopper: true,
       };
   }
+  return { groups, links: groups.flatMap((g) => g.links), workspace: true };
 };
 
+/** One labelled group of the sidebar (the label names the list for screen readers). */
+function NavGroup({ group, cls, onPick, large, collapsed }) {
+  const id = useId();
+  return (
+    <div>
+      {/* the group's name stays for screen readers when the sidebar is folded to icons */}
+      <p id={id} className={collapsed ? 'sr-only' : 'px-3 pb-1 text-sm font-semibold text-ink-faint'}>{group.label}</p>
+      <ul aria-labelledby={id} className="space-y-0.5">
+        {group.links.map((l) => (
+          <li key={l.to}>
+            <NavLink to={l.to} end={l.end} className={cls} onClick={onPick} title={collapsed ? l.label : undefined}>
+              {l.icon && <l.icon size={large ? 22 : 19} aria-hidden className="shrink-0" />}
+              <span className={collapsed ? 'sr-only' : ''}>{l.label}</span>
+            </NavLink>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/** The workspace sidebar (desktop, open or folded to icons) and the same groups in the phone menu. */
+function SideNav({ groups, onPick, large = false, collapsed = false }) {
+  // active page: blue text, bold, and a blue bar (not colour alone, and the bar contrasts at 3:1+)
+  const cls = ({ isActive }) =>
+    `relative flex items-center gap-3 rounded-xl transition-colors ${collapsed ? 'min-h-11 justify-center px-0' : 'px-3'} ${large ? 'min-h-14 text-xl' : 'min-h-11 text-[15px]'} ${
+      isActive ? 'bg-blue-wash font-bold text-blue before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-full before:bg-blue' : 'font-semibold text-ink-soft hover:bg-mist hover:text-ink'
+    }`;
+  return (
+    <div className={collapsed ? 'space-y-3' : 'space-y-5'}>
+      {groups.map((g, i) => (
+        <div key={g.label} className={collapsed && i > 0 ? 'border-t border-line pt-3' : ''}>
+          <NavGroup group={g} cls={cls} onPick={onPick} large={large} collapsed={collapsed} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const SIDEBAR_KEY = 'cg_sidebar';
+/** Open or folded sidebar, remembered on this device (browser storage can be unavailable: then it starts open). */
+function useSidebar() {
+  const [open, setOpen] = useState(() => {
+    try {
+      return localStorage.getItem(SIDEBAR_KEY) !== 'closed';
+    } catch {
+      return true;
+    }
+  });
+  const toggle = () =>
+    setOpen((o) => {
+      try {
+        localStorage.setItem(SIDEBAR_KEY, o ? 'closed' : 'open');
+      } catch {
+        /* not remembered, still works */
+      }
+      return !o;
+    });
+  return [open, toggle];
+}
+
 const TITLES = [
-  [/^\/$/, ''], [/^\/login/, 'Log in'], [/^\/register/, 'Create account'], [/^\/events/, 'Events'], [/^\/event\//, 'Event'],
-  [/^\/about/, 'About us'], [/^\/help/, 'Help centre'], [/^\/yatra\//, 'Yatra services'], [/^\/corporate\//, 'Campus & Corporate event'], [/^\/passbook/, 'My Passbook'],
+  [/^\/$/, ''], [/^\/login/, 'Log in'], [/^\/register(\/|$)/, 'Create account'], [/^\/events/, 'Events'], [/^\/event\//, 'Event'],
+  [/^\/about/, 'About us'], [/^\/help(\/|$)/, 'Help centre'], [/^\/yatra\//, 'Yatra services'], [/^\/corporate\//, 'Campus & Corporate event'], [/^\/passbook/, 'My Passbook'],
   [/^\/account/, 'My account'], [/^\/checkout/, 'Checkout'], [/^\/scan/, 'Scanner'], [/^\/control/, 'Control room'], [/^\/analytics/, 'Analytics'],
-  [/^\/corporate-admin/, 'Campus & Corporate events'], [/^\/camps\/.+\/map/, 'Tent map'], [/^\/host-with-us/, 'Host with CrowdGrid'], [/^\/host-requests/, 'Host requests'], [/^\/host/, 'Hosted events'], [/^\/ngo/, 'My camps'], [/^\/helpdesk/, 'Help desk'], [/^\/set-password/, 'Set password'],
+  [/^\/corporate-admin/, 'Campus & Corporate events'], [/^\/camps\/.+\/map/, 'Tent map'], [/^\/host-with-us/, 'Host with CrowdGrid'], [/^\/host-requests/, 'Requests'], [/^\/requests/, 'Requests'], [/^\/register-organisation/, 'Register your organisation'], [/^\/volunteers/, 'Volunteer duties'], [/^\/host/, 'Public events'], [/^\/ngo/, 'My camps'], [/^\/helpdesk/, 'Help desk'], [/^\/set-password/, 'Set password'],
 ];
 
 /** New page: start at the top (or at the #section asked for) and name the browser tab. */
@@ -156,9 +231,12 @@ export default function Layout() {
     }
   };
 
+  // Staff and hosts work from the sidebar; the top bar keeps only the logo and the account
+  const workspace = Boolean(nav.workspace);
+  const [sideOpen, toggleSide] = useSidebar();
   // Roles with many links switch to the full desktop bar only on wide screens,
   // so labels never squeeze onto two lines or run into each other.
-  const wide = nav.links.reduce((n, l) => n + l.label.length, 0) > 36;
+  const wide = !workspace && nav.links.reduce((n, l) => n + l.label.length, 0) > 36;
   const desk = wide ? 'xl' : 'lg';
   const showDesk = wide ? 'hidden xl:flex' : 'hidden lg:flex';
   // The event search pill is for visitors and pilgrims; staff bars have too many links to fit it
@@ -224,7 +302,20 @@ export default function Layout() {
       </a>
       <header ref={headerRef} className="sticky top-0 z-30 border-b border-line bg-white">
         <div className="toran" aria-hidden />
-        <div className="mx-auto flex h-16 w-full max-w-[var(--page-max)] items-center gap-2 px-4 sm:px-6">
+        <div className={`mx-auto flex h-16 w-full items-center gap-2 px-4 sm:px-6 ${workspace ? '' : 'max-w-[var(--page-max)]'}`}>
+          {workspace && (
+            <button
+              type="button"
+              className="hidden min-h-11 min-w-11 flex-none items-center justify-center rounded-xl text-ink-soft hover:bg-mist hover:text-ink lg:flex"
+              aria-expanded={sideOpen}
+              aria-controls="workspace-nav"
+              aria-label={sideOpen ? 'Fold the side menu' : 'Open the side menu'}
+              title={sideOpen ? 'Fold the side menu' : 'Open the side menu'}
+              onClick={toggleSide}
+            >
+              {sideOpen ? <PanelLeftClose size={22} aria-hidden /> : <PanelLeftOpen size={22} aria-hidden />}
+            </button>
+          )}
           <Link
             to="/"
             className={`group mr-2 flex min-h-11 flex-none items-center gap-2.5 ${showSearch ? '' : desk === 'xl' ? 'xl:mr-4' : 'lg:mr-4'}`}
@@ -269,15 +360,20 @@ export default function Layout() {
             </button>
           </form>}
 
-          {/* Desktop navigation */}
-          <nav aria-label="Main" className={`ml-auto min-w-0 items-center gap-0.5 ${showDesk}`}>
+          {/* Desktop navigation (staff and hosts: in the sidebar instead) */}
+          {workspace ? (
+            // the organisation an account works for (its role is shown next to the name on the right)
+            user.organisationName ? (
+              <span className="ml-1 hidden min-w-0 truncate text-[15px] font-semibold text-ink-soft lg:block" translate="no">{user.organisationName}</span>
+            ) : null
+          ) : <nav aria-label="Main" className={`ml-auto min-w-0 items-center gap-0.5 ${showDesk}`}>
             {nav.links.map((l) => (
               <NavLink key={l.to} to={l.to} end={l.end} className={linkCls}>
                 {/* Staff bars are long (the header is capped at 1280px), so they show text only */}
                 {l.icon && <l.icon size={18} aria-hidden className={wide ? 'hidden' : ''} />} {l.label}
               </NavLink>
             ))}
-          </nav>
+          </nav>}
 
           {/* On phones, push the cart and menu button to the right edge */}
           <span className={`flex-1 ${hideDesk}`} aria-hidden />
@@ -290,12 +386,13 @@ export default function Layout() {
             </NavLink>
           )}
 
-          <div className={`flex-none items-center gap-2 ${showDesk}`}>
+          <div className={`flex-none items-center gap-2 ${showDesk} ${workspace ? 'ml-auto' : ''}`}>
             {user ? (
               <>
                 <NavLink to="/account" className={linkCls} title={ROLE_LABELS[user.role]}>
                   {user.photoUrl ? <Avatar name={user.name} photoUrl={user.photoUrl} size={28} /> : <UserRound size={18} aria-hidden />}
-                  <span translate="no" className={`max-w-28 truncate ${wide ? 'sr-only' : ''}`}>{user.name.split(' ')[0]}</span>
+                  <span translate="no" className={`truncate ${workspace ? 'max-w-64' : 'max-w-28'} ${wide ? 'sr-only' : ''}`}>{workspace ? user.name : user.name.split(' ')[0]}</span>
+                  {workspace && <span className="pill-quiet">{ROLE_LABELS[user.role]}</span>}
                 </NavLink>
                 <button type="button" className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-ink-soft hover:bg-mist hover:text-ink" onClick={doLogout} aria-label="Log out" title="Log out">
                   <LogOut size={20} aria-hidden />
@@ -305,13 +402,6 @@ export default function Layout() {
               <Link to="/login" className="btn-ghost min-h-11 px-4">{t('nav.login')}</Link>
             )}
           </div>
-
-          {/* Call to action */}
-          {nav.cta && (
-            <Link to={nav.cta.to} className="btn-primary ml-1 hidden min-h-11 flex-none whitespace-nowrap px-4 sm:inline-flex" onClick={close}>
-              {nav.cta.label}
-            </Link>
-          )}
 
           {/* Language switcher in the corner. Phones have it inside the menu instead,
               so the logo, the switcher and the menu button never crowd past 360px */}
@@ -350,11 +440,15 @@ export default function Layout() {
                 />
                 <button type="submit" className="flex min-h-11 shrink-0 items-center rounded-lg bg-blue px-3.5 text-sm font-bold text-white">{t("nav.search")}</button>
               </form>}
-              {nav.links.map((l) => (
-                <NavLink key={l.to} to={l.to} end={l.end} className={menuCls} onClick={close}>
-                  {l.icon && <l.icon size={20} aria-hidden />} {l.label}
-                </NavLink>
-              ))}
+              {workspace ? (
+                <SideNav groups={nav.groups} onPick={close} large />
+              ) : (
+                nav.links.map((l) => (
+                  <NavLink key={l.to} to={l.to} end={l.end} className={menuCls} onClick={close}>
+                    {l.icon && <l.icon size={20} aria-hidden />} {l.label}
+                  </NavLink>
+                ))
+              )}
               <div className="my-2 border-t border-line" />
               {user ? (
                 <>
@@ -373,11 +467,6 @@ export default function Layout() {
                   <LanguageSwitcherButton className="w-full justify-center" />
                 </div>
               )}
-              {nav.cta && (
-                <Link to={nav.cta.to} className="btn-primary mt-2 w-full sm:hidden" onClick={close}>
-                  {nav.cta.label}
-                </Link>
-              )}
             </div>
           </nav>
         )}
@@ -393,12 +482,21 @@ export default function Layout() {
       {/* first-visit tour: home page, pilgrims and visitors only */}
       <GuidedTour auto={pathname === '/' && (!user || user.role === 'USER')} />
 
-      <main id="main" tabIndex={-1} className="flex-1 pb-16 focus:outline-none">
-        {user?.mustChangePassword && pathname !== '/set-password' ? <Navigate to="/set-password" replace state={{ from: pathname }} /> : (
-          // keyed by path, so each page change plays the short entrance (see .cg-page)
-          <div key={pathname} className="cg-page"><Outlet /></div>
+      <div className={`flex-1 ${workspace ? `lg:grid ${sideOpen ? 'lg:grid-cols-[16rem_minmax(0,1fr)]' : 'lg:grid-cols-[4.5rem_minmax(0,1fr)]'}` : 'flex flex-col'}`}>
+        {workspace && (
+          <div className="cg-sidebar hidden border-r border-line bg-white/85 lg:block">
+            <nav id="workspace-nav" aria-label="Workspace" className={`sticky top-[var(--header-h,4.25rem)] max-h-[calc(100dvh-var(--header-h,4.25rem))] overflow-y-auto py-6 ${sideOpen ? 'px-3' : 'px-2'}`}>
+              <SideNav groups={nav.groups} collapsed={!sideOpen} />
+            </nav>
+          </div>
         )}
-      </main>
+        <main id="main" tabIndex={-1} className="min-w-0 flex-1 pb-16 focus:outline-none">
+          {user?.mustChangePassword && pathname !== '/set-password' ? <Navigate to="/set-password" replace state={{ from: pathname }} /> : (
+            // keyed by path, so each page change plays the short entrance (see .cg-page)
+            <div key={pathname} className="cg-page"><Outlet /></div>
+          )}
+        </main>
+      </div>
 
       <a
         href={`https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent('Hi, I need help with CrowdGrid.')}`}
@@ -441,6 +539,7 @@ export default function Layout() {
             <p className="font-semibold text-white">About us</p>
             <ul className="mt-2 text-sm">
               <li><Link className="hover:text-white" to="/about">About CrowdGrid</Link></li>
+              <li><Link className="hover:text-white" to="/register-organisation">Register your organisation</Link></li>
               <li><Link className="hover:text-white" to="/host-with-us">Host your events with us</Link></li>
               <li><Link className="hover:text-white" to="/about#contact">Contact customer care</Link></li>
               <li><a className="hover:text-white" href={`tel:${SITE.phone.replace(/[^\d+]/g, '')}`}>{SITE.phone}</a></li>

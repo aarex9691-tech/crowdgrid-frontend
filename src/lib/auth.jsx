@@ -31,7 +31,9 @@ const PAGE_ROLES = [
   [/^\/scan/, ['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'EVENT_HOST', 'ORG_HOST', 'NGO_ADMIN', 'VOLUNTEER']],
   [/^\/host-with-us/, null], // open to everyone
   [/^\/host-requests/, ['SUPER_ADMIN']],
-  [/^\/host(\/|$)/, ['SUPER_ADMIN', 'AUTHORITY', 'EVENT_HOST', 'ORG_HOST']],
+  [/^\/requests/, ['SUPER_ADMIN', 'AUTHORITY']],
+  [/^\/register-organisation/, null], // open to everyone
+  [/^\/host(\/|$)/, ['SUPER_ADMIN', 'EVENT_HOST', 'ORG_HOST']],
   [/^\/(control|analytics|helpdesk|volunteers)/, ['SUPER_ADMIN', 'AUTHORITY']],
   [/^\/corporate-admin/, ['SUPER_ADMIN', 'CORPORATE_ADMIN', 'ORG_HOST']],
   [/^\/camps\/.+\/map/, ['SUPER_ADMIN', 'AUTHORITY', 'NGO_ADMIN']],
@@ -39,7 +41,8 @@ const PAGE_ROLES = [
 ];
 /** Can this role open the page at `path`? Pages not listed are open to everyone signed in. */
 export const canOpen = (role, path = '') => {
-  const rule = PAGE_ROLES.find(([re]) => re.test(path));
+  const page = String(path).split(/[?#]/)[0]; // "/host?tab=x" is the /host page
+  const rule = PAGE_ROLES.find(([re]) => re.test(page));
   return !rule || !rule[1] || rule[1].includes(role);
 };
 /** Where to go after logging in: back to the page they came from only if their role may open it. */
@@ -49,7 +52,7 @@ export const STAFF_ROLES = ['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'EVEN
 
 /** Only pilgrims / attendees book. Admins and hosts work from their dashboards. */
 export const canBook = (user) => !user || user.role === 'USER';
-export const HOST_ROLES = ['SUPER_ADMIN', 'AUTHORITY', 'EVENT_HOST', 'ORG_HOST']; // may host public events
+export const HOST_ROLES = ['SUPER_ADMIN', 'EVENT_HOST', 'ORG_HOST']; // may host public events (never the control room)
 
 /** Everything stored for the signed-in person (not the language or other device settings). */
 function clearPersonalCache() {
