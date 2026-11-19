@@ -1,5 +1,5 @@
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { BarChart3, Briefcase, PanelLeftClose, PanelLeftOpen, CalendarPlus, Globe, HandHeart, Inbox, KeyRound, LogOut, Menu, MessageCircle, ScanLine, Search, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
+import { BarChart3, Briefcase, CalendarHeart, ChefHat, PanelLeftClose, PanelLeftOpen, CalendarPlus, Globe, HandHeart, Inbox, KeyRound, LogOut, Menu, MessageCircle, ScanLine, Search, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { ROLE_LABELS, useAuth } from '../lib/auth';
 import { useCart } from '../lib/cart';
@@ -47,10 +47,16 @@ const navFor = (role, t = (k) => k) => {
       groups = [{ label: 'Your trust', links: [{ to: '/ngo', label: 'Camps and kitchens', icon: Tent }, scan] }, site];
       break;
     case 'EVENT_HOST':
-      groups = [{ label: 'Your organisation', links: [{ to: '/host', label: 'Public events', icon: CalendarPlus }, scan] }, site];
+      groups = [{ label: 'Your organisation', links: [{ to: '/host', label: 'Public events', icon: CalendarPlus }, { to: '/programmes', label: 'Programmes for pilgrims', icon: CalendarHeart }, scan] }, site];
       break;
     case 'ORG_HOST':
-      groups = [{ label: 'Your organisation', links: [{ to: '/host', label: 'Public events', icon: CalendarPlus }, { to: '/corporate-admin', label: 'Campus events', icon: Briefcase }, scan] }, site];
+      groups = [{ label: 'Your organisation', links: [{ to: '/host', label: 'Public events', icon: CalendarPlus }, { to: '/corporate-admin', label: 'Campus events', icon: Briefcase }, { to: '/programmes', label: 'Programmes for pilgrims', icon: CalendarHeart }, scan] }, site];
+      break;
+    case 'KITCHEN_MANAGER':
+      groups = [
+        { label: 'Your kitchen service', links: [{ to: '/kitchen', label: 'Kitchens at yatras', icon: ChefHat }, { to: '/programmes', label: 'Programmes for pilgrims', icon: CalendarHeart }, scan] },
+        site,
+      ];
       break;
     case 'CORPORATE_ADMIN':
       groups = [{ label: 'Your organisation', links: [{ to: '/corporate-admin', label: 'Campus and corporate', icon: Briefcase }, scan] }, site];
@@ -133,7 +139,7 @@ const TITLES = [
   [/^\/$/, ''], [/^\/login/, 'Log in'], [/^\/register(\/|$)/, 'Create account'], [/^\/events/, 'Events'], [/^\/event\//, 'Event'],
   [/^\/about/, 'About us'], [/^\/help(\/|$)/, 'Help centre'], [/^\/yatra\//, 'Yatra services'], [/^\/corporate\//, 'Campus & Corporate event'], [/^\/passbook/, 'My Passbook'],
   [/^\/account/, 'My account'], [/^\/checkout/, 'Checkout'], [/^\/scan/, 'Scanner'], [/^\/control/, 'Control room'], [/^\/analytics/, 'Analytics'],
-  [/^\/corporate-admin/, 'Campus & Corporate events'], [/^\/camps\/.+\/map/, 'Tent map'], [/^\/host-with-us/, 'Host with CrowdGrid'], [/^\/host-requests/, 'Requests'], [/^\/requests/, 'Requests'], [/^\/register-organisation/, 'Register your organisation'], [/^\/volunteers/, 'Volunteer duties'], [/^\/host/, 'Public events'], [/^\/ngo/, 'My camps'], [/^\/helpdesk/, 'Help desk'], [/^\/set-password/, 'Set password'],
+  [/^\/corporate-admin/, 'Campus & Corporate events'], [/^\/camps\/.+\/map/, 'Tent map'], [/^\/host-with-us/, 'Host with CrowdGrid'], [/^\/host-requests/, 'Requests'], [/^\/requests/, 'Requests'], [/^\/register-organisation/, 'Register your organisation'], [/^\/volunteers/, 'Volunteer duties'], [/^\/register-kitchen/, 'Register a kitchen service'], [/^\/kitchen/, 'Kitchens at yatras'], [/^\/programmes/, 'Programmes for pilgrims'], [/^\/host/, 'Public events'], [/^\/ngo/, 'My camps'], [/^\/helpdesk/, 'Help desk'], [/^\/set-password/, 'Set password'],
 ];
 
 /** New page: start at the top (or at the #section asked for) and name the browser tab. */
@@ -540,6 +546,7 @@ export default function Layout() {
             <ul className="mt-2 text-sm">
               <li><Link className="hover:text-white" to="/about">About CrowdGrid</Link></li>
               <li><Link className="hover:text-white" to="/register-organisation">Register your organisation</Link></li>
+              <li><Link className="hover:text-white" to="/register-kitchen">Register a kitchen service</Link></li>
               <li><Link className="hover:text-white" to="/host-with-us">Host your events with us</Link></li>
               <li><Link className="hover:text-white" to="/about#contact">Contact customer care</Link></li>
               <li><a className="hover:text-white" href={`tel:${SITE.phone.replace(/[^\d+]/g, '')}`}>{SITE.phone}</a></li>

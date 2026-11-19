@@ -26,6 +26,9 @@ const HostEvents = lazy(() => import('./pages/staff/HostEvents'));
 const HostApply = lazy(() => import('./pages/HostApply'));
 const Requests = lazy(() => import('./pages/staff/Requests'));
 const RegisterOrganisation = lazy(() => import('./pages/RegisterOrganisation'));
+const KitchenApply = lazy(() => import('./pages/KitchenApply'));
+const KitchenDashboard = lazy(() => import('./pages/staff/KitchenDashboard'));
+const MyProgrammes = lazy(() => import('./pages/staff/MyProgrammes'));
 const ControlRoom = lazy(() => import('./pages/staff/ControlRoom'));
 const Analytics = lazy(() => import('./pages/staff/Analytics'));
 const NgoPortal = lazy(() => import('./pages/staff/NgoPortal'));
@@ -68,6 +71,7 @@ export default function App() {
         <Route path="/corporate/:slug" element={page(Corporate)} />
         <Route path="/host-with-us" element={page(HostApply)} />
         <Route path="/register-organisation" element={page(RegisterOrganisation)} />
+        <Route path="/register-kitchen" element={page(KitchenApply)} />
 
         <Route element={<RequireRole />}>
           <Route path="/set-password" element={page(SetPassword)} />
@@ -75,7 +79,13 @@ export default function App() {
           <Route path="/account" element={page(Account)} />
           <Route path="/checkout" element={page(Checkout)} />
         </Route>
-        <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'EVENT_HOST', 'ORG_HOST', 'NGO_ADMIN', 'VOLUNTEER']} />}>
+        <Route element={<RequireRole roles={['KITCHEN_MANAGER']} />}>
+          <Route path="/kitchen" element={page(KitchenDashboard)} />
+        </Route>
+        <Route element={<RequireRole roles={['KITCHEN_MANAGER', 'EVENT_HOST', 'ORG_HOST']} />}>
+          <Route path="/programmes" element={page(MyProgrammes)} />
+        </Route>
+        <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'EVENT_HOST', 'ORG_HOST', 'NGO_ADMIN', 'KITCHEN_MANAGER', 'VOLUNTEER']} />}>
           <Route path="/scan" element={page(Scanner)} />
         </Route>
         <Route element={<RequireRole roles={['SUPER_ADMIN', 'AUTHORITY']} />}>

@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { BedDouble, BusFront, Footprints, HandHeart, Info, Siren, Users, UtensilsCrossed } from 'lucide-react';
+import { BedDouble, BusFront, CalendarHeart, Footprints, HandHeart, Info, Siren, Users, UtensilsCrossed } from 'lucide-react';
 import API, { errorMessage } from '../lib/api';
 import { fmtDate } from '../lib/format';
 import PrebookNotice from '../components/PrebookNotice';
@@ -10,6 +10,7 @@ import LodgingTab from './hub/LodgingTab';
 import FoodTab from './hub/FoodTab';
 import TransitTab from './hub/TransitTab';
 import SevaTab from './hub/SevaTab';
+import ProgrammesTab from './hub/ProgrammesTab';
 import SosTab from './hub/SosTab';
 import SnanDates from '../components/SnanDates';
 import YatraGuide from '../components/YatraGuide';
@@ -26,6 +27,7 @@ const TABS = [
   { id: 'food', icon: UtensilsCrossed, Component: FoodTab },
   { id: 'transit', icon: BusFront, Component: TransitTab },
   { id: 'route', icon: Footprints, Component: RouteTab, only: ROUTE_EVENT },
+  { id: 'programmes', icon: CalendarHeart, Component: ProgrammesTab }, // approved by the District Control Room
   { id: 'seva', icon: HandHeart, Component: SevaTab },
   { id: 'sos', icon: Siren, Component: SosTab },
 ];

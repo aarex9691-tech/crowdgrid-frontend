@@ -18,17 +18,21 @@ export const ROLE_LABELS = {
   EVENT_HOST: 'Event Host',
   ORG_HOST: 'Organisation Host',
   NGO_ADMIN: 'NGO / Seva Admin',
+  KITCHEN_MANAGER: 'Kitchen Manager',
   VOLUNTEER: 'Ground Volunteer',
   USER: 'Pilgrim',
 };
 
 /** Where each role lands after signing in. */
 export const homeFor = (role) =>
-  ({ SUPER_ADMIN: '/control', AUTHORITY: '/control', NGO_ADMIN: '/ngo', VOLUNTEER: '/scan', CORPORATE_ADMIN: '/corporate-admin', EVENT_HOST: '/host', ORG_HOST: '/host' })[role] || '/';
+  ({ SUPER_ADMIN: '/control', AUTHORITY: '/control', NGO_ADMIN: '/ngo', VOLUNTEER: '/scan', CORPORATE_ADMIN: '/corporate-admin', EVENT_HOST: '/host', ORG_HOST: '/host', KITCHEN_MANAGER: '/kitchen' })[role] || '/';
 
 // Which roles may open each restricted page (same lists as the <RequireRole> routes in App.jsx)
 const PAGE_ROLES = [
-  [/^\/scan/, ['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'EVENT_HOST', 'ORG_HOST', 'NGO_ADMIN', 'VOLUNTEER']],
+  [/^\/scan/, ['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'EVENT_HOST', 'ORG_HOST', 'NGO_ADMIN', 'KITCHEN_MANAGER', 'VOLUNTEER']],
+  [/^\/register-kitchen/, null], // open to everyone
+  [/^\/kitchen(\/|$)/, ['KITCHEN_MANAGER']],
+  [/^\/programmes/, ['KITCHEN_MANAGER', 'EVENT_HOST', 'ORG_HOST']],
   [/^\/host-with-us/, null], // open to everyone
   [/^\/host-requests/, ['SUPER_ADMIN']],
   [/^\/requests/, ['SUPER_ADMIN', 'AUTHORITY']],
@@ -48,7 +52,7 @@ export const canOpen = (role, path = '') => {
 /** Where to go after logging in: back to the page they came from only if their role may open it. */
 export const afterLogin = (role, from) => (from && from !== '/login' && canOpen(role, from) ? from : homeFor(role));
 
-export const STAFF_ROLES = ['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'EVENT_HOST', 'ORG_HOST', 'NGO_ADMIN', 'VOLUNTEER'];
+export const STAFF_ROLES = ['SUPER_ADMIN', 'AUTHORITY', 'CORPORATE_ADMIN', 'EVENT_HOST', 'ORG_HOST', 'NGO_ADMIN', 'KITCHEN_MANAGER', 'VOLUNTEER'];
 
 /** Only pilgrims / attendees book. Admins and hosts work from their dashboards. */
 export const canBook = (user) => !user || user.role === 'USER';

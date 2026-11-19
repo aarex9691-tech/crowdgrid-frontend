@@ -1,4 +1,4 @@
-import { BedDouble, Briefcase, BusFront, HandHeart, Ticket, UtensilsCrossed } from 'lucide-react';
+import { BedDouble, Briefcase, BusFront, CalendarHeart, HandHeart, Ticket, UtensilsCrossed } from 'lucide-react';
 import { useState } from 'react';
 import QrCode from './QrCode';
 import { fmtDate, fmtDateTime } from '../lib/format';
@@ -12,11 +12,12 @@ export const PASS_META = {
   PUBLIC: { label: 'Entry pass', icon: Ticket },
   CORPORATE: { label: 'Corporate badge', icon: Briefcase },
   VOLUNTEER: { label: 'Volunteer ID', icon: HandHeart },
+  PROGRAMME: { label: 'Free programme pass', icon: CalendarHeart },
 };
 
 // Stub colour follows the kind of gathering: saffron for yatra services, blue for public
 // events, green for corporate badges. Staff IDs are navy. Spent passes turn grey.
-const TONE = { LODGING: '#e36f1e', MEAL: '#e36f1e', TRANSIT: '#e36f1e', PUBLIC: '#1f3f8f', CORPORATE: '#138a43', VOLUNTEER: '#0f1a3c' };
+const TONE = { LODGING: '#e36f1e', MEAL: '#e36f1e', TRANSIT: '#e36f1e', PUBLIC: '#1f3f8f', CORPORATE: '#138a43', VOLUNTEER: '#0f1a3c', PROGRAMME: '#e36f1e' };
 const SPENT = ['REDEEMED', 'EXPIRED', 'CANCELLED'];
 
 const STATE = {
@@ -45,6 +46,11 @@ const detailRows = (pass) => {
   if (d.sessions?.length) rows.push(['Sessions', d.sessions.join(', ')]);
   if (d.trust) rows.push(['Trust', d.trust]);
   if (d.domain && pass.type === 'VOLUNTEER') rows.push(['Seva', d.domain]);
+  if (pass.type === 'PROGRAMME') {
+    if (d.date) rows.push(['When', `${day(d.date)}, ${d.startTime} to ${d.endTime}`]);
+    if (d.venue) rows.push(['Where', d.venue]);
+    if (d.organiser) rows.push(['Organised by', d.organiser]);
+  }
   return rows;
 };
 

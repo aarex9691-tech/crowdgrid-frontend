@@ -8,6 +8,7 @@ import PageTitle from '../../components/PageTitle';
 import Notice, { Loading } from '../../components/Notice';
 import VolunteerReview from './VolunteerReview';
 import HostRequests from './HostRequests';
+import { KitchenServiceQueue, ProgrammeQueue, ServiceRequestQueue } from './KitchenRequests';
 
 /*
  * Everything waiting for a decision, in one place:
@@ -112,7 +113,9 @@ export default function Requests() {
   const tabs = [
     ['volunteers', 'Volunteers'],
     ['organisations', 'NGOs and trusts'],
-    ...(user?.role === 'SUPER_ADMIN' ? [['hosts', 'Event hosts']] : []),
+    ['kitchens', 'Kitchens at yatras'],
+    ['programmes', 'Programmes for pilgrims'],
+    ...(user?.role === 'SUPER_ADMIN' ? [['hosts', 'Event hosts'], ['kitchen-services', 'Kitchen services']] : []),
   ];
   const wanted = params.get('tab');
   const tab = tabs.some(([id]) => id === wanted) ? wanted : 'volunteers';
@@ -131,6 +134,9 @@ export default function Requests() {
         {tab === 'volunteers' && <VolunteerReview />}
         {tab === 'organisations' && <OrganisationQueue />}
         {tab === 'hosts' && <HostRequests embedded />}
+        {tab === 'kitchens' && <ServiceRequestQueue />}
+        {tab === 'programmes' && <ProgrammeQueue />}
+        {tab === 'kitchen-services' && <KitchenServiceQueue />}
       </div>
     </div>
   );
