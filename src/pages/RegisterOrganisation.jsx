@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { CalendarPlus, HandHeart } from 'lucide-react';
+import { CalendarPlus, ChefHat, HandHeart } from 'lucide-react';
 import API, { errorMessage } from '../lib/api';
 import { homeFor, ROLE_LABELS, useAuth } from '../lib/auth';
 import PageTitle from '../components/PageTitle';
@@ -109,6 +109,13 @@ export default function RegisterOrganisation() {
             <h2 className="mt-2 text-xl font-bold">Serve pilgrims at a yatra</h2>
             <p className="mt-1 text-ink-soft">NGOs, seva trusts and ashrams running camps, langar kitchens or seva at the Kumbh and other yatras.</p>
             <p className="mt-2 text-[15px]"><b>Verified by</b> the District Control Room. Register with the form on this page.</p>
+          </div>
+          <div className="panel p-5">
+            <ChefHat className="text-terracotta-dark" size={28} aria-hidden />
+            <h2 className="mt-2 text-xl font-bold">Run a kitchen for pilgrims</h2>
+            <p className="mt-1 text-ink-soft">Langar trusts, annakshetras and community kitchens serving meals and holding bhandaras at yatras.</p>
+            <p className="mt-2 text-[15px]"><b>Recognised by</b> the CrowdGrid team once; then each yatra's District Control Room approves where you serve.</p>
+            <Link to="/register-kitchen" className="btn-ghost mt-3">Register a kitchen service</Link>
           </div>
           <div className="panel p-5">
             <CalendarPlus className="text-blue" size={28} aria-hidden />

@@ -23,6 +23,8 @@ const SERVICES = [
 // Organisation hosts only check tickets for their own events
 const HOST_SCANNERS = ['CORPORATE_ADMIN', 'EVENT_HOST', 'ORG_HOST'];
 const HOST_SERVICES = ['ANY', 'ENTRY'];
+// Kitchen Managers check meal tokens of their kitchens and passes for their programmes
+const KITCHEN_SERVICES = ['ANY', 'FOOD', 'ENTRY'];
 const SERVICE_KEY = 'cg_scan_service';
 const savedService = () => {
   try {
@@ -96,7 +98,8 @@ export default function Scanner() {
   const { user } = useAuth();
   const isOfficer = ['SUPER_ADMIN', 'AUTHORITY'].includes(user?.role);
   const isHost = HOST_SCANNERS.includes(user?.role);
-  const services = isHost ? SERVICES.filter((x) => HOST_SERVICES.includes(x.id)) : SERVICES;
+  const allowed = isHost ? HOST_SERVICES : user?.role === 'KITCHEN_MANAGER' ? KITCHEN_SERVICES : null;
+  const services = allowed ? SERVICES.filter((x) => allowed.includes(x.id)) : SERVICES;
   const scannerRef = useRef(null);
   const [starting, setStarting] = useState(false);
   const busyRef = useRef(false);
@@ -108,7 +111,7 @@ export default function Scanner() {
   const [log, setLog] = useState([]);
   const [service, setService] = useState(() => {
     const saved = savedService();
-    return isHost && !HOST_SERVICES.includes(saved) ? 'ANY' : saved;
+    return allowed && !allowed.includes(saved) ? 'ANY' : saved;
   });
   const serviceRef = useRef(service);
   const chooseService = (id) => {

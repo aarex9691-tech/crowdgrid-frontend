@@ -132,14 +132,18 @@ function WaitingRequests() {
       API.get('/volunteer/applications', { params: { status: 'APPROVED', idVerified: 'false' } }).then(({ data }) => data.length),
       API.get('/providers', { params: { status: 'PENDING' } }).then(({ data }) => data.length),
       user.role === 'SUPER_ADMIN' ? API.get('/hosts', { params: { status: 'PENDING' } }).then(({ data }) => data.length) : Promise.resolve(null),
+      API.get('/kitchens/service-requests', { params: { status: 'PENDING' } }).then(({ data }) => data.length),
+      API.get('/programmes', { params: { status: 'PENDING' } }).then(({ data }) => data.length),
     ];
-    Promise.all(asks.map((p) => p.catch(() => null))).then(([volunteers, idChecks, organisations, hosts]) => setCounts({ volunteers, idChecks, organisations, hosts }));
+    Promise.all(asks.map((p) => p.catch(() => null))).then(([volunteers, idChecks, organisations, hosts, kitchens, programmes]) => setCounts({ volunteers, idChecks, organisations, hosts, kitchens, programmes }));
   }, [user.role]);
   if (!counts) return null;
   const rows = [
     ['volunteers', 'Volunteer applications', counts.volunteers],
     ['volunteers', 'ID cards to check in person', counts.idChecks],
     ['organisations', 'NGOs and trusts to verify', counts.organisations],
+    ['kitchens', 'Kitchens asking to serve', counts.kitchens],
+    ['programmes', 'Programmes for pilgrims to approve', counts.programmes],
     ...(counts.hosts != null ? [['hosts', 'Event hosts to verify', counts.hosts]] : []),
   ];
   return (
