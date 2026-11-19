@@ -40,7 +40,7 @@ function Programme({ p, onBooked }) {
     setBusy(true);
     setError('');
     try {
-      await API.post(`/programmes/${p._id}/register`, { people });
+      await API.post(`/programmes/${p._id}/register`, { people: Math.min(people, p.placesLeft) });
       celebrate({ title: 'Place reserved', line: 'Your free pass with its QR is in your passbook. Show it at the entrance.' });
       onBooked();
     } catch (e) {
@@ -76,7 +76,7 @@ function Programme({ p, onBooked }) {
         <div className="mt-4 flex flex-wrap items-end gap-2">
           <div>
             <label className="field-label" htmlFor={`pp-${p._id}`}>People</label>
-            <select id={`pp-${p._id}`} className="field w-24" value={people} onChange={(e) => setPeople(Number(e.target.value))}>
+            <select id={`pp-${p._id}`} className="field w-24" value={Math.min(people, p.placesLeft)} onChange={(e) => setPeople(Number(e.target.value))}>
               {[1, 2, 3, 4, 5].filter((n) => n <= p.placesLeft).map((n) => <option key={n} value={n}>{n}</option>)}
             </select>
           </div>

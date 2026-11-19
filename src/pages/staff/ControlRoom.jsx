@@ -134,8 +134,9 @@ function WaitingRequests() {
       user.role === 'SUPER_ADMIN' ? API.get('/hosts', { params: { status: 'PENDING' } }).then(({ data }) => data.length) : Promise.resolve(null),
       API.get('/kitchens/service-requests', { params: { status: 'PENDING' } }).then(({ data }) => data.length),
       API.get('/programmes', { params: { status: 'PENDING' } }).then(({ data }) => data.length),
+      user.role === 'SUPER_ADMIN' ? API.get('/kitchens/applications', { params: { status: 'PENDING' } }).then(({ data }) => data.length) : Promise.resolve(null),
     ];
-    Promise.all(asks.map((p) => p.catch(() => null))).then(([volunteers, idChecks, organisations, hosts, kitchens, programmes]) => setCounts({ volunteers, idChecks, organisations, hosts, kitchens, programmes }));
+    Promise.all(asks.map((p) => p.catch(() => null))).then(([volunteers, idChecks, organisations, hosts, kitchens, programmes, kitchenServices]) => setCounts({ volunteers, idChecks, organisations, hosts, kitchens, programmes, kitchenServices }));
   }, [user.role]);
   if (!counts) return null;
   const rows = [
@@ -145,6 +146,7 @@ function WaitingRequests() {
     ['kitchens', 'Kitchens asking to serve', counts.kitchens],
     ['programmes', 'Programmes for pilgrims to approve', counts.programmes],
     ...(counts.hosts != null ? [['hosts', 'Event hosts to verify', counts.hosts]] : []),
+    ...(counts.kitchenServices != null ? [['kitchen-services', 'Kitchen services to recognise', counts.kitchenServices]] : []),
   ];
   return (
     <section aria-labelledby="waiting" className="panel p-5">
