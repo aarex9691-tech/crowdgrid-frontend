@@ -326,7 +326,7 @@ function ForEveryone() {
         </div>
         <ul className="grid gap-3 sm:grid-cols-3">
           {ACCESS.map((a) => (
-            <li key={a.id} className="flex items-center gap-3 rounded-2xl bg-blue-deep px-4 py-4 font-semibold">
+            <li key={a.id} className="flex items-center gap-3 rounded-2xl bg-[#14504f] px-4 ring-1 ring-white/10 py-4 font-semibold">
               <a.icon size={22} className="shrink-0 text-saffron-light" aria-hidden /> {t(`access.${a.id}`)}
             </li>
           ))}
