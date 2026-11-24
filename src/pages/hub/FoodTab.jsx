@@ -75,7 +75,8 @@ export default function FoodTab({ event }) {
       celebrate({ title: 'Meal token ready', line: 'Show the QR at the counter.' });
     } catch (e) {
       setError(errorMessage(e));
-      load();
+      // refresh the plate counts quietly: load() would clear the message just shown
+      API.get('/food', { params: { eventId: event._id, date, sector: sector || undefined } }).then(({ data: d }) => setData(d)).catch(() => {});
     } finally {
       setBusySlot(null);
     }
