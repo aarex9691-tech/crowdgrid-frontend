@@ -204,7 +204,7 @@
 
 /* ───────────────────────── 2. Crafts of India: 3D flip tiles ───────────────────────── */
 .hx-title { font-family: var(--hx-display); font-size: clamp(1.6rem, 3.6vw, 2.4rem); line-height: 1.2; color: var(--hx-ink); margin: 0; }
-.hx-lede { margin: 6px 0 0; max-width: 62ch; color: var(--hx-ink-soft); }
+.hx-lede { margin: 6px 0 0; max-width: none; color: var(--hx-ink-soft); }
 .hx-crafts-grid {
   list-style: none;
   margin: 20px 0 0;
