@@ -11,7 +11,7 @@ const BG_COLOR = {
   pilgrimage: 'bg-[#5c0f1c]', // Rich royal temple maroon for Kumbh, Wari, Rath Yatra
   public: 'bg-[#122857]',     // Deep royal sapphire for public events
   corporate: 'bg-[#0d4424]',  // Deep emerald for corporate
-  all: 'bg-[#0f1a3c]',        // Deep navy for general/about
+  all: 'bg-navy',             // teal for general/about
 };
 
 export default function PageHero({ kind = 'all', back, label, title, lead, children }) {

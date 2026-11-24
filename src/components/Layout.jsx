@@ -514,7 +514,7 @@ export default function Layout() {
         <MessageCircle size={28} aria-hidden />
       </a>
 
-      <footer className="cg-foot bg-navy text-blue-mist">
+      <footer className="cg-foot bg-navy text-teal-mist">
         <div className="shell grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
             <Link

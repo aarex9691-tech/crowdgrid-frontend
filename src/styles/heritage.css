@@ -5,8 +5,8 @@
  */
 :root {
   /* Mapped onto the style lock (src/index.css): navy frame, saffron accents, white cards. */
-  --hx-maroon: #142b66;        /* blue-deep */
-  --hx-maroon-deep: #0f1a3c;   /* navy */
+  --hx-maroon: #14504f;        /* deep teal */
+  --hx-maroon-deep: #1b6a6b;   /* teal */
   --hx-gerua: #b4530f;         /* terracotta: actions */
   --hx-brass: #e36f1e;         /* marigold: marks only */
   --hx-brass-light: #ffd9b8;   /* saffron-light: text on navy */

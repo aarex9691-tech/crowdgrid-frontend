@@ -15,7 +15,8 @@
   --color-sand: #edf0f7;          /* neutral chips */
   --color-line: #dde2ec;          /* hairlines */
   --color-edge: #7f89a2;          /* input borders: 3:1 against white */
-  --color-navy: #0f1a3c;          /* footer, hero title cards */
+  --color-navy: #1b6a6b;          /* teal (was navy): footer, dotted bands, hero title cards */
+  --color-teal-mist: #d3ecea;     /* secondary text on the teal surfaces */
 
   --color-terracotta: #b4530f;    /* deep saffron: actions and links */
   --color-terracotta-dark: #8a3f0b;

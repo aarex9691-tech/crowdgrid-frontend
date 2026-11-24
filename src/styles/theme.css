@@ -11,7 +11,8 @@
   --cg-blue: #1f3f8f;
   --cg-blue-deep: #142b66;
   --cg-blue-wash: #e7edf9;
-  --cg-navy: #0f1a3c;
+  --cg-navy: #1b6a6b; /* teal (was navy #0f1a3c) */
+  --cg-teal-deep: #14504f;
   --cg-green: #138a43;
   --cg-green-deep: #0d6331;
   --cg-green-wash: #e5f3ea;
@@ -181,7 +182,7 @@ h1 {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgb(15 26 60 / 0.5), rgb(15 26 60 / 0) 60%);
+  background: linear-gradient(to top, rgb(14 56 57 / 0.5), rgb(14 56 57 / 0) 60%);
   pointer-events: none;
 }
 .cg-hero-shot { position: absolute; inset: 0; }
@@ -479,9 +480,9 @@ details[open] > :not(summary) { animation: cgRise4 200ms var(--ease-out); }
   @starting-style { .cg-toast, .cg-menu { transform: none; } }
 }
 
-/* A navy band that is a link darkens to blue when pointed at */
+/* A teal band that is a link darkens when pointed at */
 a.cg-band { transition: background-color 150ms ease; }
-a.cg-band:hover { background-color: var(--cg-blue-deep); }
+a.cg-band:hover { background-color: var(--cg-teal-deep); }
 
 /* Stat tiles pick their edge colour from the figure's own tone */
 .cg-stat:has(.text-tulsi) { --stat-tone: var(--cg-green); }
@@ -589,9 +590,76 @@ body:has(.cg-yatra-theme, .cg-kumbh-theme)::before {
 .cg-meter > span { display: block; height: 100%; border-radius: inherit; background: var(--color-tulsi); }
 .cg-meter > span.is-short { background: var(--color-marigold); }
 
-/* Home photo cards: full width on tablets, compact beside the headline from 1024px */
-.cg-home .cg-gal { max-width: 46rem; }
-/* Beside the headline, the cards also shrink with the window's height so all three fit above
-   the fold: the stack is about 0.83 x its width plus ~16.5rem of header, padding and captions */
-@media (min-width: 1024px) { .cg-home .cg-gal { max-width: min(34rem, calc((100dvh - 16.5rem) * 1.2)); } }
-@media (min-width: 1600px) { .cg-home .cg-gal { max-width: min(42rem, calc((100dvh - 16.5rem) * 1.2)); } }
+/* ── Home hero: bento ─────────────────────────────────────────────────
+   Headline and actions on top; one large pilgrimage card on the left, two equal cards on
+   the right. From 1024px the section is exactly the screen's height below the header and the
+   cards share whatever is left, so all three always show without scrolling. */
+.cg-bento { display: flex; flex-direction: column; gap: 1rem; padding-block: 1rem 1.25rem; }
+.cg-bento-intro { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 0.75rem 2rem; }
+.cg-bento-h1 { font-family: var(--cg-display); font-weight: 400; font-size: clamp(2rem, 3.6vw, 3.3rem); line-height: 1.05; color: var(--cg-ink); margin: 0; }
+.cg-bento-aside { max-width: 34rem; }
+
+.cg-bento-grid { display: grid; gap: 0.875rem; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .cg-bento-grid { grid-template-columns: 1fr 1fr; } .cg-bento-lg { grid-column: span 2; } }
+
+.cg-bento-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.9rem;
+  border-radius: 28px;
+  background: var(--bento-bg);
+  color: var(--cg-ink);
+  text-decoration: none;
+  overflow: hidden;
+  transition: transform 260ms var(--ease-out), box-shadow 260ms var(--ease-out);
+}
+.cg-bento-text { position: relative; display: flex; flex-direction: column; gap: 0.2rem; padding: 0.2rem 3.25rem 0 0.35rem; }
+.cg-bento-title { font-family: var(--cg-display); font-size: clamp(1.35rem, 1.9vw, 1.8rem); line-height: 1.08; }
+.cg-bento-lg .cg-bento-title { font-size: clamp(2rem, 3.7vw, 3.6rem); }
+.cg-bento-line { font-size: 0.95rem; font-weight: 600; color: rgb(17 28 58 / 0.78); }
+.cg-bento-go {
+  position: absolute; top: 0; right: 0;
+  display: grid; place-items: center;
+  width: 2.75rem; height: 2.75rem; border-radius: 999px;
+  background: var(--cg-ink); color: #fff;
+  transition: transform 260ms var(--ease-out);
+}
+.cg-bento-photo { position: relative; display: block; overflow: hidden; border-radius: 20px; background: rgb(255 255 255 / 0.35); height: 9rem; }
+.cg-bento-lg .cg-bento-photo { height: 15rem; }
+.cg-bento-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 600ms var(--ease-out); -webkit-user-drag: none; }
+
+@media (hover: hover) and (pointer: fine) {
+  .cg-bento-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-pop); }
+  .cg-bento-card:hover .cg-bento-go { transform: rotate(-45deg); }
+  .cg-bento-card:hover img { transform: scale(1.04); }
+}
+.cg-bento-card:focus-visible { outline: 3px solid var(--cg-ink); outline-offset: 3px; }
+
+@media (min-width: 1024px) {
+  .cg-bento {
+    height: calc(100dvh - var(--header-h, 4.5rem));
+    min-height: 30rem;
+    max-height: 60rem;
+  }
+  .cg-bento-grid {
+    flex: 1 1 auto;
+    min-height: 0;
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    grid-template-rows: 1fr 1fr; /* the two right-hand cards are always the same height */
+  }
+  .cg-bento-lg { grid-column: 1; grid-row: 1 / span 2; padding: 1.1rem; }
+  .cg-bento-card { min-height: 0; }
+  .cg-bento-photo, .cg-bento-lg .cg-bento-photo { height: auto; flex: 1 1 auto; min-height: 0; }
+  /* the small cards sit text-left, photo-right so short screens still show the photo */
+  .cg-bento-sm { flex-direction: row; }
+  .cg-bento-sm .cg-bento-text { flex: 0 0 44%; padding-right: 0; justify-content: flex-start; }
+  .cg-bento-sm .cg-bento-go { position: static; margin-top: auto; }
+  .cg-bento-sm .cg-bento-photo { flex: 1 1 auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cg-bento-card, .cg-bento-go, .cg-bento-photo img { transition: none; }
+  .cg-bento-card:hover, .cg-bento-card:hover img { transform: none; }
+}

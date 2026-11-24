@@ -22,9 +22,8 @@ import { useT } from '../lib/i18n';
 import { fmtDate } from '../lib/format';
 import { InvitationCodeBox, PublicEventList } from '../components/EventCards';
 import { DEFAULT_EVENTS } from '../data/defaultEvents';
-import { LANDING_MEDIA } from '../data/landingMedia';
+import { focusPosition, LANDING_MEDIA, srcSetOf } from '../data/landingMedia';
 import { openTour } from '../components/GuidedTour';
-import GatheringGallery from '../components/GatheringGallery';
 import BigDays from '../components/BigDays';
 import YatraRing from '../components/heritage/YatraRing';
 
@@ -38,26 +37,69 @@ const KINDS = [
   { id: 'corporate', tab: 'corporate', color: '#138A43', deep: '#0D6331' },
 ];
 const KIND_BY_TAB = Object.fromEntries(KINDS.map((k) => [k.tab, k]));
+/*
+ * Home hero, bento layout: the headline and actions on top, then one large pilgrimage card
+ * on the left and two equal cards (public, corporate) stacked on the right. From 1024px the
+ * whole hero is exactly one screen tall, so nothing needs a scroll.
+ */
+const BENTO = [
+  { id: 'pilgrimage', tab: 'yatras', bg: '#F6C26B', size: 'lg' },
+  { id: 'public', tab: 'public', bg: '#B5CFEF', size: 'sm' },
+  { id: 'corporate', tab: 'corporate', bg: '#B3DDBF', size: 'sm' },
+];
+
+function BentoCard({ id, tab, bg, size, index }) {
+  const t = useT();
+  const m = LANDING_MEDIA[id];
+  return (
+    <Link
+      to={`/events?tab=${tab}`}
+      className={`cg-bento-card cg-bento-${size} cg-rise cg-rise-${index + 1}`}
+      style={{ '--bento-bg': bg }}
+    >
+      <span className="cg-bento-text">
+        <span className="cg-bento-title">{t(`kind.${id}`)}</span>
+        <span className="cg-bento-line">{t(`kind.${id}.line`)}</span>
+        <span className="cg-bento-go" aria-hidden><ArrowRight size={size === 'lg' ? 22 : 18} /></span>
+      </span>
+      <span className="cg-bento-photo">
+        <img
+          src={m.src}
+          srcSet={srcSetOf(m)}
+          sizes={size === 'lg' ? '(min-width: 1024px) 62vw, 100vw' : '(min-width: 1024px) 22vw, 50vw'}
+          alt=""
+          decoding="async"
+          loading={index === 0 ? 'eager' : 'lazy'}
+          fetchPriority={index === 0 ? 'high' : 'auto'}
+          style={{ objectPosition: focusPosition(m) }}
+        />
+      </span>
+    </Link>
+  );
+}
+
 function Hero({ onInvite }) {
   const t = useT();
   return (
-    <section className="cg-shell grid items-center gap-6 py-3 sm:py-5 lg:min-h-[calc(100dvh-4.5rem)] lg:max-h-[820px] lg:grid-cols-[minmax(0,30rem)_minmax(0,34rem)] min-[1600px]:grid-cols-[minmax(0,32rem)_minmax(0,42rem)] lg:justify-center lg:gap-14 xl:gap-24">
-      <div className="cg-rise py-1">
-        <h1 className="cg-h1 font-bold tracking-tight text-ink">{t('home.title1')}<br />{t('home.title2')}</h1>
-        <p className="mt-3.5 sm:mt-4 max-w-md text-base sm:text-lg text-ink-soft leading-relaxed">{t('home.lead')}</p>
-        <div className="mt-5 sm:mt-6 flex flex-wrap gap-3">
-          <Link to="/events" className="cg-btn cg-btn-saffron">
-            {t('home.find')} <ArrowRight size={18} aria-hidden />
-          </Link>
-          <button type="button" className="cg-btn cg-btn-line" onClick={onInvite}>
-            <KeyRound size={18} aria-hidden /> {t('home.haveCode')}
-          </button>
+    <section className="cg-shell cg-bento">
+      <div className="cg-bento-intro cg-rise">
+        <h1 className="cg-bento-h1 font-bold tracking-tight text-ink">{t('home.title1')} {t('home.title2')}</h1>
+        <div className="cg-bento-aside">
+          <p className="text-base text-ink-soft leading-relaxed">{t('home.lead')}</p>
+          <div className="mt-3 flex flex-wrap gap-3">
+            <Link to="/events" className="cg-btn cg-btn-saffron">
+              {t('home.find')} <ArrowRight size={18} aria-hidden />
+            </Link>
+            <button type="button" className="cg-btn cg-btn-line" onClick={onInvite}>
+              <KeyRound size={18} aria-hidden /> {t('home.haveCode')}
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="flex justify-start lg:justify-end">
-        <GatheringGallery linked label={t('home.chooseKind')} />
-      </div>
+      <nav aria-label={t('home.chooseKind')} className="cg-bento-grid">
+        {BENTO.map((card, i) => <BentoCard key={card.id} {...card} index={i} />)}
+      </nav>
     </section>
   );
 }
