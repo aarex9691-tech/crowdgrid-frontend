@@ -334,13 +334,12 @@ export default function Layout() {
             }}
           >
             <img
-              src="/assets/crowdgrid-logo.png"
+              src="/assets/crowdgrid-script.png"
               alt="CrowdGrid"
-              className="h-10 w-10 rounded-xl border border-line bg-white object-contain"
+              width="854"
+              height="366"
+              className="h-11 w-auto transition-opacity group-hover:opacity-80"
             />
-            <span className="font-display text-2xl leading-none text-ink transition-colors group-hover:text-blue">
-              CrowdGrid
-            </span>
           </Link>
 
           {/* Event search */}
@@ -524,8 +523,7 @@ export default function Layout() {
               className="inline-flex min-h-11 items-center gap-2.5"
               aria-label="CrowdGrid home"
             >
-              <img src="/assets/crowdgrid-logo.png" alt="CrowdGrid" className="h-9 w-9 rounded-lg bg-white object-contain" />
-              <span className="font-display text-2xl text-white">CrowdGrid</span>
+              <img src="/assets/crowdgrid-wordmark-white.png" alt="CrowdGrid, an event management platform" width="900" height="477" className="h-20 w-auto" />
             </Link>
             <p className="mt-3 max-w-xs text-sm">
               {SITE.tagline}. Passes, stays, food, transport and SOS for pilgrimages, public events and company gatherings.
