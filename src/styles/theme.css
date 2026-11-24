@@ -605,13 +605,14 @@ body:has(.cg-yatra-theme, .cg-kumbh-theme)::before {
 @media (min-width: 640px) { .cg-bento-grid { grid-template-columns: 1fr 1fr; } .cg-bento-lg { grid-column: span 2; } }
 
 .cg-bento-card {
-  --bento-outline: #111111;
+  --bento-outline: rgb(17 28 58 / 0.12); /* hairline only: the photo is the frame */
   position: relative;
   isolation: isolate;
   display: block;
   min-width: 0;
   height: 15rem;
-  border: 3px solid var(--bento-outline);
+  border: 1px solid var(--bento-outline);
+  box-shadow: 0 10px 28px -16px rgb(17 28 58 / 0.45);
   border-radius: 28px;
   overflow: hidden;
   background: #1a2123;

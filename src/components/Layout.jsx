@@ -347,7 +347,7 @@ export default function Layout() {
           {/* Event search */}
           {showSearch && <form
             onSubmit={handleNavSearch}
-            className="hidden xl:flex flex-1 max-w-sm items-center rounded-full border border-line bg-mist py-1 pr-1 pl-3.5 text-sm transition-[border-color,background-color] focus-within:border-blue focus-within:bg-white"
+            className="hidden xl:flex flex-1 max-w-sm items-center rounded-full border border-line bg-mist py-1 pr-1 pl-3.5 text-sm transition-[border-color,background-color] focus-within:border-navy focus-within:bg-white"
           >
             <Search size={16} className="text-ink-soft shrink-0" />
             <input
@@ -361,7 +361,7 @@ export default function Layout() {
             <button
               type="submit"
               aria-label="Search"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue text-white hover:bg-blue-deep"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-navy text-white hover:bg-[#14504f]"
             >
               <Search size={13} strokeWidth={2.5} />
             </button>
@@ -444,7 +444,7 @@ export default function Layout() {
                   onChange={(e) => setNavQuery(e.target.value)}
                   className="bg-transparent text-ink placeholder:text-ink-faint outline-none w-full text-base"
                 />
-                <button type="submit" className="flex min-h-11 shrink-0 items-center rounded-lg bg-blue px-3.5 text-sm font-bold text-white">{t("nav.search")}</button>
+                <button type="submit" className="flex min-h-11 shrink-0 items-center rounded-lg bg-navy px-3.5 text-sm font-bold text-white hover:bg-[#14504f]">{t("nav.search")}</button>
               </form>}
               {workspace ? (
                 <SideNav groups={nav.groups} onPick={close} large />

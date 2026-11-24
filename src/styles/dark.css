@@ -94,8 +94,8 @@ html[data-theme='dark'] .cg-btn-line:hover { box-shadow: inset 0 0 0 1.5px var(-
 html[data-theme='dark'] header.sticky { background-color: rgb(14 18 19 / 0.96); }
 html[data-theme='dark'] .cg-foot { background-color: #0f1f20; }
 
-/* Home hero cards: the black outline becomes a light one, so it still shows */
-html[data-theme='dark'] .cg-bento-card { --bento-outline: #e8eceb; }
+/* Home hero cards: a faint light hairline on the dark page */
+html[data-theme='dark'] .cg-bento-card { --bento-outline: rgb(255 255 255 / 0.12); }
 
 /* The yatra page's tab bar and panels over the kumbh texture */
 html[data-theme='dark'] :is(.cg-yatra-theme, .cg-kumbh-theme) nav[role='tablist'],
