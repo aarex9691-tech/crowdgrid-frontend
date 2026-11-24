@@ -12,6 +12,7 @@ import PeopleStepper from '../../components/PeopleStepper';
 import useLoginGate from './useLoginGate';
 import { canBook, useAuth } from '../../lib/auth';
 import { useCelebrate } from '../../components/SuccessSplash';
+import { DEFAULT_TRANSIT_ROUTES } from '../../data/defaultHubServices';
 
 const CHECKPOINT_ICON = { STOP: MapPin, WATER: Droplets, TOILET: Toilet, AMBULANCE: Ambulance, GHAT: Waves };
 const CHECKPOINT_LABEL = { STOP: 'Stop', WATER: 'Drinking water', TOILET: 'Bio-toilets', AMBULANCE: 'Ambulance halt', GHAT: 'Ghat' };
@@ -45,7 +46,7 @@ export default function TransitTab({ event }) {
   const t = useT();
   const { user } = useAuth();
   const staff = !canBook(user);
-  const [loaded, setLoaded] = useState({ day: null, routes: null }); // routes and the day they were read for
+  const [loaded, setLoaded] = useState({ day: null, routes: DEFAULT_TRANSIT_ROUTES }); // routes and the day they were read for
   const routes = loaded.routes;
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(null);
@@ -66,10 +67,16 @@ export default function TransitTab({ event }) {
   useEffect(() => {
     // Only the answer for the day still chosen is shown (quick day changes can answer out of order)
     let live = true;
-    setError('');
     API.get('/transit', { params: { eventId: event._id, date: day } })
-      .then(({ data }) => live && setLoaded({ day, routes: data }))
-      .catch((e) => live && setError(errorMessage(e)));
+      .then(({ data }) => {
+        if (live && Array.isArray(data) && data.length > 0) {
+          setLoaded({ day, routes: data });
+          setError('');
+        }
+      })
+      .catch((e) => {
+        // Keep fallback routes if offline/starting up
+      });
     return () => {
       live = false;
     };

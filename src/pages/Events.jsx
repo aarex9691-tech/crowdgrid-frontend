@@ -18,7 +18,7 @@ const TAB_PREVIEWS = {
     badge: 'Flagship Pilgrimage',
     title: 'Simhastha Kumbh Mela',
     subtitle: 'Nashik · Trimbakeshwar 2026',
-    to: '/yatra/simhastha-kumbh-mela-2026',
+    to: '/yatra/simhastha-kumbh-2027',
   },
   public: {
     src: LANDING_MEDIA.public.small, // a small banner: the 800px copy is plenty

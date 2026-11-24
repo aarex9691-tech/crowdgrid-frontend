@@ -16,6 +16,7 @@ import SnanDates from '../components/SnanDates';
 import YatraGuide from '../components/YatraGuide';
 import { useT } from '../lib/i18n';
 import PageHero from '../components/PageHero';
+import { DEFAULT_EVENTS } from '../data/defaultEvents';
 
 // The walking map (Leaflet) only loads when the tab is opened
 const RouteTab = lazy(() => import('./hub/RouteTab'));
@@ -37,16 +38,30 @@ export default function Hub() {
   const t = useT();
   const { slug } = useParams();
   const [params, setParams] = useSearchParams();
-  const [event, setEvent] = useState(null);
+  const defaultMatch =
+    DEFAULT_EVENTS.find((e) => e.slug === slug || e._id === slug) ||
+    DEFAULT_EVENTS.find((e) => e.kind === 'YATRA' && (e.slug.includes(slug) || (slug && slug.includes(e.slug)))) ||
+    DEFAULT_EVENTS.find((e) => e.kind === 'YATRA') ||
+    null;
+  const [event, setEvent] = useState(defaultMatch);
   const [error, setError] = useState('');
 
   useEffect(() => {
     API.get(`/events/${slug}`)
-      .then(({ data }) => setEvent(data))
-      .catch((e) => setError(errorMessage(e)));
+      .then(({ data }) => {
+        if (data) {
+          setEvent(data);
+          setError('');
+        }
+      })
+      .catch((e) => {
+        if (!defaultMatch) {
+          setError(errorMessage(e));
+        }
+      });
   }, [slug]);
 
-  if (error) return <div className="shell py-10"><Notice tone="error">{error}</Notice></div>;
+  if (error && !event) return <div className="shell py-10"><Notice tone="error">{error}</Notice></div>;
   if (!event) return <Loading label="Opening yatra portal" />;
   const tabs = TABS.filter((x) => !x.only || x.only === event.slug);
   const active = tabs.find((x) => x.id === params.get('tab')) || tabs[0];

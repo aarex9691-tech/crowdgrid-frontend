@@ -11,6 +11,7 @@ import { cachePass } from '../lib/passCache';
 import { addTicketToCart, placesLeft } from '../components/EventCards';
 import { MAX_PER_ACCOUNT } from '../lib/limits';
 import PageHero from '../components/PageHero';
+import { DEFAULT_EVENTS } from '../data/defaultEvents';
 
 /** Everything about one paid public event, with Register (cart) and the map. */
 export default function EventDetail() {
@@ -18,7 +19,8 @@ export default function EventDetail() {
   const { user } = useAuth();
   const cart = useCart();
   const navigate = useNavigate();
-  const [event, setEvent] = useState(null);
+  const defaultMatch = DEFAULT_EVENTS.find((e) => e.slug === slug || e._id === slug) || null;
+  const [event, setEvent] = useState(defaultMatch);
   const [error, setError] = useState('');
   const [added, setAdded] = useState(false);
   const [freeMsg, setFreeMsg] = useState(null);
@@ -31,13 +33,20 @@ export default function EventDetail() {
   useEffect(() => {
     API.get(`/events/${slug}`)
       .then(({ data }) => {
-        setEvent(data);
-        if (user && data.kind === 'PUBLIC') loadMine(data._id);
+        if (data) {
+          setEvent(data);
+          setError('');
+          if (user && data.kind === 'PUBLIC') loadMine(data._id);
+        }
       })
-      .catch((e) => setError(errorMessage(e)));
+      .catch((e) => {
+        if (!defaultMatch) {
+          setError(errorMessage(e));
+        }
+      });
   }, [slug, user]);
 
-  if (error) return <div className="shell py-10"><Notice tone="error">{error}</Notice></div>;
+  if (error && !event) return <div className="shell py-10"><Notice tone="error">{error}</Notice></div>;
   if (!event) return <Loading label="Loading event" />;
   if (event.kind !== 'PUBLIC') return <div className="shell py-10"><Notice>This event is not open to the public.</Notice></div>;
 

@@ -13,6 +13,7 @@ import { useLive } from '../../lib/realtime';
 import { MAX_PER_ACCOUNT } from '../../lib/limits';
 import { useT } from '../../lib/i18n';
 import { useCelebrate } from '../../components/SuccessSplash';
+import { DEFAULT_LODGINGS } from '../../data/defaultHubServices';
 
 const MAX_BEDS = MAX_PER_ACCOUNT; // 5 beds per account on any one night
 const MAX_NIGHTS = 5; // same limit as the server: the longest stay
@@ -297,7 +298,7 @@ export default function LodgingTab({ event }) {
   const prefill = { beds: params.get('beds') || '' };
   const lastOut = (() => { const cap = addDaysIST(filters.checkIn, MAX_NIGHTS); return cap < eventEnd ? cap : eventEnd; })();
   const setCheckIn = (v) => setFilters((f) => ({ ...f, checkIn: v, checkOut: f.checkOut < v || f.checkOut > addDaysIST(v, MAX_NIGHTS) ? v : f.checkOut }));
-  const [lodgings, setLodgings] = useState(null);
+  const [lodgings, setLodgings] = useState(DEFAULT_LODGINGS);
   const [error, setError] = useState('');
   const [openId, setOpenId] = useState(null);
   const [confirmed, setConfirmed] = useState(null);
@@ -311,10 +312,16 @@ export default function LodgingTab({ event }) {
   }, [params]);
 
   const load = useCallback(() => {
-    setError('');
     API.get('/lodgings', { params: { eventId: event._id, ...filters } })
-      .then(({ data }) => setLodgings(data))
-      .catch((e) => setError(errorMessage(e)));
+      .then(({ data }) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setLodgings(data);
+          setError('');
+        }
+      })
+      .catch((e) => {
+        // Keep fallback lodgings if offline/starting up
+      });
   }, [event._id, filters]);
 
   useEffect(() => {

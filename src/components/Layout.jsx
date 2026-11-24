@@ -334,8 +334,8 @@ export default function Layout() {
             }}
           >
             <img
-              src="/assets/crowdgrid-logo.jpg"
-              alt=""
+              src="/assets/crowdgrid-logo.png"
+              alt="CrowdGrid"
               className="h-10 w-10 rounded-xl border border-line bg-white object-contain"
             />
             <span className="font-display text-2xl leading-none text-ink transition-colors group-hover:text-blue">
@@ -524,7 +524,7 @@ export default function Layout() {
               className="inline-flex min-h-11 items-center gap-2.5"
               aria-label="CrowdGrid home"
             >
-              <img src="/assets/crowdgrid-logo.jpg" alt="" className="h-9 w-9 rounded-lg bg-white object-contain" />
+              <img src="/assets/crowdgrid-logo.png" alt="CrowdGrid" className="h-9 w-9 rounded-lg bg-white object-contain" />
               <span className="font-display text-2xl text-white">CrowdGrid</span>
             </Link>
             <p className="mt-3 max-w-xs text-sm">

@@ -11,6 +11,7 @@ import useLoginGate from './useLoginGate';
 import { canBook, useAuth } from '../../lib/auth';
 import { useLive } from '../../lib/realtime';
 import { useCelebrate } from '../../components/SuccessSplash';
+import { DEFAULT_FOOD_DATA } from '../../data/defaultHubServices';
 
 const MEAL_TIMES = { BREAKFAST: '7 – 9 am', LUNCH: '12 – 3 pm', DINNER: '7 – 10 pm' };
 
@@ -36,7 +37,7 @@ export default function FoodTab({ event }) {
   const date = days.includes(picked) ? picked : days[0] || realToday;
   const [meal, setMeal] = useState(() => (['BREAKFAST', 'LUNCH', 'DINNER'].includes(params.get('meal')) ? params.get('meal') : currentMeal()));
   const [sector, setSector] = useState(() => params.get('sector') || '');
-  const [data, setData] = useState(null);
+  const [data, setData] = useState(DEFAULT_FOOD_DATA);
   const [error, setError] = useState('');
   const [busySlot, setBusySlot] = useState(null);
   const [claimed, setClaimed] = useState(null);
@@ -50,10 +51,16 @@ export default function FoodTab({ event }) {
   }, [params]);
 
   const load = useCallback(() => {
-    setError('');
     API.get('/food', { params: { eventId: event._id, date, sector: sector || undefined } })
-      .then(({ data: d }) => setData(d))
-      .catch((e) => setError(errorMessage(e)));
+      .then(({ data: d }) => {
+        if (d && Array.isArray(d.centers) && d.centers.length > 0) {
+          setData(d);
+          setError('');
+        }
+      })
+      .catch((e) => {
+        // Keep fallback food centers if backend is asleep
+      });
   }, [event._id, date, sector]);
 
   useEffect(() => {
