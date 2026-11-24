@@ -266,6 +266,25 @@ h1 {
   }
 }
 
+/* Log in: title and description on the right, form on the left, all inside one screen.
+   On phones the title sits above the form. */
+.cg-auth-intro { align-content: start; }
+.cg-auth-head { padding: 1.75rem 1rem 0; max-width: 32rem; margin-inline: auto; width: 100%; }
+.cg-auth-intro .cg-auth-form { padding-top: 1.25rem; }
+.cg-auth-title { font-family: var(--cg-display); font-weight: 400; font-size: clamp(2.4rem, 5vw, 4.25rem); line-height: 1.05; color: var(--cg-ink); margin: 0; }
+.cg-auth-lead { margin-top: 0.75rem; font-size: 1.15rem; line-height: 1.55; color: var(--color-ink-soft); max-width: 26rem; }
+@media (min-width: 1024px) {
+  .cg-auth-intro {
+    min-height: calc(100dvh - var(--header-h, 4rem)); /* grows only if 'Forgot password?' is opened */
+    align-content: center;
+    grid-template-columns: minmax(0, 28rem) minmax(0, 30rem);
+    grid-template-areas: "form head";
+  }
+  .cg-auth-intro .cg-auth-head { grid-area: head; align-self: center; padding: 0; margin: 0; }
+  .cg-auth-intro .cg-auth-form { grid-area: form; padding: 1rem 0; }
+  .cg-auth-intro .cg-auth-form > form { padding: 1.5rem 1.75rem; }
+}
+
 /* ── Gathering cards: home hero and log in / sign up ───────────────────
    One wide card on top, two equal cards below (GatheringGallery.jsx sets each slot's shape). */
 .cg-gal { display: flex; flex-direction: column; gap: 0.875rem; width: 100%; max-width: 34rem; user-select: none; -webkit-user-select: none; }

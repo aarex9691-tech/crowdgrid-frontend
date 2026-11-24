@@ -48,12 +48,15 @@ export default function Login() {
   };
 
   return (
-    <AuthShell>
-      <form onSubmit={submit} className="w-full max-w-md space-y-5">
-        <div>
-          <h1 className="text-4xl sm:text-5xl">Log in</h1>
-          <p className="mt-2 text-ink-soft">Use the mobile number you registered with, or the email in your profile.</p>
-        </div>
+    <AuthShell
+      intro={
+        <>
+          <h1 className="cg-auth-title">Log in</h1>
+          <p className="cg-auth-lead">Use the mobile number you registered with, or the email in your profile.</p>
+        </>
+      }
+    >
+      <form onSubmit={submit} className="w-full max-w-md space-y-4" aria-label="Log in">
         <Notice tone="error">{error}</Notice>
         <div role="group" aria-label="Log in with" className="grid grid-cols-2 gap-1 rounded-xl border border-line bg-sand p-1">
           {[
