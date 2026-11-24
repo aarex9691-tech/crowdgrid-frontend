@@ -336,6 +336,7 @@ export default function Layout() {
           >
             <img
               src="/assets/crowdgrid-wordmark.png"
+              data-logo
               alt="CrowdGrid"
               width="800"
               height="349"
