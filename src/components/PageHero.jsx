@@ -3,13 +3,13 @@ import { ArrowLeft } from 'lucide-react';
 
 const TONE = {
   pilgrimage: '#e36f1e',
-  public: '#5b7be8',
+  public: '#4fb3ae',      // light teal edge
   corporate: '#2da862',
 };
 
 const BG_COLOR = {
   pilgrimage: 'bg-[#5c0f1c]', // Rich royal temple maroon for Kumbh, Wari, Rath Yatra
-  public: 'bg-[#122857]',     // Deep royal sapphire for public events
+  public: 'bg-navy',          // teal for public events (the site's dark band colour)
   corporate: 'bg-[#0d4424]',  // Deep emerald for corporate
   all: 'bg-navy',             // teal for general/about
 };

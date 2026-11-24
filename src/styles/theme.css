@@ -672,10 +672,11 @@ body:has(.cg-yatra-theme, .cg-kumbh-theme)::before {
 .cg-home-intro { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 2rem; padding-block: 1.5rem 0.5rem; }
 
 
-/* ── Home page: a faint kolam behind everything ───────────────────────
-   One fixed layer under the page. It shows clearly only in the empty margins left and right;
-   across the middle, where the text sits, it fades to almost nothing. */
-.cg-home::before {
+/* ── Every page: a faint kolam behind everything ──────────────────────
+   One fixed layer under the page (above the colour wash of body::before). It shows clearly
+   only in the empty margins left and right; across the middle, where the text sits, it fades
+   to almost nothing. Bands and cards with their own background simply cover it. */
+body::after {
   content: "";
   position: fixed;
   inset: 0;
