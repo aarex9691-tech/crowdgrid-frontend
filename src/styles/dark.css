@@ -1,0 +1,120 @@
+/*
+ * Dark mode: a near-black page with a hint of teal, off-white text, and the brand colours
+ * (saffron actions, teal bands, SOS red, green "valid") kept, tuned so they still read on dark.
+ * Active when <html data-theme="dark"> (set in index.html and lib/theme.jsx).
+ *
+ * This file is plain CSS loaded after index.css and theme.css. Being outside Tailwind's layers,
+ * its rules win over utility classes, which is what lets a fixed class such as bg-white turn
+ * dark here without touching every component.
+ *
+ * Contrast (WCAG AA): ink 16.4, ink-soft 9.6, ink-faint 5.6 on the card colour #141a1b;
+ * accent text below is 4.5:1 or better on both #0a0d0e and #141a1b.
+ */
+html[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* Tailwind tokens (index.css @theme) */
+  --color-paper: #141a1b;
+  --color-mist: #1b2325;
+  --color-sand: #222b2d;
+  --color-line: #2c3739;
+  --color-edge: #627174;
+  --color-ink: #eef2f1;
+  --color-ink-soft: #bcc6c6;
+  --color-ink-faint: #94a2a3;
+  --color-terracotta-wash: #2d1c10;
+  --color-marigold-wash: #2d1c10;
+  --color-tulsi-wash: #0f2619;
+  --color-blue-wash: #141e35;
+  --color-kumkum-wash: #2e1216;
+  --color-navy: #155859;           /* teal bands: a little deeper so they sit in the dark page */
+  --color-dusk: #b7c7f2;
+
+  /* theme.css */
+  --cg-white: #141a1b;
+  --cg-mist: #1b2325;
+  --cg-ink: #eef2f1;
+  --cg-ink-soft: #bcc6c6;
+  --cg-line: #2c3739;
+  --cg-navy: #155859;
+  --cg-saffron-wash: #2d1c10;
+  --cg-blue-wash: #141e35;
+  --cg-green-wash: #0f2619;
+  --cg-scrim: rgb(10 13 14 / 0.86);
+  --shadow-pop: 0 18px 40px -18px rgb(0 0 0 / 0.8);
+
+  /* heritage.css */
+  --hx-paper: #141a1b;
+  --hx-sand: #1b2325;
+  --hx-ink: #eef2f1;
+  --hx-ink-soft: #bcc6c6;
+  --hx-line: #2c3739;
+  --hx-shadow: rgba(0, 0, 0, 0.7);
+}
+
+/* Page */
+html[data-theme='dark'] body { background-color: #0a0d0e; color: var(--color-ink); }
+html[data-theme='dark'] body::before {
+  background-image:
+    radial-gradient(64rem 32rem at 0% 0%, rgba(227, 111, 30, 0.1), transparent 66%),
+    radial-gradient(56rem 30rem at 100% 0%, rgba(27, 106, 107, 0.16), transparent 64%),
+    linear-gradient(to bottom, rgba(10, 13, 14, 0.94), rgba(10, 13, 14, 0.97)),
+    url('/media/wave-texture.webp');
+}
+
+/* White surfaces written as fixed classes */
+html[data-theme='dark'] :is(.bg-white, .hover\:bg-white:hover, .focus-within\:bg-white:focus-within) { background-color: var(--color-paper); }
+html[data-theme='dark'] .bg-white\/85 { background-color: rgb(20 26 27 / 0.85); }
+html[data-theme='dark'] .bg-white\/60 { background-color: rgb(20 26 27 / 0.6); }
+html[data-theme='dark'] .to-white { --tw-gradient-to: var(--color-paper); }
+html[data-theme='dark'] .border-white:not([class*='bg-']) { border-color: var(--color-line); }
+/* hover colours on those surfaces still show */
+html[data-theme='dark'] .hover\:bg-mist:hover { background-color: var(--color-mist); }
+
+/* Dark chips and overlays that use the ink colour as a background stay dark */
+html[data-theme='dark'] .bg-ink { background-color: #26302f; }
+html[data-theme='dark'] .bg-ink\/50 { background-color: rgb(0 0 0 / 0.55); }
+html[data-theme='dark'] .bg-ink\/60 { background-color: rgb(0 0 0 / 0.65); }
+
+/* Accent text: lighter versions of the brand colours (buttons with white text keep the solid colours) */
+html[data-theme='dark'] :is(.text-blue, .text-blue-deep, .focus\:text-blue:focus) { color: #9fb8f0; }
+html[data-theme='dark'] :is(.text-terracotta, .text-terracotta-dark, .group:hover .group-hover\:text-terracotta) { color: #f4a46b; }
+html[data-theme='dark'] .text-marigold-deep { color: #f6ae72; }
+html[data-theme='dark'] .text-tulsi { color: #6fd49b; }
+html[data-theme='dark'] :is(.text-kumkum, .hover\:text-kumkum:hover) { color: #ff8a93; }
+html[data-theme='dark'] .text-dusk { color: #b7c7f2; }
+/* ...but text sitting on a solid brand colour stays white */
+html[data-theme='dark'] :is(.bg-blue, .bg-terracotta, .bg-tulsi, .bg-kumkum, .bg-navy, .cg-band, .cg-dots) :is(.text-blue, .text-tulsi, .text-kumkum) { color: #fff; }
+
+/* Buttons from theme.css */
+html[data-theme='dark'] .cg-btn-white { background: #fff; color: #142b66; }
+html[data-theme='dark'] .cg-btn-line:hover { box-shadow: inset 0 0 0 1.5px var(--color-ink-soft); }
+
+/* Header and footer */
+html[data-theme='dark'] header.sticky { background-color: rgb(14 18 19 / 0.96); }
+html[data-theme='dark'] .cg-foot { background-color: #0f1f20; }
+
+/* Home hero cards: the black outline becomes a light one, so it still shows */
+html[data-theme='dark'] .cg-bento-card { --bento-outline: #e8eceb; }
+html[data-theme='dark'] .cg-bento-go { background: #0a0d0e; }
+
+/* The yatra page's tab bar and panels over the kumbh texture */
+html[data-theme='dark'] :is(.cg-yatra-theme, .cg-kumbh-theme) nav[role='tablist'],
+html[data-theme='dark'] :is(.cg-yatra-theme, .cg-kumbh-theme) .panel { background-color: rgb(20 26 27 / 0.95); }
+
+/* Photos: a touch dimmer so they don't glare against the dark page */
+html[data-theme='dark'] img:not([src^='data:']) { filter: brightness(0.94); }
+
+/* Maps: dark tiles (the markers and controls keep their colours) */
+html[data-theme='dark'] .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.9); }
+html[data-theme='dark'] .leaflet-container { background: #0f1415; }
+html[data-theme='dark'] :is(.leaflet-bar a, .leaflet-control-attribution, .leaflet-popup-content-wrapper, .leaflet-popup-tip) {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+/* Form controls the browser draws */
+html[data-theme='dark'] :is(input, select, textarea)::placeholder { color: var(--color-ink-faint); }
+
+/* QR codes are drawn black on white with their own margin (components/QrCode.jsx) and stay
+   that way: scanners read dark-on-light most reliably. */

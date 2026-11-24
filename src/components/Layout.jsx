@@ -9,6 +9,7 @@ import { SITE } from '../lib/site';
 import LiveToasts from './LiveToasts';
 import GuidedTour, { openTour } from './GuidedTour';
 import { LanguageSwitcherButton, applyBackgroundTranslation, useLang, useT } from '../lib/i18n';
+import { ThemeToggle } from '../lib/theme';
 import Avatar from './Avatar';
 
 /**
@@ -408,13 +409,12 @@ export default function Layout() {
             )}
           </div>
 
-          {/* Language switcher in the corner. Phones have it inside the menu instead,
-              so the logo, the switcher and the menu button never crowd past 360px */}
-          {(!user || user.role === 'USER') && (
-            <div className="ml-2 hidden flex-none items-center sm:flex">
-              <LanguageSwitcherButton />
-            </div>
-          )}
+          {/* Light / dark and language in the corner. Phones have them inside the menu instead,
+              so the logo, the switchers and the menu button never crowd past 360px */}
+          <div className="ml-2 hidden flex-none items-center gap-2 sm:flex">
+            <ThemeToggle />
+            {(!user || user.role === 'USER') && <LanguageSwitcherButton />}
+          </div>
 
           {/* Mobile menu button */}
           <button
@@ -467,11 +467,10 @@ export default function Layout() {
               ) : (
                 <NavLink to="/login" className={menuCls} onClick={close}>Log in or create account</NavLink>
               )}
-              {(!user || user.role === 'USER') && (
-                <div className="pt-2">
-                  <LanguageSwitcherButton className="w-full justify-center" />
-                </div>
-              )}
+              <div className="flex gap-2 pt-2">
+                <ThemeToggle withLabel className="flex-1" />
+                {(!user || user.role === 'USER') && <LanguageSwitcherButton className="flex-1 justify-center" />}
+              </div>
             </div>
           </nav>
         )}

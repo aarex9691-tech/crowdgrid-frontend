@@ -15,6 +15,7 @@
   --hx-ink: #111c3a;
   --hx-ink-soft: #454f69;
   --hx-line: #dde2ec;
+  --hx-paper: #ffffff;
   --hx-focus: #1f3f8f;         /* blue, same focus ring as the rest of the site */
   --hx-shadow: rgba(15, 26, 60, 0.45);
   --hx-display: var(--font-display, "Rozha One", "Mukta", Georgia, serif);
@@ -254,7 +255,7 @@
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
-.hx-front { background: #fff; }
+.hx-front { background: var(--hx-paper); }
 .hx-front svg { display: block; width: 100%; flex: 1 1 auto; min-height: 0; }
 .hx-tile-label { display: flex; flex-direction: column; padding: 10px 12px 12px; border-top: 3px solid var(--hx-brass); }
 .hx-tile-name { font-family: var(--hx-display); font-size: 1.25rem; line-height: 1.2; }
@@ -299,7 +300,7 @@
   overflow: hidden;
   border-radius: 16px;
   border: 1px solid var(--hx-line);
-  background: #fff;
+  background: var(--hx-paper);
   box-shadow: 0 26px 40px -26px var(--hx-shadow); /* depth cue for the 3D ring only */
   transform:
     translateX(calc(var(--d) * var(--w) * 0.78))
@@ -353,7 +354,7 @@
   height: 48px;
   border-radius: 50%;
   border: 1px solid var(--hx-line);
-  background: #fff;
+  background: var(--hx-paper);
   color: var(--hx-ink);
   cursor: pointer;
 }
