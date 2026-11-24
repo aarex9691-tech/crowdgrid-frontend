@@ -631,19 +631,9 @@ body:has(.cg-yatra-theme, .cg-kumbh-theme)::before {
 .cg-bento-lg .cg-bento-title { font-size: clamp(2.2rem, 4vw, 3.8rem); }
 .cg-bento-lg .cg-bento-text { padding: 1.4rem 1.6rem 1.5rem; }
 .cg-bento-line { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.98rem; font-weight: 600; color: rgb(255 255 255 / 0.92); }
-.cg-bento-go {
-  position: absolute; top: 0.85rem; right: 0.85rem;
-  display: grid; place-items: center;
-  width: 2.75rem; height: 2.75rem; flex: none; border-radius: 999px;
-  background: #111111; color: #fff;
-  box-shadow: 0 0 0 2px rgb(255 255 255 / 0.85);
-  transition: transform 260ms var(--ease-out);
-}
-.cg-bento-lg .cg-bento-go { top: 1.1rem; right: 1.1rem; width: 3.25rem; height: 3.25rem; }
 
 @media (hover: hover) and (pointer: fine) {
   .cg-bento-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-pop); }
-  .cg-bento-card:hover .cg-bento-go { transform: rotate(-45deg); }
   .cg-bento-card:hover img { transform: scale(1.04); }
 }
 .cg-bento-card:focus-visible { outline: 3px solid var(--cg-saffron); outline-offset: 3px; }
@@ -664,7 +654,7 @@ body:has(.cg-yatra-theme, .cg-kumbh-theme)::before {
   .cg-bento-lg { grid-column: 1; grid-row: 1 / span 2; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .cg-bento-card, .cg-bento-go, .cg-bento-card img { transition: none; }
+  .cg-bento-card, .cg-bento-card img { transition: none; }
   .cg-bento-card:hover, .cg-bento-card:hover img { transform: none; }
 }
 

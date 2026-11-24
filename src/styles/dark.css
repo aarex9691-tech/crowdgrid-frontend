@@ -96,7 +96,6 @@ html[data-theme='dark'] .cg-foot { background-color: #0f1f20; }
 
 /* Home hero cards: the black outline becomes a light one, so it still shows */
 html[data-theme='dark'] .cg-bento-card { --bento-outline: #e8eceb; }
-html[data-theme='dark'] .cg-bento-go { background: #0a0d0e; }
 
 /* The yatra page's tab bar and panels over the kumbh texture */
 html[data-theme='dark'] :is(.cg-yatra-theme, .cg-kumbh-theme) nav[role='tablist'],

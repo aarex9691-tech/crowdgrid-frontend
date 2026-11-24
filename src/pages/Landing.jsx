@@ -59,7 +59,6 @@ function BentoCard({ id, tab, dot, size, index }) {
         fetchPriority={index === 0 ? 'high' : 'auto'}
         style={{ objectPosition: focusPosition(m) }}
       />
-      <span className="cg-bento-go" aria-hidden><ArrowRight size={size === 'lg' ? 22 : 18} /></span>
       <span className="cg-bento-text">
         <span className="cg-bento-title">{t(`kind.${id}`)}</span>
         <span className="cg-bento-line"><span className="cg-dot shrink-0" style={{ background: dot }} />{t(`kind.${id}.line`)}</span>
