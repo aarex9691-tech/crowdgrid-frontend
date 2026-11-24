@@ -284,7 +284,7 @@ function Upcoming({ yatras, publicEvents, tab, setTab, sectionRef }) {
               tabIndex={on ? 0 : -1}
               onClick={() => setTab(tb)}
               className="flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 font-semibold transition-colors"
-              style={on ? { background: k.deep, color: '#fff' } : { background: '#fff', boxShadow: 'inset 0 0 0 1.5px #E7E1D7' }}
+              style={on ? { background: k.deep, color: '#fff' } : { background: 'var(--color-paper)', color: 'var(--color-ink)', boxShadow: 'inset 0 0 0 1.5px var(--color-line)' }}
             >
               {!on && <span className="cg-dot" style={{ background: k.color }} />}
               {kindName(tb)}
