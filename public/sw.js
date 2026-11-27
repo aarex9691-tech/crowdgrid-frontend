@@ -1,7 +1,7 @@
 // CrowdGrid service worker: keeps the app shell available offline so the
 // passbook (whose passes live in localStorage) opens without a network.
 const CACHE = 'crowdgrid-shell-v4'; // bump when shared assets change so phones drop old copies
-const SHELL = ['/', '/index.html', '/favicon.svg', '/manifest.webmanifest'];
+const SHELL = ['/', '/index.html', '/assets/favicon-32.png', '/manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));

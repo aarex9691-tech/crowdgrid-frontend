@@ -15,7 +15,8 @@
   --color-sand: #edf0f7;          /* neutral chips */
   --color-line: #dde2ec;          /* hairlines */
   --color-edge: #7f89a2;          /* input borders: 3:1 against white */
-  --color-navy: #0f1a3c;          /* footer, hero title cards */
+  --color-navy: #1b6a6b;          /* teal (was navy): footer, dotted bands, hero title cards */
+  --color-teal-mist: #d3ecea;     /* secondary text on the teal surfaces */
 
   --color-terracotta: #b4530f;    /* deep saffron: actions and links */
   --color-terracotta-dark: #8a3f0b;
@@ -109,14 +110,14 @@ body::before {
 @utility btn-primary { @apply btn bg-terracotta text-white hover:bg-terracotta-dark; }
 @utility btn-brass { @apply btn bg-blue text-white hover:bg-blue-deep; }
 @utility btn-ink { @apply btn bg-blue text-white hover:bg-blue-deep; }
-@utility btn-ghost { @apply btn border-[1.5px] border-edge bg-white text-ink hover:border-ink-faint hover:bg-mist disabled:border-edge disabled:bg-white disabled:text-ink-soft; }
+@utility btn-ghost { @apply btn border-[1.5px] border-edge bg-paper text-ink hover:border-ink-faint hover:bg-mist disabled:border-edge disabled:bg-paper disabled:text-ink-soft; }
 @utility btn-sos { @apply btn bg-kumkum text-white hover:bg-[#9e1f1f]; }
 
-@utility panel { @apply rounded-2xl border border-line bg-white; }
+@utility panel { @apply rounded-2xl border border-line bg-paper; }
 
 @utility field-label { @apply mb-1.5 block text-sm font-semibold text-ink; }
 @utility field {
-  @apply min-h-12 w-full rounded-xl border-[1.5px] border-edge bg-white px-4 text-ink outline-none placeholder:text-ink-faint focus:border-blue;
+  @apply min-h-12 w-full rounded-xl border-[1.5px] border-edge bg-paper px-4 text-ink outline-none placeholder:text-ink-faint focus:border-blue;
 }
 
 @utility pill { @apply inline-flex items-center gap-1 rounded-full px-3 py-0.5 text-xs sm:text-sm font-semibold; }
