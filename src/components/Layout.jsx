@@ -1,5 +1,5 @@
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { BarChart3, Briefcase, CalendarHeart, ChefHat, PanelLeftClose, PanelLeftOpen, CalendarPlus, Globe, HandHeart, Inbox, KeyRound, LogOut, Menu, MessageCircle, ScanLine, Search, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
+import { BarChart3, Briefcase, CalendarHeart, ChefHat, PanelLeftClose, PanelLeftOpen, CalendarPlus, Globe, HandHeart, Inbox, KeyRound, LogOut, Menu, MessageCircle, ScanLine, ShieldCheck, ShoppingCart, Tent, Ticket, UserRound, X } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { ROLE_LABELS, useAuth } from '../lib/auth';
 import { useCart } from '../lib/cart';
@@ -10,6 +10,7 @@ import LiveToasts from './LiveToasts';
 import GuidedTour, { openTour } from './GuidedTour';
 import { LanguageSwitcherButton, applyBackgroundTranslation, useLang, useT } from '../lib/i18n';
 import Avatar from './Avatar';
+import SearchSuggest from './SearchSuggest';
 
 /**
  * Each role gets its own navigation. Pilgrims and visitors get the top bar (booking, passbook, cart).
@@ -221,21 +222,11 @@ export default function Layout() {
   const t = useT();
   const nav = navFor(user?.role, t);
   const close = () => setMenuOpen(false);
-  const [navQuery, setNavQuery] = useState('');
   const { pathname } = useLocation();
 
   useEffect(() => {
     applyBackgroundTranslation(lang);
   }, [pathname, lang]);
-
-  const handleNavSearch = (e) => {
-    e.preventDefault();
-    if (navQuery.trim()) {
-      navigate(`/events?q=${encodeURIComponent(navQuery.trim())}`);
-      setNavQuery('');
-      setMenuOpen(false);
-    }
-  };
 
   // Staff and hosts work from the sidebar; the top bar keeps only the logo and the account
   const workspace = Boolean(nav.workspace);
@@ -344,27 +335,7 @@ export default function Layout() {
           </Link>
 
           {/* Event search */}
-          {showSearch && <form
-            onSubmit={handleNavSearch}
-            className="hidden xl:flex flex-1 max-w-sm items-center rounded-full border border-line bg-mist py-1 pr-1 pl-3.5 text-sm transition-[border-color,background-color] focus-within:border-blue focus-within:bg-white"
-          >
-            <Search size={16} className="text-ink-soft shrink-0" />
-            <input
-              type="text"
-              placeholder={t("nav.searchPlaceholder")}
-              value={navQuery}
-              onChange={(e) => setNavQuery(e.target.value)}
-              aria-label="Search events"
-              className="h-9 w-full bg-transparent px-2.5 text-sm text-ink outline-none placeholder:text-ink-soft"
-            />
-            <button
-              type="submit"
-              aria-label="Search"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue text-white hover:bg-blue-deep"
-            >
-              <Search size={13} strokeWidth={2.5} />
-            </button>
-          </form>}
+          {showSearch && <SearchSuggest />}
 
           {/* Desktop navigation (staff and hosts: in the sidebar instead) */}
           {workspace ? (
@@ -434,18 +405,7 @@ export default function Layout() {
           <nav id="mobile-menu" aria-label="Main" className={`cg-menu max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-line bg-white ${hideDesk}`}>
             <div className="mx-auto w-full max-w-[var(--page-max)] space-y-1 px-4 py-3 sm:px-6">
               {/* Mobile Search Bar */}
-              {showSearch && <form onSubmit={handleNavSearch} className="mb-3 flex items-center rounded-xl border-[1.5px] border-edge bg-white py-1.5 pr-1.5 pl-3 text-sm focus-within:border-blue">
-                <Search size={18} className="text-ink-soft mr-2 shrink-0" />
-                <input
-                  type="text"
-                  placeholder={t("nav.searchPlaceholder")}
-                  aria-label="Search events"
-                  value={navQuery}
-                  onChange={(e) => setNavQuery(e.target.value)}
-                  className="bg-transparent text-ink placeholder:text-ink-faint outline-none w-full text-base"
-                />
-                <button type="submit" className="flex min-h-11 shrink-0 items-center rounded-lg bg-blue px-3.5 text-sm font-bold text-white">{t("nav.search")}</button>
-              </form>}
+              {showSearch && <SearchSuggest variant="menu" onDone={close} />}
               {workspace ? (
                 <SideNav groups={nav.groups} onPick={close} large />
               ) : (

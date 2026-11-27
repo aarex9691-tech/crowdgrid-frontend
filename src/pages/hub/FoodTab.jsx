@@ -58,7 +58,7 @@ export default function FoodTab({ event }) {
           setError('');
         }
       })
-      .catch((e) => {
+      .catch(() => {
         // Keep fallback food centers if backend is asleep
       });
   }, [event._id, date, sector]);
