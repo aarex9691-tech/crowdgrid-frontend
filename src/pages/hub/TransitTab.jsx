@@ -74,7 +74,7 @@ export default function TransitTab({ event }) {
           setError('');
         }
       })
-      .catch((e) => {
+      .catch(() => {
         // Keep fallback routes if offline/starting up
       });
     return () => {

@@ -319,7 +319,7 @@ export default function LodgingTab({ event }) {
           setError('');
         }
       })
-      .catch((e) => {
+      .catch(() => {
         // Keep fallback lodgings if offline/starting up
       });
   }, [event._id, filters]);
