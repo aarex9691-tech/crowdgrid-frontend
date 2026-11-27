@@ -104,7 +104,7 @@ export default function SearchSuggest({ variant = 'pill', onDone }) {
 
   const pill = variant === 'pill';
   const form = pill
-    ? 'flex items-center rounded-full border border-line bg-mist py-1 pr-1 pl-3.5 text-sm transition-[border-color,background-color] focus-within:border-blue focus-within:bg-white'
+    ? 'flex items-center rounded-full border border-line bg-mist py-1 pr-1 pl-3.5 text-sm transition-[border-color,background-color] focus-within:border-navy focus-within:bg-white'
     : 'flex items-center rounded-xl border-[1.5px] border-edge bg-white py-1.5 pr-1.5 pl-3 text-sm focus-within:border-blue';
   const list = pill
     ? 'absolute left-0 top-full z-50 mt-2 w-[min(26rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-line bg-white shadow-xl'
@@ -147,11 +147,11 @@ export default function SearchSuggest({ variant = 'pill', onDone }) {
           className={pill ? 'h-9 w-full bg-transparent px-2.5 text-sm text-ink outline-none placeholder:text-ink-soft' : 'w-full bg-transparent text-base text-ink outline-none placeholder:text-ink-faint'}
         />
         {pill ? (
-          <button type="submit" aria-label={t('nav.search')} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue text-white hover:bg-blue-deep">
+          <button type="submit" aria-label={t('nav.search')} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-navy text-white hover:bg-[#14504f]">
             <Search size={13} strokeWidth={2.5} aria-hidden />
           </button>
         ) : (
-          <button type="submit" className="flex min-h-11 shrink-0 items-center rounded-lg bg-blue px-3.5 text-sm font-bold text-white">{t('nav.search')}</button>
+          <button type="submit" className="flex min-h-11 shrink-0 items-center rounded-lg bg-navy px-3.5 text-sm font-bold text-white hover:bg-[#14504f]">{t('nav.search')}</button>
         )}
       </form>
 

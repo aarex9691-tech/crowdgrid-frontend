@@ -22,9 +22,8 @@ import { useT } from '../lib/i18n';
 import { fmtDate } from '../lib/format';
 import { InvitationCodeBox, PublicEventList } from '../components/EventCards';
 import { DEFAULT_EVENTS } from '../data/defaultEvents';
-import { LANDING_MEDIA } from '../data/landingMedia';
+import { focusPosition, LANDING_MEDIA, srcSetOf } from '../data/landingMedia';
 import { openTour } from '../components/GuidedTour';
-import GatheringGallery from '../components/GatheringGallery';
 import BigDays from '../components/BigDays';
 import YatraRing from '../components/heritage/YatraRing';
 
@@ -38,25 +37,66 @@ const KINDS = [
   { id: 'corporate', tab: 'corporate', color: '#138A43', deep: '#0D6331' },
 ];
 const KIND_BY_TAB = Object.fromEntries(KINDS.map((k) => [k.tab, k]));
-function Hero({ onInvite }) {
+const BENTO = [
+  { id: 'pilgrimage', tab: 'yatras', dot: '#E36F1E', size: 'lg' },
+  { id: 'public', tab: 'public', dot: '#6F9BE8', size: 'sm' },
+  { id: 'corporate', tab: 'corporate', dot: '#3DBE73', size: 'sm' },
+];
+
+/* One gathering card: the photo fills the whole box, the name sits on the photo. */
+function BentoCard({ id, tab, dot, size, index }) {
+  const t = useT();
+  const m = LANDING_MEDIA[id];
+  return (
+    <Link to={`/events?tab=${tab}`} className={`cg-bento-card cg-bento-${size} cg-rise cg-rise-${index + 1}`}>
+      <img
+        src={m.src}
+        srcSet={srcSetOf(m)}
+        sizes={size === 'lg' ? '(min-width: 1024px) 62vw, 100vw' : '(min-width: 1024px) 36vw, 50vw'}
+        alt=""
+        decoding="async"
+        loading={index === 0 ? 'eager' : 'lazy'}
+        fetchPriority={index === 0 ? 'high' : 'auto'}
+        style={{ objectPosition: focusPosition(m) }}
+      />
+      <span className="cg-bento-text">
+        <span className="cg-bento-title">{t(`kind.${id}`)}</span>
+        <span className="cg-bento-line"><span className="cg-dot shrink-0" style={{ background: dot }} />{t(`kind.${id}.line`)}</span>
+      </span>
+    </Link>
+  );
+}
+
+/*
+ * Home hero, bento layout: the headline, then one large pilgrimage card on the left and two
+ * equal cards (public, corporate) stacked on the right. From 1024px the whole hero is exactly
+ * one screen tall, so all three cards show without scrolling.
+ */
+function Hero() {
   const t = useT();
   return (
-    <section className="cg-shell grid items-center gap-6 py-3 sm:py-5 lg:min-h-[calc(100dvh-4.5rem)] lg:max-h-[820px] lg:grid-cols-[minmax(0,30rem)_minmax(0,34rem)] min-[1600px]:grid-cols-[minmax(0,32rem)_minmax(0,42rem)] lg:justify-center lg:gap-14 xl:gap-24">
-      <div className="cg-rise py-1">
-        <h1 className="cg-h1 font-bold tracking-tight text-ink">{t('home.title1')}<br />{t('home.title2')}</h1>
-        <p className="mt-3.5 sm:mt-4 max-w-md text-base sm:text-lg text-ink-soft leading-relaxed">{t('home.lead')}</p>
-        <div className="mt-5 sm:mt-6 flex flex-wrap gap-3">
-          <Link to="/events" className="cg-btn cg-btn-saffron">
-            {t('home.find')} <ArrowRight size={18} aria-hidden />
-          </Link>
-          <button type="button" className="cg-btn cg-btn-line" onClick={onInvite}>
-            <KeyRound size={18} aria-hidden /> {t('home.haveCode')}
-          </button>
-        </div>
-      </div>
+    <section className="cg-shell cg-bento">
+      <h1 className="cg-bento-h1 cg-rise font-bold tracking-tight">{t('home.title1')} {t('home.title2')}</h1>
+      <nav aria-label={t('home.chooseKind')} className="cg-bento-grid">
+        {BENTO.map((card, i) => <BentoCard key={card.id} {...card} index={i} />)}
+      </nav>
+    </section>
+  );
+}
 
-      <div className="flex justify-start lg:justify-end">
-        <GatheringGallery linked label={t('home.chooseKind')} />
+/* What CrowdGrid is, and the two ways in: right after the hero, one scroll down. */
+function Intro({ onInvite }) {
+  const t = useT();
+  return (
+    <section className="cg-shell cg-home-intro">
+      <p className="max-w-2xl text-lg text-ink-soft leading-relaxed">{t('home.lead')}</p>
+      <div className="flex flex-wrap gap-3">
+        <Link to="/events" className="cg-btn cg-btn-saffron">
+          {t('home.find')} <ArrowRight size={18} aria-hidden />
+        </Link>
+        <button type="button" className="cg-btn cg-btn-line" onClick={onInvite}>
+          <KeyRound size={18} aria-hidden /> {t('home.haveCode')}
+        </button>
       </div>
     </section>
   );
@@ -243,7 +283,7 @@ function Upcoming({ yatras, publicEvents, tab, setTab, sectionRef }) {
               tabIndex={on ? 0 : -1}
               onClick={() => setTab(tb)}
               className="flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 font-semibold transition-colors"
-              style={on ? { background: k.deep, color: '#fff' } : { background: '#fff', boxShadow: 'inset 0 0 0 1.5px #E7E1D7' }}
+              style={on ? { background: k.deep, color: '#fff' } : { background: 'var(--color-paper)', color: 'var(--color-ink)', boxShadow: 'inset 0 0 0 1.5px var(--color-line)' }}
             >
               {!on && <span className="cg-dot" style={{ background: k.color }} />}
               {kindName(tb)}
@@ -285,7 +325,7 @@ function ForEveryone() {
         </div>
         <ul className="grid gap-3 sm:grid-cols-3">
           {ACCESS.map((a) => (
-            <li key={a.id} className="flex items-center gap-3 rounded-2xl bg-blue-deep px-4 py-4 font-semibold">
+            <li key={a.id} className="flex items-center gap-3 rounded-2xl bg-[#14504f] px-4 ring-1 ring-white/10 py-4 font-semibold">
               <a.icon size={22} className="shrink-0 text-saffron-light" aria-hidden /> {t(`access.${a.id}`)}
             </li>
           ))}
@@ -374,7 +414,8 @@ export default function Landing() {
         </div>
       )}
 
-      <Hero onInvite={openInvite} />
+      <Hero />
+      <Intro onInvite={openInvite} />
       <NextUp yatras={yatras} onInvite={openInvite} />
       <Services />
       <HowItWorks />

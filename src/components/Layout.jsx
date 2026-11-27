@@ -9,6 +9,7 @@ import { SITE } from '../lib/site';
 import LiveToasts from './LiveToasts';
 import GuidedTour, { openTour } from './GuidedTour';
 import { LanguageSwitcherButton, applyBackgroundTranslation, useLang, useT } from '../lib/i18n';
+import { ThemeToggle } from '../lib/theme';
 import Avatar from './Avatar';
 import SearchSuggest from './SearchSuggest';
 
@@ -325,13 +326,13 @@ export default function Layout() {
             }}
           >
             <img
-              src="/assets/crowdgrid-logo.png"
+              src="/assets/crowdgrid-wordmark.png"
+              data-logo
               alt="CrowdGrid"
-              className="h-10 w-10 rounded-xl border border-line bg-white object-contain"
+              width="800"
+              height="349"
+              className="h-11 w-auto transition-opacity group-hover:opacity-80"
             />
-            <span className="font-display text-2xl leading-none text-ink transition-colors group-hover:text-blue">
-              CrowdGrid
-            </span>
           </Link>
 
           {/* Event search */}
@@ -380,13 +381,12 @@ export default function Layout() {
             )}
           </div>
 
-          {/* Language switcher in the corner. Phones have it inside the menu instead,
-              so the logo, the switcher and the menu button never crowd past 360px */}
-          {(!user || user.role === 'USER') && (
-            <div className="ml-2 hidden flex-none items-center sm:flex">
-              <LanguageSwitcherButton />
-            </div>
-          )}
+          {/* Light / dark and language in the corner. Phones have them inside the menu instead,
+              so the logo, the switchers and the menu button never crowd past 360px */}
+          <div className="ml-2 hidden flex-none items-center gap-2 sm:flex">
+            <ThemeToggle />
+            {(!user || user.role === 'USER') && <LanguageSwitcherButton />}
+          </div>
 
           {/* Mobile menu button */}
           <button
@@ -428,11 +428,10 @@ export default function Layout() {
               ) : (
                 <NavLink to="/login" className={menuCls} onClick={close}>Log in or create account</NavLink>
               )}
-              {(!user || user.role === 'USER') && (
-                <div className="pt-2">
-                  <LanguageSwitcherButton className="w-full justify-center" />
-                </div>
-              )}
+              <div className="flex gap-2 pt-2">
+                <ThemeToggle withLabel className="flex-1" />
+                {(!user || user.role === 'USER') && <LanguageSwitcherButton className="flex-1 justify-center" />}
+              </div>
             </div>
           </nav>
         )}
@@ -475,7 +474,7 @@ export default function Layout() {
         <MessageCircle size={28} aria-hidden />
       </a>
 
-      <footer className="cg-foot bg-navy text-blue-mist">
+      <footer className="cg-foot bg-navy text-teal-mist">
         <div className="shell grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
             <Link
@@ -484,8 +483,7 @@ export default function Layout() {
               className="inline-flex min-h-11 items-center gap-2.5"
               aria-label="CrowdGrid home"
             >
-              <img src="/assets/crowdgrid-logo.png" alt="CrowdGrid" className="h-9 w-9 rounded-lg bg-white object-contain" />
-              <span className="font-display text-2xl text-white">CrowdGrid</span>
+              <img src="/assets/crowdgrid-wordmark-light.png" alt="CrowdGrid" width="800" height="349" className="h-12 w-auto" />
             </Link>
             <p className="mt-3 max-w-xs text-sm">
               {SITE.tagline}. Passes, stays, food, transport and SOS for pilgrimages, public events and company gatherings.

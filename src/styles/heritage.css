@@ -5,8 +5,8 @@
  */
 :root {
   /* Mapped onto the style lock (src/index.css): navy frame, saffron accents, white cards. */
-  --hx-maroon: #142b66;        /* blue-deep */
-  --hx-maroon-deep: #0f1a3c;   /* navy */
+  --hx-maroon: #14504f;        /* deep teal */
+  --hx-maroon-deep: #1b6a6b;   /* teal */
   --hx-gerua: #b4530f;         /* terracotta: actions */
   --hx-brass: #e36f1e;         /* marigold: marks only */
   --hx-brass-light: #ffd9b8;   /* saffron-light: text on navy */
@@ -15,6 +15,7 @@
   --hx-ink: #111c3a;
   --hx-ink-soft: #454f69;
   --hx-line: #dde2ec;
+  --hx-paper: #ffffff;
   --hx-focus: #1f3f8f;         /* blue, same focus ring as the rest of the site */
   --hx-shadow: rgba(15, 26, 60, 0.45);
   --hx-display: var(--font-display, "Rozha One", "Mukta", Georgia, serif);
@@ -204,7 +205,7 @@
 
 /* ───────────────────────── 2. Crafts of India: 3D flip tiles ───────────────────────── */
 .hx-title { font-family: var(--hx-display); font-size: clamp(1.6rem, 3.6vw, 2.4rem); line-height: 1.2; color: var(--hx-ink); margin: 0; }
-.hx-lede { margin: 6px 0 0; max-width: 62ch; color: var(--hx-ink-soft); }
+.hx-lede { margin: 6px 0 0; max-width: none; color: var(--hx-ink-soft); }
 .hx-crafts-grid {
   list-style: none;
   margin: 20px 0 0;
@@ -254,7 +255,7 @@
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
-.hx-front { background: #fff; }
+.hx-front { background: var(--hx-paper); }
 .hx-front svg { display: block; width: 100%; flex: 1 1 auto; min-height: 0; }
 .hx-tile-label { display: flex; flex-direction: column; padding: 10px 12px 12px; border-top: 3px solid var(--hx-brass); }
 .hx-tile-name { font-family: var(--hx-display); font-size: 1.25rem; line-height: 1.2; }
@@ -299,7 +300,7 @@
   overflow: hidden;
   border-radius: 16px;
   border: 1px solid var(--hx-line);
-  background: #fff;
+  background: var(--hx-paper);
   box-shadow: 0 26px 40px -26px var(--hx-shadow); /* depth cue for the 3D ring only */
   transform:
     translateX(calc(var(--d) * var(--w) * 0.78))
@@ -353,7 +354,7 @@
   height: 48px;
   border-radius: 50%;
   border: 1px solid var(--hx-line);
-  background: #fff;
+  background: var(--hx-paper);
   color: var(--hx-ink);
   cursor: pointer;
 }
